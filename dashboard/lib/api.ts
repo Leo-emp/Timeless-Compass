@@ -1,6 +1,6 @@
 // ============================================================
-// API CLIENT — Calls the FastAPI backend via Next.js proxy
-// All /api/* requests are proxied to localhost:8000 via next.config.ts
+// API CLIENT — Calls Next.js API routes (GitHub Actions backend)
+// Production-ready: no local Python server needed
 // ============================================================
 
 const BASE = "";
@@ -27,138 +27,47 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 // TYPES
 // ============================================================
 
-export interface Stats {
-  total_videos: number;
-  total_uploaded: number;
-  active_jobs: number;
-  active_schedules: number;
-  total_duration_minutes: number;
-  total_size_gb: number;
-  api_keys: {
-    gemini: boolean;
-    elevenlabs: boolean;
-    pexels: boolean;
-    pixabay: boolean;
-    youtube: boolean;
-  };
-}
-
-export interface Job {
-  id: string;
-  topic: string | null;
-  format: string;
-  quality: string;
-  status: "queued" | "running" | "completed" | "failed";
+// --- GitHub Actions run status ---
+export interface RunStatus {
+  id: number;
+  status: string;
+  conclusion: string | null;
   progress: number;
-  progress_message: string;
-  created_at: number;
-  started_at: number | null;
-  completed_at: number | null;
-  error: string | null;
-  video_id: string | null;
+  steps: Array<{ name: string; status: string; conclusion: string | null }>;
+  created_at: string;
+  updated_at: string;
+  html_url: string;
 }
 
-export interface Video {
-  id: string;
-  job_id: string;
-  title: string;
-  description: string;
-  tags: string[];
-  output_path: string;
-  file_size_mb: number;
-  duration_seconds: number;
-  format: string;
-  quality: string;
-  youtube_url: string | null;
-  youtube_status: string;
-  created_at: number;
-  uploaded_at: number | null;
-}
-
-export interface Schedule {
-  id: string;
-  name: string;
-  frequency: string;
-  days_of_week: string;
-  time_of_day: string;
-  format: string;
-  quality: string;
-  topic_mode: string;
-  auto_upload: number;
-  enabled: number;
-  last_run: number | null;
-  next_run: number | null;
-  created_at: number;
+export interface RecentRun {
+  id: number;
+  status: string;
+  conclusion: string | null;
+  created_at: string;
+  html_url: string;
 }
 
 // ============================================================
 // API FUNCTIONS
 // ============================================================
 
-// --- Stats ---
-export const getStats = () => request<Stats>("/api/stats");
-
-// --- Jobs ---
+// --- Trigger generation via GitHub Actions ---
 export const startGeneration = (data: {
   topic?: string;
   format?: string;
   quality?: string;
-}) => request<{ job_id: string }>("/api/generate", {
+}) => request<{ dispatched: boolean; run_id: number | null; status: string; html_url: string | null }>("/api/generate", {
   method: "POST",
   body: JSON.stringify(data),
 });
 
-export const listJobs = (limit = 20) =>
-  request<Job[]>(`/api/jobs?limit=${limit}`);
+// --- Poll a specific run's status ---
+export const getRunStatus = (runId: number) =>
+  request<RunStatus>(`/api/generate?run_id=${runId}`);
 
-export const getJob = (id: string) =>
-  request<Job>(`/api/jobs/${id}`);
-
-// --- Videos ---
-export const listVideos = (limit = 50) =>
-  request<Video[]>(`/api/videos?limit=${limit}`);
-
-export const getVideo = (id: string) =>
-  request<Video>(`/api/videos/${id}`);
-
-export const deleteVideo = (id: string) =>
-  request<{ deleted: boolean }>(`/api/videos/${id}`, { method: "DELETE" });
-
-// --- YouTube ---
-export const getYoutubeStatus = () =>
-  request<{ authenticated: boolean; client_id_set: boolean }>("/api/youtube/status");
-
-export const getYoutubeAuthUrl = () =>
-  request<{ url: string }>("/api/youtube/auth-url");
-
-export const uploadToYoutube = (videoId: string) =>
-  request<{ status: string }>(`/api/youtube/upload/${videoId}`, { method: "POST" });
-
-// --- Schedules ---
-export const listSchedules = () =>
-  request<Schedule[]>("/api/schedules");
-
-export const createSchedule = (data: {
-  name: string;
-  frequency?: string;
-  days_of_week?: string;
-  time_of_day?: string;
-  format?: string;
-  quality?: string;
-  auto_upload?: boolean;
-}) => request<{ schedule_id: string }>("/api/schedules", {
-  method: "POST",
-  body: JSON.stringify(data),
-});
-
-export const updateSchedule = (id: string, data: Record<string, unknown>) =>
-  request<Schedule>(`/api/schedules/${id}`, {
-    method: "PATCH",
-    body: JSON.stringify(data),
-  });
-
-export const deleteSchedule = (id: string) =>
-  request<{ deleted: boolean }>(`/api/schedules/${id}`, { method: "DELETE" });
+// --- Get recent pipeline runs ---
+export const getRecentRuns = () =>
+  request<{ runs: RecentRun[] }>("/api/generate");
 
 // --- Helpers ---
 export function formatDuration(seconds: number): string {
@@ -167,8 +76,9 @@ export function formatDuration(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
-export function formatDate(timestamp: number): string {
-  return new Date(timestamp * 1000).toLocaleDateString("en-US", {
+export function formatDate(timestamp: number | string): string {
+  const date = typeof timestamp === "string" ? new Date(timestamp) : new Date(timestamp * 1000);
+  return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     hour: "2-digit",
@@ -176,8 +86,9 @@ export function formatDate(timestamp: number): string {
   });
 }
 
-export function formatRelative(timestamp: number): string {
-  const diff = Date.now() / 1000 - timestamp;
+export function formatRelative(timestamp: number | string): string {
+  const ms = typeof timestamp === "string" ? new Date(timestamp).getTime() : timestamp * 1000;
+  const diff = (Date.now() - ms) / 1000;
   if (diff < 60) return "just now";
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;

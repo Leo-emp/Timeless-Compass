@@ -1,40 +1,64 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { startGeneration, getJob, formatDuration } from "@/lib/api";
-import type { Job } from "@/lib/api";
+import { startGeneration, getRunStatus, getRecentRuns, formatRelative } from "@/lib/api";
+import type { RunStatus, RecentRun } from "@/lib/api";
 
 // ============================================================
-// GENERATE PAGE — Manual video generation with live progress
+// GENERATE PAGE — Trigger pipeline via GitHub Actions
 // ============================================================
+
+const TOPIC_HINTS = [
+  "The Fall of the Roman Empire",
+  "How the Silk Road Changed the World",
+  "The Real Story of Cleopatra",
+  "Why Empires Collapse: Patterns in History",
+  "The Industrial Revolution's Hidden Cost",
+];
 
 export default function GeneratePage() {
   const [topic, setTopic] = useState("");
   const [format, setFormat] = useState("long");
   const [quality, setQuality] = useState("1080p");
   const [generating, setGenerating] = useState(false);
-  const [currentJob, setCurrentJob] = useState<Job | null>(null);
+  const [currentRun, setCurrentRun] = useState<RunStatus | null>(null);
+  const [recentRuns, setRecentRuns] = useState<RecentRun[]>([]);
   const [error, setError] = useState("");
+  const [hint] = useState(() => TOPIC_HINTS[Math.floor(Math.random() * TOPIC_HINTS.length)]);
 
-  // --- Poll for job progress while generating ---
+  // --- Load recent runs on mount ---
   useEffect(() => {
-    if (!currentJob || currentJob.status === "completed" || currentJob.status === "failed") return;
+    loadRecentRuns();
+  }, []);
+
+  // --- Poll current run status while active ---
+  useEffect(() => {
+    if (!currentRun || currentRun.status === "completed") return;
 
     const interval = setInterval(async () => {
       try {
-        const updated = await getJob(currentJob.id);
-        setCurrentJob(updated);
-
-        if (updated.status === "completed" || updated.status === "failed") {
+        const updated = await getRunStatus(currentRun.id);
+        setCurrentRun(updated);
+        if (updated.status === "completed") {
           setGenerating(false);
+          loadRecentRuns();
         }
       } catch {
-        // --- API might be busy, keep polling ---
+        // --- Keep polling on network errors ---
       }
-    }, 3000);
+    }, 5000);
 
     return () => clearInterval(interval);
-  }, [currentJob]);
+  }, [currentRun]);
+
+  async function loadRecentRuns() {
+    try {
+      const data = await getRecentRuns();
+      setRecentRuns(data.runs ?? []);
+    } catch {
+      // --- GITHUB_TOKEN might not be set yet ---
+    }
+  }
 
   async function handleGenerate() {
     setError("");
@@ -47,9 +71,22 @@ export default function GeneratePage() {
         quality,
       });
 
-      // --- Start polling the job ---
-      const job = await getJob(result.job_id);
-      setCurrentJob(job);
+      if (result.run_id) {
+        setCurrentRun({
+          id: result.run_id,
+          status: result.status ?? "queued",
+          conclusion: null,
+          progress: 0,
+          steps: [],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          html_url: result.html_url ?? "",
+        });
+      } else {
+        // --- Dispatched but couldn't get run ID ---
+        setGenerating(false);
+        loadRecentRuns();
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Generation failed");
       setGenerating(false);
@@ -57,9 +94,17 @@ export default function GeneratePage() {
   }
 
   function handleReset() {
-    setCurrentJob(null);
+    setCurrentRun(null);
     setTopic("");
     setError("");
+  }
+
+  function conclusionBadge(conclusion: string | null, status?: string) {
+    if (conclusion === "success") return { bg: "var(--color-success)", label: "Success" };
+    if (conclusion === "failure") return { bg: "var(--color-error)", label: "Failed" };
+    if (conclusion === "cancelled") return { bg: "var(--color-text-muted)", label: "Cancelled" };
+    if (status === "in_progress" || status === "queued") return { bg: "var(--color-accent)", label: "Running" };
+    return { bg: "var(--color-text-muted)", label: status ?? "Unknown" };
   }
 
   return (
@@ -68,12 +113,12 @@ export default function GeneratePage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-1">Generate Video</h1>
         <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
-          Create a new history documentary
+          Trigger the documentary pipeline via GitHub Actions
         </p>
       </div>
 
       {/* --- Generation form --- */}
-      {!currentJob && (
+      {!currentRun && (
         <div className="card">
           {/* --- Topic input --- */}
           <div className="mb-5">
@@ -84,7 +129,7 @@ export default function GeneratePage() {
               type="text"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              placeholder="Leave empty for AI to pick (e.g. The Fall of Rome)"
+              placeholder={hint}
               className="w-full"
             />
             <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
@@ -153,7 +198,7 @@ export default function GeneratePage() {
               Estimated cost
             </span>
             <span className="text-sm font-bold" style={{ color: "var(--color-accent)" }}>
-              ~$0.52
+              ~${format === "long" ? "1.00" : format === "mid" ? "0.75" : "0.30"}
             </span>
           </div>
 
@@ -173,102 +218,131 @@ export default function GeneratePage() {
             disabled={generating}
             className="btn btn-primary w-full justify-center text-base"
           >
-            {generating ? "Starting..." : "Generate Documentary"}
+            {generating ? "Dispatching..." : "Generate Documentary"}
           </button>
         </div>
       )}
 
-      {/* --- Job progress --- */}
-      {currentJob && (
+      {/* --- Active run progress --- */}
+      {currentRun && (
         <div className="card">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold" style={{ color: "var(--color-text-secondary)" }}>
-              {currentJob.status === "completed" ? "GENERATION COMPLETE" :
-               currentJob.status === "failed" ? "GENERATION FAILED" :
-               "GENERATING..."}
+              {currentRun.status === "completed"
+                ? currentRun.conclusion === "success" ? "GENERATION COMPLETE" : "GENERATION FAILED"
+                : "GENERATING..."}
             </h3>
             <span
-              className={`badge ${
-                currentJob.status === "completed" ? "badge-success" :
-                currentJob.status === "failed" ? "badge-error" :
-                "badge-warning"
-              }`}
+              className="badge"
+              style={{
+                background: `${conclusionBadge(currentRun.conclusion, currentRun.status).bg}20`,
+                color: conclusionBadge(currentRun.conclusion, currentRun.status).bg,
+              }}
             >
-              {currentJob.status}
+              {conclusionBadge(currentRun.conclusion, currentRun.status).label}
             </span>
           </div>
-
-          {/* --- Topic --- */}
-          <p className="text-lg font-bold mb-4">
-            {currentJob.topic || "AI-selected topic"}
-          </p>
 
           {/* --- Progress bar --- */}
           <div className="mb-2">
             <div className="flex justify-between text-xs mb-1">
               <span style={{ color: "var(--color-text-muted)" }}>Progress</span>
-              <span style={{ color: "var(--color-accent)" }}>{currentJob.progress}%</span>
+              <span style={{ color: "var(--color-accent)" }}>{currentRun.progress}%</span>
             </div>
             <div className="progress-track">
-              <div className="progress-fill" style={{ width: `${currentJob.progress}%` }} />
+              <div
+                className="progress-fill"
+                style={{
+                  width: `${currentRun.progress}%`,
+                  background: currentRun.conclusion === "failure" ? "var(--color-error)" : undefined,
+                }}
+              />
             </div>
           </div>
 
-          <p className="text-xs mb-6" style={{ color: "var(--color-text-muted)" }}>
-            {currentJob.progress_message}
-          </p>
-
           {/* --- Pipeline steps --- */}
-          <div className="flex flex-col gap-2 mb-6">
-            {[
-              { step: "Script Generation", threshold: 10 },
-              { step: "Stock Footage Download", threshold: 30 },
-              { step: "Voiceover (ElevenLabs)", threshold: 50 },
-              { step: "Video Assembly", threshold: 70 },
-              { step: "Final Output", threshold: 95 },
-            ].map((s) => (
-              <div key={s.step} className="flex items-center gap-3">
-                <div
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-[10px]"
-                  style={{
-                    background: currentJob.progress >= s.threshold
-                      ? "var(--color-accent)"
-                      : "var(--color-surface-2)",
-                    color: currentJob.progress >= s.threshold ? "#0C0A08" : "var(--color-text-muted)",
-                  }}
-                >
-                  {currentJob.progress >= s.threshold ? "✓" : ""}
+          {currentRun.steps.length > 0 && (
+            <div className="flex flex-col gap-2 mt-4 mb-6">
+              {currentRun.steps.map((step, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div
+                    className="w-5 h-5 rounded-full flex items-center justify-center text-[10px]"
+                    style={{
+                      background: step.status === "completed"
+                        ? (step.conclusion === "success" ? "var(--color-success)" : "var(--color-error)")
+                        : step.status === "in_progress" ? "var(--color-accent)"
+                        : "var(--color-surface-2)",
+                      color: step.status !== "queued" ? "#0C0A08" : "var(--color-text-muted)",
+                    }}
+                  >
+                    {step.status === "completed" ? (step.conclusion === "success" ? "✓" : "✕") : ""}
+                  </div>
+                  <span
+                    className="text-sm"
+                    style={{
+                      color: step.status === "completed" ? "var(--color-text)" : "var(--color-text-muted)",
+                    }}
+                  >
+                    {step.name}
+                  </span>
                 </div>
-                <span
-                  className="text-sm"
-                  style={{
-                    color: currentJob.progress >= s.threshold
-                      ? "var(--color-text)"
-                      : "var(--color-text-muted)",
-                  }}
-                >
-                  {s.step}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* --- Error details --- */}
-          {currentJob.status === "failed" && currentJob.error && (
-            <div
-              className="px-4 py-3 rounded-lg mb-4 text-sm"
-              style={{ background: "rgba(248, 113, 113, 0.1)", color: "var(--color-error)" }}
-            >
-              {currentJob.error}
+              ))}
             </div>
           )}
 
-          {/* --- Action buttons --- */}
-          {(currentJob.status === "completed" || currentJob.status === "failed") && (
-            <button onClick={handleReset} className="btn btn-secondary w-full justify-center">
+          {/* --- GitHub link --- */}
+          {currentRun.html_url && (
+            <a
+              href={currentRun.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs underline"
+              style={{ color: "var(--color-accent)" }}
+            >
+              View on GitHub Actions
+            </a>
+          )}
+
+          {/* --- Reset button when done --- */}
+          {currentRun.status === "completed" && (
+            <button onClick={handleReset} className="btn btn-secondary w-full justify-center mt-4">
               Generate Another
             </button>
           )}
+        </div>
+      )}
+
+      {/* --- Recent pipeline runs --- */}
+      {recentRuns.length > 0 && !currentRun && (
+        <div className="card mt-6">
+          <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--color-text-secondary)" }}>
+            RECENT RUNS
+          </h3>
+          <div className="flex flex-col gap-2">
+            {recentRuns.map((run) => (
+              <a
+                key={run.id}
+                href={run.html_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between px-4 py-3 rounded-lg transition-colors"
+                style={{ background: "var(--color-surface-2)" }}
+              >
+                <span className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
+                  {formatRelative(run.created_at)}
+                </span>
+                <span
+                  className="badge"
+                  style={{
+                    background: `${conclusionBadge(run.conclusion, run.status).bg}20`,
+                    color: conclusionBadge(run.conclusion, run.status).bg,
+                  }}
+                >
+                  {conclusionBadge(run.conclusion, run.status).label}
+                </span>
+              </a>
+            ))}
+          </div>
         </div>
       )}
     </div>
