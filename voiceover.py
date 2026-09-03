@@ -64,6 +64,15 @@ def generate_voiceover(narration_text, output_path, profile=None):
     # --- Clean the text for TTS ---
     clean_text = clean_script_text(narration_text)
 
+    # --- Check quota before generating ---
+    quota = _check_quota()
+    if quota is not None:
+        print(f"[VOICEOVER] Quota remaining: {quota} chars")
+        if quota < len(clean_text):
+            print(f"[VOICEOVER] ERROR: Need {len(clean_text)} chars but only {quota} remaining")
+            print(f"[VOICEOVER] Upgrade your ElevenLabs plan or wait for quota reset")
+            return []
+
     # --- ElevenLabs API endpoint (with timestamps) ---
     voice_id = profile.get("voice_id", "onwK4e9ZLuTAKqWW03F9")
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}/with-timestamps"
@@ -166,6 +175,25 @@ def _parse_alignment(alignment, full_text):
             current_word += char
 
     return word_timestamps
+
+
+def _check_quota():
+    """
+    # Checks remaining ElevenLabs character quota
+    # Returns remaining characters, or None if check fails
+    """
+    try:
+        url = "https://api.elevenlabs.io/v1/user/subscription"
+        headers = {"xi-api-key": config.ELEVENLABS_API_KEY}
+        r = requests.get(url, headers=headers)
+        if r.status_code == 200:
+            data = r.json()
+            limit = data.get("character_limit", 0)
+            used = data.get("character_count", 0)
+            return max(0, limit - used)
+    except Exception:
+        pass
+    return None
 
 
 def get_audio_duration(audio_path):

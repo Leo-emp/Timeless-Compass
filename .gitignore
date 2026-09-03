@@ -6,3 +6,4 @@ __pycache__/
 generated_history.json
 assets/music/
 assets/sfx/
+*TEMP_MPY*

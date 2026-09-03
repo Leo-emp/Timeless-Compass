@@ -138,7 +138,18 @@ def run_pipeline(topic=None, video_format=None, quality="1080p"):
     print("\n[STEP 4/5] Generating voiceover (ElevenLabs)...")
     voiceover_path = os.path.join(work_dir, "voiceover.mp3")
     word_timestamps = generate_voiceover(narration_text, voiceover_path, profile)
+
+    # --- Check voiceover was generated successfully ---
+    if not os.path.exists(voiceover_path):
+        print("[ERROR] Voiceover generation failed. Check ElevenLabs quota/key.")
+        print("[ERROR] You may need to upgrade your ElevenLabs plan or wait for quota reset.")
+        return None
+
     audio_duration = get_audio_duration(voiceover_path)
+    if audio_duration <= 0:
+        print("[ERROR] Voiceover file is empty or invalid.")
+        return None
+
     print(f"[VOICEOVER] Duration: {audio_duration:.1f}s ({audio_duration / 60:.1f} min)")
 
     # --- Find background music ---

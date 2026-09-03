@@ -25,7 +25,7 @@ import config
 #   - mood: guides music selection and pacing
 # ============================================================
 
-import google.generativeai as genai
+from google import genai
 
 # --- Historical categories for AI topic selection ---
 HISTORY_CATEGORIES = [
@@ -105,9 +105,8 @@ def generate_script(topic=None, video_format=None):
     previous_topics = history.get("topics", [])
     avoid_list = ", ".join(previous_topics[-50:]) if previous_topics else "none"
 
-    # --- Configure Gemini ---
-    genai.configure(api_key=config.GEMINI_API_KEY)
-    model = genai.GenerativeModel("gemini-2.0-flash")
+    # --- Configure Gemini (new SDK) ---
+    client = genai.Client(api_key=config.GEMINI_API_KEY)
 
     # --- Build the prompt ---
     if topic:
@@ -182,7 +181,9 @@ Return ONLY the JSON. No markdown, no code fences, no explanation."""
 
     # --- Call Gemini ---
     print(f"[SCRIPT] Generating {target_segments}-segment documentary script...")
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.5-flash", contents=prompt
+    )
 
     # --- Parse the response ---
     response_text = response.text.strip()
@@ -237,8 +238,7 @@ def enrich_visual_keywords(segments):
     if not config.GEMINI_API_KEY:
         return segments
 
-    genai.configure(api_key=config.GEMINI_API_KEY)
-    model = genai.GenerativeModel("gemini-2.0-flash")
+    client = genai.Client(api_key=config.GEMINI_API_KEY)
 
     # --- Build batch prompt for all segments ---
     keyword_list = []
@@ -262,7 +262,9 @@ Return ONLY valid JSON — a list of lists:
 No markdown, no code fences."""
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-2.5-flash", contents=prompt
+        )
         response_text = response.text.strip()
 
         # --- Strip markdown fences ---

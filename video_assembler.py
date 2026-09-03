@@ -31,6 +31,13 @@ from moviepy import (
     VideoFileClip, AudioFileClip, TextClip, CompositeVideoClip,
     CompositeAudioClip, ColorClip, concatenate_videoclips,
 )
+from moviepy.audio.fx import AudioFadeIn, AudioFadeOut, MultiplyVolume
+
+# --- Windows font paths (Pillow needs full paths, not font names) ---
+FONT_GEORGIA = "C:/Windows/Fonts/georgia.ttf"
+FONT_GEORGIA_BOLD = "C:/Windows/Fonts/georgiab.ttf"
+FONT_ARIAL = "C:/Windows/Fonts/arial.ttf"
+FONT_ARIAL_BOLD = "C:/Windows/Fonts/arialbd.ttf"
 
 
 def assemble_video(
@@ -366,7 +373,7 @@ def _build_text_overlays(segments, total_duration, num_clips, target_w, target_h
     """
     overlay_clips = []
     font_size = profile.get("overlay_font_size", 38)
-    font = profile.get("overlay_font", "Georgia")
+    font = FONT_GEORGIA_BOLD
     position_y = profile.get("overlay_position_y", 0.92)
     bg_opacity = profile.get("overlay_bg_opacity", 0.6)
 
@@ -426,7 +433,7 @@ def _render_captions(word_timestamps, target_w, target_h, profile):
 
     caption_clips = []
     font_size = profile.get("caption_font_size", 48)
-    font = profile.get("caption_font", "Georgia")
+    font = FONT_GEORGIA
     position_y = profile.get("caption_position_y", 0.85)
     stroke_width = profile.get("caption_stroke_width", 2)
 
@@ -473,11 +480,13 @@ def _build_audio_mix(voiceover, music_path, total_duration, profile):
     # Music sits below voice with fade in/out
     # Orchestral/cinematic music for documentary feel
     """
-    voiceover_boost = profile.get("voiceover_boost_db", 2.0)
     music_level = profile.get("music_level_db", -12)
 
-    # --- Boost voiceover volume ---
-    boosted_voice = voiceover.audio_fadein(0.5).audio_fadeout(0.5)
+    # --- Apply fade in/out to voiceover ---
+    boosted_voice = voiceover.with_effects([
+        AudioFadeIn(0.5),
+        AudioFadeOut(0.5),
+    ])
 
     if music_path and os.path.exists(music_path):
         try:
@@ -496,11 +505,10 @@ def _build_audio_mix(voiceover, music_path, total_duration, profile):
             # Convert dB to linear: 10^(dB/20)
             music_volume = 10 ** (music_level / 20)
             music = music.with_effects([
-                lambda c: c.volumex(music_volume),
-            ]) if hasattr(music, 'with_effects') else music.volumex(music_volume)
-
-            # --- Fade music in at start, out at end ---
-            music = music.audio_fadein(3.0).audio_fadeout(5.0)
+                MultiplyVolume(music_volume),
+                AudioFadeIn(3.0),
+                AudioFadeOut(5.0),
+            ])
 
             # --- Mix voiceover + music ---
             return CompositeAudioClip([boosted_voice, music])
