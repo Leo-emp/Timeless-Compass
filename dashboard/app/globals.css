@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+/* ============================================================
+   TIMELESS COMPASS DASHBOARD — DESIGN TOKENS
+   Warm, vintage documentary palette
+   ============================================================ */
+
+@theme {
+  --color-bg: #0C0A08;
+  --color-surface: #161310;
+  --color-surface-2: #1E1A16;
+  --color-border: #2A2520;
+  --color-border-light: #3A3530;
+  --color-text: #E8E0D4;
+  --color-text-secondary: #9A918A;
+  --color-text-muted: #6A6158;
+  --color-accent: #C4956A;
+  --color-accent-hover: #D4A574;
+  --color-accent-dim: #8B6B4A;
+  --color-success: #4ADE80;
+  --color-warning: #FBBF24;
+  --color-error: #F87171;
+  --color-info: #60A5FA;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* --- Scrollbar styling --- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-light);
+  border-radius: 3px;
+}
+
+/* --- Input/select base styles --- */
+input, select, textarea {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-accent);
+}
+
+/* --- Button base --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+.btn-primary {
+  background: var(--color-accent);
+  color: #0C0A08;
+}
+.btn-primary:hover {
+  background: var(--color-accent-hover);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-secondary {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+.btn-secondary:hover {
+  border-color: var(--color-border-light);
+  background: var(--color-border);
+}
+.btn-danger {
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--color-error);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+.btn-danger:hover {
+  background: rgba(248, 113, 113, 0.2);
+}
+
+/* --- Card base --- */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+/* --- Status badges --- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.badge-success {
+  background: rgba(74, 222, 128, 0.1);
+  color: var(--color-success);
+}
+.badge-warning {
+  background: rgba(251, 191, 36, 0.1);
+  color: var(--color-warning);
+}
+.badge-error {
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--color-error);
+}
+.badge-info {
+  background: rgba(96, 165, 250, 0.1);
+  color: var(--color-info);
+}
+.badge-neutral {
+  background: var(--color-surface-2);
+  color: var(--color-text-secondary);
+}
+
+/* --- Progress bar --- */
+.progress-track {
+  width: 100%;
+  height: 6px;
+  background: var(--color-surface-2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent-dim), var(--color-accent));
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}

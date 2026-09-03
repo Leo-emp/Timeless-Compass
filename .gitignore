@@ -7,3 +7,7 @@ generated_history.json
 assets/music/
 assets/sfx/
 *TEMP_MPY*
+timeless_compass.db
+youtube_token.json
+dashboard/node_modules/
+dashboard/.next/
