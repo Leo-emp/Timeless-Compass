@@ -364,10 +364,14 @@ def youtube_auth_url():
 
 
 @app.get("/api/youtube/callback")
-def youtube_callback(code: str = Query(...)):
+def youtube_callback(code: str = Query(...), state: str = Query(...)):
     """
-    # OAuth callback — exchanges code for tokens
+    # OAuth callback — verifies state and exchanges code for tokens
     """
+    # --- Verify CSRF state token ---
+    if not yt.verify_state(state):
+        raise HTTPException(400, "Invalid OAuth state — possible CSRF attack")
+
     success = yt.exchange_code(code)
     if success:
         # --- Redirect back to dashboard settings ---
@@ -498,4 +502,4 @@ if __name__ == "__main__":
     print("\n  Timeless Compass API Server")
     print("  http://localhost:8000")
     print("  http://localhost:8000/docs  (Swagger UI)\n")
-    uvicorn.run("api_server:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("api_server:app", host="127.0.0.1", port=8000, reload=True)

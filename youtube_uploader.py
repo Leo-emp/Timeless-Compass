@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import secrets
 import config
 
 # ============================================================
@@ -22,15 +23,23 @@ import config
 
 TOKEN_FILE = os.path.join(os.path.dirname(__file__), "youtube_token.json")
 
+# --- CSRF protection: stores expected state for OAuth callback ---
+_pending_oauth_state = None
+
 
 def get_auth_url():
     """
-    # Generates the YouTube OAuth authorization URL
+    # Generates the YouTube OAuth authorization URL with CSRF state
     # User visits this URL to grant upload permissions
     """
+    global _pending_oauth_state
+
     client_id = os.getenv("YOUTUBE_CLIENT_ID", "")
     if not client_id:
         return None
+
+    # --- Generate unguessable state token for CSRF protection ---
+    _pending_oauth_state = secrets.token_urlsafe(32)
 
     # --- OAuth scopes needed for video upload ---
     scopes = "https://www.googleapis.com/auth/youtube.upload"
@@ -43,9 +52,21 @@ def get_auth_url():
         f"response_type=code&"
         f"scope={scopes}&"
         f"access_type=offline&"
-        f"prompt=consent"
+        f"prompt=consent&"
+        f"state={_pending_oauth_state}"
     )
     return url
+
+
+def verify_state(state):
+    """
+    # Verifies the OAuth state parameter matches what we sent
+    """
+    global _pending_oauth_state
+    if not _pending_oauth_state or state != _pending_oauth_state:
+        return False
+    _pending_oauth_state = None
+    return True
 
 
 def exchange_code(code):
@@ -73,9 +94,8 @@ def exchange_code(code):
     token_data = response.json()
     token_data["obtained_at"] = time.time()
 
-    # --- Save tokens to file ---
-    with open(TOKEN_FILE, "w") as f:
-        json.dump(token_data, f, indent=2)
+    # --- Save tokens with restricted permissions (owner-only) ---
+    _write_token_file(token_data)
 
     print("[YOUTUBE] OAuth tokens saved successfully")
     return True
@@ -123,10 +143,18 @@ def _get_access_token():
         token_data["expires_in"] = new_data.get("expires_in", 3600)
         token_data["obtained_at"] = time.time()
 
-        with open(TOKEN_FILE, "w") as f:
-            json.dump(token_data, f, indent=2)
+        _write_token_file(token_data)
 
     return token_data.get("access_token")
+
+
+def _write_token_file(data):
+    """
+    # Writes token data with owner-only file permissions
+    """
+    fd = os.open(TOKEN_FILE, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w") as f:
+        json.dump(data, f, indent=2)
 
 
 def is_authenticated():
