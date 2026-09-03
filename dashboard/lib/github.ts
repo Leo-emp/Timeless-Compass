@@ -35,7 +35,7 @@ export async function triggerWorkflow(inputs: {
       method: 'POST',
       headers: headers(token),
       body: JSON.stringify({
-        ref: 'main',
+        ref: 'master',
         inputs: {
           topic: inputs.topic ?? '',
           format: inputs.format ?? 'long',
