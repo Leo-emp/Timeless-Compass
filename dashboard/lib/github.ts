@@ -98,6 +98,7 @@ export async function getRecentRuns(limit = 10) {
 export async function getRunStatus(runId: string) {
   const { token, repo } = getConfig()
   if (!token) throw new Error('GITHUB_TOKEN not configured')
+  if (!/^\d+$/.test(runId)) throw new Error('Invalid run ID')
 
   const [runRes, jobsRes] = await Promise.all([
     fetch(`${GITHUB_API}/repos/${repo}/actions/runs/${runId}`, {
