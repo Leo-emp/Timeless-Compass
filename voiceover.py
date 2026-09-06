@@ -1,5 +1,7 @@
 import os
 import json
+import re
+import base64
 import requests
 import config
 
@@ -16,7 +18,15 @@ import config
 #   - Word-level timestamps for precise caption placement
 #   - Clean text preprocessing (removes markers, fixes punctuation)
 #   - Configurable stability/similarity per format profile
+#   - Auto-chunking: splits scripts > 9000 chars at sentence boundaries,
+#     generates audio per chunk, concatenates, and merges timestamps
 # ============================================================
+
+# --- ElevenLabs per-request character limit ---
+# Free tier caps at 10,000 chars per request. We chunk at 9,000 to leave margin
+# for any encoding overhead. Each chunk is a complete sentence group so speech
+# doesn't cut mid-word.
+CHUNK_CHAR_LIMIT = 9000
 
 
 def clean_script_text(text):
@@ -37,7 +47,6 @@ def clean_script_text(text):
     text = text.replace("“", '"').replace("”", '"')
 
     # --- Remove any bracketed stage directions ---
-    import re
     text = re.sub(r'\[.*?\]', '', text)
 
     # --- Clean up extra whitespace ---
@@ -46,9 +55,43 @@ def clean_script_text(text):
     return text.strip()
 
 
+def _split_into_chunks(text, limit=CHUNK_CHAR_LIMIT):
+    """
+    # Splits text into chunks under `limit` chars, breaking at sentence boundaries.
+    # Sentences end with . ! or ? followed by a space or end-of-string.
+    # If a single sentence exceeds the limit, it's sent as-is (ElevenLabs may reject it,
+    # but splitting mid-sentence would produce unnatural speech).
+    """
+    # --- Split into sentences ---
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+
+    chunks = []
+    current_chunk = ""
+
+    for sentence in sentences:
+        # --- Would adding this sentence exceed the limit? ---
+        candidate = (current_chunk + " " + sentence).strip() if current_chunk else sentence
+        if len(candidate) <= limit:
+            current_chunk = candidate
+        else:
+            # --- Flush current chunk if it has content ---
+            if current_chunk:
+                chunks.append(current_chunk)
+            # --- Start new chunk with this sentence ---
+            current_chunk = sentence
+
+    # --- Don't forget the last chunk ---
+    if current_chunk:
+        chunks.append(current_chunk)
+
+    return chunks
+
+
 def generate_voiceover(narration_text, output_path, profile=None):
     """
-    # Generates voiceover audio with word-level timestamps
+    # Generates voiceover audio with word-level timestamps.
+    # Auto-chunks scripts over 9000 chars so they don't exceed ElevenLabs' 10K limit.
+    # Each chunk is generated separately, then audio is concatenated and timestamps merged.
     #
     # Args:
     #   narration_text: full narration string
@@ -73,7 +116,73 @@ def generate_voiceover(narration_text, output_path, profile=None):
             print(f"[VOICEOVER] Upgrade your ElevenLabs plan or wait for quota reset")
             return []
 
-    # --- ElevenLabs API endpoint (with timestamps) ---
+    # --- Decide: single request or chunked ---
+    if len(clean_text) <= CHUNK_CHAR_LIMIT:
+        # Short enough for one request
+        print(f"[VOICEOVER] Generating narration ({len(clean_text)} chars, single request)...")
+        audio_bytes, word_timestamps = _generate_single_chunk(clean_text, profile)
+        if audio_bytes is None:
+            return []
+        os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else ".", exist_ok=True)
+        with open(output_path, "wb") as f:
+            f.write(audio_bytes)
+        print(f"[VOICEOVER] Saved: {output_path}")
+        print(f"[VOICEOVER] Timestamps: {len(word_timestamps)} words")
+        return word_timestamps
+
+    # --- Chunked generation for long scripts ---
+    chunks = _split_into_chunks(clean_text)
+    print(f"[VOICEOVER] Script is {len(clean_text)} chars — splitting into {len(chunks)} chunks")
+
+    all_audio_parts = []  # raw bytes per chunk
+    all_timestamps = []   # merged word timestamps with offset correction
+    time_offset = 0.0     # cumulative audio duration from previous chunks
+
+    for i, chunk in enumerate(chunks):
+        print(f"[VOICEOVER] Generating chunk {i + 1}/{len(chunks)} ({len(chunk)} chars)...")
+        audio_bytes, word_timestamps = _generate_single_chunk(chunk, profile)
+
+        if audio_bytes is None:
+            print(f"[VOICEOVER] ERROR: Chunk {i + 1} failed — aborting")
+            return []
+
+        all_audio_parts.append(audio_bytes)
+
+        # --- Offset timestamps by cumulative duration of previous chunks ---
+        for wt in word_timestamps:
+            all_timestamps.append({
+                "word": wt["word"],
+                "start": wt["start"] + time_offset,
+                "end": wt["end"] + time_offset,
+            })
+
+        # --- Calculate this chunk's audio duration for the next offset ---
+        # Write temp file, measure duration, delete
+        temp_chunk_path = output_path + f".chunk{i}.mp3"
+        with open(temp_chunk_path, "wb") as f:
+            f.write(audio_bytes)
+        chunk_duration = get_audio_duration(temp_chunk_path)
+        time_offset += chunk_duration
+        os.remove(temp_chunk_path)
+        print(f"[VOICEOVER] Chunk {i + 1} duration: {chunk_duration:.1f}s (cumulative: {time_offset:.1f}s)")
+
+    # --- Concatenate all audio chunks into final file ---
+    print(f"[VOICEOVER] Concatenating {len(all_audio_parts)} audio chunks...")
+    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else ".", exist_ok=True)
+    with open(output_path, "wb") as f:
+        for part in all_audio_parts:
+            f.write(part)
+    print(f"[VOICEOVER] Saved: {output_path}")
+    print(f"[VOICEOVER] Total timestamps: {len(all_timestamps)} words, {time_offset:.1f}s")
+
+    return all_timestamps
+
+
+def _generate_single_chunk(text, profile):
+    """
+    # Generates audio + timestamps for a single text chunk (must be under 10K chars).
+    # Returns (audio_bytes, word_timestamps) or (None, []) on failure.
+    """
     voice_id = profile.get("voice_id", "onwK4e9ZLuTAKqWW03F9")
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}/with-timestamps"
 
@@ -83,7 +192,7 @@ def generate_voiceover(narration_text, output_path, profile=None):
     }
 
     payload = {
-        "text": clean_text,
+        "text": text,
         "model_id": profile.get("voice_model", "eleven_multilingual_v2"),
         "voice_settings": {
             "stability": profile.get("voice_stability", 0.72),
@@ -93,42 +202,33 @@ def generate_voiceover(narration_text, output_path, profile=None):
         },
     }
 
-    print(f"[VOICEOVER] Generating narration ({len(clean_text)} chars)...")
-    print(f"[VOICEOVER] Voice: Daniel (scholarly, warm, authoritative)")
-
     try:
-        response = requests.post(url, headers=headers, json=payload)
+        response = requests.post(url, headers=headers, json=payload, timeout=60)
 
         if response.status_code != 200:
             print(f"[VOICEOVER] API error: {response.status_code}")
             print(f"[VOICEOVER] Response: {response.text[:200]}")
-            return []
+            return None, []
 
         data = response.json()
 
-        # --- Save audio file ---
-        import base64
+        # --- Decode audio ---
         audio_b64 = data.get("audio_base64", "")
-        if audio_b64:
-            audio_bytes = base64.b64decode(audio_b64)
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            with open(output_path, "wb") as f:
-                f.write(audio_bytes)
-            print(f"[VOICEOVER] Saved: {output_path}")
-        else:
+        if not audio_b64:
             print("[VOICEOVER] WARNING: No audio data in response")
-            return []
+            return None, []
+
+        audio_bytes = base64.b64decode(audio_b64)
 
         # --- Parse word-level timestamps ---
         alignment = data.get("alignment", {})
-        word_timestamps = _parse_alignment(alignment, clean_text)
+        word_timestamps = _parse_alignment(alignment, text)
 
-        print(f"[VOICEOVER] Timestamps: {len(word_timestamps)} words")
-        return word_timestamps
+        return audio_bytes, word_timestamps
 
     except Exception as e:
         print(f"[VOICEOVER] Error: {e}")
-        return []
+        return None, []
 
 
 def _parse_alignment(alignment, full_text):
