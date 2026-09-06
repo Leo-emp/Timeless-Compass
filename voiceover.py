@@ -203,7 +203,7 @@ def _generate_single_chunk(text, profile):
     }
 
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=60)
+        response = requests.post(url, headers=headers, json=payload, timeout=120)
 
         if response.status_code != 200:
             print(f"[VOICEOVER] API error: {response.status_code}")
