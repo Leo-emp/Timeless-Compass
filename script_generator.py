@@ -182,7 +182,7 @@ Return ONLY the JSON. No markdown, no code fences, no explanation."""
     # --- Call Gemini ---
     print(f"[SCRIPT] Generating {target_segments}-segment documentary script...")
     response = client.models.generate_content(
-        model="gemini-2.5-flash", contents=prompt
+        model="gemini-3.6-flash", contents=prompt
     )
 
     # --- Parse the response ---
@@ -195,7 +195,22 @@ Return ONLY the JSON. No markdown, no code fences, no explanation."""
         lines = [l for l in lines if not l.strip().startswith("```")]
         response_text = "\n".join(lines)
 
-    script_data = json.loads(response_text)
+    try:
+        script_data = json.loads(response_text)
+    except json.JSONDecodeError:
+        # Gemini sometimes produces trailing commas or unescaped chars — attempt repair
+        import re as _re
+        cleaned = _re.sub(r',\s*([}\]])', r'\1', response_text)  # trailing commas
+        cleaned = cleaned.replace('\n', '\\n').replace('\t', '\\t')  # unescaped newlines in strings
+        try:
+            script_data = json.loads(cleaned)
+        except json.JSONDecodeError:
+            # Last resort: truncate to last valid closing brace
+            last_brace = response_text.rfind('}')
+            if last_brace > 0:
+                script_data = json.loads(response_text[:last_brace + 1])
+            else:
+                raise
     topic_title = script_data.get("topic_title", topic or "Unknown Topic")
 
     # --- Save to history ---
@@ -263,7 +278,7 @@ No markdown, no code fences."""
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.5-flash", contents=prompt
+            model="gemini-3.6-flash", contents=prompt
         )
         response_text = response.text.strip()
 
