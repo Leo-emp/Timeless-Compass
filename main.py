@@ -75,9 +75,36 @@ def validate_setup():
     return True
 
 
+def _make_cache_key(topic, video_format):
+    """
+    # Creates a stable cache directory name from topic + format.
+    # Same topic + format always maps to the same directory,
+    # so retries reuse cached script / voiceover / footage.
+    # Returns (safe_key_string, cache_dir_path)
+    """
+    # --- Sanitize topic for filesystem ---
+    safe = (topic or "ai_pick").replace(" ", "_").replace("'", "")
+    safe = "".join(c for c in safe if c.isalnum() or c in "_-")[:50]
+    fmt_tag = video_format.value if video_format else "long"
+    key = f"{safe}_{fmt_tag}"
+
+    cache_dir = os.path.join(config.TEMP_DIR, "cache", key)
+    os.makedirs(cache_dir, exist_ok=True)
+    return key, cache_dir
+
+
 def run_pipeline(topic=None, video_format=None, quality="1080p"):
     """
     # Main pipeline — runs all steps in sequence
+    # NOW WITH CACHING: if the pipeline fails midway and you retry
+    # with the same topic, cached Gemini scripts and ElevenLabs
+    # voiceover are reused automatically (saves API credits).
+    #
+    # Cache location: temp/cache/<topic>_<format>/
+    #   - script.json       → cached Gemini script
+    #   - voiceover.mp3     → cached ElevenLabs audio
+    #   - timestamps.json   → cached word-level timestamps
+    #   - clips/            → cached Pexels footage
     #
     # Args:
     #   topic:         specific historical event/figure, or None for AI-suggested
@@ -101,32 +128,103 @@ def run_pipeline(topic=None, video_format=None, quality="1080p"):
     if not validate_setup():
         return None
 
-    # --- STEP 2: GENERATE SCRIPT ---
+    # ================================================================
+    # STEP 2: GENERATE SCRIPT (with cache)
+    # ================================================================
+    # Cache key is topic-stable — no timestamp — so retries hit cache.
+    # If topic is None (AI picks), we cache under "ai_pick" initially,
+    # then rename the cache dir to the real topic once Gemini returns.
+    # ================================================================
     print("\n[STEP 2/5] Generating documentary script...")
-    script_data, topic_title = generate_script(topic, video_format=video_format)
+
+    # --- Build topic-stable cache directory ---
+    cache_key, cache_dir = _make_cache_key(topic, video_format)
+    script_cache_path = os.path.join(cache_dir, "script.json")
+
+    script_data = None
+    topic_title = None
+
+    # --- Check for cached script from a previous run ---
+    if os.path.exists(script_cache_path):
+        try:
+            with open(script_cache_path, "r", encoding="utf-8") as f:
+                cached = json.load(f)
+            # --- Validate the cache has actual segments ---
+            if cached.get("segments") and len(cached["segments"]) > 0:
+                script_data = cached
+                topic_title = cached.get("metadata", {}).get("title", topic or "Unknown")
+                print(f"[SCRIPT] CACHED -- reusing script for '{topic_title}' "
+                      f"({len(script_data['segments'])} segments)")
+        except (json.JSONDecodeError, KeyError) as e:
+            print(f"[SCRIPT] Cache corrupted ({e}), regenerating...")
+            script_data = None
+
+    if script_data is None:
+        # --- Generate fresh script via Gemini API ---
+        script_data, topic_title = generate_script(topic, video_format=video_format)
+
+        # --- If topic was AI-picked, rename cache dir to match real topic ---
+        if topic is None and topic_title:
+            new_key, new_cache_dir = _make_cache_key(topic_title, video_format)
+            if new_cache_dir != cache_dir:
+                # --- Move cache to topic-specific directory ---
+                if not os.path.exists(new_cache_dir):
+                    os.rename(cache_dir, new_cache_dir)
+                cache_dir = new_cache_dir
+                script_cache_path = os.path.join(cache_dir, "script.json")
+
+        # --- Save script to cache for retry ---
+        with open(script_cache_path, "w", encoding="utf-8") as f:
+            json.dump(script_data, f, indent=2, ensure_ascii=False)
+        print(f"[SCRIPT] Cached to {script_cache_path}")
+
     narration_text = get_full_narration(script_data)
     segment_count = len(script_data["segments"])
     print(f"[SCRIPT] Topic: {topic_title}")
     print(f"[SCRIPT] Segments: {segment_count}")
     print(f"[SCRIPT] Narration preview: {narration_text[:200]}...")
 
-    # --- Create working directory for this video ---
+    # --- Create work directory (timestamp-based) for final assembly ---
     safe_title = topic_title.replace(" ", "_").replace("'", "")[:50]
     timestamp = time.strftime("%Y%m%d_%H%M%S")
     video_name = f"{safe_title}_{timestamp}"
     work_dir = os.path.join(config.TEMP_DIR, video_name)
     os.makedirs(work_dir, exist_ok=True)
 
-    # --- Save script for reference ---
+    # --- Save script to work dir too (for reference alongside output) ---
     with open(os.path.join(work_dir, "script.json"), "w", encoding="utf-8") as f:
         json.dump(script_data, f, indent=2, ensure_ascii=False)
 
-    # --- STEP 3: DOWNLOAD STOCK FOOTAGE ---
+    # ================================================================
+    # STEP 3: DOWNLOAD STOCK FOOTAGE (with cache)
+    # ================================================================
+    # Footage is cached in the stable cache_dir/clips/ so retries
+    # don't re-download from Pexels. Clips are copied to work_dir.
+    # ================================================================
     print(f"\n[STEP 3/5] Downloading {segment_count} stock footage clips...")
-    clips_dir = os.path.join(work_dir, "clips")
-    clip_paths = search_and_download_videos(
-        script_data["segments"], clips_dir, profile
-    )
+
+    # --- Check for cached footage clips ---
+    cached_clips_dir = os.path.join(cache_dir, "clips")
+    work_clips_dir = os.path.join(work_dir, "clips")
+    clip_paths = None
+
+    if os.path.exists(cached_clips_dir):
+        # --- Count valid cached clips ---
+        cached_files = [
+            os.path.join(cached_clips_dir, f)
+            for f in sorted(os.listdir(cached_clips_dir))
+            if f.endswith((".mp4", ".webm")) and os.path.getsize(
+                os.path.join(cached_clips_dir, f)) > 50_000
+        ]
+        if len(cached_files) >= segment_count - 1:
+            print(f"[FOOTAGE] CACHED -- reusing {len(cached_files)} clips from previous run")
+            clip_paths = cached_files
+
+    if clip_paths is None:
+        # --- Download fresh footage from Pexels ---
+        clip_paths = search_and_download_videos(
+            script_data["segments"], cached_clips_dir, profile
+        )
 
     if not clip_paths:
         print("[ERROR] No footage downloaded. Check your PEXELS_API_KEY.")
@@ -134,10 +232,41 @@ def run_pipeline(topic=None, video_format=None, quality="1080p"):
 
     print(f"[FOOTAGE] Downloaded {len(clip_paths)} clips")
 
-    # --- STEP 4: GENERATE VOICEOVER ---
+    # ================================================================
+    # STEP 4: GENERATE VOICEOVER (with cache)
+    # ================================================================
+    # Voiceover is the most expensive step (~$0.50 per video).
+    # Cached in cache_dir/voiceover.mp3 + timestamps.json so retries
+    # never waste ElevenLabs credits on the same script text.
+    # ================================================================
     print("\n[STEP 4/5] Generating voiceover (ElevenLabs)...")
+
+    # --- Check for cached voiceover ---
+    cached_voiceover = os.path.join(cache_dir, "voiceover.mp3")
+    cached_timestamps = os.path.join(cache_dir, "timestamps.json")
     voiceover_path = os.path.join(work_dir, "voiceover.mp3")
-    word_timestamps = generate_voiceover(narration_text, voiceover_path, profile)
+
+    if (os.path.exists(cached_voiceover)
+            and os.path.getsize(cached_voiceover) > 1000
+            and os.path.exists(cached_timestamps)):
+        # --- Reuse cached voiceover (saves ~$0.50) ---
+        import shutil
+        shutil.copy2(cached_voiceover, voiceover_path)
+        with open(cached_timestamps, "r", encoding="utf-8") as f:
+            word_timestamps = json.load(f)
+        print(f"[VOICEOVER] CACHED -- reusing voiceover "
+              f"({len(word_timestamps)} word timestamps)")
+    else:
+        # --- Generate fresh voiceover via ElevenLabs API ---
+        word_timestamps = generate_voiceover(narration_text, voiceover_path, profile)
+
+        # --- Cache voiceover + timestamps for retry ---
+        if os.path.exists(voiceover_path) and os.path.getsize(voiceover_path) > 1000:
+            import shutil
+            shutil.copy2(voiceover_path, cached_voiceover)
+            with open(cached_timestamps, "w", encoding="utf-8") as f:
+                json.dump(word_timestamps, f)
+            print(f"[VOICEOVER] Cached to {cached_voiceover}")
 
     # --- Check voiceover was generated successfully ---
     if not os.path.exists(voiceover_path):
