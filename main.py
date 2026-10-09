@@ -7,7 +7,8 @@ import config
 from script_generator import generate_script, get_full_narration
 from visuals import search_and_download_videos
 from voiceover import generate_voiceover, get_audio_duration
-from video_assembler import assemble_video
+# --- Pure ffmpeg assembler (5-10x faster than MoviePy) ---
+from video_assembler_ffmpeg import assemble_video
 from flux_images import generate_all_segment_images
 
 # ============================================================
@@ -18,7 +19,7 @@ from flux_images import generate_all_segment_images
 #   1. Generate script + visual keywords (Gemini)
 #   2. Download stock footage (Pexels + Pixabay)
 #   3. Generate narration voiceover (ElevenLabs)
-#   4. Assemble final video (MoviePy + Ken Burns + color grade)
+#   4. Assemble final video (ffmpeg + Ken Burns + color grade)
 #   5. Generate YouTube metadata (from script)
 #
 # Usage:
@@ -33,7 +34,7 @@ from flux_images import generate_all_segment_images
 #   Script:    ~$0.02  (Gemini Flash)
 #   Voiceover: ~$0.50  (ElevenLabs)
 #   Footage:   FREE    (Pexels + Pixabay stock)
-#   Assembly:  FREE    (MoviePy local)
+#   Assembly:  FREE    (ffmpeg local)
 #   TOTAL:     ~$0.52 per video
 #
 # Revenue per video (at 100K views, $8-15 CPM):

@@ -11,3 +11,6 @@ timeless_compass.db
 youtube_token.json
 dashboard/node_modules/
 dashboard/.next/
+
+.vercel
+.env*

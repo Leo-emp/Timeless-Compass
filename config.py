@@ -23,7 +23,7 @@ from enum import Enum
 #   Script:    ~$0.02  (Gemini Flash)
 #   Voiceover: ~$0.50  (ElevenLabs)
 #   Footage:   FREE    (Pexels + Pixabay)
-#   Assembly:  FREE    (MoviePy local)
+#   Assembly:  FREE    (ffmpeg local)
 # ============================================================
 
 # --- Ensure FFmpeg is on PATH (winget install location) ---
