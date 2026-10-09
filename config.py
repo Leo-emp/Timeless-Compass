@@ -127,9 +127,9 @@ FORMAT_PROFILES = {
         "overlay_font": "Georgia",
         "overlay_position_y": 0.92,               # bottom of frame
         "overlay_bg_opacity": 0.6,                # semi-transparent dark bar
-        # --- Captions ---
+        # --- Captions (center 50% works on Shorts, TikTok, and Reels) ---
         "caption_font_size": 48,
-        "caption_position_y": 0.85,
+        "caption_position_y": 0.50,
         "caption_stroke_width": 2,
         "caption_font": "Georgia",
     },
@@ -162,7 +162,7 @@ FORMAT_PROFILES = {
         "overlay_position_y": 0.92,
         "overlay_bg_opacity": 0.6,
         "caption_font_size": 48,
-        "caption_position_y": 0.85,
+        "caption_position_y": 0.50,
         "caption_stroke_width": 2,
         "caption_font": "Georgia",
     },
@@ -195,7 +195,7 @@ FORMAT_PROFILES = {
         "overlay_position_y": 0.55,
         "overlay_bg_opacity": 0.6,
         "caption_font_size": 58,
-        "caption_position_y": 0.60,
+        "caption_position_y": 0.50,
         "caption_stroke_width": 2,
         "caption_font": "Georgia",
     },
