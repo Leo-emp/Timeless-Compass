@@ -197,11 +197,29 @@ VISUAL TYPE (required for each segment):
 
 Return ONLY the JSON. No markdown, no code fences, no explanation."""
 
-    # --- Call Gemini ---
+    # --- Call Gemini (retry on 503, fallback to 2.5 Flash) ---
+    import time as _time
     print(f"[SCRIPT] Generating {target_segments}-segment documentary script...")
-    response = client.models.generate_content(
-        model="gemini-3.6-flash", contents=prompt
-    )
+    response = None
+    for _model in ["gemini-3.6-flash", "gemini-2.5-flash"]:
+        for _attempt in range(3):
+            try:
+                response = client.models.generate_content(
+                    model=_model, contents=prompt
+                )
+                break
+            except Exception as _e:
+                if "503" in str(_e) or "UNAVAILABLE" in str(_e):
+                    wait = 10 * (_attempt + 1)
+                    print(f"[SCRIPT] {_model} 503 — retrying in {wait}s (attempt {_attempt + 2}/3)")
+                    _time.sleep(wait)
+                else:
+                    raise
+        if response is not None:
+            break
+        print(f"[SCRIPT] {_model} exhausted — trying fallback model")
+    if response is None:
+        raise RuntimeError("All Gemini models unavailable after retries")
 
     # --- Parse the response ---
     response_text = response.text.strip()
