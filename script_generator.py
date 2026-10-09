@@ -198,6 +198,7 @@ VISUAL TYPE (required for each segment):
 Return ONLY the JSON. No markdown, no code fences, no explanation."""
 
     # --- Call Gemini (retry on 503, fallback to 2.5 Flash) ---
+    # Also handles 429 quota exhaustion by skipping to fallback model
     import time as _time
     print(f"[SCRIPT] Generating {target_segments}-segment documentary script...")
     response = None
@@ -209,7 +210,13 @@ Return ONLY the JSON. No markdown, no code fences, no explanation."""
                 )
                 break
             except Exception as _e:
-                if "503" in str(_e) or "UNAVAILABLE" in str(_e):
+                _err = str(_e)
+                # 429 = daily quota hit — skip to next model immediately
+                if "429" in _err or "RESOURCE_EXHAUSTED" in _err:
+                    print(f"[SCRIPT] {_model} quota exhausted — skipping to fallback")
+                    break
+                # 503 = temporary overload — retry with backoff
+                if "503" in _err or "UNAVAILABLE" in _err:
                     wait = 10 * (_attempt + 1)
                     print(f"[SCRIPT] {_model} 503 — retrying in {wait}s (attempt {_attempt + 2}/3)")
                     _time.sleep(wait)
