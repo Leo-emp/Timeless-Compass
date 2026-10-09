@@ -50,6 +50,11 @@ BLOB_READ_WRITE_TOKEN = os.getenv("BLOB_READ_WRITE_TOKEN", "").strip()
 YOUTUBE_CLIENT_ID = os.getenv("YOUTUBE_CLIENT_ID", "").strip()
 YOUTUBE_CLIENT_SECRET = os.getenv("YOUTUBE_CLIENT_SECRET", "").strip()
 
+# --- fal.ai: Flux Pro image generation for cinematic historical scenes ---
+# Sign up at https://fal.ai — pricing ~$0.06 per image (4MP)
+# Falls back to Pexels-only if not set
+FAL_KEY = os.getenv("FAL_KEY", "").strip()
+
 # --- Directory paths ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(BASE_DIR, "output")

@@ -343,6 +343,13 @@ def search_and_download_videos(script_segments, output_dir, profile=None):
     ]
 
     for i, segment in enumerate(script_segments):
+        # --- Skip segments that use Flux Pro AI images instead of stock footage ---
+        visual_source = segment.get("visual_source", "pexels")
+        if visual_source == "flux":
+            print(f"[VISUALS] ({i+1}/{len(script_segments)}) Skipping — uses Flux Pro AI image")
+            downloaded_clips.append(None)  # placeholder, filled by flux_images.py
+            continue
+
         keywords = segment.get("visual_keywords", "")
         script_text = segment.get("text", "")
         alt_keywords = segment.get("visual_keywords_alt", [])

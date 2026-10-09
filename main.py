@@ -8,6 +8,7 @@ from script_generator import generate_script, get_full_narration
 from visuals import search_and_download_videos
 from voiceover import generate_voiceover, get_audio_duration
 from video_assembler import assemble_video
+from flux_images import generate_all_segment_images
 
 # ============================================================
 # TIMELESS COMPASS — AUTOMATED HISTORY DOCUMENTARY PIPELINE
@@ -124,7 +125,7 @@ def run_pipeline(topic=None, video_format=None, quality="1080p"):
     print("=" * 60)
 
     # --- STEP 1: VALIDATE SETUP ---
-    print("\n[STEP 1/5] Validating setup...")
+    print("\n[STEP 1/6] Validating setup...")
     if not validate_setup():
         return None
 
@@ -135,7 +136,7 @@ def run_pipeline(topic=None, video_format=None, quality="1080p"):
     # If topic is None (AI picks), we cache under "ai_pick" initially,
     # then rename the cache dir to the real topic once Gemini returns.
     # ================================================================
-    print("\n[STEP 2/5] Generating documentary script...")
+    print("\n[STEP 2/6] Generating documentary script...")
 
     # --- Build topic-stable cache directory ---
     cache_key, cache_dir = _make_cache_key(topic, video_format)
@@ -196,41 +197,106 @@ def run_pipeline(topic=None, video_format=None, quality="1080p"):
         json.dump(script_data, f, indent=2, ensure_ascii=False)
 
     # ================================================================
-    # STEP 3: DOWNLOAD STOCK FOOTAGE (with cache)
+    # STEP 3: GENERATE VISUALS — Hybrid Flux Pro + Pexels (with cache)
     # ================================================================
-    # Footage is cached in the stable cache_dir/clips/ so retries
-    # don't re-download from Pexels. Clips are copied to work_dir.
+    # Each segment has visual_source="flux" or "pexels":
+    #   - flux: AI-generated cinematic art via fal.ai (battles, portraits)
+    #   - pexels: real stock footage (landmarks, nature, aerial)
+    # Both are cached in cache_dir so retries skip API calls.
+    #
+    # Flux images get Ken Burns motion applied during assembly,
+    # so they look like video clips, not static slides.
     # ================================================================
-    print(f"\n[STEP 3/5] Downloading {segment_count} stock footage clips...")
+    print(f"\n[STEP 3/6] Generating visuals for {segment_count} segments...")
 
-    # --- Check for cached footage clips ---
+    # --- Determine aspect ratio from format ---
+    aspect_ratio = "9:16" if video_format == config.VideoFormat.SHORT else "16:9"
+
+    # --- Step 3a: Generate Flux Pro images for tagged segments ---
+    cached_flux_dir = os.path.join(cache_dir, "flux_images")
+    flux_images = {}
+    flux_segment_count = sum(
+        1 for s in script_data["segments"]
+        if s.get("visual_source") == "flux"
+    )
+
+    if flux_segment_count > 0:
+        print(f"[STEP 3a] Generating {flux_segment_count} Flux Pro AI images...")
+        flux_images = generate_all_segment_images(
+            script_data["segments"], cached_flux_dir, aspect_ratio
+        )
+    else:
+        print("[STEP 3a] No Flux segments — all Pexels footage")
+
+    # --- Step 3b: Download Pexels footage for remaining segments ---
     cached_clips_dir = os.path.join(cache_dir, "clips")
-    work_clips_dir = os.path.join(work_dir, "clips")
+    pexels_segment_count = segment_count - flux_segment_count
     clip_paths = None
 
-    if os.path.exists(cached_clips_dir):
-        # --- Count valid cached clips ---
-        cached_files = [
-            os.path.join(cached_clips_dir, f)
-            for f in sorted(os.listdir(cached_clips_dir))
-            if f.endswith((".mp4", ".webm")) and os.path.getsize(
-                os.path.join(cached_clips_dir, f)) > 50_000
-        ]
-        if len(cached_files) >= segment_count - 1:
-            print(f"[FOOTAGE] CACHED -- reusing {len(cached_files)} clips from previous run")
-            clip_paths = cached_files
+    if pexels_segment_count > 0:
+        print(f"[STEP 3b] Downloading {pexels_segment_count} Pexels clips...")
 
-    if clip_paths is None:
-        # --- Download fresh footage from Pexels ---
-        clip_paths = search_and_download_videos(
-            script_data["segments"], cached_clips_dir, profile
-        )
+        # --- Check for cached footage clips ---
+        if os.path.exists(cached_clips_dir):
+            cached_files = [
+                os.path.join(cached_clips_dir, f)
+                for f in sorted(os.listdir(cached_clips_dir))
+                if f.endswith((".mp4", ".webm")) and os.path.getsize(
+                    os.path.join(cached_clips_dir, f)) > 50_000
+            ]
+            # --- Need enough clips for non-flux segments ---
+            if len(cached_files) >= pexels_segment_count - 1:
+                print(f"[FOOTAGE] CACHED -- reusing {len(cached_files)} Pexels clips")
+                clip_paths = cached_files
 
-    if not clip_paths:
-        print("[ERROR] No footage downloaded. Check your PEXELS_API_KEY.")
+        if clip_paths is None:
+            clip_paths = search_and_download_videos(
+                script_data["segments"], cached_clips_dir, profile
+            )
+    else:
+        clip_paths = []
+
+    # --- Merge Flux images and Pexels clips into unified visual list ---
+    # Each segment gets either a Flux image path or a Pexels clip path.
+    # The assembler handles both (Ken Burns for images, direct for clips).
+    unified_visuals = []
+    pexels_idx = 0
+    for i in range(segment_count):
+        if i in flux_images:
+            # --- Flux Pro AI image for this segment ---
+            unified_visuals.append({
+                "type": "image",
+                "path": flux_images[i],
+            })
+        elif clip_paths and pexels_idx < len(clip_paths):
+            # --- Pexels stock footage clip ---
+            path = clip_paths[pexels_idx]
+            pexels_idx += 1
+            if path is not None:
+                unified_visuals.append({
+                    "type": "video",
+                    "path": path,
+                })
+            else:
+                unified_visuals.append(None)
+        else:
+            unified_visuals.append(None)
+
+    # --- Count what we got ---
+    valid_count = sum(1 for v in unified_visuals if v is not None)
+    flux_count = sum(1 for v in unified_visuals if v and v["type"] == "image")
+    pexels_count = sum(1 for v in unified_visuals if v and v["type"] == "video")
+
+    if valid_count == 0:
+        print("[ERROR] No visuals generated. Check PEXELS_API_KEY and FAL_KEY.")
         return None
 
-    print(f"[FOOTAGE] Downloaded {len(clip_paths)} clips")
+    print(f"[VISUALS] {valid_count} total: {flux_count} Flux images + {pexels_count} Pexels clips")
+
+    # --- Build legacy clip_paths list for assembler compatibility ---
+    # Until the assembler is upgraded to handle the unified format,
+    # pass all paths as a flat list (images + videos mixed)
+    clip_paths = [v["path"] for v in unified_visuals if v is not None]
 
     # ================================================================
     # STEP 4: GENERATE VOICEOVER (with cache)
@@ -239,7 +305,7 @@ def run_pipeline(topic=None, video_format=None, quality="1080p"):
     # Cached in cache_dir/voiceover.mp3 + timestamps.json so retries
     # never waste ElevenLabs credits on the same script text.
     # ================================================================
-    print("\n[STEP 4/5] Generating voiceover (ElevenLabs)...")
+    print("\n[STEP 4/6] Generating voiceover (ElevenLabs)...")
 
     # --- Check for cached voiceover ---
     cached_voiceover = os.path.join(cache_dir, "voiceover.mp3")
@@ -281,11 +347,12 @@ def run_pipeline(topic=None, video_format=None, quality="1080p"):
 
     print(f"[VOICEOVER] Duration: {audio_duration:.1f}s ({audio_duration / 60:.1f} min)")
 
-    # --- Find background music ---
+    # --- STEP 5: FIND MUSIC ---
+    print("\n[STEP 5/6] Selecting background music...")
     music_path = _find_music()
 
-    # --- STEP 5: ASSEMBLE FINAL VIDEO ---
-    print("\n[STEP 5/5] Assembling final documentary...")
+    # --- STEP 6: ASSEMBLE FINAL VIDEO ---
+    print("\n[STEP 6/6] Assembling final documentary...")
     output_path = os.path.join(config.OUTPUT_DIR, f"{video_name}.mp4")
 
     assemble_video(

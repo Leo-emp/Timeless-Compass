@@ -130,11 +130,10 @@ IMPORTANT RULES:
 - Write in a scholarly but engaging tone — authoritative, not sensational
 - Include specific dates, names, numbers, and locations
 - Every segment needs BOTH narration text AND visual search keywords
-- Visual keywords should describe REAL footage available on stock sites
-  (ancient ruins, medieval castles, battlefields, maps, landscapes, artifacts, paintings, statues)
-- Do NOT reference AI-generated images — we use REAL stock footage only
+- Visual keywords should describe footage or scenes matching the narration
 - Include overlay_text for important dates, names, and locations
 - The script should feel like watching a BBC or History Channel documentary
+- Each segment MUST include "visual_source" and "visual_type" fields (see below)
 
 SCRIPT STRUCTURE:
 1. HOOK (1-2 segments): Start with the most dramatic moment — a battle cry, a fateful decision, a city burning
@@ -153,6 +152,8 @@ Return ONLY valid JSON in this exact format:
     {{
       "text": "On the morning of May 29th, 1453, the greatest city in the Christian world drew its last breath...",
       "visual_keywords": "medieval fortress walls siege ancient city dramatic sky",
+      "visual_source": "flux",
+      "visual_type": "battle",
       "era": "medieval",
       "overlay_text": "Constantinople, May 29, 1453",
       "mood": "tension",
@@ -176,6 +177,23 @@ VISUAL KEYWORDS RULES:
 - Think about what stock footage sites actually have
 - Each segment should have UNIQUE keywords (no repeating the same search)
 - Landscape orientation (16:9) footage works best
+
+VISUAL SOURCE RULES (choose per segment):
+- "visual_source": "flux" — for scenes that need custom AI-generated art:
+    battles, army formations, ancient scenes, historical portraits,
+    dramatic events, mythical/legendary moments, interior scenes
+- "visual_source": "pexels" — for scenes where real stock footage is better:
+    real landmarks (Colosseum, Pyramids, Great Wall), natural landscapes,
+    ocean/mountains/deserts, modern cities, aerial shots, sunsets/storms
+- Aim for roughly 60% flux / 40% pexels for variety
+
+VISUAL TYPE (required for each segment):
+- "battle" — combat, sieges, army clashes
+- "portrait" — historical figures, rulers, generals
+- "landscape" — sweeping vistas, terrain, weather
+- "architecture" — buildings, temples, castles, monuments
+- "event" — ceremonies, speeches, treaties, discoveries
+- "scene" — general narrative scenes (default)
 
 Return ONLY the JSON. No markdown, no code fences, no explanation."""
 
