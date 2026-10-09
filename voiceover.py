@@ -298,15 +298,19 @@ def _check_quota():
 
 def get_audio_duration(audio_path):
     """
-    # Returns the duration of an audio file in seconds
-    # Uses moviepy for accurate duration measurement
+    # Returns the duration of an audio file in seconds.
+    # Uses ffprobe (no MoviePy dependency).
     """
+    import subprocess
     try:
-        from moviepy import AudioFileClip
-        clip = AudioFileClip(audio_path)
-        duration = clip.duration
-        clip.close()
-        return duration
+        cmd = [
+            "ffprobe", "-v", "quiet",
+            "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1",
+            str(audio_path),
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+        return float(result.stdout.strip())
     except Exception as e:
         print(f"[VOICEOVER] Duration check error: {e}")
         return 0.0
