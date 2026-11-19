@@ -1,0 +1,11 @@
+{
+  "name": "d_king_audience",
+  "active": true,
+  "script": "blender/scenes/xerxes_v2.py",
+  "args": [
+    "out/king_audience.png",
+    "24",
+    "king",
+    "full"
+  ]
+}

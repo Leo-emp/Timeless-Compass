@@ -1,0 +1,11 @@
+{
+  "name": "d_median_cap",
+  "active": true,
+  "script": "blender/scenes/xerxes_v2.py",
+  "args": [
+    "out/median_head.png",
+    "32",
+    "median",
+    "head"
+  ]
+}

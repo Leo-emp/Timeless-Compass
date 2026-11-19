@@ -16,6 +16,7 @@ OUT = argv[0] if argv else 'xerxes_v2.png'
 SAMPLES = int(argv[1]) if len(argv) > 1 else 20
 OUTFIT = argv[2] if len(argv) > 2 else 'king'
 SHOT = argv[3] if len(argv) > 3 else 'full'
+POSE = argv[4] if len(argv) > 4 else None       # e.g. 'stand_open': test the robe with the arms hanging (card pose)
 
 # The audience pose of the reliefs: upper arms a little away from the body (so the robe and sleeves have room),
 # both forearms raised forward (on the reliefs the king holds a long sceptre in the right hand and a lotus
@@ -43,7 +44,10 @@ bronze, gold, leather = W.metals()
 spec = XERXES if OUTFIT == 'king' else MEDE              # noble + median: the younger court face
 human, rig, pos = W.make_person(spec)
 # POSED garments: the body takes its final pose first and stays still while each layer of cloth falls
-pose.apply_pose(rig, 'royal_audience')
+if POSE and POSE not in pose.POSES:
+    from lib import wardrobe as _w
+    _w._ensure_poses()
+pose.apply_pose(rig, POSE or 'royal_audience')
 
 
 def cloth(name, scan, dye, band=None, tiles=(7, 5), grime=0.06, width=0.04, sheen=0.2):

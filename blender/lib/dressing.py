@@ -232,15 +232,18 @@ def _people(points, rnd, out):
 
 
 # ------------------------------------------------------------------ the two layers that kill 'empty'
-COVER = {   # setting -> ground cover scans (Poly Haven CC0, cloud-safe) and relative weights
-    'village': [('grass_medium_01', 4), ('shrub_01', 1), ('searsia_lucida', 1), ('coast_land_rocks_02', 0.4)],
-    'market': [('grass_medium_01', 2), ('coast_land_rocks_02', 0.3)],
-    'harbour': [('grass_medium_01', 2), ('coast_rocks_01', 1), ('coast_land_rocks_02', 1)],
-    'countryside': [('grass_medium_01', 5), ('shrub_01', 2), ('shrub_03', 2), ('searsia_lucida', 2), ('coast_land_rocks_02', 0.6),
-                    ('boulder_01', 0.2)],
-    'persian_camp': [('grass_medium_01', 2), ('dry_branches_medium_01', 1), ('coast_land_rocks_02', 0.5)],
-    'battlefield': [('grass_medium_01', 2), ('dry_branches_medium_01', 1.5), ('coast_land_rocks_02', 1)],
+COVER = {   # setting -> ground cover scans (Poly Haven CC0, cloud-safe) and weights. Towns get NO rocks (a swept
+            # square or yard has no boulders); rocks elsewhere are scattered small (see ROCKS, separate size range)
+    'village': [('grass_medium_01', 4), ('shrub_01', 1), ('searsia_lucida', 1)],
+    'market': [('grass_medium_01', 1)],
+    'harbour': [('grass_medium_01', 2)],
+    'countryside': [('grass_medium_01', 5), ('shrub_01', 2), ('shrub_03', 2), ('searsia_lucida', 2)],
+    'persian_camp': [('grass_medium_01', 2), ('dry_branches_medium_01', 1)],
+    'battlefield': [('grass_medium_01', 2), ('dry_branches_medium_01', 1.5)],
     'garden': [('grass_medium_01', 8), ('shrub_01', 2), ('shrub_03', 2), ('searsia_lucida', 1)],
+}
+ROCKS = {    # setting -> share of the cover count given to small scattered rocks (0 = none)
+    'countryside': 0.12, 'harbour': 0.25, 'battlefield': 0.2, 'persian_camp': 0.08,
 }
 SKYLINE = {  # setting -> what lines the distance (built once, instanced along a band 35-90 m into the view)
     'village': 'houses', 'market': 'houses', 'harbour': 'houses', 'persian_camp': 'tents', 'countryside': 'trees',
@@ -265,9 +268,15 @@ def ground_cover(cam, ground, setting, count, keep_clear=(), seed=0, far=120.0):
     if area is None:
         return None
     cam_xy = (cam.matrix_world.translation.x, cam.matrix_world.translation.y)
-    return scatter.scatter(ground, COVER.get(setting, COVER['village']), count, area, seed=seed, size=(0.7, 1.4),
-                           min_z=-5.0, clusters=max(20, count // 60), cluster_r=5.0, keep_clear=list(keep_clear),
-                           near=cam_xy, collection_name=f'cover_{setting}')
+    out = scatter.scatter(ground, COVER.get(setting, COVER['village']), count, area, seed=seed, size=(0.7, 1.4),
+                          min_z=-5.0, clusters=max(20, count // 60), cluster_r=5.0, keep_clear=list(keep_clear),
+                          near=cam_xy, collection_name=f'cover_{setting}')
+    share = ROCKS.get(setting, 0.0)
+    if share:                                                         # stones, not boulders: small scale range
+        scatter.scatter(ground, [('coast_land_rocks_02', 1), ('coast_rocks_01', 0.6)], int(count * share), area, seed=seed + 1,
+                        size=(0.12, 0.35), min_z=-5.0, clusters=max(10, count // 200), cluster_r=4.0,
+                        keep_clear=list(keep_clear), near=cam_xy, collection_name=f'stones_{setting}')
+    return out
 
 
 def skyline(cam, ground, setting, seed=0, band=(35.0, 90.0), count=14):

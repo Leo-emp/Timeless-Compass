@@ -1,0 +1,11 @@
+{
+  "name": "d_priestess",
+  "active": true,
+  "script": "blender/scenes/ws3_wardrobe.py",
+  "args": [
+    "out/priestess.png",
+    "24",
+    "priestess",
+    "full"
+  ]
+}

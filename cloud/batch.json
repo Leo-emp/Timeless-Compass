@@ -1,13 +1,19 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "b4-people",
+  "batch": "d-verify-5",
   "run": [
-    "card_xerxes",
-    "card_leonidas",
-    "card_themistocles",
-    "card_sicinnus",
-    "card_aristides",
-    "card_eurybiades",
-    "card_artemisia"
+    "d_king_hanging",
+    "d_king_audience",
+    "d_median_cap",
+    "d_median_full",
+    "d_woman_static",
+    "d_diadem_head",
+    "d_priestess",
+    "d_country_field",
+    "d_country_floor",
+    "d_windclip",
+    "d_dress_market",
+    "d_dress_workshops",
+    "d_dress_village"
   ]
 }

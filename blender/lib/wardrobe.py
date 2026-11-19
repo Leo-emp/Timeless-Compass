@@ -649,6 +649,12 @@ def peplos(human, rig, pos, material, overfold=None, belt_over=True, frames=45, 
     rx, ry = max(s + 0.14, 0.32), 0.22                              # wide: wool falls in deep folds
     wrx, wry = M['waist_rx'] + 0.012, M['waist_ry'] + 0.012
     hand_z = M['hip_z'] - 0.12
+    # never narrower than the body (hips + thighs) at hand height: a skirt narrower than that let the hanging hands
+    # get inside it and push it open into side splits from the belt to the knee (character cards, 2026-11-20)
+    sel = (np.abs(pos[:, 2] - hand_z) < 0.02) & (np.abs(pos[:, 0]) < 0.3)
+    body_rx = float(np.abs(pos[sel][:, 0]).max()) if sel.any() else 0.18
+    body_ry = float(np.abs(pos[sel][:, 1] - cy).max()) if sel.any() else 0.14
+    skirt_hx, skirt_hy = max(0.215, body_rx + 0.035), max(0.17, body_ry + 0.04)
     def belt(pad):
         return lambda a: ((M['waist_rx'] + pad) * math.cos(a), cy + (M['waist_ry'] + pad) * math.sin(a))
     def ring(X, Y):
@@ -657,10 +663,10 @@ def peplos(human, rig, pos, material, overfold=None, belt_over=True, frames=45, 
         # waist -> hands: close to the hips (0.215 m half-width at the hands) -> floor: full width
         if z > hand_z:
             f = (M['waist_z'] - z) / max(1e-6, M['waist_z'] - hand_z)
-            X, Y = wrx + (0.215 - wrx) * f, wry + (0.17 - wry) * f
+            X, Y = wrx + (skirt_hx - wrx) * f, wry + (skirt_hy - wry) * f
         else:
             f = (hand_z - z) / max(1e-6, hand_z - 0.035)
-            X, Y = 0.215 + (rx - 0.215) * f ** 0.8, 0.17 + (ry - 0.17) * f ** 0.8
+            X, Y = skirt_hx + (max(rx, skirt_hx) - skirt_hx) * f ** 0.8, skirt_hy + (max(ry, skirt_hy) - skirt_hy) * f ** 0.8
         return X * math.cos(a), cy + Y * math.sin(a)
     main = _column_tube('peplos', seg, _seam_top(pos, M, rx, ry, top_z, pinned, neck_w=0.12, seam_lo=0.42 * s),
                         M['waist_z'], lambda a: 0.035, ring(rx, ry), a_line, belt(0.012), ring_h, material,
@@ -915,7 +921,18 @@ def trousers(human, rig, material, frames=40, ring_h=0.012, seg=48, sim=False):
     return o
 
 
-def candys(human, rig, pos, material, pleats=24, hitch=0.11, frames=45, seg=192, ring_h=0.014, sim=True):
+def _arm_clearance(rig, urx, gap=0.06):
+    """Posed garments around the chest (candys, Median tunic) must not START inside the arms. If the arms hang close
+    to the body (any pose other than the reliefs' arms-out audience pose), widen the chest tube to pass over them:
+    the cloth then drapes over the upper arms and the sleeves cover them, instead of the arms cutting the robe into
+    shreds (character cards, 2026-11-20)."""
+    ex = min(abs(float(bone_pos(rig, f'lowerarm01.{sd}')[0])) for sd in 'LR')       # elbows' distance from the midline
+    if ex < urx + 0.04:
+        return ex + gap
+    return urx
+
+
+def candys(human, rig, pos, material, pleats=24, hitch=0.05, frames=45, seg=192, ring_h=0.014, sim=True):
     """Body of the Persian court robe (Greek 'kandys'; the 'Persian robe' of the Persepolis reliefs, c. 500-480 BC:
     Apadana stairs, Treasury audience relief, the king on the palace door jambs). An ankle-length robe,
     girdled, the skirt falling in stacked PLEATS (the reliefs carve a central cascade of zigzag folds) and
@@ -927,6 +944,7 @@ def candys(human, rig, pos, material, pleats=24, hitch=0.11, frames=45, seg=192,
     cy = M['cy']
     crx, cry = _chest(ppos, M, M['shoulder_z'] - 0.12)
     urx, ury = crx + 0.03, cry + 0.045                               # close over the chest, under the sleeves
+    urx = _arm_clearance(rig, urx)                                   # arms hanging close: pass OVER them, not through
     top_z = M['shoulder_z'] + 0.02
     wrx, wry = M['waist_rx'] + 0.012, M['waist_ry'] + 0.012
     hrx, hry = 0.30, 0.25                                            # hem
@@ -997,8 +1015,11 @@ def wide_sleeves(human, rig, material, wrist_r=0.2, frames=40, sim=True):
     for side in 'LR':
         P0, P1 = bone_pos(rig, f'upperarm01.{side}'), bone_pos(rig, f'lowerarm01.{side}')
         L1 = float(np.linalg.norm(P1 - P0))
-        o = _arm_tube(f'sleeve_upper.{side}', rig, ppos, side, 0.03, L1 + 0.02, lambda l, ar: ar + 0.035,
-                      lambda r, rows, th: 1.0 if r == 0 else 0.0, ring_h=0.018, seg=40, material=material)
+        # start a little down the arm (at the joint the ring cut into the robe and made shoulder spikes) and pin only
+        # the UPPER half of the first ring (the cloth hangs from the top of the shoulder, not from the armpit)
+        o = _arm_tube(f'sleeve_upper.{side}', rig, ppos, side, 0.07, L1 + 0.02, lambda l, ar: ar + 0.035,
+                      lambda r, rows, th: (1.0 if math.sin(th) > -0.2 else 0.3) if r == 0 else 0.0,
+                      ring_h=0.018, seg=40, material=material)
         _cloth(o, 'pin', mass=0.12, tension=12, bending=0.3).settings.quality = 8
         _finish(o, 0.0025)
         uppers.append(o)
@@ -1013,9 +1034,16 @@ def wide_sleeves(human, rig, material, wrist_r=0.2, frames=40, sim=True):
         def rad(l, ar, l0=l0, L2=L2):
             t = min(1.0, max(0.0, (l - l0) / (0.85 * L2)))
             return ar + 0.03 + (wrist_r - ar - 0.03) * (t * t * (3 - 2 * t))
-        o = _arm_tube(f'sleeve.{side}', rig, ppos, side, l0, l1, rad,
-                      lambda r, rows, th: 1.0 if abs(th - math.pi / 2) < math.radians(9) else 0.0,
-                      hang=True, ring_h=0.016, seg=64, material=material)
+        hanging = abs((P2 - P1)[2]) / (float(np.linalg.norm(P2 - P1)) + 1e-9) > 0.7
+        if hanging:
+            # arm hanging down: there is no 'top of the forearm' to hang a bag from - make a BELL sleeve instead,
+            # a wide tube centred on the forearm, pinned round its upper ring, flaring to the wrist
+            o = _arm_tube(f'sleeve.{side}', rig, ppos, side, l0, l1, lambda l, ar: rad(l, ar) * 0.75,
+                          lambda r, rows, th: 1.0 if r == 0 else 0.0, hang=False, ring_h=0.016, seg=64, material=material)
+        else:
+            o = _arm_tube(f'sleeve.{side}', rig, ppos, side, l0, l1, rad,
+                          lambda r, rows, th: 1.0 if abs(th - math.pi / 2) < math.radians(9) else 0.0,
+                          hang=True, ring_h=0.016, seg=64, material=material)
         cm = _cloth(o, 'pin', mass=0.14, tension=12, bending=0.35)
         cm.settings.quality = 10; cm.collision_settings.distance_min = 0.008
         _finish(o, 0.0025)
@@ -1053,6 +1081,7 @@ def median_tunic(human, rig, pos, material, frames=45, seg=144, sim=True):
     cy = M['cy']
     crx, cry = _chest(ppos, M, M['shoulder_z'] - 0.12)
     urx, ury = crx + 0.025, cry + 0.04
+    urx = _arm_clearance(rig, urx)
     wrx, wry = M['waist_rx'] + 0.012, M['waist_ry'] + 0.012
     def skirt(a, z, t):
         f = t ** 0.4                                                  # flares fast: room for the trouser legs
@@ -1089,7 +1118,7 @@ def persian_cap(human, rig, felt, band=None, kind='royal', height=None, lift=0.0
     Rigid mesh parented to the head bone. `band` = gold material for the rosette band (royal / fluted)."""
     import bmesh
     ppos = posed_surface(human)
-    zb = _eye_z(rig) + (0.035 if kind != 'median' else 0.045)
+    zb = _eye_z(rig) + 0.035                                          # just above the brows (felt caps sit low)
     base = _head_ring(human, rig, zb, lift, ppos=ppos)
     c = base.mean(axis=0)
     if kind in ('royal', 'fluted'):          # Persepolis reliefs: the tiara sits CLOSE to the head (hair is pressed
@@ -1131,26 +1160,35 @@ def persian_cap(human, rig, felt, band=None, kind='royal', height=None, lift=0.0
                                               matrix=Matrix.Translation(q))
             me = bpy.data.meshes.new('rosettes'); bm.to_mesh(me); bm.free()
             ro = link(bpy.data.objects.new('rosettes', me)); ro.data.materials.append(band); parts.append(ro)
-    else:                                                             # median: flaps + rounded dome (one mesh)
-        back = np.clip(np.sin(th), 0, 1)                              # +y = back of the head
-        side = np.clip(np.abs(np.cos(th)) * 1.4 - 0.4, 0, 1)
-        drop = 0.03 + 0.11 * back + 0.06 * (1 - back) * side
+    else:
+        # MEDIAN CAP (Persepolis Apadana: Medes, ushers, guards): a SOFT felt cap, ROUNDED like a low dome that sits
+        # down over the skull (fuller than the head, no flat top, no straight walls), with a flap over the back of
+        # the neck and two narrow lappets hanging beside the ears to the jaw; the face stays open. Felt sags: the
+        # surface gets gentle dents and the flaps a soft wave.
+        rnd = np.random.default_rng(7)
+        back = np.clip(np.sin(th), 0, 1) ** 1.5                      # +y = back of the head
+        ear = np.exp(-((np.abs(np.cos(th)) - 0.97) / 0.06) ** 2)      # narrow bands beside the ears
         front = np.clip(-np.sin(th), 0, 1)
-        drop = drop * (1 - front ** 3)                                # open in front of the face
+        drop = (0.012 + 0.1 * back + 0.13 * ear) * (1 - front ** 2)   # flaps: neck + lappets; open over the face
         rings = []
-        for t in np.linspace(1, 0, 6):                                # flaps: from their lower edge up to the base
-            ring = c + (base - c) * (1.06 + 0.04 * t)
-            ring[:, 2] = zb - drop * t
+        for t in np.linspace(1, 0, 7):                                # flaps: lower edge up to the base ring
+            ring = c + (base - c) * (1.04 + 0.02 * t)
+            ring = ring.copy(); ring[:, 2] = zb - drop * t
+            ring[:, :2] += (base[:, :2] - c[:2]) * (0.03 * np.sin(th * 5) * t)[:, None]   # soft wave in the felt
             rings.append(ring)
-        Hd = height or 0.11
-        for t in np.linspace(0.12, 0.96, 9):                          # rounded dome, tip leaning a little forward
-            k = math.sqrt(max(0.0, 1 - t * t)) * 1.06
-            ring = c + (base - c) * k
-            ring[:, 1] -= 0.025 * t * t; ring[:, 2] = zb + Hd * t
+        Hd = height or 0.085
+        for t in np.linspace(0.08, 1.0, 12):                          # the dome: full, round, slightly leaning forward
+            k = 1.07 * (1 - t ** 2.4) ** (1 / 2.4)                   # superellipse: rounder than a sphere cap
+            ring = c + (base - c) * max(k, 0.04)
+            ring = ring.copy()
+            ring[:, 1] -= 0.012 * t * t
+            ring[:, 2] = zb + Hd * t ** 0.85
+            dent = 0.004 * np.sin(th * 3 + 1.3) * np.sin(np.pi * t)   # felt is never perfectly round
+            ring[:, :2] += (base[:, :2] - c[:2]) * (dent / 0.08)[:, None]
             rings.append(ring)
         cap = _loft('median_cap', rings, felt, cap_top=True)
-        s = cap.modifiers.new('thick', 'SOLIDIFY'); s.thickness = 0.004; s.offset = 1.0
-        cap.modifiers.new('smooth', 'SUBSURF').levels = 1
+        s = cap.modifiers.new('thick', 'SOLIDIFY'); s.thickness = 0.005; s.offset = 1.0
+        cap.modifiers.new('smooth', 'SUBSURF').levels = 2
         parts.append(cap)
     from lib import cast as _cast
     for o in parts:
@@ -1265,7 +1303,7 @@ def dress_pins(garment, rig, metal, kind='perone', per_side=2):
     return parts
 
 
-def diadem(human, rig, metal, height=0.012, front=0.04, lift=0.012, z_up=0.05, kind='stephane', over=None):
+def diadem(human, rig, metal, height=0.006, front=0.02, lift=0.008, z_up=0.05, kind='stephane', over=None):
     """A band round the head just above the forehead:
       stephane : metal crown-band, taller over the forehead (goddesses, priestesses, brides: Hera and Aphrodite
                  on Attic vases)
@@ -1295,9 +1333,18 @@ def diadem(human, rig, metal, height=0.012, front=0.04, lift=0.012, z_up=0.05, k
     h = height + (front - height) * np.clip(-ny, 0, 1) ** 2.5 if kind == 'stephane' else np.full(len(base), height)
     top = c + (base - c) * 1.02; top[:, 2] = z + h
     o = _loft(kind, [base, top], metal)
-    s = o.modifiers.new('thick', 'SOLIDIFY'); s.thickness = 0.0015 if kind == 'stephane' else 0.004; s.offset = 1.0
+    s = o.modifiers.new('thick', 'SOLIDIFY'); s.thickness = 0.0008 if kind == 'stephane' else 0.004; s.offset = 1.0
     from lib import cast as _cast
     _cast.parent_to_bone(o, rig, 'head')
+    if kind == 'stephane':                                            # fine granulation: a row of tiny gold beads
+        import bmesh
+        bm = bmesh.new()
+        for i in range(0, len(top), 2):
+            bmesh.ops.create_uvsphere(bm, u_segments=6, v_segments=4, radius=0.0011,
+                                      matrix=Matrix.Translation(Vector(tuple(map(float, top[i])))))
+        me = bpy.data.meshes.new(kind + '_beads'); bm.to_mesh(me); bm.free()
+        beads = link(bpy.data.objects.new(kind + '_beads', me)); beads.data.materials.append(metal)
+        _cast.parent_to_bone(beads, rig, 'head')
     return o
 
 

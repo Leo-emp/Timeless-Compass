@@ -310,7 +310,8 @@ def _stone_bm(bm, center, size, rnd, rot=0.0, subdiv=2):
         p = v.co.copy()
         k = 1.0 + rnd.uniform(-0.18, 0.18)
         p *= k
-        p.z = max(-0.38, min(0.38, p.z))                               # flat-ish beds
+        p.z = max(-0.36, min(0.36, p.z))                               # flat beds (laid stone)
+        p.x = max(-0.46, min(0.46, p.x)); p.y = max(-0.44, min(0.44, p.y))   # blocky split faces, not pebbles
         p = Vector((p.x * size[0], p.y * size[1], p.z * size[2]))
         v.co = m @ p
 
@@ -335,32 +336,44 @@ def dry_stone_wall(points, height=1.1, width=0.55, seed=0, name='field_wall', ma
         return (gmw @ hit[0]).z if hit[0] is not None else z0
     pts = [Vector((p[0], p[1], p[2] if len(p) > 2 else 0.0)) for p in points]
     bm = bmesh.new()
+    # COURSES, the way a dry-stone waller builds: each course runs the whole length with stones TOUCHING, every
+    # other course shifted by half a stone (joints never line up: 'one over two'), bigger stones low, smaller up
+    # top, a row of flat capstones; the faces lean in (batter). The local height dips where the wall is ruined.
     for a, b in zip(pts[:-1], pts[1:]):
         seg = b - a; L = seg.length; d = seg.normalized(); side = Vector((-d.y, d.x, 0))
         heading = math.atan2(d.y, d.x)
-        s = 0.0
-        while s < L:
-            base = a + d * s
-            gz = ground_z(base.x, base.y, base.z)
-            h_here = height * (1 - ruined * max(0.0, math.sin(s * 0.9 + seed)) * rnd.random())
-            z = gz
-            course = 0
-            while z < gz + h_here - 0.05:
-                big = (1.0 - 0.45 * (z - gz) / height) * stone_scale    # bigger stones low in the wall
-                ln = rnd.uniform(0.25, 0.5) * big; hh = rnd.uniform(0.13, 0.24) * big
-                for face in ((-1, 1) if faces == 2 else (-1,)):           # two faces, rubble core between
-                    batter = (z - gz) / height * 0.08
-                    c = base + d * (ln / 2 + rnd.uniform(-0.03, 0.03)) + side * face * (width / 2 - 0.12 - batter) \
-                        + Vector((0, 0, z - base.z + hh / 2))
-                    _stone_bm(bm, c, (ln, rnd.uniform(0.2, 0.3) * stone_scale ** 0.5, hh), rnd, heading + rnd.uniform(-0.15, 0.15), subdiv)
-                z += hh * 0.92; course += 1
-            if rnd.random() < 0.35:                                     # capstone across the top
-                c = base + d * 0.2 + Vector((0, 0, z - base.z + 0.06))
-                _stone_bm(bm, c, (rnd.uniform(0.3, 0.45), width * 0.9, 0.12), rnd, heading)
-            if ruined and rnd.random() < ruined * 0.4:                  # a tumbled stone at the foot
-                c = base + side * rnd.choice((-1, 1)) * (width * 0.9 + rnd.uniform(0, 0.4)) + Vector((0, 0, gz - base.z + 0.08))
-                _stone_bm(bm, c, (0.3, 0.22, 0.16), rnd, rnd.uniform(0, 3))
-            s += rnd.uniform(0.28, 0.45) * stone_scale
+        def local_h(x):
+            return height * (1 - ruined * max(0.0, math.sin(x * 0.9 + seed)) * 0.8)
+        z_rel, course = 0.0, 0
+        while z_rel < height - 0.05:
+            big = (1.0 - 0.4 * z_rel / height) * stone_scale             # bigger stones low in the wall
+            hh = rnd.uniform(0.14, 0.22) * big                           # one height per course (a level course)
+            x = (0.5 if course % 2 else 0.0) * 0.4 * big * rnd.uniform(0.6, 1.0)
+            batter = z_rel / height * 0.08
+            while x < L:
+                ln = min(rnd.uniform(0.3, 0.6) * big, L - x + 0.05)
+                if z_rel < local_h(x) - 0.02:
+                    base = a + d * (x + ln / 2)
+                    gz = ground_z(base.x, base.y, base.z)
+                    for face in ((-1, 1) if faces == 2 else (-1,)):
+                        c = base + side * face * (width / 2 - 0.12 - batter) + Vector((0, 0, gz - base.z + z_rel + hh / 2))
+                        _stone_bm(bm, c, (ln * 1.04, rnd.uniform(0.22, 0.32) * stone_scale ** 0.5, hh * 1.06), rnd,
+                                  heading + rnd.uniform(-0.08, 0.08), subdiv)
+                x += ln
+            z_rel += hh * 0.97; course += 1
+        x = 0.0                                                          # capstones: flat slabs across the top
+        while x < L:
+            ln = rnd.uniform(0.28, 0.42)
+            if rnd.random() < 0.75 and local_h(x) > height - 0.1:
+                base = a + d * (x + ln / 2); gz = ground_z(base.x, base.y, base.z)
+                _stone_bm(bm, base + Vector((0, 0, gz - base.z + z_rel + 0.05)), (ln, width * 0.95, 0.1), rnd,
+                          heading + rnd.uniform(-0.1, 0.1), subdiv)
+            x += ln
+        if ruined:                                                       # tumbled stones at the foot
+            for k in range(int(L * ruined * 1.5)):
+                t = rnd.random(); base = a + d * (t * L); gz = ground_z(base.x, base.y, base.z)
+                c = base + side * rnd.choice((-1, 1)) * (width * 0.8 + rnd.uniform(0, 0.5)) + Vector((0, 0, gz - base.z + 0.07))
+                _stone_bm(bm, c, (0.3, 0.22, 0.15), rnd, rnd.uniform(0, 3), subdiv)
     me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
     o = link(bpy.data.objects.new(name, me))
     for p in o.data.polygons:

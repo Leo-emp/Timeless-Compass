@@ -192,6 +192,17 @@ elif OUTFIT in ('woman', 'woman_pins'):
         wardrobe.veil(human, rig, wool('veil_wool', UNDYED_WOOL, band=MADDER, grime=0.05))
     W.dusk_set(rig, SHOT, samples=SAMPLES, out=OUT)
 
+elif OUTFIT == 'woman_static':
+    # robustness test: the peplos built WITHOUT the pose blend (arms already hanging), as the old card path did -
+    # the skirt must still close (no side splits), now that it is never narrower than hips + thighs
+    human, rig, pos = W.make_person(W.WOMAN)
+    pose.apply_pose(rig, 'stand_relaxed')
+    body, over = wardrobe.peplos(human, rig, pos, wool('peplos_static', MADDER, band=WOAD), belt_over=True)
+    wardrobe.belt(rig, over, wool('girdle_s', SAFFRON, grime=0.05))
+    wardrobe.diadem(human, rig, gold)
+    wardrobe.earrings(human, rig, gold)
+    W.dusk_set(rig, SHOT, samples=SAMPLES, out=OUT)
+
 elif OUTFIT == 'servant':
     human, rig, pos = W.make_person(W.SERVANT)
     pose.blend_into_pose(rig, 'stand_relaxed', start=1, end=15)

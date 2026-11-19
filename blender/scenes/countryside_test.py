@@ -41,7 +41,7 @@ sets.land('far_hills', (-380, 520, -2), (700, 300), 180, rough=20, noise=34, see
 
 # --- light: low warm sun from the left-front, a real sky with clouds, gentle haze for depth
 common.hdri_sky('kloofendal_48d_partly_cloudy_puresky', background=0.9, lighting=0.3, rotate_deg=200)
-common.sun_light('sun', 4.2, (1.0, 0.72, 0.45), 11, 240, angle_deg=1.0)
+common.sun_light('sun', 4.5, (1.0, 0.74, 0.48), 17, 215, angle_deg=1.0)   # golden, from behind the camera's shoulder
 sets.haze(size=(3000, 3000, 400), density=0.00022, color=(1.0, 0.8, 0.6))
 
 views = {   # camera, target, lens
@@ -55,7 +55,7 @@ common.camera('cam', cam, tgt, lens=lens, fstop=8)
 bpy.context.scene.camera.data.clip_end = 6000
 common.render_settings(res=(960, 540) if FRAMES == 1 else (640, 360), samples=SAMPLES, path=OUT)
 bpy.context.scene.view_settings.look = 'AgX - High Contrast'
-bpy.context.scene.view_settings.exposure = -0.4
+bpy.context.scene.view_settings.exposure = 0.0
 if FRAMES == 1:
     common.render()
 else:                                                   # wind clip: the plants move with the scene clock
