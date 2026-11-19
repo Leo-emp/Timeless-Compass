@@ -42,21 +42,21 @@ if VARIANT == 'harbour':
     sets.stone_wall(-22.0, 22.0, 3.0, 1.0, depth=6.0)                 # quay wall: face at y = 0, top at z = 1
     ground('ws7_quay_paving', 'old_sandstone_02', (0.6, 0.55, 0.48), size=60.0, z=1.0, loc=(0, 32))
     props.dress_harbour((0, 0.0, 1.0), length=40.0, ships=2, seed=3)
-    common.camera('cam', Vector((16.0, -14.0, 4.5)), Vector((-2.0, 6.0, 1.5)), lens=28)
+    common.camera('cam', Vector((21.0, -21.0, 7.0)), Vector((-3.0, 7.0, 1.2)), lens=30)          # over the water, quay + town
 elif VARIANT == 'camp':
     common.sky_world(sun_elev_deg=10.0, sun_rot_deg=220.0, strength=0.3)
     common.sun_light('sun', 4.0, (1.0, 0.78, 0.55), 12, 220)
     ground('ws7_camp_earth', 'brown_mud_dry', (0.62, 0.55, 0.46), size=300.0)
     props.dress_persian_camp((0, 0, 0), seed=4)
-    common.camera('cam', Vector((9.0, -22.0, 3.2)), Vector((-1.0, 4.0, 1.4)), lens=26)
+    common.camera('cam', Vector((14.0, -26.0, 4.5)), Vector((-1.0, 6.0, 1.2)), lens=30)
 else:
     dusk_sea()
     ground('ws7_beach_sand', 'coast_sand_rocks_02', (0.62, 0.56, 0.46), size=120.0, z=-0.6, tilt_deg=2.2, loc=(0, 40))
     props.dress_beach_camp((0, 0, 0), ships=4, seed=5)
-    common.camera('cam', Vector((22.0, 6.0, 3.0)), Vector((-2.0, 22.0, 1.5)), lens=26)
+    common.camera('cam', Vector((34.0, -10.0, 9.0)), Vector((0.0, 22.0, 1.0)), lens=30)          # the whole beach from the sea
 
 sc.frame_set(FRAME)
 common.render_settings(res=(960, 540), samples=SAMPLES, path=OUT)
 sc.view_settings.look = 'AgX - High Contrast'
-sc.view_settings.exposure = 0.3
+sc.view_settings.exposure = -0.2 if VARIANT == 'camp' else 0.1
 common.render()

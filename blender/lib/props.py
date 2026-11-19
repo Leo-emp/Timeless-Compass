@@ -3073,7 +3073,7 @@ def dress_harbour(loc=(0, 0, 0), heading_deg=0.0, length=40.0, ships=2, seed=0, 
     # water: triremes moored stern-to, with gangplanks; fishing boats between them
     for k in range(ships):
         x = -L * 0.3 + k * (L * 0.6 / max(ships - 1, 1))
-        sh = trireme_v3((0, 0, 0), 0, oars='rest', crew='proxies', bob=True, seed=seed + k, name=f'{name}_ship{k}')
+        sh = trireme_v3((0, 0, 0), 0, oars='rest', crew='markers', bob=True, seed=seed + k, name=f'{name}_ship{k}')
         sh.parent = root; sh.location = (x, -1.2, -1.0); sh.rotation_euler.z = math.radians(-90)   # stern at the quay
         _put(gangplank((0, 0, 0), 0, length=2.2, rise=0.9, name=f'{name}_plank{k}'), root, (x, -1.0, -0.15), -90)
     for k in range(ships + 1):
@@ -3128,6 +3128,17 @@ def spear_stack(loc=(0, 0, 0), heading_deg=0.0, n=9, name='spear_stack'):
     return _place(root, loc, heading_deg)
 
 
+def _redress_tent(root, rnd):
+    """Give a props.tent (another session's function, left unchanged) real material: woven goat-hair / wool / hide
+    in earthy dyes, with a painted band at the hem - Persian tents were famous for their richness (Herodotus 9.82)."""
+    cols = [(0.30, 0.24, 0.17), (0.38, 0.30, 0.20), (0.26, 0.18, 0.12), (0.42, 0.33, 0.21), (0.20, 0.14, 0.10)]
+    c = rnd.choice(cols)
+    m = wool(f'tent_wool_{cols.index(c)}', c, tile=0.4)
+    for o in root.children_recursive:
+        if o.type == 'MESH' and o.data.materials and 'pole' not in o.name and 'pole' not in o.data.materials[0].name:
+            o.data.materials[0] = m
+
+
 def dress_persian_camp(loc=(0, 0, 0), heading_deg=0.0, size=(40.0, 28.0), seed=0, frames=(1, 240), name='persian_camp'):
     """A RICH Persian army camp (Xerxes' host, 480 BC): the king's pavilion on a carpet at the head of the camp, rows of
     tents, standards, cooking fires with cauldrons, stacked spears, baggage (chests, sacks, amphorae), a camel line
@@ -3148,8 +3159,9 @@ def dress_persian_camp(loc=(0, 0, 0), heading_deg=0.0, size=(40.0, 28.0), seed=0
         for i in range(6):
             for sgn in (-1, 1):
                 x = sgn * (5.5 + row * 5.0 + rnd.uniform(-0.6, 0.6)); y = D_ / 2 - 10 - i * 4.2 + rnd.uniform(-0.6, 0.6)
-                _put(tent((0, 0, 0), r=rnd.uniform(1.8, 2.4), h=rnd.uniform(2.3, 2.9), color=rnd.choice(cols), name=f'{name}_tent{k}'),
-                     root, (x, y, 0), rnd.uniform(0, 360))
+                t_ = tent((0, 0, 0), r=rnd.uniform(1.8, 2.4), h=rnd.uniform(2.3, 2.9), color=rnd.choice(cols), name=f'{name}_tent{k}')
+                _redress_tent(t_, rnd)
+                _put(t_, root, (x, y, 0), rnd.uniform(0, 360))
                 k += 1
                 if rnd.random() < 0.45:                  # baggage in front of the tents
                     j = rnd.random()
@@ -3215,7 +3227,9 @@ def dress_beach_camp(loc=(0, 0, 0), heading_deg=0.0, ships=4, seed=0, frames=(1,
                   old_wood('tri3_oarwood', (0.40, 0.29, 0.17)), root, poly=True)
     for k in range(ships + 2):                           # sailcloth shelters, campfires, water jars
         x = (k - (ships + 1) / 2) * 7.0
-        _put(tent((0, 0, 0), r=1.9, h=2.0, color=(0.6, 0.53, 0.42), name=f'{name}_shelter{k}'), root, (x, 30.0 + rnd.uniform(-1, 1), 0))
+        t_ = tent((0, 0, 0), r=1.9, h=2.0, color=(0.6, 0.53, 0.42), name=f'{name}_shelter{k}')
+        _redress_tent(t_, rnd)
+        _put(t_, root, (x, 30.0 + rnd.uniform(-1, 1), 0))
         _put(cauldron_fire((0, 0, 0), 0, frames=frames, seed=seed + k, name=f'{name}_fire{k}'), root, (x + 2.5, 27.0, 0))
         _put(amphora_stand((0, 0, 0), 0, name=f'{name}_water{k}'), root, (x - 2.0, 28.0, 0))
     for i in range(36):

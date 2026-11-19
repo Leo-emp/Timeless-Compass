@@ -92,7 +92,7 @@ elif VARIANT == 'aigaleos':               # the REAL setting (Herodotus 8.90, Pl
     sc.frame_set(FRAME)
     common.camera('cam', Vector((4.5, -27.0, z0 + 1.0)), Vector((-0.5, -40.0, z0 + 1.6)), lens=32)
     common.render_settings(res=(960, 540), samples=SAMPLES, path=OUT)
-    sc.view_settings.look = 'AgX - High Contrast'; sc.view_settings.exposure = 0.2
+    sc.view_settings.look = 'AgX - High Contrast'; sc.view_settings.exposure = -1.6   # the set's sun is strong
     common.render()
 elif VARIANT == 'scribes':
     W.room(w=8.0, d=6.0, floor='old_sandstone_02', wall='plastered_wall_02', floor_tint=(0.5, 0.48, 0.45), wall_tint=(0.55, 0.52, 0.48))
