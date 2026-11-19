@@ -1,22 +1,15 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "d-verify-6",
+  "batch": "d-verify-7",
   "run": [
-    "d_median_cap",
-    "d_median_full",
-    "d_diadem_head",
-    "d_king_hanging",
-    "d_king_audience",
-    "d_priestess",
-    "d_country_field",
+    "d_traveller",
+    "d_woman_pins",
+    "d_woman_veil",
+    "d_woman_ionic",
     "d_country_floor",
-    "d_country_terr",
-    "d_country_wide",
-    "d_windclip",
     "d_dress_village",
-    "d_dress_beach",
-    "d_dress_workshops",
-    "d_dress_market",
-    "d_crowd_mede"
+    "d_crowd_farmer",
+    "d_crowd_fisher",
+    "d_crowd_villager"
   ]
 }

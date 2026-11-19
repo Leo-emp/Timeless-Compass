@@ -58,7 +58,8 @@ elif VIEW == 'village':
     cs.grain_field('village_field', size=(50.0, 30.0), loc=(0, -62, 0), state='ripe', density=18, seed=5)
     cs.olive_grove(g, (-90, -40, -40, 40), spacing=10, seed=6)
     sets.land('village_hills', (0, 520, -2), (900, 260), 220, rough=24, noise=40, seed=4)
-    cam, tgt, lens = Vector((-30, -95, 16)), Vector((0, 0, 2)), 35
+    # eye level in the village street (the dressing, animals and people read at this height; an aerial view hid them)
+    cam, tgt, lens = Vector((6.0, -44.0, 1.65)), Vector((-1.0, 0.0, 2.2)), 32       # at the village edge, eye level
     common.hdri_sky('kloofendal_48d_partly_cloudy_puresky', background=0.85, lighting=0.3, rotate_deg=200)
     common.sun_light('sun', 4.6, (1.0, 0.75, 0.5), 24, 35)               # front-side key for a camera looking +y
     sets.haze(size=(3000, 3000, 400), density=0.0002, color=(1.0, 0.8, 0.6))

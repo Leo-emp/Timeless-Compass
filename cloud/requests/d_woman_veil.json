@@ -1,0 +1,11 @@
+{
+  "name": "d_woman_veil",
+  "active": true,
+  "script": "blender/scenes/ws3_wardrobe.py",
+  "args": [
+    "out/woman_veil.png",
+    "24",
+    "woman",
+    "full"
+  ]
+}
