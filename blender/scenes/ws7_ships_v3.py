@@ -36,6 +36,13 @@ if VARIANT == 'close':
 elif VARIANT == 'sail':
     props.trireme_v3((0, 40, 0), heading_deg=10, oars=None, sail='set', crew='proxies', name='cruiser')
     common.camera('cam', Vector((-24.0, 16.0, 4.5)), Vector((16.0, 43.0, 7.0)), lens=32)   # stern quarter: sail seen full
+elif VARIANT in ('hero', 'hero_sail'):    # the majestic angle: low at the water, wide lens, ship coming on
+    sail = VARIANT == 'hero_sail'
+    props.trireme_v3((2, 64, 0), heading_deg=-95, oars=None if sail else 'row', sail='set' if sail else None,
+                     crew='proxies', speed_mps=4.5, name='hero')
+    props.fleet((-60, 220, 0), count=14, spread=(260.0, 120.0), heading_deg=-95, phoenician_share=0.0,
+                oars='rest', camera=(9.0, 12.0, 0.9), far=60.0, seed=5, name='behind')     # the rest of the fleet
+    common.camera('cam', Vector((9.0, 12.0, 0.9)), Vector((-1.0, 42.0, 4.5)), lens=24)
 elif VARIANT == 'quay':                    # dressed harbour quay: amphorae, ropes, anchors, baskets, moored boats
     sets.stone_wall(-14.0, 14.0, 22.0, 1.0, depth=6.0)        # quay: wall face at y = 19, top at z = 1
     props.dress_quay((0, 20.0, 1.0), length=24.0, boats=2, seed=2)   # props on top, boats moored off the face

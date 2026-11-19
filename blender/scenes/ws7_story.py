@@ -54,6 +54,22 @@ elif VARIANT == 'wall':
     sc.frame_set(FRAME)
     common.camera('cam', Vector((3.5, -4.5, 1.6)), Vector((-0.5, 4.0, 1.2)), lens=28)
     W.finish(OUT, SAMPLES, exposure=-0.6)
+elif VARIANT == 'court':                   # Xerxes' throne on Aigaleos: the king's setting without the king
+    W.room(w=9.0, d=7.0, floor='old_sandstone_02', wall='plastered_wall_02', floor_tint=(0.45, 0.43, 0.4), wall_tint=(0.3, 0.28, 0.27))
+    W.dark_world(0.03)
+    props.throne((0.0, 2.2, 0), heading_deg=0)          # footstool side (-Y) faces the camera
+    props.royal_parasol((0.55, 2.55, 0.0), heading_deg=0, tilt_deg=-8)
+    for x in (-1.1, 1.1):
+        props.incense_burner((x, 0.9, 0), name=f'incense_{"l" if x < 0 else "r"}')
+    props.trapeza((-1.9, 1.6, 0), heading_deg=90, name='side_table')
+    props.phiale((-1.95, 1.45, 0.5), name='phiale_gold')
+    props.rhyton((-1.85, 1.8, 0.5), heading_deg=30)
+    props.scribe_kit((1.8, 1.4, 0.0), heading_deg=-60, persian=True, name='secretary_kit')   # on the ground: scribes sat
+    W.window_light((0.0, 2.0, 0.8), energy=420.0, loc=(3.0, -2.5, 3.2), size=2.0, color=(1.0, 0.86, 0.66))
+    common.area_light('rim', 150.0, (0.6, 0.7, 1.0), (-2.5, 3.5, 2.5), (0, 2.0, 0.8), size=1.5)
+    sc.frame_set(FRAME)
+    common.camera('cam', Vector((0.6, -3.2, 1.5)), Vector((0.0, 1.8, 0.9)), lens=32)
+    W.finish(OUT, SAMPLES, exposure=-0.4)
 elif VARIANT == 'scribes':
     W.room(w=8.0, d=6.0, floor='old_sandstone_02', wall='plastered_wall_02', floor_tint=(0.5, 0.48, 0.45), wall_tint=(0.55, 0.52, 0.48))
     W.dark_world(0.02)
@@ -69,13 +85,13 @@ else:
     sun = bpy.data.objects['sun']; sun.data.energy = 8.0
     sun.rotation_euler = (math.radians(90 - 12), 0, math.radians(118))
     sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value = 0.25
-    props.wreck_debris((0, 26, 0), radius=12.0, count=45, seed=4)
+    props.wreck_debris((2, 18, 0), radius=9.0, count=60, seed=4)
     props.trireme_v3((-20, 40, 0), heading_deg=-20, oars='rest', crew='proxies', name='victor')
-    props.trireme_v3((12, 46, 0), heading_deg=140, oars=None, crew='proxies', phoenician=True, bob=False, name='sinking')
+    props.trireme_v3((-12, 24, 0), heading_deg=150, oars=None, crew='proxies', phoenician=True, bob=False, name='sinking')
     bpy.data.objects['sinking'].rotation_euler = (math.radians(9), math.radians(-4), math.radians(140))   # listing
     bpy.data.objects['sinking'].location.z = -0.9
     sc.frame_set(FRAME)
-    common.camera('cam', Vector((6.0, 6.0, 2.0)), Vector((0.0, 30.0, 0.6)), lens=30)
+    common.camera('cam', Vector((9.0, 4.0, 3.2)), Vector((-2.0, 24.0, 0.4)), lens=30)
     common.render_settings(res=(960, 540), samples=SAMPLES, path=OUT)
     sc.view_settings.look = 'AgX - High Contrast'; sc.view_settings.exposure = 0.4
     common.render()
