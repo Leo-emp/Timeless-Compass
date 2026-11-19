@@ -688,7 +688,11 @@ def peplos(human, rig, pos, material, overfold=None, belt_over=True, frames=45, 
     over = _column_tube('peplos_overfold', seg, _seam_top(pos, M, R2, Y2, top_z, pinned, neck_w=0.12,
                                                           seam_lo=0.42 * s, lift=0.01),
                         M['waist_z'], lambda a: top_z - ofl, ring(R2, Y2), over_skirt,
-                        belt(0.03) if belt_over else None, ring_h, material, slit_z=armpit_z)
+                        belt(0.03) if belt_over else None, ring_h, material,
+                        slit_z=-10.0, slit_w=0.22)
+    # slit_z=-10: the overfold is OPEN at both sides all the way down - a front and a back panel with the arms
+    # between them (Peplos Kore, Athena Parthenos type). As a closed tube below the armpits it held the hanging
+    # arms inside and the hands pushed its sides out into a stiff box (d-verify-7/8/9 stills).
     cm = _cloth(over, 'pin', mass=0.32, tension=12, bending=0.04)    # heavier, softer: droops beside the arms
     cm.settings.quality = 10; cm.collision_settings.distance_min = 0.006; cm.collision_settings.collision_quality = 4
     cm.settings.air_damping = 0.8

@@ -15,6 +15,7 @@
 # few small code-built "clumps" (a dozen stalks each). Thousands of instances share the clump mesh, so a 40 x 30 m
 # field of ~1.5 million stalks costs about as much memory as a few hundred.
 import math
+import os
 import random
 
 import bpy
@@ -643,6 +644,27 @@ def sheaf_heap(loc, n=26, seed=0, name='sheaves', stalks=30):
         pinch = 0.35 + 0.65 * abs(z - 0.4) / 0.5
         v.co.x *= pinch; v.co.y *= pinch
     col.objects.link(sheaf)
+    if stalks >= 60:
+        # a full sheaf is DENSE: a solid core of straw inside the loose stalks (the stalks alone read as a few
+        # straws on a cart), pinched at the tie, with a twisted straw band round the waist of the bundle
+        bm = bmesh.new()
+        res = bmesh.ops.create_cone(bm, cap_ends=True, segments=14, radius1=0.07, radius2=0.07, depth=0.72,
+                                    matrix=Matrix.Translation((0, 0, 0.36)))
+        for v in res['verts']:
+            z = v.co.z
+            pinch = 0.55 + 0.45 * min(1.0, abs(z - 0.4) / 0.32)
+            v.co.x *= pinch; v.co.y *= pinch
+        me = bpy.data.meshes.new(name + '_core'); bm.to_mesh(me); bm.free()
+        core = bpy.data.objects.new(name + '_core', me); core.data.materials.append(_plant_material(f'straw_core_{seed}', 1.0))
+        for pg in me.polygons:
+            pg.use_smooth = True
+        col.objects.link(core)
+        bm = bmesh.new(); bmesh.ops.create_cone(bm, cap_ends=False, segments=14, radius1=0.043, radius2=0.043, depth=0.05,
+                                                matrix=Matrix.Translation((0, 0, 0.4)))
+        me = bpy.data.meshes.new(name + '_band'); bm.to_mesh(me); bm.free()
+        band = bpy.data.objects.new(name + '_band', me); band.data.materials.append(_plant_material(f'straw_band_{seed}', 0.7))
+        band.modifiers.new('t', 'SOLIDIFY').thickness = 0.012
+        col.objects.link(band)
     root = link(bpy.data.objects.new(name, None)); root.location = loc
     for i in range(n):
         inst = bpy.data.objects.new(f'{name}_{i}', None)
@@ -1004,26 +1026,64 @@ def mountain(name='mountain', loc=(0, 0, 0), size=(900.0, 500.0), height=260.0, 
         pg.use_smooth = True
     # slope-based look: steep = grey rock (cliff scan), gentle = dry scrubby soil (coast_land_rocks scan);
     # the 'density' group (gentle, low-to-mid slopes) is where the scrub grows
-    rock = soil_material(f'{name}_rock', scan='cliff_side', tint=rock_tint, tiles=0.05)
-    soil = soil_material(f'{name}_scrubsoil', scan='coast_land_rocks_01', tint=scrub_tint, tiles=0.12)
-    me.materials.append(soil); me.materials.append(rock)
-    me.calc_loop_triangles() if hasattr(me, 'calc_loop_triangles') else None
+    # ONE material, blended smoothly by slope (per-face slots gave hard stair-step edges): grey limestone
+    # (rock_boulder_dry, 8 m repeat) on the steep faces, olive-brown scrub ground (coast_sand_rocks_02) on the
+    # gentle slopes; the blend follows a per-vertex 'gentle' value broken up by noise so the scrub runs in tongues
+    # down the gullies. NB scan_material's `tiles` = metres per repeat (0.05 had made a 5 cm repeat = flat colour).
+    from lib import scatter
+    mat = scatter.scan_material(f'{name}_mtn', 'rock_boulder_dry', tint=rock_tint, tiles=8.0)
+    nt = mat.node_tree; Ln = nt.links.new; bsdf = nt.nodes['Principled BSDF']
+    rock_col = bsdf.inputs['Base Color'].links[0].from_socket
+    tcn = nt.nodes.new('ShaderNodeTexCoord')
+    mps = nt.nodes.new('ShaderNodeMapping'); mps.inputs['Scale'].default_value = (1 / 6.0,) * 3
+    Ln(tcn.outputs['Object'], mps.inputs['Vector'])
+    sd = os.path.join(SCANS, 'coast_sand_rocks_02')
+    sf = next((f for f in os.listdir(sd) if '_diff_' in f), None) if os.path.isdir(sd) else None
+    if sf:
+        st = nt.nodes.new('ShaderNodeTexImage'); st.image = bpy.data.images.load(os.path.join(sd, sf), check_existing=True)
+        st.projection = 'BOX'; st.projection_blend = 0.25; Ln(mps.outputs['Vector'], st.inputs['Vector'])
+        scrub_col = st.outputs['Color']
+    else:
+        rgb = nt.nodes.new('ShaderNodeRGB'); rgb.outputs[0].default_value = (0.2, 0.19, 0.12, 1); scrub_col = rgb.outputs[0]
+    stint = nt.nodes.new('ShaderNodeMix'); stint.data_type = 'RGBA'; stint.blend_type = 'MULTIPLY'
+    stint.inputs['Factor'].default_value = 1.0; stint.inputs['B'].default_value = (*scrub_tint, 1)
+    Ln(scrub_col, stint.inputs['A'])
+    at = nt.nodes.new('ShaderNodeAttribute'); at.attribute_type = 'GEOMETRY'; at.attribute_name = 'gentle'
+    nz = nt.nodes.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 0.02; nz.inputs['Detail'].default_value = 6
+    Ln(tcn.outputs['Object'], nz.inputs['Vector'])
+    add = nt.nodes.new('ShaderNodeMath'); add.operation = 'MULTIPLY_ADD'; add.inputs[1].default_value = 0.6
+    Ln(nz.outputs['Fac'], add.inputs[0]); add.inputs[2].default_value = -0.3
+    sm = nt.nodes.new('ShaderNodeMath'); sm.operation = 'ADD'; Ln(at.outputs['Fac'], sm.inputs[0]); Ln(add.outputs[0], sm.inputs[1])
+    mr = nt.nodes.new('ShaderNodeMapRange'); mr.inputs['From Min'].default_value = 0.45; mr.inputs['From Max'].default_value = 0.75
+    Ln(sm.outputs[0], mr.inputs['Value'])
+    mix = nt.nodes.new('ShaderNodeMix'); mix.data_type = 'RGBA'
+    Ln(mr.outputs['Result'], mix.inputs['Factor']); Ln(rock_col, mix.inputs['A']); Ln(stint.outputs['Result'], mix.inputs['B'])
+    Ln(mix.outputs['Result'], bsdf.inputs['Base Color'])
+    me.materials.append(mat)
     vg = o.vertex_groups.new(name='density')
-    flat = {}
+    flat, cnt = {}, {}
     for pg in me.polygons:
-        steep = pg.normal.z < 0.78 + 0.08 * noise.noise(Vector(pg.center) * 0.02)
-        pg.material_index = 1 if steep else 0
+        g_ = max(0.0, min(1.0, (pg.normal.z - 0.68) / 0.22))           # 0 = cliff, 1 = gentle slope
         for vi in pg.vertices:
-            flat[vi] = flat.get(vi, 0.0) + (0.0 if steep else 1.0)
-    cnt = {}
-    for pg in me.polygons:
-        for vi in pg.vertices:
-            cnt[vi] = cnt.get(vi, 0) + 1
-    for vi, f in flat.items():
+            flat[vi] = flat.get(vi, 0.0) + g_; cnt[vi] = cnt.get(vi, 0) + 1
+    gentle = me.attributes.new('gentle', 'FLOAT', 'POINT')
+    for vi in range(len(me.vertices)):
+        f = flat.get(vi, 0.0) / max(1, cnt.get(vi, 1))
         z = me.vertices[vi].co.z / max(1.0, height)
-        dens = (f / cnt[vi]) * max(0.0, 1.0 - z * 1.1)                 # scrub thins out towards the summit
+        gentle.data[vi].value = f * max(0.0, 1.0 - z * 0.8)            # scrub thins out towards the summit
+        dens = f * max(0.0, 1.0 - z * 1.1)
         if dens > 0.02:
             vg.add([vi], dens, 'REPLACE')
+    if scrub:
+        try:
+            col = _hidden_collection(f'{name}_scrub')
+            for sc_id in ('shrub_01', 'shrub_03'):
+                for c in scatter.load_scan(sc_id):
+                    if c.name not in col.children:
+                        col.children.link(c)
+            wind_scatter(o, col, 0.016, seed=seed, gust=0.0, flutter=0.0, scale=(1.4, 3.2), name=f'{name}_scrubwind')
+        except Exception as e:
+            print('mountain: no scrub scans here -', e)
     o.location = loc
     if scrub:
         try:
