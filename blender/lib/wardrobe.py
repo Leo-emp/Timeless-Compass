@@ -1850,6 +1850,15 @@ def chlamys(human, rig, material, length=0.78, frames=90, seg=112, ring_h=0.016,
     # starts just OUTSIDE the tunic (chest + 7 cm): started at +4 cm it began inside the chiton's sleeves and the
     # collider crumpled it into a heap at the chest (d-verify-8..11); the poncho look came from the loose front edge
     R, Ry = crx + 0.07, cry + 0.07
+    # ...and outside whatever is already frozen under it: the chiton hangs over the upper arms ~0.31 m out, so a
+    # cloak started at chest + 7 cm still began INSIDE its sleeves (d-verify-14: chiton showing through in patches)
+    for c in bpy.context.scene.objects:
+        if c.type == 'MESH' and c is not human and any(m.type == 'COLLISION' for m in c.modifiers) and c.data.vertices:
+            v = np.array([c.matrix_world @ Vector(q.co) for q in c.data.vertices])
+            band = v[(v[:, 2] > sz - 0.28) & (v[:, 2] < sz + 0.06)]
+            if len(band) and np.abs(band[:, 0]).max() < 0.6:         # (a garment on this body, not scenery)
+                R = max(R, float(np.abs(band[:, 0]).max()) + 0.03)
+                Ry = max(Ry, float(np.abs(band[:, 1] - cy).max()) + 0.03)
     pin_a = math.pi                                                   # the RIGHT side (-x) is where it opens
     rows = int(length / ring_h) + 1
     verts, pins = [], []
@@ -1894,16 +1903,7 @@ def chlamys(human, rig, material, length=0.78, frames=90, seg=112, ring_h=0.016,
     cm.settings.quality = 10; cm.collision_settings.distance_min = 0.008; cm.collision_settings.collision_quality = 4
     _finish(o, 0.0035, offset=1.0)
     if sim:
-        # the frozen tunic under it: thin, slippery collision shell while the cloak settles (the default 2 cm shell
-        # + friction 10 caught the wool and held it up in folds)
-        under = [(c, c.collision.thickness_outer, c.collision.cloth_friction) for c in bpy.context.scene.objects
-                 if c is not o and c.type == 'MESH' and any(m.type == 'COLLISION' for m in c.modifiers)
-                 and c.name not in (human.name,)]
-        for c, _, _ in under:
-            c.collision.thickness_outer = min(c.collision.thickness_outer, 0.006); c.collision.cloth_friction = 2.0
         _sim_freeze([o], frames)
-        for c, th, fr in under:
-            c.collision.thickness_outer = th; c.collision.cloth_friction = fr
     return o
 
 
