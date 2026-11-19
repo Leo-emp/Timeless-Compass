@@ -20,6 +20,16 @@ W.room(w=8.0, d=6.0, floor='damaged_plaster', wall='clay_plaster', wall_tint=(0.
 W.dark_world(0.015)
 lit = VARIANT != 'day'
 
+if VARIANT == 'andron':                   # RICH room from one call: painted shell + symposion + wall clutter
+    for o in list(bpy.data.objects):          # the plain test room is not needed: the kit brings its own walls
+        bpy.data.objects.remove(o, do_unlink=True)
+    W.dark_world(0.01)
+    props.dress_andron((0, 0, 0), couches=3, lit=True, seed=2)
+    common.area_light('door', 120.0, (0.6, 0.7, 1.0), (2.6, 2.2, 2.0), (0.0, 0.0, 1.0), size=0.8)     # cool light from the doorway
+    common.area_light('fill', 40.0, (1.0, 0.75, 0.5), (0.0, -2.0, 2.6), (0.0, 1.0, 1.0), size=2.0)
+    common.camera('cam', Vector((0.4, -3.2, 1.55)), Vector((-0.1, 1.5, 1.05)), lens=22)
+    W.finish(OUT, SAMPLES, exposure=0.1)
+    raise SystemExit
 if VARIANT == 'kit':                      # the whole room from one call (dressing kit)
     props.dress_symposion((0, 0.4, 0), couches=3, lit=True, seed=1)
     common.area_light('moon', 200.0, (0.55, 0.65, 1.0), (3.8, -1.5, 2.6), (0.0, 2.0, 0.5), size=1.5)

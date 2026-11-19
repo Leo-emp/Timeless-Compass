@@ -2662,6 +2662,239 @@ def rhyton(loc=(0, 0, 0), heading_deg=0.0, name='rhyton'):
     return _place(root, loc, heading_deg)
 
 
+# ------------------------------------------------------------------ RICH INTERIORS (owner 2026-11-20: no plain backgrounds)
+# A real room is full: painted walls, things hanging on pegs, shelves, cloth, rugs. Sources: excavated Classical houses
+# (Olynthus, Athenian Agora houses: plastered walls painted in a dark red DADO zone below a pale upper zone; the
+# andron's raised floor border for the couches) and Attic vase paintings, which show cups, lyres, aulos cases,
+# wreaths, baskets, mirrors and sandals HANGING ON THE WALLS of rooms.
+def lyre(loc=(0, 0, 0), heading_deg=0.0, hang=True, name='lyre'):
+    """LYRA: a tortoise-shell sound box covered with hide, two curved horn arms, a crossbar, seven strings (the lyre of
+    the symposion and the schoolroom on Attic vases). hang=True: hangs flat against a wall (+Y is the wall)."""
+    import bmesh
+    root = _root(name)
+    shell = principled('tortoise_shell', (0.18, 0.11, 0.05), rough=0.35, bump=0.4, bump_scale=18)
+    hide = principled('lyre_hide', (0.62, 0.52, 0.38), rough=0.7)
+    horn = old_wood('lyre_horn', (0.22, 0.14, 0.07), grain=4)
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=24, ring_count=12, radius=0.14)
+    sb = bpy.context.object; sb.name = f'{name}_shell'
+    for v in sb.data.vertices:
+        if v.co.y > 0.02:
+            v.co.y = 0.02                                 # flat back (the hide face)
+    sb.scale = (1.0, 0.5, 1.1); sb.location = (0, 0, 0.14); sb.data.materials.append(shell); sb.parent = root
+    _box(f'{name}_hide', (0, 0.012, 0.15), (0.24, 0.004, 0.26), hide, bevel=0.002, parent=root)
+    for sx in (-1, 1):                                    # the two curving arms
+        _tube(f'{name}_arm', [(sx * 0.08, 0, 0.24), (sx * 0.15, 0, 0.4), (sx * 0.11, 0, 0.55), (sx * 0.14, 0, 0.62)],
+              0.012, horn, root, taper_end=0.7)
+    _cyl(f'{name}_yoke', (0, 0, 0.56), 0.012, 0.32, horn, rot=(0, math.radians(90), 0), verts=10, parent=root)
+    gut = principled('lyre_string', (0.8, 0.75, 0.6), rough=0.4)
+    for k in range(7):
+        x = -0.06 + 0.02 * k
+        _tube(f'{name}_string', [(x, 0.016, 0.06), (x * 1.2, 0.0, 0.555)], 0.0012, gut, root, poly=True, res=1)
+    if hang:
+        root.rotation_euler.x = math.radians(-8)          # leans out a little from its peg
+    return _place(root, loc, heading_deg)
+
+
+def wreath(loc=(0, 0, 0), heading_deg=0.0, radius=0.12, leaves=70, kind='myrtle', seed=0, name='wreath'):
+    """Symposion WREATH (myrtle, ivy or olive) as worn by the drinkers on the cups; hangs on a peg or lies on a couch."""
+    import bmesh
+    rnd = _random.Random(seed)
+    root = _root(name)
+    col = {'myrtle': (0.06, 0.11, 0.04), 'ivy': (0.05, 0.1, 0.03), 'olive': (0.18, 0.2, 0.12)}[kind]
+    leaf = principled(f'{kind}_leaf', col, rough=0.5, sss=0.08)
+    bm = bmesh.new()
+    for i in range(leaves):
+        a = 2 * math.pi * i / leaves + rnd.uniform(-0.05, 0.05)
+        c = Vector((radius * math.cos(a), radius * math.sin(a), rnd.uniform(-0.01, 0.01)))
+        t = Vector((-math.sin(a), math.cos(a), 0)); out = Vector((math.cos(a), math.sin(a), 0))
+        d = (t + out * rnd.uniform(-0.6, 0.6) + Vector((0, 0, rnd.uniform(-0.3, 0.5)))).normalized()
+        side = d.cross(Vector((0, 0, 1))).normalized() * 0.008
+        ln = rnd.uniform(0.025, 0.04)
+        v = [bm.verts.new(c), bm.verts.new(c + d * ln * 0.5 + side), bm.verts.new(c + d * ln), bm.verts.new(c + d * ln * 0.5 - side)]
+        bm.faces.new(v)
+    me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free(); me.materials.append(leaf)
+    o = bpy.data.objects.new(name + '_leaves', me); link(o); o.parent = root
+    o.modifiers.new('thick', 'SOLIDIFY').thickness = 0.0008
+    bpy.ops.mesh.primitive_torus_add(major_radius=radius, minor_radius=0.004)
+    t_ = bpy.context.object; t_.name = f'{name}_twig'; t_.data.materials.append(old_wood('wreath_twig', (0.2, 0.14, 0.08))); t_.parent = root
+    return _place(root, loc, heading_deg)
+
+
+def aulos_case(loc=(0, 0, 0), heading_deg=0.0, name='aulos_case'):
+    """SYBENE: the leather case for the double pipes (aulos), with its small mouthpiece pouch - hung on walls on vases."""
+    root = _root(name)
+    lea = leather('aulos_leather', (0.28, 0.12, 0.06))
+    _cyl(f'{name}_tube', (0, 0, -0.25), 0.035, 0.5, lea, verts=14, parent=root, r2=0.028)   # the long pipe case
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=14, ring_count=8, radius=0.05, location=(0.05, 0, -0.08))
+    pouch = bpy.context.object; pouch.name = f'{name}_pouch'; pouch.scale = (0.9, 0.6, 1.2); pouch.data.materials.append(lea); pouch.parent = root
+    _tube(f'{name}_strap', [(0.0, 0, 0.0), (0.03, 0, 0.06), (0.06, 0, -0.02)], 0.004, lea, root)
+    return _place(root, loc, heading_deg)
+
+
+def bronze_mirror(loc=(0, 0, 0), heading_deg=0.0, name='mirror'):
+    """Bronze hand MIRROR: a polished disc with a handle (women's rooms on vases, many finds)."""
+    root = _root(name)
+    br = principled('mirror_bronze', (0.75, 0.55, 0.32), metal=1.0, rough=0.18)
+    _cyl(f'{name}_disc', (0, 0, 0.0), 0.09, 0.006, br, rot=(math.radians(90), 0, 0), verts=40, parent=root)
+    _cyl(f'{name}_handle', (0, 0, -0.15), 0.012, 0.13, bpy.data.materials.get('bronze') or aged_bronze('bronze'), verts=10, parent=root, r2=0.016)
+    return _place(root, loc, heading_deg)
+
+
+def wall_peg(loc=(0, 0, 0), heading_deg=0.0, name='peg'):
+    """Wooden peg driven into the wall (things hang from it). +Y = into the wall."""
+    root = _root(name)
+    _cyl(f'{name}_peg', (0, -0.05, 0), 0.012, 0.1, old_wood('peg_wood', (0.25, 0.16, 0.08), grain=4),
+         rot=(math.radians(90), 0, 0), verts=8, parent=root)
+    return _place(root, loc, heading_deg)
+
+
+def wall_shelf(loc=(0, 0, 0), heading_deg=0.0, length=1.4, items=6, seed=0, name='shelf'):
+    """A plank shelf on two pegs with household things on it: jugs (oinochoai), small jars, lamps, a cup."""
+    from lib import market
+    rnd = _random.Random(seed)
+    root = _root(name)
+    w = old_wood(f'{name}_wood', (0.27, 0.17, 0.09))
+    _box(f'{name}_plank', (0, -0.12, 0), (length, 0.24, 0.035), w, parent=root)
+    for sx in (-1, 1):
+        _box(f'{name}_bracket', (sx * length * 0.4, -0.06, -0.06), (0.04, 0.12, 0.1), w, parent=root)
+    for k in range(items):
+        x = -length / 2 + 0.12 + (length - 0.24) * k / max(items - 1, 1) + rnd.uniform(-0.03, 0.03)
+        kind = rnd.random()
+        if kind < 0.45:
+            o = market.hydria((0, 0, 0), height=rnd.uniform(0.18, 0.3), seed=seed + k, name=f'{name}_jug{k}')
+        elif kind < 0.7:
+            o = oil_lamp((0, 0, 0), rnd.uniform(0, 360), lit=False, name=f'{name}_lamp{k}')
+        else:
+            o = basket((0, 0, 0), 0, kind='carry', scale=0.45, name=f'{name}_basket{k}')
+        o.parent = root; o.location = (x, -0.12, 0.018)
+    return _place(root, loc, heading_deg)
+
+
+def wall_hanging(loc=(0, 0, 0), heading_deg=0.0, size=(1.6, 1.2), color=(0.32, 0.08, 0.05), border=(0.06, 0.07, 0.16),
+                 folds=7, name='hanging'):
+    """Woven wool HANGING / curtain on a rod: soft vertical folds, a woven border band (meander) near the hem."""
+    root = _root(name)
+    m = wool(f'{name}_wool', color, tile=0.15)
+    verts, faces = [], []
+    nx, nz = 32, 14
+    W, H = size
+    for i in range(nx + 1):
+        for j in range(nz + 1):
+            u, v = i / nx, j / nz
+            x = (u - 0.5) * W
+            y = -0.04 * (1 - math.cos(u * math.pi * 2 * folds)) * (0.4 + 0.6 * v)   # folds, deeper toward the hem
+            verts.append((x, y, -v * H))
+    for i in range(nx):
+        for j in range(nz):
+            a = i * (nz + 1) + j
+            faces.append((a, a + 1, a + nz + 2, a + nz + 1))
+    o = mesh_obj(f'{name}_cloth', verts, faces, m); o.parent = root
+    o.modifiers.new('thick', 'SOLIDIFY').thickness = 0.006
+    for p_ in o.data.polygons:
+        p_.use_smooth = True
+    band = painted_band(f'{name}_band', 0.12, bg=tuple(border), fg=(0.75, 0.62, 0.3), repeat=0.12)
+    _box(f'{name}_border', (0, -0.05, -H + 0.12), (W, 0.006, 0.12), band, bevel=0.0, parent=root)
+    _cyl(f'{name}_rod', (0, -0.03, 0.02), 0.015, W + 0.2, old_wood('rod_wood', (0.22, 0.14, 0.07)),
+         rot=(0, math.radians(90), 0), verts=10, parent=root)
+    return _place(root, loc, heading_deg)
+
+
+def floor_mat(loc=(0, 0, 0), heading_deg=0.0, size=(1.8, 1.0), name='mat'):
+    """A woven rush / reed MAT on the floor (cheap and everywhere in Greek houses)."""
+    root = _root(name)
+    _box(f'{name}_mat', (0, 0, 0.004), (size[0], size[1], 0.008), wicker(f'{name}_rush', (0.52, 0.44, 0.28)), bevel=0.002, parent=root)
+    return _place(root, loc, heading_deg)
+
+
+def room_shell(loc=(0, 0, 0), heading_deg=0.0, w=6.0, d=5.0, h=3.4, door='front', dado=(0.32, 0.07, 0.05),
+               upper=(0.78, 0.72, 0.6), frieze=True, beams=True, platform=True, name='room'):
+    """The ROOM itself, never a plain box: plaster walls painted in zones (dark red dado to ~1 m, pale upper wall, a
+    painted meander frieze under the ceiling), exposed wooden ceiling beams with planks, a doorway (with a heavy
+    curtain) in the front wall, a plaster floor; platform=True adds the andron's raised border for the couches.
+    Interior faces the room centre; front wall = -Y (the camera side), left out so the camera can see in."""
+    root = _root(name)
+    up = scan_surface(f'{name}_upper', 'clay_plaster', upper, tile=1.4, rough=(0.7, 0.95), normal=0.8, age=(0.05, 0.5))
+    dm = scan_surface(f'{name}_dado', 'clay_plaster', dado, tile=1.4, rough=(0.6, 0.9), normal=0.8, age=(0.15, 0.45))
+    fl = scan_surface(f'{name}_floor', 'damaged_plaster', (0.5, 0.45, 0.38), tile=1.8, rough=(0.6, 0.95), normal=1.0, age=(0.05, 0.6))
+    dado_h = 0.95
+    _box(f'{name}_floor', (0, 0, -0.05), (w, d, 0.1), fl, bevel=0.0, parent=root)
+    for (c, sz, rot) in (((0, d / 2, 0), (w, 0.2, 0), 0), ((-w / 2, 0, 0), (0.2, d, 0), 1), ((w / 2, 0, 0), (0.2, d, 0), 1)):
+        x, y = c[0], c[1]
+        _box(f'{name}_wall_dado', (x, y, dado_h / 2), (sz[0], sz[1], dado_h), dm, bevel=0.0, parent=root)
+        _box(f'{name}_wall_up', (x, y, dado_h + (h - dado_h) / 2), (sz[0], sz[1], h - dado_h), up, bevel=0.0, parent=root)
+        # a thin painted line between the zones (black) - the classic division
+        inset = Vector((0, -0.105, 0)) if rot == 0 else Vector((0.105 * (1 if x < 0 else -1), 0, 0))
+        _box(f'{name}_zone_line', tuple(Vector((x, y, dado_h)) + inset), (sz[0] if rot == 0 else 0.004, 0.004 if rot == 0 else sz[1], 0.03),
+             principled('zone_black', (0.02, 0.018, 0.016), rough=0.8), bevel=0.0, parent=root)
+        if frieze:
+            fb = painted_band(f'{name}_frieze', 0.18, bg=(0.62, 0.5, 0.3), fg=(0.1, 0.06, 0.04), repeat=0.18)
+            _box(f'{name}_frieze', tuple(Vector((x, y, h - 0.25)) + inset), (sz[0] if rot == 0 else 0.004, 0.004 if rot == 0 else sz[1], 0.18),
+                 fb, bevel=0.0, parent=root)
+    if beams:
+        bw = old_wood(f'{name}_beam', (0.2, 0.13, 0.07))
+        n = int(w / 0.9)
+        for k in range(n + 1):
+            _box(f'{name}_beam', (-w / 2 + k * w / n, 0, h - 0.08), (0.16, d, 0.18), bw, parent=root)
+        _box(f'{name}_ceiling', (0, 0, h + 0.03), (w, d, 0.06), old_wood(f'{name}_planks', (0.18, 0.12, 0.07)), bevel=0.0, parent=root)
+    if platform:                                            # andron: raised plastered border ~1 m wide, 12 cm high
+        pm = scan_surface(f'{name}_platform', 'damaged_plaster', (0.55, 0.5, 0.42), tile=1.8, rough=(0.6, 0.95), age=(0.12, 0.5))
+        _box(f'{name}_platform_b', (0, d / 2 - 0.6, 0.06), (w - 0.2, 1.0, 0.12), pm, bevel=0.01, parent=root)
+        _box(f'{name}_platform_l', (-w / 2 + 0.6, 0, 0.06), (1.0, d - 0.2, 0.12), pm, bevel=0.01, parent=root)
+        _box(f'{name}_platform_r', (w / 2 - 0.6, 0, 0.06), (1.0, d - 0.2, 0.12), pm, bevel=0.01, parent=root)
+    # doorway in the back wall corner with a heavy curtain half drawn
+    cur = wall_hanging((0, 0, 0), 0, size=(1.0, 2.2), color=(0.18, 0.1, 0.06), folds=5, name=f'{name}_doorcurtain')
+    cur.parent = root; cur.location = (w / 2 - 0.9, d / 2 - 0.11, 2.3)
+    return _place(root, loc, heading_deg)
+
+
+def dress_andron(loc=(0, 0, 0), heading_deg=0.0, lit=True, couches=3, seed=0, frames=(1, 240), name='andron'):
+    """A RICH andron (men's dining room) in one call: the painted room shell with couch platforms, the symposion kit
+    (klinai, tables, cups, lamps, wine jars, brazier), and the walls full of life's clutter as on the vase paintings:
+    cups and wreaths on pegs, a lyre, an aulos case, shelves of jugs and lamps, hangings, mats, cushions.
+    Also places empty 'guest_seat' markers on each couch for the crowd system (WS2) to fill with diners."""
+    from lib import scans_glb
+    rnd = _random.Random(seed)
+    root = _root(name)
+    W_, D_ = 6.0, 5.0
+    sh = room_shell((0, 0, 0), 0, w=W_, d=D_, name=f'{name}_room'); sh.parent = root
+    kit = dress_symposion((0, 0.3, 0.12), 0, couches=couches, lit=lit, seed=seed, frames=frames, name=f'{name}_sym')
+    kit.parent = root; kit.location = (0, 0.3, 0.12)
+    back = D_ / 2 - 0.11                                   # the back wall's inner face (y)
+    # pegs along the back wall above the couches: cups, wreaths, a lyre, an aulos case
+    xs = [-2.3, -1.6, -0.9, -0.2, 0.5, 1.2]
+    for i, x in enumerate(xs):
+        _put(wall_peg((0, 0, 0), 0, name=f'{name}_peg{i}'), root, (x, back, 1.75))
+        k = i % 4
+        if k == 0:
+            cup = scans_glb.load_glb('kylix_cleveland'); _put(cup, root, (x, back - 0.12, 1.55), 0)
+            cup.rotation_euler.x = math.radians(80)        # a cup hanging by one handle, bowl to the room
+        elif k == 1:
+            wr = wreath((0, 0, 0), 0, kind=rnd.choice(('myrtle', 'ivy')), seed=seed + i, name=f'{name}_wreath{i}')
+            _put(wr, root, (x, back - 0.06, 1.62)); wr.rotation_euler.x = math.radians(85)
+        elif k == 2:
+            ly = lyre((0, 0, 0), 0, name=f'{name}_lyre'); _put(ly, root, (x, back - 0.04, 1.1))
+        else:
+            ac = aulos_case((0, 0, 0), 0, name=f'{name}_aulos'); _put(ac, root, (x, back - 0.05, 1.72))
+    # shelves on the side walls
+    for sgn in (-1, 1):
+        sf = wall_shelf((0, 0, 0), 0, length=1.3, items=5, seed=seed + (3 if sgn > 0 else 7), name=f'{name}_shelf{"r" if sgn > 0 else "l"}')
+        _put(sf, root, (sgn * (W_ / 2 - 0.11), 0.6, 1.5), -90 * sgn)
+        wh = wall_hanging((0, 0, 0), 0, size=(1.5, 1.1), color=rnd.choice(((0.3, 0.07, 0.05), (0.08, 0.09, 0.2), (0.55, 0.38, 0.12))),
+                          name=f'{name}_hang{"r" if sgn > 0 else "l"}')
+        _put(wh, root, (sgn * (W_ / 2 - 0.12), -0.9, 2.6), -90 * sgn)
+    # floor: mats, a spare cushion, a basket, a water jar (hydria) by the door
+    from lib import market
+    _put(floor_mat((0, 0, 0), 0, size=(1.6, 0.9), name=f'{name}_mat0'), root, (0.0, -0.6, 0.0), rnd.uniform(-8, 8))
+    _put(basket((0, 0, 0), 0, kind='flat', fill=(0.5, 0.35, 0.15), name=f'{name}_bread'), root, (0.9, -1.0, 0.0))
+    _put(market.hydria((0, 0, 0), height=0.45, seed=seed, name=f'{name}_hydria'), root, (W_ / 2 - 0.7, -1.9, 0.0))
+    # markers for the diners (crowd system): two per couch, on the mattress
+    for i, mk_ in enumerate(o for o in bpy.data.objects if o.name.startswith(f'{name}_sym_kline') and o.parent and o.parent.name == f'{name}_sym'):
+        for j, dx in enumerate((-0.45, 0.35)):
+            m = bpy.data.objects.new(f'{name}_guest_{i}{j}', None); link(m)
+            m.parent = mk_; m.location = (dx, 0.05, 0.75); m['role'] = 'symposion_guest'; m.empty_display_size = 0.2
+    return _place(root, loc, heading_deg)
+
+
 # ------------------------------------------------------------------ HORSE TACK (480 BC: cloth + bridle, NO saddle, NO stirrups)
 # How it stays on a moving horse: every strap and the cloth is built in the horse's REST pose by shooting rays at
 # its body (so it lies on the skin), then each vertex copies the skin weights of the nearest horse vertex and gets

@@ -1,0 +1,10 @@
+{
+  "name": "ws7_andron",
+  "active": true,
+  "script": "blender/scenes/ws7_furniture.py",
+  "args": [
+    "out/ws7_andron.png",
+    "24",
+    "andron"
+  ]
+}
