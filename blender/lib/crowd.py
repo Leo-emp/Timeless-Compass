@@ -85,7 +85,9 @@ def build_person(p, mark=(0, 0, 0), turn_deg=0.0, frames=96, settle=40):
     pos, _, _ = cast.rest_surface(human)
     wardrobe.add_collision(human)
     w = p.get('wardrobe') or ''
-    if w.endswith('hoplite_480bc') or not w:
+    if p.get('mpfb_clothes'):                                 # modern people: MakeHuman suits etc. (Session F) - no chiton
+        pass
+    elif w.endswith('hoplite_480bc') or not w:
         length = 'ankle' if p['macro']['gender'] < 0.5 or p.get('rank') in ('royal',) else 'knee'
         ch = wardrobe.chiton(human, rig, pos, _garment_material(p, 0), length=length)
         wardrobe.simulate(settle); wardrobe.freeze(ch)

@@ -122,6 +122,19 @@ Tools you will use: Blender 5.3 portable `C:\Users\User\tools\blender-5.3.0-wind
 ## Animals (main session): downloaded CC-BY/CC0 camels (animated), sheep (animated), seagull, raven (museum CC0) to
 ## library/scans/animal_*; `fx.bird_flock` (flapping gull/crow flocks, used over Salamis). TODO dogs, goats, oxen, horses (WS7)
 
+## WS18 Animals & cavalry — CLAIMED: Session G (2026-11-20)
+Files: NEW `blender/lib/animals.py`, NEW `blender/lib/cavalry.py`, NEW `blender/lib/harness.py` (carts, chariots,
+limber), new functions appended to `blender/lib/fx.py` (hoof dust), NEW `blender/scenes/animals_*_test.py`,
+NEW `blender/scenes/cavalry_test.py`, `library/scans/animal_*` (new downloads), `spike/lib_stills/ws18/`.
+Read-only use of scans_glb/props (Session E), riding/cannon/crowd/cast (main), market/countryside (Session D).
+- [ ] Animal library: oxen, donkeys/mules, goats, sheep, dogs, pigs, chickens, camels, war elephants, cats, ground
+      birds — real size, own walk/idle where rigged, herd/flock scatter helper, credits in asset.json
+- [ ] Animal life: grazing herd, moving flock + shepherd, trotting dogs, pecking chickens, ox-cart, donkey + panniers,
+      market animals (for Session D)
+- [ ] Cavalry: riders in formation (walk/trot/gallop/charge), era riders (Persian/Greek/Roman/medieval), spear/bow
+      while riding, charge test with hoof dust
+- [ ] Horse-drawn: chariots (Egyptian 1250 BC, Persian), wagons, Napoleonic limber towing `cannon.build('field')`
+
 ## WS16 Countryside (owner request 2026-11-19) — files: NEW `blender/lib/countryside.py`, NEW `blender/scenes/countryside_test.py`, NEW `library/sets/countryside_*.json` — CLAIMED: Session D
 - [ ] Grain fields (wheat / barley, swaying, ripe vs green, stubble after harvest), ploughed furrows, fallow
 - [ ] Vineyards (low staked vines in rows), olive groves laid out in rows (uses WS6's `tree_olive_zakynthos` scan)
@@ -158,6 +171,15 @@ Owner 2026-11-20: build every library piece to MAXIMUM (hero) quality - "ships m
       `omphalos`, `suppliant_branch`, `timber_barricade` (burning), `scribe_kit` (Persian scroll / Greek wax tablet),
       `royal_parasol`, `incense_burner`, `phiale`, `rhyton`, `carpet`
 - [~] Hero-quality review loop (in progress): hero ship shots (low bow-quarter camera), court still, ram corrosion
+- [x] Sketchfab scan audit (2026-11-20, `blender/scenes/ws7_scan_audit.py` -> `spike/lib_stills/ws7/scan_audit.json`,
+      28 scans). NOT problems: horse_akhalteke + animal_raven_cc0 "duplicates" are Sketchfab 65k-vertex chunks of one mesh;
+      raw import sizes are corrected by each loader (scans_glb.KNOWN, animals.SPECS, scatter.REAL_HEIGHT). REAL issues:
+      - animal_hound (WS18): imports 60 x 2.2 units = probably lying on its side (wrong up-axis); parts named Plane.* are the dog
+      - animal_cat (WS18): imports ~150 km long - check animals.py scales it; `whiskers` material has no texture (fine if plain)
+      - tree_cypress (WS6/WS16): bark materials Cypress_bark.1/.2 have NO texture after import - lost textures
+      - no real size in ANY loader: animal_cow (0.68 m raw), animal_dog_run (5.4 m), animal_seagull (2.0 m),
+        animal_camels (19 m, 5 meshes), horse_realistic (1.2 m) - give them a spec in animals.py before use
+      - amphora_neck_cleveland: 2nd material is plain near-black (the inside/foot) - intended, not lost
 - [ ] Crew for close shots: replace low-poly proxies with real crowd characters on the markers (needs WS2)
 - [ ] Sail: true cloth simulation baked into the kit (now shaped mesh + wave ripple)
 
@@ -174,6 +196,7 @@ Owner 2026-11-20: build every library piece to MAXIMUM (hero) quality - "ships m
 - [x] Asset cache: `tc cache index|plan|built|fetch|push`, `library/scans_index.json`, `cloud/build_asset_cache.py`, `cloud/r2_push.sh` (6 GB budget). Needs owner R2 bucket; WS10 must append cached .blend in build.py
 - [x] Denoise (OIDN) + lower samples + adaptive; Eevee for wide/landscape (`tc render-plan --speed`, `cloud/blender_shot.py`); estimates until M3 measures
 - [x] Resume + frame checks (missing/black/broken) + requeue + join: `tc render-shard`, `tc frames check|requeue|join` (`tc/render_farm.py`)
+- [x] Cloud render QUEUE (replaces shared `cloud/batch.json`): `tc queue submit|list|run|kaggle`, one file per request in `cloud/queue/`, `.github/workflows/render-queue.yml` (renders only files a push added), Kaggle GPU still kernel (`cloud/kaggle/render_still.py`, OIDN). Test requests for `cannon_test.py` queued (GPU + CPU). Needs: push of tc/ + cloud/ + workflow, owner OK for the Kaggle push; batch.json retirement = owner
 
 ## Main session sets added tonight: athens_480bc (+burning, fx), thermopylae_480bc, xerxes_throne_aigaleos, persian_palace_interior,
 ## salamis_night_v2, courtyard_house (architecture), lab_1950s (modern.py) — fixes/tests in the render queues
@@ -240,10 +263,47 @@ Owner 2026-11-20: build every library piece to MAXIMUM (hero) quality - "ships m
 - [x] First test series: 5 Salamis-world Shorts (secret message, Xerxes' throne, rams, Athens burning, the oracle)
       — jobs `20261119-1824-*` (script.md passes `tc script`, awaiting owner approval; thumbs/plan.json)
 
+- [x] 2026-11-20 overnight (Session B): 5 Shorts polished (hook -> story -> twist, every narrator line sourced; new fact
+      `f-trap-why`), `shots.json` per Short (11-12 shots) with the VISUAL_STANDARD s4 performance spec for every person +
+      varied camera; new `tc perf <id>` checker (`tc/performance.py`); `Shot.performance` field added in `tc/shots.py`.
+      Needs: cast specs for `ameinias`, `aristonice`, `old_steward`; new sets listed in each job's shots (no renders).
+
 ## WS14 Learning & analytics — files: `tc/learning.py`, NEW `tc/analytics.py`
 - [ ] YouTube Analytics after upload (OAuth): swipe-away, % watched, subs per 1k views → rules
 - [ ] Look-gate history (which settings passed) → defaults for next videos
 
+## WS17 Modern era (1940s-60s secret projects) — CLAIMED: Session F
+Files: `blender/lib/modern.py`, NEW `blender/lib/modern_props.py`, NEW `blender/lib/modern_dress.py`, new functions appended to `blender/lib/fx.py`,
+NEW `blender/scenes/modern_*_test.py`, NEW `tc/archive.py` + `tests/test_archive.py`, the usa_1945/usa_1960/ussr_1960 block
+in `tc/crowd.py` (+ its tests), `cloud/requests/modern_*.json`, `spike/lib_stills/modern/`. Sources in each docstring.
+- [ ] Sets: government office, bunker command room, aircraft hangar, desert test site, interrogation room, psych ward,
+      mission control, Los Alamos huts
+- [ ] Props: typewriter, rotary phone, reel-to-reel, stamped folders, cars/jeeps/trucks, aircraft, rockets, Geiger
+      counter, film projector
+- [ ] People: eras usa_1945 / usa_1960 / ussr_1960 + roles (tests first)
+- [ ] Big moments: atomic test (flash, fireball, mushroom cloud) + rocket launch (new fx functions)
+- [ ] "Declassified archive footage" look (`tc/archive.py`)
+- [ ] One test scene per set + review stills
+
 ## WS15 Housekeeping
 - [ ] Keep `README.md`, `blender/README.md`, plan docs current
 - [ ] Final whole-branch code review before the owner commits
+
+## WS18 Animals & cavalry — reserved for Session G (owner set up 2026-11-20)
+- NOTE from Session D: these load animal scans through `scatter.load_scan` today and should switch to
+  `blender/lib/animals.py` once it exists: `countryside.flock`, `tools.ox_team`, `market.caravan`.
+- `scatter._load_glb_variant` now drops helper meshes (bounding/collision boxes) before sizing (camel bug).
+- NOTE from Session D (for Session G): `animal_camels` does not render yet. After the helper box is dropped the adult
+  camel (Object_12 + eyes Object_13, skinned to armature Object_9) measures ~0.1 m: the hierarchy carries scales 0.01
+  (camel.fbx), 100 (metarig.001, c, Object_11), 109 (Cube); rescaling the top ancestors gives an untextured orange camel
+  in the wrong place. Textures are lost (flat orange). Call site: `market.caravan(...)`; debug: `blender/scenes/camel_check.py`.
+
+## WS19 Maps (owner request 2026-11-20, rule r14) — spec `docs/MAP_STYLE.md`, refs `reference/maps/` — UNCLAIMED
+- [ ] Parchment map base: crumpled plane, parchment shader, sea wave engraving, vignette
+- [ ] Natural Earth coastlines/rivers → era polygons; stamp scatter (trees, mountains, dunes)
+- [ ] Territory fills with emblem patterns + ink-spread grow animation
+- [ ] Labels: curved region names, scroll-tag city/leader labels, date strip
+- [ ] Animated arrows, pulse rings, battle marker, spotlight
+- [ ] Tactical battle map: town of tiny houses, contours, compass rose, extruded unit blocks + banners
+- [ ] Shot kind `map` + `map_action` in tc/shots.py; tilted drifting camera preset
+- [ ] Side-by-side still vs reference 02 and 05 before any video use

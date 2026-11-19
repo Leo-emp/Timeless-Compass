@@ -18,10 +18,32 @@ from lib.common import link, principled
 ERA = {'bombard': (1400, 1530), 'naval': (1600, 1860), 'field': (1790, 1870)}
 
 
+def _weathered(name, base, metal, rough, grime, pits=0.25):
+    """Metal that has lived outdoors: base colour broken by soot/grime blotches and rough patches, fine pitting."""
+    m = principled(name, base, metal=metal, rough=rough, bump=pits, bump_scale=160)
+    nt = m.node_tree; b = nt.nodes['Principled BSDF']; L = nt.links.new
+    tc = nt.nodes.new('ShaderNodeTexCoord')
+    nz = nt.nodes.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 6; nz.inputs['Detail'].default_value = 10
+    L(tc.outputs['Object'], nz.inputs['Vector'])
+    ramp = nt.nodes.new('ShaderNodeValToRGB')
+    ramp.color_ramp.elements[0].position = 0.45; ramp.color_ramp.elements[0].color = (*base, 1)
+    ramp.color_ramp.elements[1].position = 0.75; ramp.color_ramp.elements[1].color = (*grime, 1)
+    L(nz.outputs['Fac'], ramp.inputs['Fac']); L(ramp.outputs['Color'], b.inputs['Base Color'])
+    rr = nt.nodes.new('ShaderNodeMapRange'); rr.inputs['To Min'].default_value = rough * 0.8; rr.inputs['To Max'].default_value = min(1.0, rough * 1.5)
+    L(nz.outputs['Fac'], rr.inputs['Value']); L(rr.outputs['Result'], b.inputs['Roughness'])
+    return m
+
+
 def _mats():
-    iron = bpy.data.materials.get('gun_iron') or principled('gun_iron', (0.06, 0.06, 0.065), metal=0.9, rough=0.55, bump=0.2, bump_scale=120)
-    bronze = bpy.data.materials.get('gun_bronze') or principled('gun_bronze', (0.42, 0.3, 0.14), metal=1.0, rough=0.38, bump=0.1, bump_scale=200)
-    wood = bpy.data.materials.get('gun_wood') or principled('gun_wood', (0.22, 0.13, 0.07), rough=0.75, bump=0.3, bump_scale=60)
+    iron = bpy.data.materials.get('gun_iron') or _weathered('gun_iron', (0.07, 0.068, 0.07), 0.85, 0.5, (0.11, 0.07, 0.045))   # rust-brown blotches
+    bronze = bpy.data.materials.get('gun_bronze') or _weathered('gun_bronze', (0.45, 0.32, 0.15), 1.0, 0.35, (0.2, 0.22, 0.14), 0.12)  # dull patina
+    wood = bpy.data.materials.get('gun_wood')
+    if wood is None:                                   # scanned planks (Poly Haven CC0), else a plain fallback
+        try:
+            from lib import scatter
+            wood = scatter.scan_material('gun_wood', 'brown_planks_04', tint=(0.75, 0.6, 0.5), tiles=3.0)
+        except Exception:
+            wood = principled('gun_wood', (0.22, 0.13, 0.07), rough=0.75, bump=0.3, bump_scale=60)
     red = bpy.data.materials.get('gun_red') or principled('gun_red', (0.3, 0.05, 0.03), rough=0.7)    # naval carriages
     olive = bpy.data.materials.get('gun_olive') or principled('gun_olive', (0.16, 0.17, 0.1), rough=0.65)  # field carriages
     return iron, bronze, wood, red, olive
@@ -140,7 +162,7 @@ def muzzle_point(cannon):
 
 
 
-def _puff_material(name, density=1.3, color=(0.9, 0.88, 0.85)):     # bright, high-albedo: powder smoke is white-grey
+def _puff_material(name, density=1.8, color=(0.9, 0.88, 0.85)):     # bright, high-albedo: powder smoke is white-grey
     """Soft billowing powder smoke inside a sphere: density = noise x (1 - r/R)^1.5 - dense core, wispy edge."""
     m = bpy.data.materials.get(name)
     if m:
@@ -181,7 +203,7 @@ def powder_smoke(tip, fwd, frame, n=7, seed=0, name='powder'):
         bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2, radius=1.0, location=tip)
         p = bpy.context.object; p.name = f'{name}_{i}'; p.data.materials.append(mat)
         side = Vector((rnd.gauss(0, 0.25), rnd.gauss(0, 0.25), rnd.uniform(0.0, 0.3)))
-        for f, k, s in ((frame - 1, 0.0, 0.01), (frame + 1 + i // 2, 0.55, 0.45), (frame + 8 + i, 0.9, 0.85), (frame + 90, 1.0, 1.25)):
+        for f, k, s in ((frame - 1, 0.0, 0.01), (frame + 1 + i // 2, 0.55, 0.45), (frame + 8 + i, 0.9, 0.85), (frame + 90, 1.0, 1.05)):
             p.location = tip + (fwd * dist + side * dist) * k + Vector((0, 0, 0.6 * max(0, f - frame) / 90))
             p.scale = (r_end * s,) * 3
             p.keyframe_insert('location', frame=f); p.keyframe_insert('scale', frame=f)

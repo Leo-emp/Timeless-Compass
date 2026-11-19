@@ -45,6 +45,12 @@ def build_human(spec: dict):
     # mesh (they would neither follow the head nor act). Skin each one to the face bones so the face can perform.
     for o in [c for c in human.children if c.type == 'MESH']:
         rig_face_part(o, human, rig)
+    if spec.get('mpfb_clothes'):                     # Session F: MakeHuman clothes took weights from the masked body's
+        try:                                         # nearest VISIBLE skin (the hands) -> trousers tore when posed
+            from lib.modern_dress import rebind_mpfb_clothes
+            rebind_mpfb_clothes(human, rig)
+        except ImportError:
+            pass
     if spec.get('tan'):
         tan_skin(human, spec['tan'], spec.get('tan_color', (0.78, 0.56, 0.42)))
     skin_detail(human)

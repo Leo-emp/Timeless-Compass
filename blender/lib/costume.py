@@ -36,8 +36,18 @@ def dress(human, rig, pos, wardrobe_name, dye=None, seed=0, bind=True, rich=None
     gold, leather = _metals()
     w = wardrobe_name or 'greek_civilian_480bc'
     main = dye if dye is not None else UNDYED
+    blend = w in ('greek_woman_480bc', 'greek_servant_480bc', 'greek_child_480bc', 'persian_woman_480bc')
+    if blend:                       # Session D: peplos / exomis / child_tunic are BLEND garments - the cloth settles
+        from lib import pose       # while the hands move away from the hips (else the hands push the skirt open)
+        wardrobe._ensure_poses()
+        pose.blend_into_pose(rig, 'stand_open', 1, 15)
+    def _fix_pose():                # after the blend garment: freeze the final pose, then rigid extras (veil, belt...)
+        if blend:
+            rig.animation_data_clear()
+            pose.apply_pose(rig, 'stand_open')
     if w == 'greek_woman_480bc':
         body, over = wardrobe.peplos(human, rig, pos, _cloth(f'peplos_{seed}', main, seed, wool=True), belt_over=True)
+        _fix_pose()
         wardrobe.belt(rig, over, _cloth(f'girdle_{seed}', MADDER, seed, wool=True))
         wardrobe.sandals(human, rig, leather)
         if rich:
@@ -47,9 +57,11 @@ def dress(human, rig, pos, wardrobe_name, dye=None, seed=0, bind=True, rich=None
             wardrobe.diadem(human, rig, gold)
     elif w == 'greek_servant_480bc':
         ex = wardrobe.exomis(human, rig, pos, _cloth(f'exomis_{seed}', main, seed))
+        _fix_pose()
         wardrobe.belt(rig, ex, common.principled(f'rope_{seed}', (0.24, 0.18, 0.11), rough=0.9, bump=0.4, bump_scale=300))
     elif w == 'greek_child_480bc':
         t = wardrobe.child_tunic(human, rig, pos, _cloth(f'child_{seed}', main, seed))
+        _fix_pose()
         wardrobe.belt(rig, t, _cloth(f'child_girdle_{seed}', WOAD, seed, wool=True), max_r=0.13)
     elif w in ('greek_priest_480bc', 'greek_priestess_480bc'):
         female = w.endswith('priestess_480bc')
@@ -68,6 +80,7 @@ def dress(human, rig, pos, wardrobe_name, dye=None, seed=0, bind=True, rich=None
         wardrobe.persian_cap(human, rig, _cloth(f'royal_felt_{seed}', PURPLE, seed, wool=True), band=gold, kind='royal')
     elif w == 'persian_woman_480bc':                              # Persepolis seals: long robe to the feet + veil, no cap
         body, over = wardrobe.peplos(human, rig, pos, _cloth(f'robe_{seed}', main, seed, wool=True), belt_over=True)
+        _fix_pose()
         wardrobe.belt(rig, over, _cloth(f'sash_{seed}', GOLD_THREAD if rich else MADDER, seed, wool=True))
         wardrobe.veil(human, rig, _cloth(f'pveil_{seed}', WHITE_LINEN if rich else UNDYED, seed))
         wardrobe.sandals(human, rig, leather)
