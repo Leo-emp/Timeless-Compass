@@ -41,8 +41,9 @@ elif VARIANT in ('hero', 'hero_sail'):    # the majestic angle: low at the water
     props.trireme_v3((2, 64, 0), heading_deg=-95, oars=None if sail else 'row', sail='set' if sail else None,
                      crew='proxies', speed_mps=4.5, name='hero')
     props.fleet((-60, 220, 0), count=14, spread=(260.0, 120.0), heading_deg=-95, phoenician_share=0.0,
-                oars='rest', camera=(9.0, 12.0, 0.9), far=60.0, seed=5, name='behind')     # the rest of the fleet
-    common.camera('cam', Vector((9.0, 12.0, 0.9)), Vector((-1.0, 42.0, 4.5)), lens=24)
+                oars='rest', camera=(7.5, 19.0, 0.6), far=60.0, seed=5, name='behind')     # the rest of the fleet
+    # ~6 m off the starboard bow, 0.6 m above the water, looking UP at the stolos + eye; the hull recedes diagonally
+    common.camera('cam', Vector((7.5, 19.0, 0.6)), Vector((-1.5, 36.0, 4.2)), lens=22)
 elif VARIANT == 'quay':                    # dressed harbour quay: amphorae, ropes, anchors, baskets, moored boats
     sets.stone_wall(-14.0, 14.0, 22.0, 1.0, depth=6.0)        # quay: wall face at y = 19, top at z = 1
     props.dress_quay((0, 20.0, 1.0), length=24.0, boats=2, seed=2)   # props on top, boats moored off the face

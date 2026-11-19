@@ -477,7 +477,7 @@ def scan_surface(name, scan, color, tile=0.6, rough=(0.5, 0.9), normal=1.0, keep
     return m
 
 
-def meander_image(name='meander_key', px=8):
+def meander_image(name='meander_key3', px=12):
     """The running MEANDER (Greek key), drawn in code into an image: a baseline + a square spiral per repeat, with
     a top border line - the ornament on furniture, textiles and vase rims of the period. One repeat = 5 x 6 units."""
     import numpy as np
@@ -487,17 +487,20 @@ def meander_image(name='meander_key', px=8):
     W, H = 5 * px, 6 * px
     a = np.zeros((H, W), dtype=np.float32)
 
+    lw = max(2, px // 3)                                 # painted line = 1/3 of a grid step (thin line, wide gap)
+    off = (px - lw) // 2
+
     def line(x0, y0, x1, y1):
-        for x in range(min(x0, x1) * px, max(x0, x1) * px + px):
-            for y in range(min(y0, y1) * px, max(y0, y1) * px + px):
+        for x in range(min(x0, x1) * px + off, max(x0, x1) * px + off + lw):
+            for y in range(min(y0, y1) * px + off, max(y0, y1) * px + off + lw):
                 a[min(y, H - 1), min(x, W - 1)] = 1.0
-    path = [(0, 0), (4, 0)]                              # baseline (continues into the next repeat)
+    path = [(0, 0), (5, 0)]                              # baseline, running on into the next repeat
     spiral = [(0, 0), (0, 4), (3, 4), (3, 1), (1, 1), (1, 3), (2, 3), (2, 2)]
     for (x0, y0), (x1, y1) in zip(path, path[1:]):
         line(x0, y0, x1, y1)
     for (x0, y0), (x1, y1) in zip(spiral, spiral[1:]):
         line(x0, y0, x1, y1)
-    line(0, 5, 4, 5)                                     # top border
+    line(0, 5, 5, 5)                                     # top border, continuous
     rgba = np.stack([a, a, a, np.ones_like(a)], axis=-1)
     im = bpy.data.images.new(name, W, H, alpha=False)
     im.pixels.foreach_set(rgba.ravel()); im.update(); im.pack()
@@ -525,7 +528,7 @@ def painted_band(name, height, bg=(0.40, 0.09, 0.05), fg=(0.02, 0.018, 0.015), r
     L(sw.outputs['X'], ad.inputs[0]); L(sw.outputs['Y'], ad.inputs[1]); L(ad.outputs[0], cm.inputs['X'])
     zz = nt.nodes.new('ShaderNodeMath'); zz.operation = 'ADD'; zz.inputs[1].default_value = 0.0
     L(sw.outputs['Z'], zz.inputs[0]); L(zz.outputs[0], cm.inputs['Y'])
-    t = nt.nodes.new('ShaderNodeTexImage'); t.image = meander_image(); t.interpolation = 'Closest'
+    t = nt.nodes.new('ShaderNodeTexImage'); t.image = meander_image(); t.interpolation = 'Linear'
     L(cm.outputs['Vector'], t.inputs['Vector'])
     mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'
     mx.inputs['A'].default_value = (*bg, 1); mx.inputs['B'].default_value = (*fg, 1)
@@ -2132,7 +2135,7 @@ def sea_bronze(name='sea_bronze'):
     nt = m.node_tree; b = nt.nodes['Principled BSDF']; L = nt.links.new
     n = nt.nodes.new('ShaderNodeTexNoise'); n.inputs['Scale'].default_value = 22.0; n.inputs['Detail'].default_value = 12
     n.inputs['Roughness'].default_value = 0.7       # fine pitting, not big camouflage blotches
-    mk = nt.nodes.new('ShaderNodeMapRange'); mk.inputs['From Min'].default_value = 0.5; mk.inputs['From Max'].default_value = 0.7
+    mk = nt.nodes.new('ShaderNodeMapRange'); mk.inputs['From Min'].default_value = 0.38; mk.inputs['From Max'].default_value = 0.78
     L(n.outputs['Fac'], mk.inputs['Value'])
     col = nt.nodes.new('ShaderNodeMix'); col.data_type = 'RGBA'
     col.inputs['A'].default_value = (0.16, 0.09, 0.045, 1); col.inputs['B'].default_value = (0.05, 0.1, 0.08, 1)   # dark bronze / deep verdigris  # bronze / verdigris
@@ -2448,6 +2451,44 @@ def royal_parasol(loc=(0, 0, 0), heading_deg=0.0, height=2.6, tilt_deg=12.0, nam
     bpy.ops.mesh.primitive_uv_sphere_add(segments=12, ring_count=8, radius=0.05, location=(0, 0, height + 0.3))
     f = bpy.context.object; f.name = f'{name}_finial'; f.data.materials.append(g); f.parent = root
     root.rotation_euler.x = math.radians(tilt_deg)
+    return _place(root, loc, heading_deg)
+
+
+def carpet(loc=(0, 0, 0), heading_deg=0.0, size=(3.0, 2.0), field=(0.30, 0.05, 0.04), border=(0.08, 0.10, 0.22),
+           trim=(0.62, 0.48, 0.18), name='carpet'):
+    """Knotted wool CARPET of the Persian court: a red field of small squares (rosettes), wide borders of a second
+    colour, a thin ochre trim - the scheme of the Pazyryk carpet (c. 400 BC, the oldest one known, with Achaemenid
+    motifs). A thin slab lying on the floor; size = (length, width) in metres."""
+    root = _root(name)
+    m = wool(f'{name}_wool', field, tile=0.08)
+    nt = m.node_tree; L = nt.links.new
+    tint = nt.nodes['tint']
+    tc = nt.nodes.new('ShaderNodeTexCoord')
+    sep = nt.nodes.new('ShaderNodeSeparateXYZ'); L(tc.outputs['Object'], sep.inputs['Vector'])
+
+    def edge(axis, half):                              # distance from the nearest edge along one axis (metres)
+        ab = nt.nodes.new('ShaderNodeMath'); ab.operation = 'ABSOLUTE'; L(sep.outputs[axis], ab.inputs[0])
+        d = nt.nodes.new('ShaderNodeMath'); d.operation = 'SUBTRACT'; d.inputs[0].default_value = half; L(ab.outputs[0], d.inputs[1])
+        return d.outputs[0]
+    mn = nt.nodes.new('ShaderNodeMath'); mn.operation = 'MINIMUM'
+    L(edge('X', size[0] / 2), mn.inputs[0]); L(edge('Y', size[1] / 2), mn.inputs[1])
+    bw = min(size) * 0.14                              # border width
+    inb = nt.nodes.new('ShaderNodeMath'); inb.operation = 'LESS_THAN'; inb.inputs[1].default_value = bw; L(mn.outputs[0], inb.inputs[0])
+    trm = nt.nodes.new('ShaderNodeMath'); trm.operation = 'LESS_THAN'; trm.inputs[1].default_value = 0.025; L(mn.outputs[0], trm.inputs[0])
+    trm2 = nt.nodes.new('ShaderNodeMath'); trm2.operation = 'COMPARE'; trm2.inputs[1].default_value = bw; trm2.inputs[2].default_value = 0.012
+    L(mn.outputs[0], trm2.inputs[0])
+    ck = nt.nodes.new('ShaderNodeTexChecker'); ck.inputs['Scale'].default_value = 1.0
+    mp = nt.nodes.new('ShaderNodeMapping'); mp.inputs['Scale'].default_value = (1 / 0.11, 1 / 0.11, 1)   # 11 cm squares
+    L(tc.outputs['Object'], mp.inputs['Vector']); L(mp.outputs['Vector'], ck.inputs['Vector'])
+    ck.inputs['Color1'].default_value = (*field, 1)
+    ck.inputs['Color2'].default_value = (field[0] * 0.6, field[1] * 0.8 + 0.03, field[2] + 0.04, 1)
+    c1 = nt.nodes.new('ShaderNodeMix'); c1.data_type = 'RGBA'; L(inb.outputs[0], c1.inputs['Factor'])
+    L(ck.outputs['Color'], c1.inputs['A']); c1.inputs['B'].default_value = (*border, 1)
+    tmax = nt.nodes.new('ShaderNodeMath'); tmax.operation = 'MAXIMUM'; L(trm.outputs[0], tmax.inputs[0]); L(trm2.outputs[0], tmax.inputs[1])
+    c2 = nt.nodes.new('ShaderNodeMix'); c2.data_type = 'RGBA'; L(tmax.outputs[0], c2.inputs['Factor'])
+    L(c1.outputs['Result'], c2.inputs['A']); c2.inputs['B'].default_value = (*trim, 1)
+    L(c2.outputs['Result'], tint.inputs['B'])
+    o = _box(f'{name}_rug', (0, 0, 0.006), (size[0], size[1], 0.012), m, bevel=0.004, parent=root)
     return _place(root, loc, heading_deg)
 
 

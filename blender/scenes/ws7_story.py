@@ -55,21 +55,25 @@ elif VARIANT == 'wall':
     common.camera('cam', Vector((3.5, -4.5, 1.6)), Vector((-0.5, 4.0, 1.2)), lens=28)
     W.finish(OUT, SAMPLES, exposure=-0.6)
 elif VARIANT == 'court':                   # Xerxes' throne on Aigaleos: the king's setting without the king
-    W.room(w=9.0, d=7.0, floor='old_sandstone_02', wall='plastered_wall_02', floor_tint=(0.45, 0.43, 0.4), wall_tint=(0.3, 0.28, 0.27))
-    W.dark_world(0.03)
-    props.throne((0.0, 2.2, 0), heading_deg=0)          # footstool side (-Y) faces the camera
-    props.royal_parasol((0.55, 2.55, 0.0), heading_deg=0, tilt_deg=-8)
-    for x in (-1.1, 1.1):
-        props.incense_burner((x, 0.9, 0), name=f'incense_{"l" if x < 0 else "r"}')
-    props.trapeza((-1.9, 1.6, 0), heading_deg=90, name='side_table')
-    props.phiale((-1.95, 1.45, 0.5), name='phiale_gold')
-    props.rhyton((-1.85, 1.8, 0.5), heading_deg=30)
-    props.scribe_kit((1.8, 1.4, 0.0), heading_deg=-60, persian=True, name='secretary_kit')   # on the ground: scribes sat
-    W.window_light((0.0, 2.0, 0.8), energy=420.0, loc=(3.0, -2.5, 3.2), size=2.0, color=(1.0, 0.86, 0.66))
-    common.area_light('rim', 150.0, (0.6, 0.7, 1.0), (-2.5, 3.5, 2.5), (0, 2.0, 0.8), size=1.5)
+    W.room(w=10.0, d=8.0, floor='old_sandstone_02', wall='plastered_wall_02', floor_tint=(0.42, 0.38, 0.33), wall_tint=(0.22, 0.2, 0.19))
+    W.dark_world(0.02)
+    props.carpet((0.0, 1.7, 0.0), size=(3.6, 2.6))
+    props.pavilion((0.0, 2.0, 0.0), w=4.4, d=3.4, h=3.0)                      # the royal field canopy
+    props.throne((0.0, 2.3, 0.012), heading_deg=0)          # footstool side (-Y) faces the camera
+    props.royal_parasol((0.6, 2.75, 0.0), heading_deg=0, tilt_deg=-8)
+    for x in (-1.15, 1.15):
+        props.incense_burner((x, 1.0, 0.012), name=f'incense_{"l" if x < 0 else "r"}')
+    props.trapeza((-1.75, 2.1, 0.012), heading_deg=90, name='side_table')
+    props.phiale((-1.8, 1.95, 0.512), name='phiale_gold')
+    props.rhyton((-1.7, 2.3, 0.512), heading_deg=30)
+    props.scribe_kit((1.5, 1.0, 0.012), heading_deg=-60, persian=True, name='secretary_kit')   # scribes sat on the ground
+    # low warm sun from the open side of the pavilion + a cool sky fill + a gold rim
+    W.window_light((0.0, 2.2, 1.0), energy=650.0, loc=(4.0, -1.0, 1.6), size=1.5, color=(1.0, 0.78, 0.52))
+    common.area_light('sky', 60.0, (0.55, 0.65, 1.0), (-3.5, -2.5, 3.5), (0, 2.0, 0.8), size=3.0)
+    common.area_light('rim', 140.0, (1.0, 0.8, 0.55), (-1.5, 4.5, 2.2), (0, 2.2, 1.0), size=1.0)
     sc.frame_set(FRAME)
-    common.camera('cam', Vector((0.6, -3.2, 1.5)), Vector((0.0, 1.8, 0.9)), lens=32)
-    W.finish(OUT, SAMPLES, exposure=-0.4)
+    common.camera('cam', Vector((0.9, -1.9, 1.25)), Vector((-0.1, 2.0, 1.0)), lens=28, fstop=4.0, focus=(0.0, 2.2, 1.0))
+    W.finish(OUT, SAMPLES, exposure=-0.5)
 elif VARIANT == 'scribes':
     W.room(w=8.0, d=6.0, floor='old_sandstone_02', wall='plastered_wall_02', floor_tint=(0.5, 0.48, 0.45), wall_tint=(0.55, 0.52, 0.48))
     W.dark_world(0.02)
