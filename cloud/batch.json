@@ -1,6 +1,6 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "d-verify-2",
+  "batch": "ws7-11",
   "run": [
     "d_ins_tablet",
     "d_ins_ostrakon",
