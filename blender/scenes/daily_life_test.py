@@ -60,7 +60,7 @@ elif VIEW == 'village':
     sets.land('village_hills', (0, 520, -2), (900, 260), 220, rough=24, noise=40, seed=4)
     cam, tgt, lens = Vector((-30, -95, 16)), Vector((0, 0, 2)), 35
     common.hdri_sky('kloofendal_48d_partly_cloudy_puresky', background=0.85, lighting=0.3, rotate_deg=200)
-    common.sun_light('sun', 4.2, (1.0, 0.72, 0.45), 14, 240)
+    common.sun_light('sun', 4.6, (1.0, 0.75, 0.5), 24, 35)               # front-side key for a camera looking +y
     sets.haze(size=(3000, 3000, 400), density=0.0002, color=(1.0, 0.8, 0.6))
 elif VIEW == 'caravan':
     # a trade caravan on a Persian royal road across dry plain, a Persian trader (Median dress) leading it
@@ -88,14 +88,14 @@ elif VIEW == 'workshops':
             place_person(crowd.person(62, 'smith', 'greece_480bc'), (8.3, -1.6, 0), 60)
     cam, tgt, lens = Vector((3.2, -13.0, 3.0)), Vector((3.0, 0.5, 1.0)), 26
     common.hdri_sky('qwantani_dusk_2_puresky', background=0.6, lighting=0.25, rotate_deg=90)
-    common.sun_light('sun', 2.5, (1.0, 0.62, 0.38), 8, 250)
+    common.sun_light('sun', 2.8, (1.0, 0.62, 0.38), 9, 35)               # low dusk sun from behind the camera
 elif VIEW == 'garden':
     # a Persian royal garden (paradeisos, after Pasargadae): stone channels, basins, cypress walks, palms
     cs.persian_garden((0, 0, 0), seed=2)
     sets.land('garden_hills', (0, 700, -2), (1400, 300), 300, rough=26, noise=42, seed=11)
     cam, tgt, lens = Vector((1.2, -36, 2.2)), Vector((0, 8, 1.6)), 28
     common.hdri_sky('kloofendal_48d_partly_cloudy_puresky', background=0.9, lighting=0.45, rotate_deg=170)
-    common.sun_light('sun', 4.5, (1.0, 0.8, 0.58), 32, 200)              # light down the garden's long axis
+    common.sun_light('sun', 4.6, (1.0, 0.8, 0.58), 30, 35)               # front-side key down the garden's axis
     sets.haze(size=(3000, 3000, 400), density=0.00018, color=(1.0, 0.8, 0.62))
 else:                                                               # beach
     # the sea runs out to the horizon (-Y); the sand starts at the waterline (y = -1) and goes inland (+Y)
@@ -104,12 +104,12 @@ else:                                                               # beach
     sets.far_sea()
     bpy.ops.mesh.primitive_plane_add(size=1, location=(0, 99, 0.0)); g = bpy.context.object
     g.scale = (300, 200, 1); bpy.ops.object.transform_apply(scale=True)
-    g.data.materials.append(cs.soil_material('beach_sand', scan='coast_sand_rocks_02', tint=(1.35, 1.28, 1.12), tiles=1.5))
+    g.data.materials.append(cs.soil_material('beach_sand_pale', scan='coast_sand_rocks_02', tint=(1.6, 1.45, 1.2), tiles=1.5))
     market.fishing_beach((0, 3.5, 0.05), heading_deg=180, seed=2)        # bows up the beach, sterns to the sea
     sets.land('far_island', (-300, -1400, -2), (900, 300), 160, rough=20, noise=34, seed=3)   # Salamis across the strait
     cam, tgt, lens = Vector((7.5, 15.0, 2.0)), Vector((0, 0, 0.6)), 30
     common.hdri_sky('kloofendal_48d_partly_cloudy_puresky', background=0.85, lighting=0.3, rotate_deg=60)
-    common.sun_light('sun', 4.0, (1.0, 0.78, 0.55), 18, 300)
+    common.sun_light('sun', 4.2, (1.0, 0.78, 0.55), 20, 200)             # camera looks -y: sun behind it
     sets.haze(size=(4000, 4000, 400), density=0.00012, color=(0.85, 0.9, 1.0))
 common.camera('cam', cam, tgt, lens=lens, fstop=8)
 bpy.context.scene.camera.data.clip_end = 6000

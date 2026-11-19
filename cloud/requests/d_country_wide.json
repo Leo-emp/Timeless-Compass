@@ -1,0 +1,10 @@
+{
+  "name": "d_country_wide",
+  "active": true,
+  "script": "blender/scenes/countryside_test.py",
+  "args": [
+    "out/country_wide.png",
+    "24",
+    "wide"
+  ]
+}

@@ -40,8 +40,10 @@ sets.land('hymettos', (60, 420, -2), (900, 260), 260, rough=26, noise=40, seed=1
 sets.land('far_hills', (-380, 520, -2), (700, 300), 180, rough=20, noise=34, seed=2)
 
 # --- light: low warm sun from the left-front, a real sky with clouds, gentle haze for depth
-common.hdri_sky('kloofendal_48d_partly_cloudy_puresky', background=0.9, lighting=0.3, rotate_deg=200)
-common.sun_light('sun', 4.5, (1.0, 0.74, 0.48), 17, 215, angle_deg=1.0)   # golden, from behind the camera's shoulder
+common.hdri_sky('kloofendal_48d_partly_cloudy_puresky', background=0.9, lighting=0.45, rotate_deg=200)
+# sun_light's azimuth is where the light TRAVELS: az 35 = sun behind the camera's left shoulder for cameras looking +y
+# (az 215 had put the sun in FRONT of every camera here: backlit, murky shots)
+common.sun_light('sun', 4.8, (1.0, 0.76, 0.5), 22, 35, angle_deg=1.0)
 sets.haze(size=(3000, 3000, 400), density=0.00022, color=(1.0, 0.8, 0.6))
 
 views = {   # camera, target, lens
