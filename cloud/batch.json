@@ -1,18 +1,13 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "ws7-1",
+  "batch": "ws7-2",
   "run": [
-    "ws7_ship3_close",
     "ws7_ship3_sail",
     "ws7_ship3_fleet",
-    "ws7_quay",
-    "ws7_boat",
-    "ws7_symposion",
-    "ws7_furniture",
     "ws7_story_ram",
     "ws7_story_oracle",
-    "ws7_story_wall",
     "ws7_story_scribes",
-    "ws7_story_debris"
+    "ws7_story_wall",
+    "ws7_furniture"
   ]
 }

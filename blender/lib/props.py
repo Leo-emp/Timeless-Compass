@@ -604,7 +604,7 @@ def flame_glow(name='lamp_flame', strength=30.0, temp=1800.0):
     return m
 
 
-def tongue_flame_material(name='flame_tongue', strength=40.0):
+def tongue_flame_material(name='flame_tongue', strength=9.0):
     """Flame like a real wood/oil flame: hottest (yellow-white, ~1900 K) at the root, cooling to red (~1200 K) toward
     the tip, and fading to nothing at the top and edges (a flame has no hard outline). Uses each tongue's own
     0..1 'Generated' height, so it works at any size."""
@@ -620,7 +620,7 @@ def tongue_flame_material(name='flame_tongue', strength=40.0):
     zt = nt.nodes.new('ShaderNodeMath'); zt.operation = 'MULTIPLY_ADD'               # height + a little noise: ragged
     zt.inputs[1].default_value = 0.35; L(noise.outputs['Fac'], zt.inputs[0]); L(sep.outputs['Z'], zt.inputs[2])
     temp = nt.nodes.new('ShaderNodeMapRange'); temp.inputs['From Min'].default_value = 0.15; temp.inputs['From Max'].default_value = 1.2
-    temp.inputs['To Min'].default_value = 1950.0; temp.inputs['To Max'].default_value = 1150.0
+    temp.inputs['To Min'].default_value = 1650.0; temp.inputs['To Max'].default_value = 1000.0   # orange root -> deep red tip
     L(zt.outputs['Value'], temp.inputs['Value'])
     bb = nt.nodes.new('ShaderNodeBlackbody'); L(temp.outputs['Result'], bb.inputs['Temperature'])
     fade = nt.nodes.new('ShaderNodeMapRange'); fade.inputs['From Min'].default_value = 0.35; fade.inputs['From Max'].default_value = 1.25
@@ -636,7 +636,7 @@ def tongue_flame_material(name='flame_tongue', strength=40.0):
     return m
 
 
-def flame_tongues(parent, loc, height=0.4, width=0.25, n=6, frames=(1, 240), seed=0, name='flame', strength=40.0):
+def flame_tongues(parent, loc, height=0.4, width=0.25, n=6, frames=(1, 240), seed=0, name='flame', strength=9.0):
     """A small fire as several teardrop 'tongues' of glowing gas that flicker and sway (keyframed scale + lean every
     2-3 frames). Light-weight and readable at any distance - no volume simulation. Returns the tongue objects."""
     rnd = _random.Random(seed)
@@ -856,7 +856,7 @@ def oil_lamp(loc=(0, 0, 0), heading_deg=0.0, lit=True, power=6.0, frames=(1, 240
     _tube(f'{name}_handle', [(-0.035, -0.012, 0.022), (-0.055, 0, 0.026), (-0.035, 0.012, 0.022)], 0.004, bg, root)
     if lit:
         flame_tongues(root, (0.079, 0, 0.024), height=0.032, width=0.011, n=1, frames=frames, seed=seed,
-                      name=f'{name}_flame', strength=25.0)
+                      name=f'{name}_flame', strength=6.0)
         _flicker_light((0.079, 0, 0.075), power, root, f'{name}_light', frames, seed, radius=0.012)   # above the flame: lights the room, not just the lamp
     return _place(root, loc, heading_deg)
 
@@ -2049,12 +2049,12 @@ def sea_bronze(name='sea_bronze'):
         return m
     m = principled(name, (0.25, 0.16, 0.08), metal=0.85, rough=0.45)
     nt = m.node_tree; b = nt.nodes['Principled BSDF']; L = nt.links.new
-    n = nt.nodes.new('ShaderNodeTexNoise'); n.inputs['Scale'].default_value = 7.0; n.inputs['Detail'].default_value = 10
-    n.inputs['Roughness'].default_value = 0.65
-    mk = nt.nodes.new('ShaderNodeMapRange'); mk.inputs['From Min'].default_value = 0.45; mk.inputs['From Max'].default_value = 0.6
+    n = nt.nodes.new('ShaderNodeTexNoise'); n.inputs['Scale'].default_value = 22.0; n.inputs['Detail'].default_value = 12
+    n.inputs['Roughness'].default_value = 0.7       # fine pitting, not big camouflage blotches
+    mk = nt.nodes.new('ShaderNodeMapRange'); mk.inputs['From Min'].default_value = 0.5; mk.inputs['From Max'].default_value = 0.7
     L(n.outputs['Fac'], mk.inputs['Value'])
     col = nt.nodes.new('ShaderNodeMix'); col.data_type = 'RGBA'
-    col.inputs['A'].default_value = (0.22, 0.13, 0.06, 1); col.inputs['B'].default_value = (0.12, 0.26, 0.22, 1)  # bronze / verdigris
+    col.inputs['A'].default_value = (0.2, 0.12, 0.06, 1); col.inputs['B'].default_value = (0.1, 0.17, 0.14, 1)   # muted verdigris  # bronze / verdigris
     L(mk.outputs['Result'], col.inputs['Factor']); L(_age(m, col.outputs['Result'], 0.35, 0.5, 0.05), b.inputs['Base Color'])
     inv = nt.nodes.new('ShaderNodeMath'); inv.operation = 'SUBTRACT'; inv.inputs[0].default_value = 0.85
     L(mk.outputs['Result'], inv.inputs[1]); L(inv.outputs[0], b.inputs['Metallic'])                         # corrosion is not metal
@@ -2078,21 +2078,22 @@ def ram_athlit(loc=(0, 0, 0), heading_deg=0.0, plinth=True, corroded=True, name=
     bm = bmesh.new()
     Lr = 2.26
     secs = 24
-    ring_n = 14
+    ring_n = 28
     rings = []
     for i in range(secs + 1):
         t = i / secs                                     # 0 = rear opening .. 1 = front of the body
         x = -Lr + 0.55 + t * (Lr - 0.55)                 # body from x = -1.71 (rear) to 0 (base of the fins)
-        w = 0.38 * (1 - 0.72 * t ** 1.4)                 # half-width narrows toward the front
-        h = 0.95 * (1 - 0.65 * t ** 1.2)                 # height drops toward the front
+        w = 0.38 * (1 - 0.3 * t ** 1.2)                  # half-width: 0.38 at the back -> ~0.27 at the front
+        h = 0.95 * (1 - 0.45 * t ** 1.1)                 # height: 0.95 m at the back -> ~0.52 m at the front
         cowl = 0.12 * (1 - t) ** 0.7                     # raised ridge on top
         pts = []
-        for k in range(ring_n):                          # section: flat keel trough at the bottom, flared sides, peaked top
-            a = 2 * math.pi * k / ring_n
-            yy, zz = math.sin(a), -math.cos(a)           # start at the bottom
-            r_side = w * (1.0 + 0.25 * max(0.0, zz) * (1 - t))       # wings flare out higher up at the back
-            z = (zz * 0.5 + 0.5) * h + cowl * max(0.0, zz) ** 6
-            pts.append(bm.verts.new((x, yy * r_side * (0.85 if zz < -0.5 else 1.0), z - h * 0.3)))
+        for k in range(ring_n):                          # section: a ROUNDED RECTANGLE (flat sides + flat bottom, the
+            a = 2 * math.pi * k / ring_n                 # sheath of the bow timbers) with the cowl ridge on top
+            ca, sa = math.cos(a), math.sin(a)
+            yy = math.copysign(abs(sa) ** 0.35, sa)      # superellipse: |.|^0.35 squares the circle off
+            zz = -math.copysign(abs(ca) ** 0.35, ca)
+            z = (zz * 0.5 + 0.5) * h + cowl * max(0.0, zz) ** 8
+            pts.append(bm.verts.new((x, yy * w, z - h * 0.3)))
         rings.append(pts)
     for r0, r1 in zip(rings, rings[1:]):
         for k in range(ring_n):
@@ -2100,9 +2101,9 @@ def ram_athlit(loc=(0, 0, 0), heading_deg=0.0, plinth=True, corroded=True, name=
     bm.faces.new(rings[-1][::-1])                        # the front face (the fins grow out of it)
     # the driving centre: three horizontal fins + a vertical plate, ~0.55 m forward of the body
     zc = rings[-1][0].co.z + 0.95 * 0.35 * 0.5
-    for dz in (-0.17, 0.0, 0.17):
-        _bm_box(bm, (0.27, 0, zc + dz), (0.58, 0.42 - abs(dz) * 0.6, 0.045), 0)
-    _bm_box(bm, (0.24, 0, zc), (0.52, 0.05, 0.42), 0)
+    for dz in (-0.17, 0.0, 0.17):                        # three horizontal blades, as wide as the front of the body
+        _bm_box(bm, (0.28, 0, zc + dz), (0.6, 0.56 - abs(dz) * 0.4, 0.05), 0)
+    _bm_box(bm, (0.25, 0, zc), (0.55, 0.06, 0.46), 0)    # the vertical plate tying them together
     for sgn in (-1, 1):                                  # the long side wings (fluted flanges) sweeping back
         _bm_tube(bm, [(0.05, sgn * 0.12, zc + 0.08), (-0.6, sgn * 0.3, zc + 0.18), (-1.6, sgn * 0.42, zc + 0.32)],
                  [0.03, 0.04, 0.05], 0, seg=8)
@@ -2174,7 +2175,7 @@ def tripod_cauldron(loc=(0, 0, 0), heading_deg=0.0, height=1.6, seat=False, name
     for sgn in (-1, 1):                                  # two big ring handles standing on the rim
         bpy.ops.mesh.primitive_torus_add(major_radius=0.17, minor_radius=0.018, location=(0, sgn * 0.33, rim + 0.17),
                                          rotation=(0, 0, 0))
-        t = bpy.context.object; t.name = f'{name}_handle'; t.rotation_euler = (0, math.radians(90), 0)
+        t = bpy.context.object; t.name = f'{name}_handle'; t.rotation_euler = (math.radians(90), 0, 0)   # ring plane along the rim
         t.data.materials.append(br); t.parent = root
     if seat:
         _cyl(f'{name}_lid', (0, 0, rim + 0.01), 0.36, 0.03, br, verts=40, parent=root)
@@ -2185,7 +2186,7 @@ def omphalos(loc=(0, 0, 0), heading_deg=0.0, height=1.0, name='omphalos'):
     """The OMPHALOS of Delphi, the 'navel of the world': an egg-shaped stone wrapped in a net of woollen fillets
     (the agrenon), carved in relief on the marble copy in the Delphi museum."""
     root = _root(name)
-    m = principled(f'{name}_stone', (0.55, 0.52, 0.47), rough=0.7)
+    m = principled(f'{name}_stone', (0.34, 0.31, 0.26), rough=0.7)
     nt = m.node_tree; b = nt.nodes['Principled BSDF']; L = nt.links.new
     tc = nt.nodes.new('ShaderNodeTexCoord')
     net = None
@@ -2200,7 +2201,13 @@ def omphalos(loc=(0, 0, 0), heading_deg=0.0, height=1.0, name='omphalos'):
             mx = nt.nodes.new('ShaderNodeMath'); mx.operation = 'MAXIMUM'; L(net.outputs['Fac'], mx.inputs[0]); L(w.outputs['Fac'], mx.inputs[1])
             net = mx
     sock = net.outputs[0]
-    bp = nt.nodes.new('ShaderNodeBump'); bp.inputs['Strength'].default_value = 0.6; L(sock, bp.inputs['Height']); L(bp.outputs['Normal'], b.inputs['Normal'])
+    sharp = nt.nodes.new('ShaderNodeMapRange'); sharp.inputs['From Min'].default_value = 0.8; sharp.inputs['From Max'].default_value = 0.95
+    L(sock, sharp.inputs['Value'])                       # thin raised cords where the bands cross the stone
+    bp = nt.nodes.new('ShaderNodeBump'); bp.inputs['Strength'].default_value = 1.0; bp.inputs['Distance'].default_value = 0.02
+    L(sharp.outputs['Result'], bp.inputs['Height']); L(bp.outputs['Normal'], b.inputs['Normal'])
+    col = nt.nodes.new('ShaderNodeMix'); col.data_type = 'RGBA'
+    col.inputs['A'].default_value = (0.34, 0.31, 0.26, 1); col.inputs['B'].default_value = (0.62, 0.58, 0.5, 1)
+    L(sharp.outputs['Result'], col.inputs['Factor']); L(col.outputs['Result'], b.inputs['Base Color'])
     bpy.ops.mesh.primitive_uv_sphere_add(segments=48, ring_count=24, radius=0.5)
     o = bpy.context.object; o.name = f'{name}_stone'
     for v in o.data.vertices:                            # egg: flat base, fuller below, rounded dome above
@@ -2284,7 +2291,7 @@ def timber_barricade(loc=(0, 0, 0), heading_deg=0.0, length=12.0, height=2.2, bu
         for i in range(int(length / 1.5)):
             fx_ = -length / 2 + (i + rnd.random()) * 1.5
             flame_tongues(root, (fx_, -0.2, rnd.uniform(0.2, height * 0.8)), height=rnd.uniform(0.8, 1.8), width=rnd.uniform(0.4, 0.8),
-                          n=5, frames=frames, seed=seed + i, name=f'{name}_fire{i}', strength=55.0)
+                          n=5, frames=frames, seed=seed + i, name=f'{name}_fire{i}', strength=12.0)
         _flicker_light((0, -1.5, height * 0.6), 2500.0, root, f'{name}_firelight', frames, seed, radius=2.5, color=(1.0, 0.6, 0.32))
     return _place(root, loc, heading_deg)
 
@@ -2301,21 +2308,25 @@ def scribe_kit(loc=(0, 0, 0), heading_deg=0.0, persian=True, name='scribe_kit'):
         hide = principled('scroll_leather', (0.55, 0.42, 0.28), rough=0.8, bump=0.2, bump_scale=200)
         nt = hide.node_tree; b = nt.nodes['Principled BSDF']; L = nt.links.new
         tc = nt.nodes.new('ShaderNodeTexCoord')
-        w = nt.nodes.new('ShaderNodeTexWave'); w.wave_type = 'BANDS'; w.bands_direction = 'Y'; w.inputs['Scale'].default_value = 60.0
-        w.inputs['Distortion'].default_value = 2.0
-        L(tc.outputs['Object'], w.inputs['Vector'])
-        nz = nt.nodes.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 900.0; L(tc.outputs['Object'], nz.inputs['Vector'])
-        mul = nt.nodes.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; L(w.outputs['Fac'], mul.inputs[0]); L(nz.outputs['Fac'], mul.inputs[1])
-        th = nt.nodes.new('ShaderNodeMath'); th.operation = 'GREATER_THAN'; th.inputs[1].default_value = 0.42; L(mul.outputs[0], th.inputs[0])
+        # 'writing': rows ~9 mm apart (fract of y), each row broken into letter-sized marks by fine noise
+        sep = nt.nodes.new('ShaderNodeSeparateXYZ'); L(tc.outputs['Object'], sep.inputs['Vector'])
+        ry = nt.nodes.new('ShaderNodeMath'); ry.operation = 'MULTIPLY'; ry.inputs[1].default_value = 110.0; L(sep.outputs['Y'], ry.inputs[0])
+        fr = nt.nodes.new('ShaderNodeMath'); fr.operation = 'FRACT'; L(ry.outputs[0], fr.inputs[0])
+        row = nt.nodes.new('ShaderNodeMath'); row.operation = 'LESS_THAN'; row.inputs[1].default_value = 0.32; L(fr.outputs[0], row.inputs[0])
+        nz = nt.nodes.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 420.0; nz.inputs['Detail'].default_value = 1
+        L(tc.outputs['Object'], nz.inputs['Vector'])
+        ch = nt.nodes.new('ShaderNodeMath'); ch.operation = 'GREATER_THAN'; ch.inputs[1].default_value = 0.5; L(nz.outputs['Fac'], ch.inputs[0])
+        th = nt.nodes.new('ShaderNodeMath'); th.operation = 'MULTIPLY'; L(row.outputs[0], th.inputs[0]); L(ch.outputs[0], th.inputs[1])
         mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'
         mx.inputs['A'].default_value = (0.55, 0.42, 0.28, 1); mx.inputs['B'].default_value = (0.04, 0.03, 0.03, 1)  # lines of ink
         L(th.outputs[0], mx.inputs['Factor']); L(mx.outputs['Result'], b.inputs['Base Color'])
         _box(f'{name}_sheet', (0.18, 0, 0.002), (0.36, 0.24, 0.002), hide, bevel=0.0, parent=root)        # the unrolled part
-        _cyl(f'{name}_roll', (-0.02, 0, 0.025), 0.025, 0.25, hide, rot=(math.radians(90), 0, 0), verts=20, parent=root)
-        pot = _lathe(f'{name}_inkpot', [(0, 0), (0.0, 0.03), (0.04, 0.035), (0.05, 0.02), (0.052, 0.015)],
-                     principled('inkpot_stone', (0.25, 0.24, 0.22), rough=0.6), seg=24, parent=root, smooth=1)
-        pot.location = (0.42, 0.12, 0.0)                     # stone ink pot beside the scroll
-        _cyl(f'{name}_ink', (0.42, 0.12, 0.048), 0.012, 0.002, ink, verts=16, parent=root)   # the ink surface inside
+        plain = principled('scroll_leather_plain', (0.5, 0.38, 0.25), rough=0.8, bump=0.25, bump_scale=200)
+        _cyl(f'{name}_roll', (-0.02, 0, 0.025), 0.025, 0.25, plain, rot=(math.radians(90), 0, 0), verts=24, parent=root)
+        pot = _lathe(f'{name}_inkpot', [(0, 0), (0.0, 0.04), (0.018, 0.046), (0.032, 0.038), (0.038, 0.02), (0.042, 0.022)],
+                     black_gloss(), seg=28, parent=root, smooth=1, thick=0.003)
+        pot.location = (0.42, 0.12, 0.0)                     # squat black-glazed ink pot, wide so it cannot tip
+        _cyl(f'{name}_ink', (0.42, 0.12, 0.03), 0.017, 0.002, ink, verts=16, parent=root)   # ink surface inside the mouth
         reed = principled('reed_pen', (0.55, 0.47, 0.30), rough=0.6)
         for k in range(2):
             _cyl(f'{name}_pen', (0.32 + k * 0.03, -0.15, 0.006), 0.004, 0.22, reed, rot=(0, math.radians(90), math.radians(10 + 15 * k)), verts=8, parent=root)

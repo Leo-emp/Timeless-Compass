@@ -35,16 +35,16 @@ if VARIANT == 'close':
     common.camera('cam', Vector((40.5, 22.0, 3.6)), Vector((22.0, 30.5, 2.6)), lens=35, fstop=5.6, focus=(30.0, 28.0, 2.4))
 elif VARIANT == 'sail':
     props.trireme_v3((0, 40, 0), heading_deg=10, oars=None, sail='set', crew='proxies', name='cruiser')
-    common.camera('cam', Vector((19.0, 2.0, 2.4)), Vector((17.0, 43.0, 6.0)), lens=30)
+    common.camera('cam', Vector((-24.0, 16.0, 4.5)), Vector((16.0, 43.0, 7.0)), lens=32)   # stern quarter: sail seen full
 elif VARIANT == 'quay':                    # dressed harbour quay: amphorae, ropes, anchors, baskets, moored boats
     sets.stone_wall(-14.0, 14.0, 22.0, 1.0, depth=6.0)        # quay: wall face at y = 19, top at z = 1
     props.dress_quay((0, 20.0, 1.0), length=24.0, boats=2, seed=2)   # props on top, boats moored off the face
     props.trireme_v3((-8, 48, 0), heading_deg=170, oars='rest', crew='proxies', name='moored')
     common.camera('cam', Vector((9.0, 14.5, 2.9)), Vector((-1.0, 22.5, 1.0)), lens=28)
 else:
-    props.fleet((0, 160, 0), count=40, spread=(320.0, 160.0), heading_deg=200, phoenician_share=0.35, oars='row',
-                camera=(14.0, 4.0, 2.2), far=120.0, seed=3)
-    common.camera('cam', Vector((14.0, 4.0, 2.2)), Vector((-10.0, 120.0, 4.0)), lens=32)
+    props.fleet((0, 330, 0), count=40, spread=(420.0, 200.0), heading_deg=200, phoenician_share=0.35, oars='row',
+                camera=(30.0, -20.0, 9.0), far=180.0, seed=3)        # the whole fleet in front of the camera
+    common.camera('cam', Vector((30.0, -20.0, 9.0)), Vector((-5.0, 260.0, 2.0)), lens=35)
 print('BUILD_SECONDS', round(time.time() - t, 1), 'objects', len(bpy.data.objects))
 
 sc.frame_set(FRAME)
