@@ -2026,7 +2026,8 @@ def trireme_sail_mesh(name='tri4_sail', W=10.2, Ht=7.0, belly=1.45, folds=10):
     return me
 
 
-def trireme_sail_cloth(name='tri5_sail_cloth', W=10.2, Ht=7.0, frames=45, wind=9.0, res=(44, 32)):
+def trireme_sail_cloth(name='tri5_sail_cloth', W=10.2, Ht=7.0, frames=60, wind=300.0, res=(44, 32)):
+    # wind 300 / 60 frames -> ~1.4 m belly on a 10 m sail (~14 %, a real square sail); 9 gave only 0.3 m (tested on CI)
     """The SET SAIL as REAL CLOTH: a Blender cloth simulation, run once and frozen (cached per Blender session).
       - pinned along the whole top edge (laced to the yard) and at the two bottom corners (the sheets);
       - the sewn reinforcing strips and brail lines (the grid on Greek sails in vase paintings) are STIFFER than
@@ -2060,7 +2061,7 @@ def trireme_sail_cloth(name='tri5_sail_cloth', W=10.2, Ht=7.0, frames=45, wind=9
                 seams.add([idx], 1.0, 'REPLACE')                 # brail lines + sewn strips
     cl = ob.modifiers.new('cloth', 'CLOTH'); st = cl.settings
     st.quality = 6; st.mass = 0.25; st.air_damping = 0.6
-    st.tension_stiffness = 25; st.compression_stiffness = 25; st.shear_stiffness = 8; st.bending_stiffness = 0.3
+    st.tension_stiffness = 10; st.compression_stiffness = 10; st.shear_stiffness = 5; st.bending_stiffness = 0.15   # soft linen panels
     st.vertex_group_mass = 'pin'
     try:                                                          # stiffer seams (Blender 2.9+ 'shrink'/'structural' groups)
         st.vertex_group_structural_stiffness = 'seams'; st.tension_stiffness_max = 80; st.compression_stiffness_max = 80
