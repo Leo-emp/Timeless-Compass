@@ -220,7 +220,7 @@ def chiton(human, rig, pos, material, length='knee', follow=False):
                     y, z = cy + 0.25 * (y - cy), st + 0.006
                     w = 1.0
             elif r == 0 and abs(x) < 0.07:                              # neckline: lies on the collarbones / upper back
-                nz = M['shoulder_z'] - (neck_drop if y < cy else 0.0)
+                nz = M['shoulder_z'] - (0.035 if y < cy else 0.0)
                 sy = surface_y(pos, x, nz, front=y < cy)
                 if sy is not None:                                      # SOFT pin: the neckline can sag into a
                     y, z = sy + (-0.006 if y < cy else 0.006), nz         # curve but the tunic stays on the shoulders
