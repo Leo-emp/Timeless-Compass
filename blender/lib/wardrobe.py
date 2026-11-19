@@ -544,13 +544,25 @@ def _sim_freeze(objs, frames, shell=None):
     """Simulate every cloth in the scene up to `frames`, then freeze `objs` so later layers drape over them.
     Garments that were bound to the skeleton lose their armature modifier here: the frozen shape is ALREADY
     the posed shape (keeping the modifier would pose it a second time)."""
+    rest = {}
     for o in objs:
         for m in o.modifiers:
             if m.type == 'CLOTH':
                 m.point_cache.frame_end = max(m.point_cache.frame_end, frames)
+        rest[o.name] = np.array([v.co[:] for v in o.data.vertices])
     simulate(frames)
     for o in objs:
         freeze(o)
+        # one line per garment: how far the cloth moved (0 = never simulated) and how much of it is pinned
+        try:
+            now = np.array([v.co[:] for v in o.data.vertices])
+            mv = np.linalg.norm(now - rest[o.name], axis=1) if now.shape == rest[o.name].shape else np.array([-1.0])
+            vg = o.vertex_groups.get('pin')
+            pinned = sum(1 for v in o.data.vertices for g in v.groups if vg and g.group == vg.index and g.weight > 0.99)
+            print(f'cloth {o.name}: moved mean {mv.mean() * 100:.1f} cm, max {mv.max() * 100:.1f} cm, '
+                  f'{pinned}/{len(o.data.vertices)} hard-pinned', flush=True)
+        except Exception as e:
+            print('cloth report failed -', e)
         if shell is not None:                                         # thinner collision shell: the next layer
             o.collision.thickness_outer = shell                       # lies ON it instead of tenting 2 cm above
         for m in [m for m in o.modifiers if m.type == 'ARMATURE']:
