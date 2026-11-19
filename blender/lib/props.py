@@ -2026,6 +2026,72 @@ def trireme_sail_mesh(name='tri4_sail', W=10.2, Ht=7.0, belly=1.45, folds=10):
     return me
 
 
+def trireme_sail_cloth(name='tri5_sail_cloth', W=10.2, Ht=7.0, frames=45, wind=9.0, res=(44, 32)):
+    """The SET SAIL as REAL CLOTH: a Blender cloth simulation, run once and frozen (cached per Blender session).
+      - pinned along the whole top edge (laced to the yard) and at the two bottom corners (the sheets);
+      - the sewn reinforcing strips and brail lines (the grid on Greek sails in vase paintings) are STIFFER than
+        the linen between them, so each panel puffs out on its own - that is what gives a sail real volume;
+      - a wind force from astern (+X) fills it; gravity makes the foot sag.
+    Mesh coordinates match trireme_sail_mesh(): x forward (belly), y across, z from 0 (yard) down to -Ht."""
+    me = bpy.data.meshes.get(name)
+    if me:
+        return me
+    nu, nv = res
+    verts, faces = [], []
+    for i in range(nu + 1):
+        for j in range(nv + 1):
+            u, v = i / nu, j / nv
+            # start slightly bellied so the solver settles faster and never folds backwards
+            verts.append((0.25 * math.sin(math.pi * u) * math.sin(math.pi * v), (u - 0.5) * W, -v * Ht))
+    for i in range(nu):
+        for j in range(nv):
+            a = i * (nv + 1) + j
+            faces.append((a, a + 1, a + nv + 2, a + nv + 1))
+    tmp_me = bpy.data.meshes.new(name + '_sim'); tmp_me.from_pydata(verts, [], faces); tmp_me.update()
+    ob = bpy.data.objects.new(name + '_sim', tmp_me); bpy.context.scene.collection.objects.link(ob)
+    pin = ob.vertex_groups.new(name='pin')
+    seams = ob.vertex_groups.new(name='seams')
+    for i in range(nu + 1):
+        for j in range(nv + 1):
+            idx = i * (nv + 1) + j
+            if j == 0 or (j == nv and i in (0, nu)):
+                pin.add([idx], 1.0, 'REPLACE')                   # yard + sheet corners
+            if i % (nu // 11) == 0 or j % (nv // 8) == 0:
+                seams.add([idx], 1.0, 'REPLACE')                 # brail lines + sewn strips
+    cl = ob.modifiers.new('cloth', 'CLOTH'); st = cl.settings
+    st.quality = 6; st.mass = 0.25; st.air_damping = 0.6
+    st.tension_stiffness = 25; st.compression_stiffness = 25; st.shear_stiffness = 8; st.bending_stiffness = 0.3
+    st.vertex_group_mass = 'pin'
+    try:                                                          # stiffer seams (Blender 2.9+ 'shrink'/'structural' groups)
+        st.vertex_group_structural_stiffness = 'seams'; st.tension_stiffness_max = 80; st.compression_stiffness_max = 80
+        st.vertex_group_bending = 'seams'; st.bending_stiffness_max = 4.0
+    except Exception:
+        pass
+    cl.point_cache.frame_start = 1; cl.point_cache.frame_end = frames
+    # the wind: a force field from astern with a little turbulence
+    bpy.ops.object.effector_add(type='WIND', location=(-6.0, 0, -Ht / 2), rotation=(0, math.radians(90), 0))
+    wf = bpy.context.object; wf.name = name + '_wind'
+    wf.field.strength = wind; wf.field.noise = 0.6; wf.field.flow = 0.3
+    sc = bpy.context.scene
+    keep = sc.frame_current
+    for f in range(1, frames + 1):                                # step the solver frame by frame
+        sc.frame_set(f)
+    dg = bpy.context.evaluated_depsgraph_get()
+    me = bpy.data.meshes.new_from_object(ob.evaluated_get(dg))   # freeze the settled shape
+    me.name = name
+    for p_ in me.polygons:
+        p_.use_smooth = True
+    uv = me.uv_layers.new(name='UVMap')
+    for p_ in me.polygons:
+        for li, vi in zip(p_.loop_indices, p_.vertices):
+            i, j = divmod(vi, nv + 1)
+            uv.data[li].uv = (i / nu, 1 - j / nv)
+    sc.frame_set(keep)
+    bpy.data.objects.remove(wf, do_unlink=True); bpy.data.objects.remove(ob, do_unlink=True)
+    bpy.data.meshes.remove(tmp_me)
+    return me
+
+
 def _sail_material(name='tri4_sail_linen'):
     """Undyed linen sail with sewn horizontal strips and vertical brail lines (vase paintings show this grid)."""
     m = bpy.data.materials.get(name)
@@ -2089,7 +2155,7 @@ def _ship_foam(root, name, speed_mps, L=_TRI_L):
 
 def trireme_v3(loc=(0, 0, 0), heading_deg=0.0, oars='row', stroke_frames=34, frame_start=1, frame_end=240,
                sail=None, crew='markers', marines=14, speed_mps=0.0, bob=True, phoenician=False, seed=0,
-               wind=True, name='trireme3'):
+               wind=True, cloth=True, name='trireme3'):
     """TRIREME v3 - same options as trireme_v2 (oars 'row' | 'rest' | None, sail 'set' | None, crew 'markers' |
     'proxies' | None, speed_mps, bob, phoenician) but with the DETAILED hull and fittings, and FAST: the static ship is
     an instance of a cached kit, so the 2nd..100th ship costs seconds. wind=True ripples the set sail (Wave modifier)."""
@@ -2105,7 +2171,8 @@ def trireme_v3(loc=(0, 0, 0), heading_deg=0.0, oars='row', stroke_frames=34, fra
     if speed_mps > 0.5:                              # under way: bow wave + a wake trailing behind, fading out
         _ship_foam(root, name, speed_mps)
     if sail == 'set':
-        s = bpy.data.objects.new(name + '_sail', trireme_sail_mesh()); link(s)
+        sail_me = trireme_sail_cloth() if cloth else trireme_sail_mesh()     # cloth=True: real simulated linen
+        s = bpy.data.objects.new(name + '_sail', sail_me); link(s)
         if not s.data.materials:
             s.data.materials.append(_sail_material())
         s.parent = root; s.location = (_TRI_L * 0.55 + 0.35, 0, 10.45)

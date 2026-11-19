@@ -1,13 +1,8 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "b3-hair-spec",
+  "batch": "ws7-9",
   "run": [
-    "card_themistocles",
-    "card_aristides",
-    "card_sicinnus",
-    "card_xerxes",
-    "card_leonidas",
-    "card_artemisia",
-    "card_eurybiades"
+    "ws7_ship_hero_sail",
+    "ws7_ship3_sail"
   ]
 }
