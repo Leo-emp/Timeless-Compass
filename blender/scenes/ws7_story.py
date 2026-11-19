@@ -96,7 +96,9 @@ elif VARIANT == 'aigaleos':               # the REAL setting (Herodotus 8.90, Pl
     common.camera('cam', Vector((4.5, -27.0, z0 + 1.0)), Vector((-0.5, -40.0, z0 + 1.6)), lens=32)
     props.populate(court, 'persia_480bc', camera=(4.5, -27.0, z0 + 1.0), built=5, seed=8)
     common.render_settings(res=(960, 540), samples=SAMPLES, path=OUT)
-    sc.view_settings.look = 'AgX - High Contrast'; sc.view_settings.exposure = -3.5   # the set's sun is very strong (mean 168 at -1.6)
+    # balance the set's warm low sun with a cool sky fill (look gate: warmth + saturation were above the references)
+    common.area_light('sky_fill', 3000.0, (0.62, 0.72, 1.0), (-15.0, -10.0, z0 + 25.0), (0.0, -40.0, z0 + 1.0), size=20.0)
+    sc.view_settings.look = 'AgX - Base Contrast'; sc.view_settings.exposure = -3.3
     common.render()
 elif VARIANT == 'scribes':
     W.room(w=8.0, d=6.0, floor='old_sandstone_02', wall='plastered_wall_02', floor_tint=(0.5, 0.48, 0.45), wall_tint=(0.55, 0.52, 0.48))
