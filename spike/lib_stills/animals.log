@@ -1,0 +1,81 @@
+[INFO ] services.locationservice ...............: Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.
+[INFO ] mpfb.init ..............................: Build info 20261010
+[INFO ] mpfb.init ..............................: Online access preference is not enabled. Not checking if MakeHuman is online.
+[INFO ] mpfb.init ..............................: MPFB initialization has finished.
+00:01:29 | INFO: Data are loaded, start creating Blender stuff
+00:01:29 | INFO: Blender create Mesh node Object_2
+00:01:29 | INFO: Blender create Mesh node Object_3
+00:01:29 | INFO: Blender create Mesh node Object_4
+00:01:29 | INFO: Blender create Mesh node Object_5
+00:01:29 | INFO: Blender create Mesh node Object_6
+00:01:29 | INFO: Blender create Mesh node mesh_0
+00:01:30 | INFO: Blender create Mesh node mesh_0
+00:01:31 | INFO: glTF import finished in 2.40s
+ANIMAL horse_akhalteke height 1.6 scale 0.5623
+00:01:31 | INFO: Data are loaded, start creating Blender stuff
+00:01:31 | INFO: Blender create Mesh node Object_0
+00:01:31 | INFO: glTF import finished in 0.21s
+ANIMAL horse_realistic height 1.6 scale 1.5639
+00:01:31 | INFO: Data are loaded, start creating Blender stuff
+00:01:31 | INFO: Blender create Mesh node Cube_Box_0
+00:01:31 | INFO: Blender create Mesh node c_Camel_mom_0
+00:01:31 | INFO: Blender create Mesh node c_Black_0
+00:01:31 | INFO: Blender create Mesh node c.001_Camel_kid_0
+00:01:32 | INFO: Blender create Mesh node c.001_Kid_black_0
+00:01:32 | INFO: glTF import finished in 0.50s
+ANIMAL animal_camels height 2.0 scale 1.0
+00:01:32 | INFO: Data are loaded, start creating Blender stuff
+00:01:32 | INFO: Blender create Mesh node Cow_Body_0
+00:01:32 | INFO: Blender create Mesh node Eyes_Eyes_0
+00:01:32 | INFO: glTF import finished in 0.23s
+ANIMAL animal_cow height 1.4 scale 2.9068
+00:01:32 | INFO: Data are loaded, start creating Blender stuff
+00:01:32 | INFO: Blender create Mesh node Object_0
+00:01:32 | INFO: Blender create Mesh node Object_1
+00:01:32 | INFO: Blender create Mesh node Object_2
+00:01:33 | INFO: Blender create Mesh node Object_3
+00:01:33 | INFO: Blender create Mesh node Object_4
+00:01:33 | INFO: glTF import finished in 0.70s
+ANIMAL animal_goat height 0.75 scale 0.1709
+00:01:33 | INFO: Data are loaded, start creating Blender stuff
+00:01:33 | INFO: Blender create Mesh node mesh_0
+00:01:33 | INFO: glTF import finished in 0.14s
+ANIMAL animal_sheep height 0.8 scale 0.1575
+00:01:33 | INFO: Data are loaded, start creating Blender stuff
+00:01:33 | INFO: Blender create Mesh node Object_0
+00:01:33 | INFO: glTF import finished in 0.17s
+ANIMAL animal_dog height 0.55 scale 0.5955
+00:01:33 | INFO: Data are loaded, start creating Blender stuff
+00:01:33 | INFO: Blender create Mesh node defaultMaterial
+00:01:33 | INFO: glTF import finished in 0.08s
+ANIMAL animal_seagull height 0.3 scale 0.15
+00:01:33 | INFO: Data are loaded, start creating Blender stuff
+00:01:33 | INFO: Blender create Mesh node Object_0
+00:01:34 | INFO: Blender create Mesh node Object_1
+00:01:35 | INFO: Blender create Mesh node Object_2
+00:01:35 | INFO: Blender create Mesh node Object_3
+00:01:35 | INFO: Blender create Mesh node Object_4
+00:01:36 | INFO: Blender create Mesh node Object_5
+00:01:36 | INFO: Blender create Mesh node Object_6
+00:01:36 | INFO: Blender create Mesh node Object_7
+00:01:37 | INFO: Blender create Mesh node Object_8
+00:01:37 | INFO: Blender create Mesh node Object_9
+00:01:38 | INFO: Blender create Mesh node Object_10
+00:01:38 | INFO: Blender create Mesh node Object_11
+00:01:38 | INFO: Blender create Mesh node Object_12
+00:01:39 | INFO: Blender create Mesh node Object_13
+00:01:39 | INFO: Blender create Mesh node Object_14
+00:01:40 | INFO: Blender create Mesh node Object_15
+00:01:40 | INFO: Blender create Mesh node Object_16
+00:01:41 | INFO: glTF import finished in 7.16s
+00:32.625  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\animals\lineup.png'
+ANIMAL animal_raven_cc0 height 0.35 scale 0.4661
+saved C:/Users/User/timeless-compass/spike/lib_stills/animals\lineup.png
+ANIMALS DONE
+Blender 5.3.0 (hash 02f0899d78e3 built 2026-11-10 01:33:43)
+
+Blender quit
+
+real	0m36.625s
+user	0m0.093s
+sys	0m0.030s

@@ -1,0 +1,88 @@
+08:00.016  render           | Saved: 'C:\Users\User\timeless-compass\spike\cards3\themistocles_front.png'
+08:18.844  render           | Saved: 'C:\Users\User\timeless-compass\spike\cards3\themistocles_three_quarter.png'
+08:36.969  render           | Saved: 'C:\Users\User\timeless-compass\spike\cards3\themistocles_profile.png'
+08:50.157  render           | Saved: 'C:\Users\User\timeless-compass\spike\cards3\themistocles_body.png'
+[INFO ] services.locationservice ...............: Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.
+[INFO ] mpfb.init ..............................: Build info 20261010
+[INFO ] mpfb.init ..............................: Online access preference is not enabled. Not checking if MakeHuman is online.
+[INFO ] mpfb.init ..............................: MPFB initialization has finished.
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+saved C:/Users/User/timeless-compass/spike/cards3\themistocles_front.png
+saved C:/Users/User/timeless-compass/spike/cards3\themistocles_three_quarter.png
+saved C:/Users/User/timeless-compass/spike/cards3\themistocles_profile.png
+saved C:/Users/User/timeless-compass/spike/cards3\themistocles_body.png
+CARD DONE C:/Users/User/timeless-compass/spike/cards3\themistocles_card.jpg
+Blender 5.3.0 (hash 02f0899d78e3 built 2026-11-10 01:33:43)
+OBJ import of 'base.obj' took 34.89 ms
+OBJ import of 'high-poly.obj' took 5.10 ms
+OBJ import of 'eyebrow001.obj' took 1.47 ms
+OBJ import of 'eyelashes01.obj' took 1.74 ms
+OBJ import of 'teeth_base.obj' took 8.17 ms
+bake: frame 1 :: 60
+bake: frame 2 :: 60
+bake: frame 3 :: 60
+bake: frame 4 :: 60
+bake: frame 5 :: 60
+bake: frame 6 :: 60
+bake: frame 7 :: 60
+bake: frame 8 :: 60
+bake: frame 9 :: 60
+bake: frame 10 :: 60
+bake: frame 11 :: 60
+bake: frame 12 :: 60
+bake: frame 13 :: 60
+bake: frame 14 :: 60
+bake: frame 15 :: 60
+bake: frame 16 :: 60
+bake: frame 17 :: 60
+bake: frame 18 :: 60
+bake: frame 19 :: 60
+bake: frame 20 :: 60
+bake: frame 21 :: 60
+bake: frame 22 :: 60
+bake: frame 23 :: 60
+bake: frame 24 :: 60
+bake: frame 25 :: 60
+bake: frame 26 :: 60
+bake: frame 27 :: 60
+bake: frame 28 :: 60
+bake: frame 29 :: 60
+bake: frame 30 :: 60
+bake: frame 31 :: 60
+bake: frame 32 :: 60
+bake: frame 33 :: 60
+bake: frame 34 :: 60
+bake: frame 35 :: 60
+bake: frame 36 :: 60
+bake: frame 37 :: 60
+bake: frame 38 :: 60
+bake: frame 39 :: 60
+bake: frame 40 :: 60
+bake: frame 41 :: 60
+bake: frame 42 :: 60
+bake: frame 43 :: 60
+bake: frame 44 :: 60
+bake: frame 45 :: 60
+bake: frame 46 :: 60
+bake: frame 47 :: 60
+bake: frame 48 :: 60
+bake: frame 49 :: 60
+bake: frame 50 :: 60
+bake: frame 51 :: 60
+bake: frame 52 :: 60
+bake: frame 53 :: 60
+bake: frame 54 :: 60
+bake: frame 55 :: 60
+bake: frame 56 :: 60
+bake: frame 57 :: 60
+bake: frame 58 :: 60
+bake: frame 59 :: 60
+bake: frame 60 :: 60
+
+Blender quit
+
+real	8m54.917s
+user	0m0.062s
+sys	0m0.125s

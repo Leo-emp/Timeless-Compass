@@ -1,0 +1,37 @@
+[INFO ] services.locationservice ...............: Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.
+[INFO ] mpfb.init ..............................: Build info 20261010
+[INFO ] mpfb.init ..............................: Online access preference is not enabled. Not checking if MakeHuman is online.
+[INFO ] mpfb.init ..............................: MPFB initialization has finished.
+23:36:31 | INFO: Data are loaded, start creating Blender stuff
+23:36:31 | INFO: Blender create Mesh node Object_2
+23:36:31 | INFO: Blender create Mesh node Object_3
+23:36:31 | INFO: Blender create Mesh node Object_4
+23:36:31 | INFO: Blender create Mesh node Object_5
+23:36:31 | INFO: Blender create Mesh node Object_6
+23:36:31 | INFO: Blender create Mesh node mesh_0
+23:36:33 | INFO: Blender create Mesh node mesh_0
+23:36:33 | INFO: glTF import finished in 2.64s
+01:28.109  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\riding\h180_side_f1.png'
+01:35.250  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\riding\h180_front_f1.png'
+01:43.016  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\riding\h180_side_f9.png'
+01:50.281  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\riding\h180_front_f9.png'
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+saved C:/Users/User/timeless-compass/spike/lib_stills/riding\h180_side_f1.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/riding\h180_front_f1.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/riding\h180_side_f9.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/riding\h180_front_f9.png
+RIDING DONE
+Blender 5.3.0 (hash 02f0899d78e3 built 2026-11-10 01:33:43)
+OBJ import of 'base.obj' took 27.43 ms
+OBJ import of 'high-poly.obj' took 4.34 ms
+OBJ import of 'eyebrow001.obj' took 1.13 ms
+OBJ import of 'eyelashes01.obj' took 1.24 ms
+OBJ import of 'teeth_base.obj' took 7.01 ms
+
+Blender quit
+
+real	1m53.967s
+user	0m0.030s
+sys	0m0.030s

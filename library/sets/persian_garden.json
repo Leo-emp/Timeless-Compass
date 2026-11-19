@@ -1,0 +1,14 @@
+{
+  "name": "persian_garden",
+  "version": 1,
+  "era": "persia_achaemenid_480bc",
+  "workstream": "WS16 (Session D)",
+  "builder": "countryside.persian_garden",
+  "contents": "royal paradeisos: cut-stone water channels in a cross, square basins, cypress walks, date palms + olives in straight rows, swaying",
+  "design_source": "Pasargadae garden (c. 530 BC); Xenophon, Oeconomicus 4.20-25",
+  "licence": "our own code (Blender); scanned textures/models CC0 Poly Haven + main session's CC0/CC-BY scans (see library/scans/<id>/asset.json)",
+  "self_rating": null,
+  "owner_rating": null,
+  "status": "written, first render pending",
+  "renders": []
+}

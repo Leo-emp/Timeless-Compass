@@ -122,30 +122,50 @@ Tools you will use: Blender 5.3 portable `C:\Users\User\tools\blender-5.3.0-wind
 ## Animals (main session): downloaded CC-BY/CC0 camels (animated), sheep (animated), seagull, raven (museum CC0) to
 ## library/scans/animal_*; `fx.bird_flock` (flapping gull/crow flocks, used over Salamis). TODO dogs, goats, oxen, horses (WS7)
 
+## WS16 Countryside (owner request 2026-11-19) — files: NEW `blender/lib/countryside.py`, NEW `blender/scenes/countryside_test.py`, NEW `library/sets/countryside_*.json` — CLAIMED: Session D
+- [ ] Grain fields (wheat / barley, swaying, ripe vs green, stubble after harvest), ploughed furrows, fallow
+- [ ] Vineyards (low staked vines in rows), olive groves laid out in rows (uses WS6's `tree_olive_zakynthos` scan)
+- [ ] Dry-stone field walls + hillside terraces, threshing floor (round paved), farm paths
+- [ ] Farmstead: rubble-and-mudbrick farmhouse with courtyard + round farm tower (Attic/island farm towers), beehives
+- [ ] Countryside test scene composing it all on a hillside at dusk (uses `sets` terrain/sky helpers read-only)
+- [ ] WIND: standing crops + vines move (geometry-node gust waves + flutter, `countryside.wind_scatter`); test clip
+- [ ] Daily life — NEW `blender/lib/market.py`, `blender/scenes/daily_life_test.py`: market stalls by trade
+      (fish, bread, produce, pottery, oil, wool, grain), goods, merchant's balance, owl coins; villages (houses from
+      `architecture.house`, yards, well, bread oven, threshing floor); fishermen's beach (`props.fishing_boat`, nets,
+      fish rack). People by trade: `tc/crowd.py` roles farmer/shepherd/potter/smith/trader/villager (+ test) dressed
+      by `wardrobe.dress` (exomis/perizoma/pilos/petasos/purse)
+- [ ] Tools — NEW `blender/lib/tools.py`: ard plough + yoke, ox team (cow scan), cart with cross-bar wheels, sickle,
+      mattock, winnowing shovel, pruning hook, crook, trident, rod, fish trap, carrying pole; `hold()` puts a tool in a
+      hand; `dress()` gives each trade its tool
+
 ## WS7 Props & ships — files: `blender/lib/props.py`, NEW `blender/lib/scans_glb.py` — CLAIMED: Session E
+Owner 2026-11-20: build every library piece to MAXIMUM (hero) quality - "ships majestic". Renders on GitHub
+`render-batch` (cloud/requests/ws7_*.json, ~3 min per batch); museum scans only on the laptop.
 - [x] Trireme, code amphora
-- [x] Loader for Sketchfab glb scans: `scans_glb.load_glb(id, height_m|width_m, loc, rot_z_deg)` - museum size from
-      `KNOWN`, base on the ground, one shared-mesh copy per call, material fix (spec-gloss IOR 1000 = mirror bug ->
-      1.5; roughness clamp; colour spaces); rigged scans keep their rig (`clips()`, `play()`)
-- [x] Museum pottery + Corinthian helmet at real size, era checked from museum records -> `library/props/*.json`
-      (krater_bell_met = 430-410 BC Lucanian: background only for 480 BC). `lib_stills/ws7/pottery_v3.png` (look 83),
-      `pottery_close_v2.png` (83)
-- [x] Horse (CC-BY): 1.42 m withers, Trot/Run_Gallop/Chewing play; `props.horse_tack()` saddle cloth (greek/persian
-      + fringe), girth, bridle, bronze bit, reins, rider_seat marker - NO saddle/stirrups. `horse_trot_f10_v3.png` (100)
-      TODO: re-render persian/gallop after the v3 strap fix; reins are thin tubes
-- [x] Phoenician trireme (`trireme_phoenician`), fishing boat, furniture (klismos, kline, trapeza, footstool, kibotos),
-      oil lamp + lamp stand, braziers (bronze/clay, fire glow), baskets, rope coil, stone anchor. Ships look 100
-      (`fleet_v1`, `boat_v2`). OPEN: room still (`furniture_v3`) look 67 (too warm/saturated); kline blanket pale +
-      smeared; brazier flame reads as white haze; lamp lit grey by its own flame; rope/anchor not yet in a frame
-- [~] Trireme v2 (`trireme_v2`): 170 pivoted oars with looping stroke (verified `oars_f1_v1` vs `oars_f16_v1`, look 100),
-      steering oars, crew markers (all roles + 170 rower seats) + far-shot proxies, forward motion + swell.
-      Sail ('set', brailed linen) built + smoke-tested but NOT yet seen in a render (fleet_v2 stopped: low memory).
-      Slow to build (~100-150 s: old trireme() makes 340 objects)
+- [x] glb scan loader `scans_glb.load_glb` (museum size, base on ground, IOR-1000 mirror fix, rigged scans,
+      placeholder when a scan is missing on cloud runners)
+- [x] Museum pottery + Corinthian helmet (era-checked manifests; krater = background only) — look 83
+- [x] Horse 1.42 m withers, 3 clips; `horse_tack()` greek/persian cloth, bridle, bit, reins (no saddle/stirrups) — 100
+- [x] Furniture (klismos, kline, trapeza, footstool, kibotos) with scanned wood/wool, edge wear + grime, meander bands;
+      oil lamp, lamp stand, braziers with flame tongues; baskets, rope coil, stone anchor; phoenician trireme v1,
+      fishing boat. Room still look 67 (too warm) - lighting, not props
+- [x] Trireme v3 / majestic kit: plank-scan pitch with salt streaks + waterline, wales, open outrigger + thole pins,
+      painted meander outrigger panel, leather askomata, marble eye plates, catheads, 5-tip aphlaston, stolos, stylis
+      + pennants, side-screen rolls, spare oars, water jars, full rope rigging + brails; set sail with folds + wind;
+      oar splashes, leaning thranite rowers, bow wave + wake; instanced (1 s first ship, 0.2 s each copy); `fleet()`
+- [x] Dressing kits: `dress_symposion`, `dress_storeroom`, `dress_quay`
+- [x] Story props for the 5 Salamis Shorts: `ram_athlit` (corroded / new), `wreck_debris`, `tripod_cauldron`,
+      `omphalos`, `suppliant_branch`, `timber_barricade` (burning), `scribe_kit` (Persian scroll / Greek wax tablet),
+      `royal_parasol`, `incense_burner`, `phiale`, `rhyton`, `carpet`
+- [~] Hero-quality review loop (in progress): hero ship shots (low bow-quarter camera), court still, ram corrosion
+- [ ] Crew for close shots: replace low-poly proxies with real crowd characters on the markers (needs WS2)
+- [ ] Sail: true cloth simulation baked into the kit (now shaped mesh + wave ripple)
 
 ## WS8 Lighting & camera — files: NEW `blender/lib/lighting.py`, `blender/lib/camera_moves.py`
 - [x] `blender/lib/lighting.py` film_lights(subject, camera, mood): dusk/day/night/firelit/interior/menace; used by shot.py
 - [ ] God rays / volumetric shafts (interiors, forest), sun through leaves
-- [ ] Shot-type camera rules: lens + distance + focus per shot type (close-up 85 mm f/2, medium 50 mm, wide 28 mm)
+- [ ] Shot-type camera rules: lens + distance + focus per shot type (close-up 85 mm f/2, medium 50 mm, wide 28 mm) — CLAIMED: Session D
+- [ ] Camera grammar (Session D): rack focus, dolly zoom, layered handheld, impact shake, whip pan, 180° motion blur
 - [ ] Every shot through `tc look` + `tc finish` before review
 
 ## WS9 Rendering infrastructure — files: `cloud/`, `.github/workflows/`, `tc/render_plan.py` — CLAIMED: Session C
@@ -193,15 +213,24 @@ Tools you will use: Blender 5.3 portable `C:\Users\User\tools\blender-5.3.0-wind
       DONE `tc mix <id>` -> `mix.wav` 48k stereo: long -12 LUFS, Shorts -10 LUFS, TP <= -1 dB, music+ambience ducked
       under voice (CapitalCode-approved levels; owner to confirm by ear on the first real video)
 
-## WS12 Edit & finish — files: NEW `tc/edit.py`, `tc/finish.py`
+> NOTE for Session A (WS11) from Session D: `tc edit` now cuts the picture; for J/L cuts (pro-editor feel) the
+> ambience beds in `tc/sfx.py plan` could start the NEXT place's bed ~0.8-1.2 s BEFORE its first shot (J-cut) and let
+> the old bed tail ~1 s past the cut (L-cut) on place changes, instead of a crossfade centred on the cut. Picture
+> timing is unchanged (shots.timed.json), so nothing else needs to move.
+
+## WS12 Edit & finish — files: NEW `tc/edit.py`, `tc/finish.py` — CLAIMED: Session D (owner request 2026-11-19)
 - [x] `tc finish` film look (grade, bloom, grain, vignette)
-- [ ] Timeline assembly: shot renders + narration + dialogue + music + SFX → master (ffmpeg), 2.35:1 letterbox
-- [ ] Place/date cards and map labels (only allowed text), end card
-- [ ] QA: black frames, audio sync, loudness, length, missing shots
+      + Session D: looks golden_hour / cold_dawn / firelight / battle (bleach bypass) / flashback; layers halation,
+      bleach, chromatic aberration, anamorphic streak (all verified on a real still)
+- [x] Timeline assembly: shot renders + narration + dialogue + music + SFX → master (ffmpeg), 2.35:1 letterbox
+      DONE `tc edit <job>` (`tc/edit.py`, 11 tests): fade-in, cuts on the line, dissolve on place change, `fade_black`
+      dips, held frame under dissolves (keeps sync), film look under the text, end card, mix audio → master.mp4
+- [x] Place/date cards and map labels (only allowed text), end card — DONE in `tc edit` (serif, low-left, fades; r3 gate)
+- [x] QA: black frames, audio sync, loudness, length, missing shots — DONE `edit.qa` → edit.json (planned fades ignored)
 
 ## WS13 Script, research, packaging — files: `tc/script.py`, NEW `tc/research.py`, `tc/packaging.py` — CLAIMED: Session B
-- [x] Dialogue lines in the script format (`NAME: "..."  [dramatised]` or `[source: ...]`) + checker: max 2 per
-      video; a source is required only for lines presented as real quotes; dramatised lines allowed (rule r12);
+- [x] Dialogue lines in the script format (`NAME: "..."  [dramatised]` or `[source: ...]`) + checker: no fixed
+      limit (owner 2026-11-19); a source is required only for lines presented as real quotes; dramatised lines allowed (rule r12);
       packaging adds 'Some dialogue is dramatised.' to the description (`tc description <id>`)
 - [x] Research stage: sourced facts file per job (Herodotus, Plutarch, modern historians) — `tc research <id>
       --world salamis_480bc --topics ...` (world sheet `library/research/salamis_480bc.json`, 37 facts)

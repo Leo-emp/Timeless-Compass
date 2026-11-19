@@ -127,10 +127,11 @@ def test_src_id_counts_as_real_quote_source():
     assert check_script(parse_script(s), "short", SOURCES, CFG) == []
 
 
-def test_max_two_character_lines():
-    three = "\n".join(['XERXES: "Burn it." [dramatised]'] * 3)
-    problems = check_script(parse_script(make_short(three)), "short", SOURCES, CFG)
-    assert any("3 character lines" in p and "max 2" in p for p in problems)
+def test_no_fixed_limit_on_character_lines():
+    # owner 2026-11-19: character lines wherever they fit and boost the vibe - no fixed cap
+    five = "\n".join(['XERXES: "Burn it." [dramatised]'] * 5)
+    problems = check_script(parse_script(make_short(five)), "short", SOURCES, CFG)
+    assert not any("character lines" in p for p in problems)
 
 
 def test_narrator_facts_still_need_sources():

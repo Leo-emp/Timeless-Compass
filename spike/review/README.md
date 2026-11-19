@@ -58,3 +58,6 @@
 - 2026-11-19 WS7 Props (Session E): **furniture** klismos, kline, trapeza, footstool, kibotos chest — `ws7/furniture_v3.png` (look 67: too warm; kline blanket needs fix)
 - 2026-11-19 WS7 Props (Session E): **light + fire** oil lamp, lamp stand, bronze + clay braziers (charcoal, flames, flicker) — `ws7/furniture_v3.png`, `ws7/furniture_close_v2.png` (67; flame reads as haze)
 - 2026-11-19 WS7 Props (Session E): **baskets, rope coil, stone anchor** — basket in `ws7/furniture_v3.png`; rope/anchor built but not yet framed
+- 2026-11-20 WS12 Edit (Session D): **`tc edit <job>`** cuts the master: fade-in, cuts on the line, dissolve on place change, dip to black, place/date cards (serif, low-left), 2.35:1 letterbox, end card, film look, QA (black frames, length, loudness, missing shots) — demo frames checked
+- 2026-11-20 WS12 Finish (Session D): **5 new film looks** (golden_hour, cold_dawn, firelight, battle bleach-bypass, flashback) + halation, chromatic aberration, anamorphic streak
+- 2026-11-20 WS12 Match (Session D): **`tc/match.py` shot matching**: every shot of a place matched to its hero shot (exposure curve, cast, saturation, clamped so moods survive); runs inside `tc edit`

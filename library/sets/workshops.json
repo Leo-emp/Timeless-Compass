@@ -1,0 +1,14 @@
+{
+  "name": "workshops",
+  "version": 1,
+  "era": "greece_480bc",
+  "workstream": "WS16 (Session D)",
+  "builder": "market.potter_workshop / smithy / workshop_shed / roof_tiles",
+  "contents": "Kerameikos potter's yard (wheel, thrown pot, updraught kiln with arched mouth, clay heap, drying shelves) and smithy (hearth with glowing coals + light, bellows, anvil, quench tub, tool rack) under lean-to tiled sheds",
+  "design_source": "Caputi hydria (c. 470 BC, potters); Foundry Painter cup (c. 490-480 BC); Corinthian kiln pinakes",
+  "licence": "our own code (Blender); scanned textures/models CC0 Poly Haven + main session's CC0/CC-BY scans (see library/scans/<id>/asset.json)",
+  "self_rating": null,
+  "owner_rating": null,
+  "status": "written, first render pending",
+  "renders": []
+}

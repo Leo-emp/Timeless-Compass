@@ -2,7 +2,7 @@
   "name": "artemisia",
   "version": 1,
   "era": "persia_480bc",
-  "wardrobe": "persian_woman_480bc",
+  "wardrobe": "greek_woman_480bc",
   "who": "Artemisia I, queen of Halicarnassus in Caria, commanded five ships for Xerxes at Salamis and warned him not to fight at sea (Herodotus 7.99, 8.68)",
   "design_source": "no portrait exists: an Anatolian (Carian) noblewoman of the early 5th c. BC; dress after Carian/Ionian fashion under Persian influence",
   "macro": {
@@ -55,5 +55,22 @@
   "owner_rating": null,
   "used_in": [],
   "brow_density": 900,
-  "brow_melanin": 0.85
+  "brow_melanin": 0.85,
+  "rank": "royal",
+  "dye": {
+    "rank": "royal",
+    "main": [
+      0.3,
+      0.05,
+      0.035
+    ],
+    "band": [
+      0.6,
+      0.45,
+      0.15
+    ]
+  },
+  "notes": [
+    "Queen of Halicarnassus (Dorian Greek city in Caria), Xerxes ally at Salamis (Hdt. 8.87-88): Greek royal dress, not Median."
+  ]
 }

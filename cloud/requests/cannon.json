@@ -1,0 +1,9 @@
+{
+  "name": "cannon",
+  "active": true,
+  "script": "blender/scenes/cannon_test.py",
+  "args": [
+    "out/cannon",
+    "16"
+  ]
+}

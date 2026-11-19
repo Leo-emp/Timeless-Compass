@@ -90,10 +90,23 @@ def _measure(path: Path) -> dict:
     return {"lufs": lufs, "peak_db": peak, "duration_s": round(dur, 3)}
 
 
-def master(raws: list[Path], out: Path) -> dict:
-    """Join the section files in order, run the mastering chain, measure the result."""
+# Character (Fish) lines stay RAW: no EQ, no compressor - only brought to the narrator's loudness.
+# Owner 2026-11-19 compared both on a Xerxes line and picked raw (same as the Luminous Will Fish rule).
+RAW_LEVEL = "loudnorm=I=-14:TP=-1.0:LRA=11"
+
+
+def master_graph(n: int, raw: set[int] | frozenset = frozenset()) -> str:
+    """ffmpeg graph: each piece is mastered ON ITS OWN (narration = full chain, dialogue = level only),
+    then the pieces are joined in order. Nothing here changes a piece's length, so dialogue offsets stay true."""
+    parts = [f"[{i}:a]aformat=sample_rates=48000:channel_layouts=mono,{RAW_LEVEL if i in raw else MASTER_CHAIN}[p{i}]"
+             for i in range(n)]
+    return ";".join(parts) + ";" + "".join(f"[p{i}]" for i in range(n)) + f"concat=n={n}:v=0:a=1[o]"
+
+
+def master(raws: list[Path], out: Path, raw: set[int] | frozenset = frozenset()) -> dict:
+    """Join the pieces in order (raw = indexes of dialogue pieces that skip the narrator chain), measure the result."""
     ins = sum([["-i", str(p)] for p in raws], [])
-    fc = "".join(f"[{i}:a]" for i in range(len(raws))) + f"concat=n={len(raws)}:v=0:a=1[c];[c]{MASTER_CHAIN}[o]"
+    fc = master_graph(len(raws), raw)
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", *ins, "-filter_complex", fc, "-map", "[o]",
                     "-ar", "48000", "-ac", "1", str(out)], check=True)
     return _measure(out)
@@ -129,7 +142,7 @@ def _cmd_voice(args) -> int:
     except VoiceError as e:
         print(e); jobs.mark(job, "voice", "failed", str(e)[:120]); jobs.save_job(job)
         return 1
-    info = master(raws, d / "voice.wav")
+    info = master(raws, d / "voice.wav", raw={i for i, s in enumerate(segs) if s["kind"] == "dialogue"})
     info.update({"voice": cfg.voice, "sections": n_ssml})
     if spoken:
         from tc import lipsync

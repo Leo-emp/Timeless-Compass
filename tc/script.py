@@ -10,7 +10,7 @@
 #   {loop}     an open loop / re-hook (a question or cliffhanger that keeps people watching)
 #   {beat}     a held silence before or after a line
 #
-# Character dialogue (owner rule r12, 2026-11-19) - at most 2 character lines per video:
+# Character dialogue (owner rules r1 + r12, 2026-11-19) - no fixed limit: wherever a line fits and boosts the vibe:
 #   XERXES: "Burn their city. Let them watch it from their ships."  [dramatised]
 #   LEONIDAS: "Come and take them."  [source: Plutarch, Sayings of Spartans 225c]
 #   SICINNUS (messenger): "The Greeks will run tonight."  [dramatised]     <- (voice key) picks a Fish voice
@@ -34,7 +34,6 @@ LONG_SECTIONS = ["cold_open", "title", "world", "tension", "turning_point", "cli
 SHORT_SECTIONS = ["hook", "build", "payoff"]
 FACTUAL = {"world", "tension", "turning_point", "climax", "aftermath", "build", "payoff"}
 MAX_LINE_WORDS = 30
-MAX_CHARACTER_LINES = 2                       # rule r12: 1-2 character lines per video
 _SRC = re.compile(r"\[src:\s*([^\]]+)\]")
 _QUOTE_SRC = re.compile(r"\[source:\s*([^\]]*)\]")     # [source: free text] = where a real quote comes from
 _DRAMATISED = re.compile(r"\[dramati[sz]ed\]", re.I)    # British or American spelling both work
@@ -135,9 +134,7 @@ def check_script(lines: list[Line], kind: str, sources: dict, cfg: Config, secti
             elif gap > limit:
                 problems.append(f"line {l.index}: over {limit} words without a {{loop}} re-hook")
                 gap = 0
-    chars = [l for l in lines if l.is_character]
-    if len(chars) > MAX_CHARACTER_LINES:
-        problems.append(f"{len(chars)} character lines; max {MAX_CHARACTER_LINES} per video (rule r12)")
+    # no fixed number of character lines (owner 2026-11-19): they go wherever they fit and boost the vibe (r1)
     for l in lines:
         if l.is_character:
             # a character line is EITHER imagined ([dramatised]) OR a real quote ([source: ...] / [src: id])

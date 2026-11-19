@@ -51,9 +51,17 @@ def arm_hoplite(p, human, rig, chiton):
     sh = p.get('shield') or {'emblem': 'lambda', 'wear': 0.5}
     img = os.path.join(root_dir, 'spike', 'emblems_gen', f"{sh['emblem']}_{seed}.png")
     if not os.path.exists(img):
-        emblems.paint(sh['emblem'], img, size=512, seed=seed)
+        try:
+            emblems.paint(sh['emblem'], img, size=512, seed=seed)
+        except ImportError:                            # Blender's own Python has no Pillow: paint with the system one
+            import subprocess
+            subprocess.run(['python', '-c', f"from tc import emblems; emblems.paint({sh['emblem']!r}, {img!r}, size=512, seed={seed})"],
+                           cwd=root_dir, check=False)
     armour.aspis(rig, bronze, emblem_image=img)
-    armour.dory(rig, bronze, wood)
+    if p.get('weapon') == 'sword':                     # spear broken / close fight: the xiphos is drawn
+        armour.xiphos(rig, bronze, wood)
+    else:
+        armour.dory(rig, bronze, wood)
     armour.follow_body(rig, cu, pt, gr)
     if p.get('cloak') == 'crimson':                    # the Spartan phoinikis, draped over the bronze from the shoulders
         from lib import wardrobe
@@ -84,6 +92,11 @@ def build_person(p, mark=(0, 0, 0), turn_deg=0.0, frames=96, settle=40):
     else:                                                     # the full era outfit for this role (Session D garments)
         from lib import costume
         costume.dress(human, rig, pos, w, dye=p.get('dye'), seed=p['seed'])
+        if p.get('role') == 'archer' and p.get('era') == 'greece_480bc':      # light troops: no bronze, bow + quiver
+            from lib import armour, common
+            wood = bpy.data.materials.get('bow_horn') or common.principled('bow_horn', (0.25, 0.17, 0.09), rough=0.5)
+            leather = bpy.data.materials.get('costume_leather') or common.principled('costume_leather', (0.22, 0.13, 0.07), rough=0.75)
+            armour.toxon(rig, wood, leather)
         if p.get('role') in ('immortal', 'soldier', 'archer') and p.get('era') == 'persia_480bc':
             from lib import armour, common
             gold = bpy.data.materials.get('costume_gold') or common.principled('costume_gold', (0.83, 0.62, 0.26), metal=1.0, rough=0.3)

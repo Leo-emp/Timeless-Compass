@@ -224,3 +224,91 @@ def wake(start, heading_deg, length=60.0, width=6.0, z=0.05, name='wake'):
     me.materials.append(m)
     o.location = start; o.rotation_euler.z = math.radians(heading_deg)
     return o
+
+
+def _arrow_mesh(name='arrow'):
+    """One arrow (~0.8 m): reed shaft, bronze/iron head, fletching. Shared by every instance of a volley."""
+    if name in bpy.data.objects:
+        return bpy.data.objects[name]
+    wood = bpy.data.materials.new(name + '_reed'); wood.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = (0.45, 0.36, 0.2, 1)
+    tipm = bpy.data.materials.new(name + '_tip'); b = tipm.node_tree.nodes['Principled BSDF']
+    b.inputs['Base Color'].default_value = (0.3, 0.22, 0.15, 1); b.inputs['Metallic'].default_value = 0.8
+    fl = bpy.data.materials.new(name + '_feather'); fl.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = (0.15, 0.12, 0.1, 1)
+    bpy.ops.mesh.primitive_cylinder_add(vertices=6, radius=0.004, depth=0.8, location=(0, 0, 0), rotation=(0, math.pi / 2, 0))
+    shaft = bpy.context.object; shaft.data.materials.append(wood)
+    bpy.ops.mesh.primitive_cone_add(vertices=6, radius1=0.009, depth=0.05, location=(0.42, 0, 0), rotation=(0, math.pi / 2, 0))
+    tip = bpy.context.object; tip.data.materials.append(tipm)
+    for k in range(3):
+        bpy.ops.mesh.primitive_plane_add(size=0.06, location=(-0.36, 0, 0), rotation=(k * 2.094, 0, 0))
+        f = bpy.context.object; f.scale = (1.4, 0.35, 1); f.data.materials.append(fl)
+    sel = [shaft, tip] + [o for o in bpy.context.scene.objects if o.name.startswith('Plane')][-3:]
+    with bpy.context.temp_override(selected_editable_objects=sel, active_object=shaft, selected_objects=sel):
+        bpy.ops.object.join()
+    shaft.name = name; shaft.hide_render = True; shaft.location = (0, 0, -500)
+    return shaft
+
+
+def arrow_volley(origin_area, target_area, count=600, launch=(1, 12), flight_s=(2.6, 3.4), apex=(28.0, 45.0), seed=0,
+                 stick=True, name='volley'):
+    """ARROW RAIN: `count` arrows launched from an area of archers over a few frames, flying real ballistic arcs
+    (they point along their velocity, so they rise, turn over and dive) and landing in the target area, where they
+    STICK in the ground / shields at a steep angle. Areas = (xmin, xmax, ymin, ymax, z). Herodotus 7.226: so many
+    arrows they would hide the sun. Motion blur in the render makes them streak like film arrows."""
+    rnd = random.Random(seed)
+    src = _arrow_mesh()
+    col = bpy.data.collections.new(name); bpy.context.scene.collection.children.link(col)
+    g = 9.81
+    for i in range(count):
+        p0 = Vector((rnd.uniform(*origin_area[0:2]), rnd.uniform(*origin_area[2:4]), origin_area[4]))
+        p1 = Vector((rnd.uniform(*target_area[0:2]), rnd.uniform(*target_area[2:4]), target_area[4]))
+        T = rnd.uniform(*flight_s)
+        vz = (p1.z - p0.z + 0.5 * g * T * T) / T                     # lands exactly at p1 after T seconds
+        vxy = (p1 - p0); vxy.z = 0; vxy /= T
+        f0 = rnd.randint(*launch)
+        a = bpy.data.objects.new(f'{name}_{i}', src.data); col.objects.link(a)
+        a.rotation_mode = 'QUATERNION'
+        steps = max(4, int(T * 24 / 3))
+        for k in range(steps + 1):
+            t = T * k / steps
+            pos = p0 + vxy * t + Vector((0, 0, vz * t - 0.5 * g * t * t))
+            vel = vxy + Vector((0, 0, vz - g * t))
+            a.location = pos; a.rotation_quaternion = Vector((1, 0, 0)).rotation_difference(vel.normalized())
+            fr = f0 + int(round(t * 24))
+            a.keyframe_insert('location', frame=fr); a.keyframe_insert('rotation_quaternion', frame=fr)
+        if stick:                                                      # stuck in the ground, quivering once
+            a.location = p1 + vel.normalized() * -0.25
+            a.keyframe_insert('location', frame=f0 + int(T * 24) + 1)
+        a.keyframe_insert('location', frame=1) if f0 > 1 else None
+        a.hide_render = True; a.keyframe_insert('hide_render', frame=max(1, f0 - 1))
+        a.hide_render = False; a.keyframe_insert('hide_render', frame=f0)
+    return col
+
+
+def explosion(loc, size=4.0, frame=24, debris=80, seed=0, name='blast'):
+    """A blast (cannon muzzle, shell, test rocket): a white-hot FLASH (light spike, 2 frames), a fireball that grows
+    and cools (blackbody volume), a rolling smoke cloud that rises after it, and DEBRIS thrown out on arcs."""
+    rnd = random.Random(seed)
+    bpy.ops.object.light_add(type='POINT', location=(loc[0], loc[1], loc[2] + size * 0.3))
+    fl = bpy.context.object; fl.name = name + '_flash'; fl.data.color = (1.0, 0.75, 0.45); fl.data.shadow_soft_size = size * 0.3
+    for f, e in ((frame - 1, 0), (frame, 400000 * size), (frame + 2, 120000 * size), (frame + 8, 20000 * size), (frame + 20, 0)):
+        fl.data.energy = e; fl.data.keyframe_insert('energy', frame=f)
+    fire = flames(loc, height=size, width=size, intensity=4.0, temp=2200, frames=(frame, frame + 60), name=name + '_fireball')
+    fire.scale = (0.01, 0.01, 0.01); fire.keyframe_insert('scale', frame=frame - 1)
+    fire.scale = (size, size, size); fire.keyframe_insert('scale', frame=frame + 6)
+    fire.scale = (size * 1.4, size * 1.4, size * 1.6); fire.keyframe_insert('scale', frame=frame + 18)
+    fire.scale = (0.01, 0.01, 0.01); fire.keyframe_insert('scale', frame=frame + 30)
+    sm = smoke_column(loc, height=size * 6, width=size * 1.2, density=0.8, color=(0.08, 0.075, 0.07), frames=(frame, frame + 240), name=name + '_smoke', wind=0.15)
+    sm.scale = (0.01, 0.01, 0.01); sm.keyframe_insert('scale', frame=frame)
+    sm.scale = (size * 4, size * 3, size * 6); sm.keyframe_insert('scale', frame=frame + 40)
+    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1, radius=0.06, location=(0, 0, -500))
+    chunk = bpy.context.object; chunk.name = name + '_chunk'; chunk.hide_render = True
+    chunk.data.materials.append(bpy.data.materials.get('debris') or bpy.data.materials.new('debris'))
+    for i in range(debris):                                            # debris on ballistic arcs
+        d = bpy.data.objects.new(f'{name}_debris_{i}', chunk.data); bpy.context.scene.collection.objects.link(d)
+        v = Vector((rnd.gauss(0, 1), rnd.gauss(0, 1), abs(rnd.gauss(1.2, 0.6)))).normalized() * rnd.uniform(6, 18) * size / 4
+        for k in range(9):
+            t = k * 0.15
+            d.location = Vector(loc) + v * t + Vector((0, 0, -4.9 * t * t))
+            d.keyframe_insert('location', frame=frame + int(t * 24))
+        d.scale = [rnd.uniform(0.5, 2.0)] * 3
+    return fl

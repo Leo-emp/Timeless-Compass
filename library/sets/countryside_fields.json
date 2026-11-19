@@ -1,0 +1,14 @@
+{
+  "name": "countryside_fields",
+  "version": 1,
+  "era": "greece_480bc",
+  "workstream": "WS16 (Session D)",
+  "builder": "blender/lib/countryside.py grain_field / field_ground / wind_scatter",
+  "contents": "emmer wheat + hulled barley fields: ripe, green, stubble (+straw), ploughed furrows, fallow tufts; geometry-node instances that MOVE IN THE WIND (gust waves + flutter)",
+  "design_source": "Hesiod, Works and Days (ploughing, harvest); Xenophon, Oeconomicus 16-18 (fallow, ploughing, harvest)",
+  "licence": "our own code (Blender); scanned textures/models CC0 Poly Haven + main session's CC0/CC-BY scans (see library/scans/<id>/asset.json)",
+  "self_rating": null,
+  "owner_rating": null,
+  "status": "written, first render pending",
+  "renders": []
+}

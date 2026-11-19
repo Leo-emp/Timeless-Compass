@@ -1,0 +1,10 @@
+{
+  "name": "card_aristides",
+  "active": true,
+  "script": "blender/scenes/cast_card.py",
+  "args": [
+    "aristides",
+    "out/cards",
+    "24"
+  ]
+}

@@ -84,7 +84,7 @@ def column(loc, D=1.0, H=None, flutes=20, segs=48, rows=40, entasis=0.018, taper
     return shaft
 
 
-def _box(name, center, size, mat):
+def _box(name, center, size, mat, bevel=None):      # bevel accepted for call compatibility (unused)
     bpy.ops.mesh.primitive_cube_add(size=1, location=center)
     o = bpy.context.object; o.name = name; o.scale = size
     bv = o.modifiers.new('bevel', 'BEVEL'); bv.width = min(size) * 0.04; bv.segments = 2

@@ -43,6 +43,8 @@ def dress(human, rig, pos, wardrobe_name, dye=None, seed=0, bind=True, rich=None
         if rich:
             wardrobe.veil(human, rig, _cloth(f'veil_{seed}', UNDYED, seed, wool=True))
             wardrobe.earrings(human, rig, gold)
+        if rank == 'royal' or rich == 'royal':
+            wardrobe.diadem(human, rig, gold)
     elif w == 'greek_servant_480bc':
         ex = wardrobe.exomis(human, rig, pos, _cloth(f'exomis_{seed}', main, seed))
         wardrobe.belt(rig, ex, common.principled(f'rope_{seed}', (0.24, 0.18, 0.11), rough=0.9, bump=0.4, bump_scale=300))
@@ -58,10 +60,21 @@ def dress(human, rig, pos, wardrobe_name, dye=None, seed=0, bind=True, rich=None
             wardrobe.diadem(human, rig, gold)
     elif w == 'persian_king_480bc':                               # Xenophon: purple robe, crimson trousers, upright tiara
         wardrobe.trousers(human, rig, _cloth(f'royal_trousers_{seed}', CRIMSON, seed, wool=True))
+        # the under-tunic (Xenophon, Cyropaedia 8.3.13: a purple tunic with a white middle under the robe) closes the
+        # chest - without it the open front of the robe shows bare skin
+        wardrobe.median_tunic(human, rig, pos, wardrobe.scan_cloth(f'royal_tunic_{seed}', 'rough_linen', PURPLE, tiles=(7, 5), sheen=0.15))
         wardrobe.candys(human, rig, pos, wardrobe.scan_cloth(f'royal_robe_{seed}', 'rough_linen', PURPLE, band=GOLD_THREAD, tiles=(7, 5), sheen=0.2))
         wardrobe.wide_sleeves(human, rig, wardrobe.scan_cloth(f'royal_sleeves_{seed}', 'rough_linen', PURPLE, band=GOLD_THREAD, tiles=(7, 5)))
         wardrobe.persian_cap(human, rig, _cloth(f'royal_felt_{seed}', PURPLE, seed, wool=True), band=gold, kind='royal')
-    elif w.startswith('persian_'):                                # courtiers, soldiers, servants, women: Median dress
+    elif w == 'persian_woman_480bc':                              # Persepolis seals: long robe to the feet + veil, no cap
+        body, over = wardrobe.peplos(human, rig, pos, _cloth(f'robe_{seed}', main, seed, wool=True), belt_over=True)
+        wardrobe.belt(rig, over, _cloth(f'sash_{seed}', GOLD_THREAD if rich else MADDER, seed, wool=True))
+        wardrobe.veil(human, rig, _cloth(f'pveil_{seed}', WHITE_LINEN if rich else UNDYED, seed))
+        wardrobe.sandals(human, rig, leather)
+        if rich:
+            wardrobe.earrings(human, rig, gold)
+            wardrobe.necklace(human, rig, gold) if hasattr(wardrobe, 'necklace') else None
+    elif w.startswith('persian_'):                                # courtiers, soldiers, servants (men): Median dress
         wardrobe.trousers(human, rig, _cloth(f'mede_trousers_{seed}', main if rich else (0.3, 0.06, 0.04), seed, wool=True))
         wardrobe.median_tunic(human, rig, pos, _cloth(f'mede_tunic_{seed}', main, seed))
         wardrobe.tight_sleeves(human, rig, _cloth(f'mede_sleeves_{seed}', main, seed))

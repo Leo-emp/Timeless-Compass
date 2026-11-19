@@ -20,6 +20,8 @@ def build_human(spec: dict):
     human = HumanService.create_human(macro_detail_dict=spec['macro'])
     if spec.get('face'):
         sculpt(human, spec['face'])          # before eyes/brows/rig are fitted, so they fit the sculpted face
+    if spec.get('asymmetry', 1.0) > 0:       # FACE STANDARD 1: subtle, natural asymmetry (never mirror-perfect)
+        sculpt(human, asymmetry(spec.get('seed', abs(hash(spec.get('name', 'x'))) % 10000), spec.get('asymmetry', 1.0)))
     skin = spec.get('skin', 'middleage_caucasian_male')
     HumanService.set_character_skin(mpfb_asset('skins', skin, skin + '.mhmat'), human)
     for typ, parts in [('Eyes', ('eyes', 'high-poly', 'high-poly.mhclo')),
@@ -55,6 +57,26 @@ def build_human(spec: dict):
         brow_strands(human, rig, density=spec.get('brow_density', 1400), melanin=spec.get('brow_melanin', h.get('melanin', 0.9)),
                      grey=h.get('grey', 0.0) * 0.6)
     return human, rig
+
+
+ASYM_PAIRS = [('eye-trans-up', 'eye-trans-down', 0.10), ('eye-height2-incr', 'eye-height2-decr', 0.12),
+              ('eye-scale-incr', 'eye-scale-decr', 0.06), ('eye-corner1-up', 'eye-corner1-down', 0.12),
+              ('eye-bag-incr', 'eye-bag-decr', 0.15), ('eye-eyefold-down', 'eye-eyefold-up', 0.12),
+              ('cheek-bones-incr', 'cheek-bones-decr', 0.12), ('cheek-volume-incr', 'cheek-volume-decr', 0.12),
+              ('cheek-trans-up', 'cheek-trans-down', 0.08)]
+
+
+def asymmetry(seed, amount=1.0):
+    """Per-person one-sided shape weights (MakeHuman l-/r- targets): each trait drifts on ONE side only, by a
+    small seeded amount - below what reads as a deformity, enough that the face is no longer a mirror image."""
+    import random as _r
+    rnd = _r.Random(seed)
+    out = {}
+    for up, down, mx in ASYM_PAIRS:
+        side = rnd.choice('lr')
+        w = rnd.uniform(0.3, 1.0) * mx * amount
+        out[f'{side}-{up if rnd.random() < 0.5 else down}'] = round(w, 3)
+    return out
 
 
 def sculpt(human, face: dict):
@@ -178,7 +200,7 @@ def skin_detail(human, pores=0.2, sheen=0.45):
             if b.inputs['Normal'].is_linked:                       # keep MakeHuman's own normal map underneath
                 L(b.inputs['Normal'].links[0].from_socket, bump.inputs['Normal'])
             L(bump.outputs['Normal'], b.inputs['Normal'])
-            rough = nt.nodes.new('ShaderNodeMapRange'); rough.inputs['To Min'].default_value = 0.38; rough.inputs['To Max'].default_value = 0.62
+            rough = nt.nodes.new('ShaderNodeMapRange'); rough.inputs['To Min'].default_value = 0.42; rough.inputs['To Max'].default_value = 0.66
             L(fine.outputs['Fac'], rough.inputs['Value']); L(rough.outputs['Result'], b.inputs['Roughness'])
             b.inputs['Specular IOR Level'].default_value = sheen
 
@@ -214,11 +236,17 @@ def skin_v2(human, rig, stubble=0.0):
     stub = np.clip(jaw_zone * (1 - lips) * stubble, 0, 1)
     forehead = front & (pos[:, 2] > eye_z + 0.03) & (pos[:, 2] < eye_z + 0.085) & (np.abs(rel[:, 0]) < 0.05)
     oil = np.clip(forehead * 0.8 + 0.9 * _blob(pos, nose, 0.03), 0, 1)
+    wet = np.zeros(len(pos), dtype=np.float32)          # FACE STANDARD 3: moist lower-lid margin + inner corner
+    for e in (eye_l, eye_r):
+        d = np.linalg.norm(pos - e, axis=1)
+        band = (d > 0.0118) & (d < 0.0158) & (pos[:, 2] < e[2] - 0.002) & ((pos[:, 1] - e[1]) < -0.004)
+        inner = np.linalg.norm(pos - (e + np.array([-np.sign(e[0] - head[0]) * 0.012, -0.006, -0.001], dtype=np.float32)), axis=1) < 0.004
+        wet = np.maximum(wet, (band | inner).astype(np.float32))
     me = human.data
     attr = me.color_attributes.get('skin_regions') or me.color_attributes.new('skin_regions', 'FLOAT_COLOR', 'POINT')
     cols = np.ones((len(me.vertices), 4), dtype=np.float32)
     n = min(len(me.vertices), len(pos))
-    cols[:n, 0], cols[:n, 1], cols[:n, 2] = red[:n], stub[:n], oil[:n]
+    cols[:n, 0], cols[:n, 1], cols[:n, 2], cols[:n, 3] = red[:n], stub[:n], oil[:n], 1.0 - wet[:n]
     attr.data.foreach_set('color', cols.ravel())
     done = set()
     for slot in human.material_slots:
@@ -227,9 +255,9 @@ def skin_v2(human, rig, stubble=0.0):
             continue
         for g in [nd for nd in m.node_tree.nodes if nd.type == 'GROUP' and nd.node_tree]:
             if 'Clearcoat' in g.inputs:                               # thin oily layer over the skin
-                g.inputs['Clearcoat'].default_value = 0.07
+                g.inputs['Clearcoat'].default_value = 0.03
             if 'Clearcoat Roughness' in g.inputs:
-                g.inputs['Clearcoat Roughness'].default_value = 0.35
+                g.inputs['Clearcoat Roughness'].default_value = 0.45
             nt = g.node_tree
             if nt.name in done:
                 continue
@@ -243,8 +271,15 @@ def skin_v2(human, rig, stubble=0.0):
             col = b.inputs['Base Color'].links[0].from_socket
             blood = nt.nodes.new('ShaderNodeMix'); blood.data_type = 'RGBA'; blood.blend_type = 'MULTIPLY'
             blood.inputs['B'].default_value = (1.0, 0.62, 0.58, 1)
-            fac = nt.nodes.new('ShaderNodeMath'); fac.operation = 'MULTIPLY'; fac.inputs[1].default_value = 0.45
+            fac = nt.nodes.new('ShaderNodeMath'); fac.operation = 'MULTIPLY'; fac.inputs[1].default_value = 0.32
             L(sep.outputs['Red'], fac.inputs[0]); L(fac.outputs[0], blood.inputs['Factor'])
+            mott = nt.nodes.new('ShaderNodeTexNoise'); mott.inputs['Scale'].default_value = 30; mott.inputs['Detail'].default_value = 3
+            tc_ = nt.nodes.new('ShaderNodeTexCoord'); L(tc_.outputs['Object'], mott.inputs['Vector'])
+            mr = nt.nodes.new('ShaderNodeMapRange'); mr.inputs['From Min'].default_value = 0.35; mr.inputs['From Max'].default_value = 0.7
+            mr.inputs['To Max'].default_value = 0.14; L(mott.outputs['Fac'], mr.inputs['Value'])
+            tone = nt.nodes.new('ShaderNodeMix'); tone.data_type = 'RGBA'; tone.blend_type = 'MULTIPLY'
+            tone.inputs['B'].default_value = (0.92, 0.8, 0.76, 1); L(mr.outputs['Result'], tone.inputs['Factor'])
+            L(col, tone.inputs['A']); col = tone.outputs['Result']
             L(col, blood.inputs['A'])
             shadow = nt.nodes.new('ShaderNodeMix'); shadow.data_type = 'RGBA'; shadow.blend_type = 'MULTIPLY'
             shadow.inputs['B'].default_value = (0.62, 0.64, 0.72, 1)
@@ -256,10 +291,15 @@ def skin_v2(human, rig, stubble=0.0):
                 k = nt.nodes.new('ShaderNodeMath'); k.operation = 'MULTIPLY_ADD'
                 L(sep.outputs['Blue'], k.inputs[0]); k.inputs[1].default_value = -0.3; k.inputs[2].default_value = 1.0
                 r = nt.nodes.new('ShaderNodeMath'); r.operation = 'MULTIPLY'
-                L(r_src, r.inputs[0]); L(k.outputs[0], r.inputs[1]); L(r.outputs[0], b.inputs['Roughness'])
+                L(r_src, r.inputs[0]); L(k.outputs[0], r.inputs[1])
+                wetmix = nt.nodes.new('ShaderNodeMapRange')            # wet lid band: roughness -> 0.06 (tear film)
+                L(at.outputs['Alpha'], wetmix.inputs['Value']); wetmix.inputs['To Min'].default_value = 0.06
+                wr = nt.nodes.new('ShaderNodeMix'); wr.data_type = 'FLOAT'
+                L(at.outputs['Alpha'], wr.inputs['Factor']); wr.inputs['A'].default_value = 0.06
+                L(r.outputs[0], wr.inputs['B']); L(wr.outputs['Result'], b.inputs['Roughness'])
             # subsurface: red light travels further than green/blue in skin (mm scale; MakeHuman sets 0.005 m)
             b.subsurface_method = 'RANDOM_WALK_SKIN'
-            b.inputs['Subsurface Scale'].default_value = 0.011
+            b.inputs['Subsurface Scale'].default_value = 0.0045   # ~4.5 mm: deeper reads as wax
             for nd in nt.nodes:
                 if nd.name == 'SSSStrength' and hasattr(nd, 'outputs') and nd.type == 'VALUE':
                     nd.outputs[0].default_value = max(nd.outputs[0].default_value, 0.6)
@@ -653,7 +693,8 @@ def beard(human, rig, style: dict, seed=1):
         # one level line `length` below the chin, so length = distance from its root down to that line
         chin_z = float(np.min(roots[:, 2]))
         bottom = chin_z - style.get('length', 0.1)
-        length = np.clip(roots[:, 2] - bottom, 0.01, None) * rng.uniform(0.97, 1.03, len(roots))
+        side = np.clip(np.abs(roots[:, 0] - float(np.mean(roots[:, 0]))) / 0.06, 0, 1)
+        length = np.clip(roots[:, 2] - bottom, 0.01, None) * rng.uniform(0.88, 1.04, len(roots)) * (1 - 0.18 * side ** 2)
     mat = hair_material('beard_mat', melanin=style.get('melanin', 0.9), grey=style.get('grey', 0.0),
                         redness=style.get('redness', 0.15))
     # strands rooted on the jaw move with the jaw (the mouth can open under the beard); the rest ride the head
@@ -669,14 +710,15 @@ def beard(human, rig, style: dict, seed=1):
         if not sel.any():
             continue
         if persian:                                   # straight down, tight corkscrew curls in many small locks
-            o = grow('beard_' + bone, roots[sel], norms[sel], length[sel], rng, pts=16, flow=(0, -0.08, -1), flow_amt=0.85,
-                     lift=0.25, curl_r=style.get('curl', 0.0035) * 1.8, curl_turns=style.get('turns', 5.0) * 1.2, root_r=0.0001,
-                     tip_r=0.00003, frizz=0.0001, material=mat, clumps=int(sel.sum() / 10), clump_amt=0.9, lock_curls=True)   # visible ringlets
+            o = grow('beard_' + bone, roots[sel], norms[sel], length[sel], rng, pts=18, flow=(0, -0.12, -1), flow_amt=0.85,
+                     lift=0.12, curl_r=style.get('curl', 0.0035) * 1.1, curl_turns=style.get('turns', 5.0) * 0.8, root_r=0.0001,
+                     tip_r=0.00003, frizz=0.0001, material=mat, clumps=int(sel.sum() / 22), clump_amt=0.75, lock_curls=True)   # combed locks, soft curls
             parent_to_bone(o, rig, bone); parts.append(o)
             continue
-        o = grow('beard_' + bone, roots[sel], norms[sel], length[sel], rng, pts=10, flow=(0, -0.2, -1), flow_amt=0.5,
-                 lift=0.3, curl_r=style.get('curl', 0.0025), curl_turns=style.get('turns', 1.8), root_r=0.00011,
-                 tip_r=0.00003, frizz=0.00025, material=mat, clumps=int(sel.sum() / 28), clump_amt=0.7, lock_curls=True)
+        o = grow('beard_' + bone, roots[sel], norms[sel], length[sel], rng, pts=12, flow=(0, -0.25, -1), flow_amt=0.72,
+                 lift=0.14, curl_r=min(style.get('curl', 0.0016), 0.0018), curl_turns=min(style.get('turns', 1.2), 1.4),
+                 root_r=0.0001, tip_r=0.00003, frizz=0.00012, material=mat, clumps=int(sel.sum() / 50), clump_amt=0.5,
+                 lock_curls=True)   # groomed: lies along the jaw, soft waves (was lift 0.3 + tight clumps = bushy wool)
         parent_to_bone(o, rig, bone)
         parts.append(o)
     return parts[-1]
@@ -695,10 +737,13 @@ def scalp_hair(human, rig, style: dict, seed=2):
                         redness=style.get('redness', 0.15))
     long_hair = style.get('length', 0.035) > 0.07
     if not long_hair:
-        o = grow('hair', roots, norms, length, rng, pts=10, flow=style.get('flow', (0, 0.6, -1)), flow_amt=style.get('flow_amt', 0.4),
-                 curl_r=style.get('curl', 0.004), curl_turns=style.get('turns', 2.0), root_r=0.00013, tip_r=0.00003,
-                 frizz=0.0003, material=mat, lift=style.get('lift', 0.3), clumps=style.get('clumps', int(len(roots) / 30)),
-                 clump_amt=style.get('clump_amt', 0.7), lock_curls=True)
+        # NATURAL, NOT BUSHY (owner 2026-11-20): strands lie close to the head (lift 0.12, was 0.3 = fur standing up),
+        # soft WAVES (small radius, ~1 turn) instead of tight ringlets, little frizz, broad soft locks (fewer, looser
+        # clumps). Per-character style values still win, but are scaled into the natural range.
+        o = grow('hair', roots, norms, length, rng, pts=12, flow=style.get('flow', (0, 0.6, -1)), flow_amt=style.get('flow_amt', 0.55),
+                 curl_r=min(style.get('curl', 0.0022), 0.0026) * 0.8, curl_turns=min(style.get('turns', 1.2), 1.4), root_r=0.00011,
+                 tip_r=0.00003, frizz=0.00012, material=mat, lift=min(style.get('lift', 0.12), 0.15),
+                 clumps=style.get('clumps', int(len(roots) / 70)), clump_amt=min(style.get('clump_amt', 0.45), 0.5), lock_curls=True)
         parent_to_bone(o, rig, 'head')
         return o
     # LONG hair (Spartans, gods, old men) is COMBED BACK: strands on the front half of the scalp first run back over

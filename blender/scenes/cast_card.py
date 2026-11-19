@@ -27,8 +27,11 @@ sc.frame_set(first + 6)
 head = rig.matrix_world @ rig.pose.bones['head'].head + Vector((0, 0, 0.06))
 eyes = rig.matrix_world @ ((rig.pose.bones['eye.L'].head + rig.pose.bones['eye.R'].head) / 2)
 common.hdri_world('qwantani_sunset_puresky', strength=0.45, rotate_deg=140)
-common.area_light('key', 70, (1.0, 0.8, 0.62), head + Vector((1.3, -1.8, 0.5)), head, 1.2)
-common.area_light('rim', 260, (1.0, 0.62, 0.38), head + Vector((-1.2, 1.5, 0.4)), head, 0.7)
+# FACE STANDARD 5 - portrait lighting: LARGE soft key (2.5 m panel = soft shadow falloff + big round catchlight),
+# gentle cool fill from the other side (~1/4 of the key, lifts the shadows without flattening them), subtle warm rim
+common.area_light('key', 160, (1.0, 0.84, 0.7), head + Vector((1.4, -1.9, 0.6)), head, 2.5)
+common.area_light('fill', 35, (0.8, 0.88, 1.0), head + Vector((-1.8, -1.6, 0.1)), head, 3.0)
+common.area_light('rim', 180, (1.0, 0.7, 0.48), head + Vector((-1.1, 1.5, 0.45)), head, 0.6)
 bpy.ops.mesh.primitive_plane_add(size=20); floor = bpy.context.object
 floor.data.materials.append(common.principled('card_floor', (0.18, 0.16, 0.14), rough=0.9))
 common.render_settings(res=(640, 720), samples=SAMPLES)

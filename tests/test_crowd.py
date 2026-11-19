@@ -98,3 +98,19 @@ def test_spartans_have_long_hair_beards_crimson_cloaks_and_mostly_personal_emble
     assert all(p["wardrobe"] == "greek_hoplite_480bc" for p in sp)
     lambdas = sum(1 for p in sp if p["shield"]["emblem"] == "lambda")
     assert 0 < lambdas < 10                                            # uniform lambda came later (~420s BC)
+
+
+def test_working_people_of_480bc_have_their_own_roles_and_clothes():
+    # farmers, shepherds, fishermen, potters, smiths wear work clothes (exomis) and are poor or common;
+    # traders and villagers wear the citizen's chiton; Persian traders/farmers wear the Median dress
+    from tc import crowd
+    work = {"farmer", "shepherd", "potter", "smith", "fisherman", "rower"}
+    for role in work:
+        p = crowd.person(3, role, "greece_480bc")
+        assert p["role"] == role and p["wardrobe"] == "greek_servant_480bc"
+        assert p["rank"] in ("poor", "common")
+    for role in ("trader", "villager"):
+        p = crowd.person(4, role, "greece_480bc")
+        assert p["wardrobe"] in ("greek_civilian_480bc", "greek_woman_480bc")
+    assert crowd.person(5, "trader", "persia_480bc")["wardrobe"] == "persian_court_480bc"
+    assert crowd.person(6, "farmer", "persia_480bc")["wardrobe"] == "persian_servant_480bc"

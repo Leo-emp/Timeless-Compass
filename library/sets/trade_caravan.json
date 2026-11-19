@@ -1,0 +1,14 @@
+{
+  "name": "trade_caravan",
+  "version": 1,
+  "era": "persia_achaemenid_480bc",
+  "workstream": "WS16 (Session D)",
+  "builder": "market.caravan",
+  "contents": "camel caravan (main session's camel scan) with saddle cloths, slung bales/sacks/amphorae, lead ropes",
+  "design_source": "Herodotus 5.52-54 (Royal Road), 7.86-87 (Arabian camel corps)",
+  "licence": "our own code (Blender); scanned textures/models CC0 Poly Haven + main session's CC0/CC-BY scans (see library/scans/<id>/asset.json)",
+  "self_rating": null,
+  "owner_rating": null,
+  "status": "written, first render pending",
+  "renders": []
+}

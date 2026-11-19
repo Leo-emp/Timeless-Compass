@@ -1,0 +1,14 @@
+{
+  "name": "village",
+  "version": 1,
+  "era": "greece_480bc",
+  "workstream": "WS16 (Session D)",
+  "builder": "market.village / well / bread_oven",
+  "contents": "village of farmhouses (architecture.house) on crooked lanes, walled yards, a well, a domed bread oven, a threshing floor",
+  "design_source": "Attic demes; excavated rural houses",
+  "licence": "our own code (Blender); scanned textures/models CC0 Poly Haven + main session's CC0/CC-BY scans (see library/scans/<id>/asset.json)",
+  "self_rating": null,
+  "owner_rating": null,
+  "status": "written, first render pending",
+  "renders": []
+}

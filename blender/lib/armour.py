@@ -437,3 +437,56 @@ def immortal_kit(rig, gold, wood, leather):
     bow.location = sh + Vector((0.05, 0.0, -0.1)); cu.materials.append(wood)
     cast.parent_to_bone(bow, rig, 'spine01')
     return parts + [q, bow]
+
+
+# ------------------------------------------------------------------ swords + bows
+def xiphos(rig, bronze, wood, drawn=True):
+    """The hoplite's short sword (~0.6 m leaf-shaped iron blade, cross-guard, wooden grip) - the weapon of the last
+    stand at Thermopylae once the spears broke (Herodotus 7.224). Drawn = in the right hand, blade forward."""
+    iron = bpy.data.materials.get('blade_iron') or principled('blade_iron', (0.42, 0.42, 0.42), metal=1.0, rough=0.35)
+    hand = bone_tail(rig, 'wrist.R') if 'wrist.R' in rig.pose.bones else bone_tail(rig, 'lowerarm02.R')
+    bpy.ops.mesh.primitive_cube_add(size=1, location=hand + Vector((0, -0.34, 0)))
+    blade = bpy.context.object; blade.name = 'xiphos_blade'; blade.scale = (0.045, 0.6, 0.008)
+    bpy.ops.object.transform_apply(scale=True)
+    for v in blade.data.vertices:                                     # leaf shape: wide near the tip, point at the end
+        t = (hand.y - 0.04 - (blade.matrix_world @ v.co).y) / 0.6     # 0 at the guard -> 1 at the tip
+        v.co.x *= 1.0 + 0.35 * math.sin(math.pi * min(max(t, 0), 1) * 0.8) - (0.95 if t > 0.97 else 0)
+    blade.data.materials.append(iron)
+    bpy.ops.mesh.primitive_cube_add(size=1, location=hand + Vector((0, -0.035, 0)))
+    guard = bpy.context.object; guard.scale = (0.12, 0.02, 0.02); guard.data.materials.append(bronze)
+    bpy.ops.mesh.primitive_cylinder_add(vertices=10, radius=0.016, depth=0.1, location=hand + Vector((0, 0.02, 0)),
+                                        rotation=(math.pi / 2, 0, 0))
+    grip = bpy.context.object; grip.data.materials.append(wood)
+    parts = [blade, guard, grip]
+    bone = 'wrist.R' if 'wrist.R' in rig.pose.bones else 'lowerarm02.R'
+    for o in parts:
+        cast.parent_to_bone(o, rig, bone)
+    return parts
+
+
+def toxon(rig, wood, leather, side='L'):
+    """A Greek / Scythian-style composite bow held in the bow hand, with a quiver (gorytos) at the hip. Athenian
+    archers fought at Plataea in 479 BC (Herodotus 9.22, 9.60); Cretan archers were famous mercenaries."""
+    hand = bone_tail(rig, f'wrist.{side}') if f'wrist.{side}' in rig.pose.bones else bone_tail(rig, f'lowerarm02.{side}')
+    cu = bpy.data.curves.new('toxon', 'CURVE'); cu.dimensions = '3D'; cu.bevel_depth = 0.009; cu.bevel_resolution = 2
+    sp = cu.splines.new('BEZIER')
+    pts = [(0, 0.06, 0.55), (0, -0.05, 0.3), (0, 0.02, 0.0), (0, -0.05, -0.3), (0, 0.06, -0.55)]   # recurved tips
+    sp.bezier_points.add(len(pts) - 1)
+    for bp, p in zip(sp.bezier_points, pts):
+        bp.co = p; bp.handle_left_type = bp.handle_right_type = 'AUTO'
+    bow = bpy.data.objects.new('toxon', cu); bpy.context.scene.collection.objects.link(bow)
+    bow.location = hand; cu.materials.append(wood)
+    string = bpy.data.curves.new('bowstring', 'CURVE'); string.dimensions = '3D'; string.bevel_depth = 0.0015
+    s = string.splines.new('POLY'); s.points.add(1)
+    s.points[0].co = (0, 0.06, 0.55, 1); s.points[1].co = (0, 0.06, -0.55, 1)
+    st = bpy.data.objects.new('bowstring', string); bpy.context.scene.collection.objects.link(st)
+    st.location = hand; string.materials.append(bpy.data.materials.get('sinew') or principled('sinew', (0.6, 0.55, 0.45), rough=0.6))
+    hip = bone_head(rig, 'pelvis.R') if 'pelvis.R' in rig.pose.bones else bone_head(rig, 'spine05')
+    bpy.ops.mesh.primitive_cube_add(size=1, location=hip + Vector((0.12, 0.05, -0.05)))
+    q = bpy.context.object; q.name = 'gorytos'; q.scale = (0.05, 0.16, 0.36); q.rotation_euler = (0.25, 0, 0.2)
+    q.data.materials.append(leather)
+    bone = f'wrist.{side}' if f'wrist.{side}' in rig.pose.bones else f'lowerarm02.{side}'
+    for o in (bow, st):
+        cast.parent_to_bone(o, rig, bone)
+    cast.parent_to_bone(q, rig, 'spine05' if 'spine05' in rig.pose.bones else 'root')
+    return bow, st, q

@@ -3,9 +3,9 @@
 Read before every stage (`python -m tc rules --stage <stage>`).
 
 ## r1 (2026-11-19)
-- **Rule:** Narrator only: characters act but never speak; famous quotes are spoken by the narrator
-- **Why:** AI character voices sounded unnatural (owner test 2026-11-19)
-- **Applies to:** script, voice
+- **Rule:** Narrator leads; characters may speak (Fish voices, library/voices.json) wherever a line fits the moment and boosts the video's vibe (drama, menace, emotion); the narrator still carries the facts; see r12 for dramatised vs sourced lines
+- **Why:** owner 2026-11-19 (replaces 'narrator only'): Fish character voices approved; 'we allow character lines where they fit and boost the video vibe'
+- **Applies to:** script, voice, shots
 
 ## r2 (2026-11-19)
 - **Rule:** Serious, dramatic, mysterious tone; never funny or cheesy
@@ -58,7 +58,7 @@ Read before every stage (`python -m tc rules --stage <stage>`).
 - **Applies to:** edit, shots
 
 ## r12 (2026-11-19)
-- **Rule:** Character dialogue may be DRAMATISED (imagined) to make moments stronger: it must fit the real history (right person, real situation, his known character, no anachronisms) and never change what happened; tag invented lines [dramatised], real quotes [source: ...]; narrator facts stay strictly sourced; description gets one line 'Some dialogue is dramatised.'; 1-2 character lines per video
+- **Rule:** Character dialogue may be DRAMATISED (imagined) to make moments stronger: it must fit the real history (right person, real situation, his known character, no anachronisms) and never change what happened; tag invented lines [dramatised], real quotes [source: ...]; narrator facts stay strictly sourced; description gets one line 'Some dialogue is dramatised.'; no fixed number of character lines (wherever they fit, r1)
 - **Why:** owner 2026-11-19: dialogue does not have to be fact-checked, other creators dramatise too; keep narrator facts accurate for trust
 - **Applies to:** script, package
 

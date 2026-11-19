@@ -1,19 +1,48 @@
-Traceback (most recent call last):
-  File "C:\Users\User\timeless-compass\blender\scenes\lab_test.py", line 16, in <module>
-    modern.lab_1950s()
-    ~~~~~~~~~~~~~~~~^^
-  File "C:\Users\User\timeless-compass\blender\scenes\..\lib\modern.py", line 121, in lab_1950s
-    for sx, sy, size in (((0, d / 2), (w, 0.2)), ((0, -d / 2), (w, 0.2)), ((w / 2, 0), (0.2, d)), ((-w / 2, 0), (0.2, d))):
-        ^^^^^^^^^^^^
-ValueError: not enough values to unpack (expected 3, got 2)
+03:17.719  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\lab\room.png'
+03:58.375  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\lab\panel.png'
 [INFO ] services.locationservice ...............: Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.
 [INFO ] mpfb.init ..............................: Build info 20261010
 [INFO ] mpfb.init ..............................: Online access preference is not enabled. Not checking if MakeHuman is online.
 [INFO ] mpfb.init ..............................: MPFB initialization has finished.
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+FBX version: 7700
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('displacementmapIntensity', 'displacementMapIntensity')
+[ERROR] services.nodeservice ...................: File does not exist: C:/Users/User/AppData/Roaming/Blender Foundation/Blender/5.3/extensions/.user/blender_org/mpfb/data/clothes/fedora01/fedora_displacement.png
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+FBX version: 7700
+saved C:/Users/User/timeless-compass/spike/lib_stills/lab\room.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/lab\panel.png
+LAB DONE
 Blender 5.3.0 (hash 02f0899d78e3 built 2026-11-10 01:33:43)
+OBJ import of 'base.obj' took 24.03 ms
+OBJ import of 'high-poly.obj' took 3.58 ms
+OBJ import of 'eyebrow001.obj' took 1.22 ms
+OBJ import of 'eyelashes01.obj' took 1.80 ms
+OBJ import of 'teeth_base.obj' took 5.74 ms
+OBJ import of 'male_elegantsuit01.obj' took 16.01 ms
+OBJ import of 'shoes02.obj' took 4.80 ms
+OBJ import of 'base.obj' took 24.88 ms
+OBJ import of 'high-poly.obj' took 3.88 ms
+OBJ import of 'eyebrow001.obj' took 1.30 ms
+OBJ import of 'eyelashes01.obj' took 1.45 ms
+OBJ import of 'teeth_base.obj' took 5.86 ms
+OBJ import of 'male_elegantsuit01.obj' took 9.50 ms
+OBJ import of 'fedora.obj' took 2.35 ms
+OBJ import of 'shoes01.obj' took 5.50 ms
 
 Blender quit
 
-real	0m6.248s
+real	4m3.190s
 user	0m0.015s
-sys	0m0.031s
+sys	0m0.061s

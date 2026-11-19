@@ -54,9 +54,17 @@ ERAS = {
             "priestess": ("female", (0.3, 0.9), "rich", "greek_priestess_480bc", "solemn"),
             "hoplite": ("male", (0.25, 0.6), "common", "greek_hoplite_480bc", "soldier"),
             "spartan": ("male", (0.25, 0.75), "common", "greek_hoplite_480bc", "soldier"),
+            "archer": ("male", (0.18, 0.6), "poor", "greek_servant_480bc", "soldier"),     # Hdt. 9.22: Athenian archers
             "commander": ("male", (0.45, 0.8), "rich", "greek_hoplite_480bc", "commanding"),
             "rower": ("male", (0.2, 0.6), "poor", "greek_servant_480bc", "labour"),
             "fisherman": ("male", (0.25, 0.9), "poor", "greek_servant_480bc", "labour"),
+            # working people of town and country (WS3/WS16 dress them by trade: hats, loincloth, purse)
+            "farmer": ("male", (0.2, 0.9), "poor", "greek_servant_480bc", "labour"),
+            "shepherd": ("male", (0.12, 0.8), "poor", "greek_servant_480bc", "labour"),
+            "potter": ("male", (0.2, 0.8), "common", "greek_servant_480bc", "labour"),
+            "smith": ("male", (0.25, 0.8), "common", "greek_servant_480bc", "labour"),
+            "trader": ("any", (0.3, 0.85), "common", None, "everyday"),
+            "villager": ("any", (0.1, 0.95), "common", None, "everyday"),
         },
     },
     "persia_480bc": {
@@ -76,6 +84,8 @@ ERAS = {
             "immortal": ("male", (0.25, 0.55), "rich", "persian_immortal_480bc", "soldier"),
             "commander": ("male", (0.45, 0.8), "rich", "persian_court_480bc", "commanding"),
             "archer": ("male", (0.2, 0.55), "common", "persian_soldier_480bc", "soldier"),
+            "trader": ("male", (0.3, 0.85), "common", "persian_court_480bc", "everyday"),
+            "farmer": ("male", (0.2, 0.9), "poor", "persian_servant_480bc", "labour"),
         },
     },
 }

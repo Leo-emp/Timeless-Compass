@@ -1,20 +1,29 @@
-C:\Users\User\timeless-compass\blender\scenes\..\lib\sets.py:244: RuntimeWarning: invalid value encountered in power
+C:\Users\User\timeless-compass\blender\scenes\..\lib\sets.py:255: RuntimeWarning: invalid value encountered in power
   Z = np.where(inland > 0, 0.35 + 0.14 * inland ** 1.05 + bumps * np.clip(inland / 8, 0, 1), -0.8 + inland * 0.3)
-00:42.734  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\salamis_v2f\hero.png'
-01:11.343  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\salamis_v2f\cove.png'
-01:42.406  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\salamis_v2f\reverse.png'
 [INFO ] services.locationservice ...............: Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.
 [INFO ] mpfb.init ..............................: Build info 20261010
 [INFO ] mpfb.init ..............................: Online access preference is not enabled. Not checking if MakeHuman is online.
 [INFO ] mpfb.init ..............................: MPFB initialization has finished.
-saved C:/Users/User/timeless-compass/spike/lib_stills/salamis_v2f\hero.png
-saved C:/Users/User/timeless-compass/spike/lib_stills/salamis_v2f\cove.png
-saved C:/Users/User/timeless-compass/spike/lib_stills/salamis_v2f\reverse.png
+00:18:33 | INFO: Data are loaded, start creating Blender stuff
+00:18:33 | INFO: Blender create Mesh node Stereo textured mesh_Material0_0
+00:18:34 | INFO: glTF import finished in 1.19s
+00:18:35 | INFO: Data are loaded, start creating Blender stuff
+00:18:35 | INFO: Blender create Mesh node Cypress_V2_test_Cypress_bark_0
+00:18:35 | INFO: Blender create Mesh node Cypress_V2_test_Cypress_bark.1_0
+00:18:35 | INFO: Blender create Mesh node Cypress_V2_test_Cypress_bark.2_0
+00:18:35 | INFO: Blender create Mesh node Cypress_V2_test_Cypress_2_sided_0
+00:18:36 | INFO: glTF import finished in 1.05s
+01:39.625  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\salamis_v2g\hero.png'
+02:18.687  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\salamis_v2g\cove.png'
+03:03.078  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\salamis_v2g\reverse.png'
+saved C:/Users/User/timeless-compass/spike/lib_stills/salamis_v2g\hero.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/salamis_v2g\cove.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/salamis_v2g\reverse.png
 SET DONE
 Blender 5.3.0 (hash 02f0899d78e3 built 2026-11-10 01:33:43)
 
 Blender quit
 
-real	1m43.859s
-user	0m0.000s
-sys	0m0.015s
+real	3m6.663s
+user	0m0.031s
+sys	0m0.030s

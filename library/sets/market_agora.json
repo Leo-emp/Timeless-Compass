@@ -1,0 +1,14 @@
+{
+  "name": "market_agora",
+  "version": 1,
+  "era": "greece_480bc",
+  "workstream": "WS16 (Session D)",
+  "builder": "blender/lib/market.py stall / market / goods",
+  "contents": "trestle stalls with patterned linen awnings by trade (fish, bread, produce, pottery, oil, wool, grain), fish, loaves, produce heaps, sacks, wool bales, owl coins, merchant's balance",
+  "design_source": "Aristophanes (Knights, Wasps, Acharnians); Athenian Agora excavations (weights, measures, owls); Arkesilas cup (weighing)",
+  "licence": "our own code (Blender); scanned textures/models CC0 Poly Haven + main session's CC0/CC-BY scans (see library/scans/<id>/asset.json)",
+  "self_rating": null,
+  "owner_rating": null,
+  "status": "written, first render pending",
+  "renders": []
+}

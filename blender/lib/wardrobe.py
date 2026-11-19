@@ -1092,11 +1092,13 @@ def persian_cap(human, rig, felt, band=None, kind='royal', height=None, lift=0.0
     zb = _eye_z(rig) + (0.035 if kind != 'median' else 0.045)
     base = _head_ring(human, rig, zb, lift, ppos=ppos)
     c = base.mean(axis=0)
+    if kind in ('royal', 'fluted'):          # Persepolis reliefs: the tiara sits CLOSE to the head (hair is pressed
+        base = c + (base - c) * 0.86         # under it), not as wide as a bushy hairstyle - otherwise it reads as a drum
     th = np.arctan2(base[:, 1] - c[1], base[:, 0] - c[0])
     parts = []
     if kind in ('royal', 'fluted'):
         H = height or (0.2 if kind == 'royal' else 0.13)
-        flare = 0.06 if kind == 'royal' else 0.18
+        flare = 0.1 if kind == 'royal' else 0.18           # royal: gently flaring toward the top
         rings = []
         for t in np.linspace(0, 1, 14):
             k = np.full(len(base), 1 + flare * t)
@@ -1541,7 +1543,7 @@ RANK_SCAN = {'royal': 'rough_linen', 'rich': 'rough_linen', 'common': 'rough_lin
 RANK_FRAY = {'royal': 0.0, 'rich': 0.0, 'common': 0.012, 'poor': 0.035}
 
 
-def crowd_cloth(name, dye, wool=False, scan=None, seed=0):
+def crowd_cloth(name, dye, wool=False, scan=None, seed=0, ornament=None):
     """Garment material for a crowd extra, straight from tc/crowd.py person()['dye'] =
     {rank, main, band, grime, patched}: the rank picks the cloth (linen / wool for the better-off, a coarse
     hessian-like weave for the poor), how ragged the hem is, whether there is a woven border; grime and patches
@@ -1551,9 +1553,381 @@ def crowd_cloth(name, dye, wool=False, scan=None, seed=0):
         scan = 'caban' if (wool and rank != 'poor') else RANK_SCAN.get(rank, 'rough_linen')
     band = tuple(dye['band']) if dye.get('band') and rank in ('royal', 'rich') else None
     tiles = (4, 10) if scan == 'caban' else (7, 5)
+    border, field = ornament or (None, None)
+    if (border or field) and not dye.get('patched'):                  # woven ornament (see ornament_for())
+        r = __import__('random').Random(f'orn-col:{seed}:{name}')
+        band = band or tuple(dye.get('band') or (0.07, 0.10, 0.26))
+        dark = (0.04, 0.03, 0.025); ochre = (0.5, 0.34, 0.1)
+        return patterned_cloth(name, scan, tuple(dye['main']), band=band, border=border,
+                               border_color=r.choice((dark, tuple(dye['main']), ochre)), field=field,
+                               field_color=r.choice((dark, band, ochre)), grime=float(dye.get('grime', 0.3)),
+                               tiles=tiles, width=0.07, sheen=0.15)
     return worn_cloth(name, scan, tuple(dye['main']), band=band, grime=float(dye.get('grime', 0.3)),
                       patched=bool(dye.get('patched', False)), fray=RANK_FRAY.get(rank, 0.0), seed=seed,
                       tiles=tiles, width=0.035, sheen=0.15 if rank != 'poor' else 0.05)
+
+
+# ------------------------------------------------------------------ PATTERNS: woven / painted cloth ornament
+# Greek dress on vases is rarely plain: borders of meander (Greek key), running waves, zigzags and tongues, and
+# whole garments strewn with dots, crosses or stars (e.g. the Francois Vase, Exekias, the Berlin Painter's women).
+# The Persian court wore patterned robes too (Susa glazed-brick archers: rosettes in squares, stars, "castle"
+# motifs). Each motif is DRAWN BY CODE into a small tileable mask image (numpy -> Blender image, no AI, no
+# copying): 1 = ornament, 0 = background. The materials then tile the masks along the hem or across the cloth.
+
+def _grid_mask(rows, res=256):
+    """Pixel-art motif (list of strings, '#' = ornament) scaled up to a res x res mask."""
+    h, w = len(rows), len(rows[0])
+    a = np.array([[1.0 if ch == '#' else 0.0 for ch in r] for r in rows], dtype=np.float32)
+    ys = (np.arange(res) * h // res); xs = (np.arange(res) * w // res)
+    return a[ys][:, xs]
+
+
+def pattern_mask(kind, res=256):
+    """Tileable ornament mask (res x res, float 0..1), row 0 = bottom of the tile.
+    Borders (drawn for a band: x along the hem, y across it):
+      meander  Greek key, framed by two lines        wave     running wave (Vitruvian scroll)
+      zigzag   framed zigzag                         tongues  row of rounded tongues (egg pattern)
+      lines    two thin stripes
+    Fields (strewn over the whole cloth):
+      dots, crosses, stars (8 points), rosettes (8 petals), rosette_grid (Susa: rosette in a square frame),
+      checker, stripes"""
+    y, x = np.mgrid[0:res, 0:res].astype(np.float32) / res
+    if kind == 'meander':
+        m = _grid_mask(['##########',
+                        '..........',
+                        '#######.#.',
+                        '#.....#.#.',
+                        '#.###.#.#.',
+                        '#.#.#...#.',
+                        '#.#.#####.',
+                        '#.#.......',
+                        '..........',
+                        '##########'][::-1], res)
+    elif kind == 'wave':
+        # running wave (Vitruvian scroll): each wave rises as a slope, rolls over into a round crest with a
+        # spiral hollow, and the next wave starts from its foot
+        def disc(cx, cy, r):
+            return np.hypot(x - cx, y - cy) < r
+        ramp = (y < 0.18 + 0.9 * x) & (x < 0.62) & ~disc(0.66, 0.53, 0.12)
+        crest = disc(0.62, 0.5, 0.27) & ~disc(0.66, 0.53, 0.12) & ~((x > 0.64) & (y < 0.5) & (x < 0.95))
+        m = (y < 0.2) | ramp | crest | disc(0.66, 0.53, 0.04)
+        m = (m & (y > 0.08)) | (y < 0.05) | (y > 0.95)
+    elif kind == 'zigzag':
+        tri = np.abs((x * 2) % 2 - 1)
+        m = (np.abs(y - (0.25 + 0.5 * tri)) < 0.09) | (y < 0.06) | (y > 0.94)
+    elif kind == 'tongues':
+        cx = (x % 1.0) - 0.5
+        m = ((np.abs(cx) < 0.36) & (y > 0.15) & ((y < 0.6) | (np.hypot(cx, y - 0.6) < 0.36))) | (y < 0.07)
+    elif kind == 'lines':
+        m = (np.abs(y - 0.25) < 0.08) | (np.abs(y - 0.75) < 0.08)
+    else:
+        cx, cy = x - 0.5, y - 0.5
+        r, th = np.hypot(cx, cy), np.arctan2(cy, cx)
+        if kind == 'dots':
+            m = r < 0.13
+        elif kind == 'crosses':
+            m = ((np.abs(cx) < 0.04) & (np.abs(cy) < 0.2)) | ((np.abs(cy) < 0.04) & (np.abs(cx) < 0.2))
+        elif kind == 'stars':
+            m = r < 0.09 + 0.16 * np.abs(np.cos(4 * th)) ** 3
+        elif kind == 'rosettes':
+            m = (r < 0.27 * (0.55 + 0.45 * np.abs(np.cos(4 * th)))) & ~((r > 0.07) & (r < 0.1))
+        elif kind == 'rosette_grid':
+            frame = (np.abs(cx) > 0.42) | (np.abs(cy) > 0.42)
+            m = frame | (r < 0.3 * (0.55 + 0.45 * np.abs(np.cos(4 * th))))
+        elif kind == 'checker':
+            m = ((x * 2).astype(int) + (y * 2).astype(int)) % 2 == 0
+        elif kind == 'stripes':
+            m = (x % 0.5) < 0.18
+        else:
+            raise KeyError(f'unknown pattern {kind!r}')
+    m = np.asarray(m, dtype=np.float32)
+    # soften the edges a little (woven / painted, not laser-cut): 3x3 box blur, wrapping (tileable)
+    m = (m + np.roll(m, 1, 0) + np.roll(m, -1, 0) + np.roll(m, 1, 1) + np.roll(m, -1, 1)) / 5
+    return m
+
+
+BORDERS = ('meander', 'wave', 'zigzag', 'tongues', 'lines')
+FIELDS = ('dots', 'crosses', 'stars', 'rosettes', 'rosette_grid', 'checker', 'stripes')
+
+
+def _pattern_image(kind, res=256):
+    name = f'tc_pattern_{kind}'
+    im = bpy.data.images.get(name)
+    if im is None:
+        import os, tempfile
+        m = pattern_mask(kind, res)
+        tmp = bpy.data.images.new(name + '_draw', res, res, alpha=False, float_buffer=False)
+        px = np.ones((res, res, 4), dtype=np.float32); px[..., 0] = px[..., 1] = px[..., 2] = m
+        tmp.pixels.foreach_set(px.ravel()); tmp.update()
+        # an image filled in memory is NOT seen by Cycles (it renders the blank 'generated' image): save it as a
+        # PNG in the temp folder, load that file as a normal image, and pack it into the .blend
+        path = os.path.join(bpy.app.tempdir or tempfile.gettempdir(), name + '.png')
+        tmp.filepath_raw = path; tmp.file_format = 'PNG'; tmp.save()
+        bpy.data.images.remove(tmp)
+        im = bpy.data.images.load(path, check_existing=False); im.name = name
+        im.colorspace_settings.name = 'Non-Color'
+        im.pack()
+        im.use_fake_user = True
+    return im
+
+
+def patterned_cloth(name, scan, dye, band=None, border=None, border_color=None, border_repeat=36, width=0.07,
+                    field=None, field_color=None, field_repeat=(16, 22), edge=0.0, **kw):
+    """scan_cloth() + ornament:
+      band + border : a woven border band of colour `band` along the hem (or all edges with edge=1) carrying a
+                      pattern (meander, wave, ...) in `border_color` (default: the main dye), repeated
+                      `border_repeat` times around the garment, `width` = band height in UV
+      field         : a strewn pattern over the whole cloth (dots, stars, ...) in `field_color`
+    The real weave of the scan shows through all colours (they are multiplied by the weave's light/dark)."""
+    m = scan_cloth(name, scan, dye, band=None, edge=edge, width=width, **kw)
+    nt = m.node_tree; L = nt.links.new
+    b = nt.nodes['Principled BSDF']
+    mixer = b.inputs['Base Color'].links[0].from_node                   # the grime mix: input A = dyed weave
+    dyed_sock = mixer.inputs['A'].links[0].from_socket
+    diff = next(n for n in nt.nodes if n.type == 'TEX_IMAGE' and n.image and '_diff_' in n.image.name)
+    bw = nt.nodes.new('ShaderNodeRGBToBW'); L(diff.outputs['Color'], bw.inputs['Color'])
+    weave = nt.nodes.new('ShaderNodeMapRange'); weave.inputs['To Min'].default_value = 0.55; weave.inputs['To Max'].default_value = 1.25
+    L(bw.outputs['Val'], weave.inputs['Value'])
+    def woven(color):                                                   # a flat colour with the scan's weave in it
+        mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.blend_type = 'MULTIPLY'; mx.inputs['Factor'].default_value = 1.0
+        L(weave.outputs['Result'], mx.inputs['A']); mx.inputs['B'].default_value = (*color, 1)
+        return mx.outputs['Result']
+    def sample(kind, vec):
+        t = nt.nodes.new('ShaderNodeTexImage'); t.image = _pattern_image(kind); t.interpolation = 'Linear'
+        L(vec, t.inputs['Vector'])
+        return t.outputs['Color']
+    def mix(fac, a, c):
+        mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'
+        L(fac, mx.inputs['Factor']); L(a, mx.inputs['A']); L(c, mx.inputs['B'])
+        return mx.outputs['Result']
+    uv = nt.nodes.new('ShaderNodeUVMap')
+    sep = nt.nodes.new('ShaderNodeSeparateXYZ'); L(uv.outputs['UV'], sep.inputs[0])
+    col = dyed_sock
+    if field:
+        fv = nt.nodes.new('ShaderNodeVectorMath'); fv.operation = 'MULTIPLY'; fv.inputs[1].default_value = (*field_repeat, 1)
+        L(uv.outputs['UV'], fv.inputs[0])
+        f = sample(field, fv.outputs[0])
+        col = mix(f, col, woven(field_color or (0.05, 0.04, 0.03)))
+    if band is not None:
+        # distance to the band edge (hem: v; edge mode: nearest of the 4 sheet edges) and position along it
+        if edge:
+            pu = nt.nodes.new('ShaderNodeMath'); pu.operation = 'PINGPONG'; pu.inputs[1].default_value = 0.5
+            pv = nt.nodes.new('ShaderNodeMath'); pv.operation = 'PINGPONG'; pv.inputs[1].default_value = 0.5
+            L(sep.outputs['X'], pu.inputs[0]); L(sep.outputs['Y'], pv.inputs[0])
+            dist = nt.nodes.new('ShaderNodeMath'); dist.operation = 'MINIMUM'; L(pu.outputs[0], dist.inputs[0]); L(pv.outputs[0], dist.inputs[1])
+            along = nt.nodes.new('ShaderNodeMath'); along.operation = 'ADD'; L(sep.outputs['X'], along.inputs[0]); L(sep.outputs['Y'], along.inputs[1])
+            d_sock, a_sock = dist.outputs[0], along.outputs[0]
+        else:
+            d_sock, a_sock = sep.outputs['Y'], sep.outputs['X']
+        inb = nt.nodes.new('ShaderNodeMath'); inb.operation = 'LESS_THAN'; inb.inputs[1].default_value = width
+        L(d_sock, inb.inputs[0])
+        band_col = woven(band)
+        if border:
+            au = nt.nodes.new('ShaderNodeMath'); au.operation = 'MULTIPLY'; au.inputs[1].default_value = border_repeat
+            L(a_sock, au.inputs[0])
+            av = nt.nodes.new('ShaderNodeMath'); av.operation = 'DIVIDE'; av.inputs[1].default_value = width
+            L(d_sock, av.inputs[0])
+            comb = nt.nodes.new('ShaderNodeCombineXYZ'); L(au.outputs[0], comb.inputs['X']); L(av.outputs[0], comb.inputs['Y'])
+            pat = sample(border, comb.outputs[0])
+            band_col = mix(pat, band_col, woven(border_color or dye))
+        col = mix(inb.outputs[0], col, band_col)
+    L(col, mixer.inputs['A'])
+    return m
+
+
+def ornament_for(rank, seed, wardrobe=''):
+    """Era-plausible ornament choice for a crowd extra: (border, field) or Nones. Rich and royal cloth carries
+    woven borders, women's and royal garments often an all-over strewn pattern; the poor wear plain cloth.
+    Persian robes favour rosettes and rosette grids (Susa), Greek ones meanders, waves and dots."""
+    import random
+    r = random.Random(f'ornament:{seed}:{wardrobe}')
+    persian = wardrobe.startswith('persian')
+    if rank == 'poor':
+        return None, None
+    if rank == 'common':
+        return (r.choice(('lines', 'zigzag')) if r.random() < 0.35 else None), None
+    border = r.choice(('rosette_grid', 'lines', 'zigzag') if persian else ('meander', 'wave', 'tongues', 'meander', 'zigzag'))
+    if border == 'rosette_grid':
+        border = 'lines'
+    field = None
+    if r.random() < (0.7 if rank == 'royal' else 0.35):
+        field = r.choice(('rosettes', 'rosette_grid', 'stars') if persian else ('dots', 'crosses', 'stars', 'dots'))
+    return border, field
+
+
+# ------------------------------------------------------------------ more Greek garments + hats
+def chlamys(human, rig, material, length=0.85, frames=55, seg=112, ring_h=0.016, sim=True):
+    """The CHLAMYS: a short wool cloak, a rectangle fastened with a brooch on the RIGHT shoulder, covering the left
+    arm and the back and hanging open down the right side (travellers, riders, hunters, heralds, ephebes; Hermes
+    and the Parthenon frieze horsemen, Attic vases). Built as a cape around the shoulders whose top edge lies on
+    the shoulders/upper chest (soft pins), hard-pinned at the right shoulder where the two edges meet, OPEN on the
+    right side. POSED garment (body still, over frozen tunic). Fasten with dress_pins(kind='fibula')."""
+    ppos = posed_surface(human)
+    rest = cast_rest(human)
+    M = body_measure(human, rig, rest)
+    cy = M['cy']
+    sz = M['shoulder_z']
+    crx, cry = _chest(ppos, M, sz - 0.05)
+    R, Ry = crx + 0.07, cry + 0.07
+    pin_a = math.pi                                                   # the RIGHT side (-x) is where it opens
+    rows = int(length / ring_h) + 1
+    verts, pins = [], []
+    for r in range(rows):
+        z = sz + 0.03 - r * ring_h
+        grow = 1 + 0.18 * (r / (rows - 1))                            # the cloak widens a little as it falls
+        for k in range(seg):
+            a = pin_a + 2 * math.pi * (k + 0.5) / seg                 # start and end at the right shoulder
+            x, y = R * grow * math.cos(a), cy + Ry * grow * math.sin(a)
+            w = 0.0
+            if r == 0:
+                # top edge lies on the shoulders and around the neck base, softly; hard at the right shoulder pin
+                x, y = x * 0.75, cy + (y - cy) * 0.8
+                if abs(x) < 0.09:                                     # across the throat / upper back: on the
+                    z = sz - (0.02 if y < cy else 0.0)                # collarbones, lying on the body surface
+                    sy = surface_y(ppos, x, z, front=y < cy)
+                    if sy is not None:
+                        y = sy + (-0.012 if y < cy else 0.012)
+                else:
+                    st = shoulder_top(ppos, x, cy, sz + 0.085)
+                    if st is not None:
+                        z = st + 0.012
+                frac = min(k, seg - 1 - k) / (seg / 2)                 # 0 at the pin -> 1 opposite it
+                # hard pin at the brooch; the top edge rests on the shoulders (soft) but hangs free across the
+                # front of the chest, so the open side can fall away from the right arm
+                front = y < cy - 0.02 and abs(x) < 0.12
+                w = 1.0 if frac < 0.05 else (0.08 if front else 0.4)
+            verts.append((x, y, z)); pins.append(w)
+    faces = [(r * seg + k, r * seg + k + 1, (r + 1) * seg + k + 1, (r + 1) * seg + k)
+             for r in range(rows - 1) for k in range(seg - 1)]       # no face across the opening
+    me = bpy.data.meshes.new('chlamys'); me.from_pydata(verts, [], faces); me.update()
+    o = link(bpy.data.objects.new('chlamys', me)); o.data.materials.append(material)
+    set_uv(o, [((i % seg) / (seg - 1), 1 - (i // seg) / (rows - 1)) for i in range(len(verts))])
+    vg = o.vertex_groups.new(name='pin')
+    for i, w in enumerate(pins):
+        if w:
+            vg.add([i], w, 'REPLACE')
+    cm = _cloth(o, 'pin', mass=0.22, tension=14, bending=0.1)        # soft wool: falls in folds, not a tent
+    cm.settings.quality = 10; cm.collision_settings.distance_min = 0.008; cm.collision_settings.collision_quality = 4
+    _finish(o, 0.0035, offset=1.0)
+    if sim:
+        _sim_freeze([o], frames)
+    return o
+
+
+def cast_rest(human):
+    from lib import cast as _cast
+    return _cast.rest_surface(human)[0]
+
+
+def greek_hat(human, rig, material, kind='petasos', lift=0.012):
+    """Greek headwear (rigid, parented to the head bone):
+      petasos : broad-brimmed felt or straw travel hat with a low crown (travellers, herdsmen, riders, Hermes;
+                worn with the chlamys on the Parthenon frieze)
+      pilos   : a brimless conical felt cap (workers, sailors, craftsmen; Odysseus and Hephaistos on vases)
+      sakkos  : a women's cloth bag holding the hair up at the back of the head (Attic red-figure women)"""
+    ppos = posed_surface(human)
+    ez = _eye_z(rig)
+    zb = ez + (0.055 if kind == 'petasos' else 0.05 if kind == 'pilos' else 0.02)
+    base = _head_ring(human, rig, zb, lift, ppos=ppos)
+    c = base.mean(axis=0)
+    if kind == 'petasos':
+        rings = []
+        for k, dz in ((1.0, 0.0), (1.0, 0.04), (0.85, 0.07), (0.5, 0.085)):   # low rounded crown
+            ring = c + (base - c) * k; ring[:, 2] = zb + dz; rings.append(ring)
+        crown = _loft('petasos_crown', rings, material, cap_top=True)
+        th = np.arctan2(base[:, 1] - c[1], base[:, 0] - c[0])
+        d = base - c; d[:, 2] = 0; d /= np.linalg.norm(d, axis=1)[:, None] + 1e-9
+        brim_in = base.copy(); brim_in[:, 2] = zb + 0.004
+        brim_out = base + d * (0.11 + 0.01 * np.cos(2 * th))[:, None]
+        brim_out[:, 2] = zb - 0.012 - 0.01 * np.abs(np.sin(th))      # droops a little front and back
+        brim = _loft('petasos_brim', [brim_in, brim_out], material)
+        parts = [crown, brim]
+        for o in parts:
+            s = o.modifiers.new('thick', 'SOLIDIFY'); s.thickness = 0.004; s.offset = 1.0
+            o.modifiers.new('smooth', 'SUBSURF').levels = 1
+    elif kind == 'pilos':
+        rings = []
+        for t in np.linspace(0, 1, 10):
+            k = (1 - t) ** 0.9 * 1.0 + 0.04
+            ring = c + (base - c) * k; ring[:, 2] = zb + 0.16 * t; ring[:, 1] += 0.01 * t * t
+            rings.append(ring)
+        o = _loft('pilos', rings, material, cap_top=True)
+        s = o.modifiers.new('thick', 'SOLIDIFY'); s.thickness = 0.004; s.offset = 1.0
+        parts = [o]
+    elif kind == 'sakkos':
+        # a soft bag: from a band round the head it swells into a rounded bundle at the back of the head
+        head = bone_pos(rig, 'head')
+        th = np.arctan2(base[:, 1] - c[1], base[:, 0] - c[0])
+        back = np.clip(np.sin(th), 0, 1)                              # +y = back
+        rings = []
+        for t in np.linspace(0, 1, 14):
+            # a ROUND soft bag: follows the head's own curve up to the crown (cosine profile, no point), and
+            # swells into a bundle of hair at the back of the head that sags a little
+            dome = np.cos(t * np.pi / 2) ** 0.7
+            bulge = 1.06 + 0.6 * back * np.sin(np.pi * t) ** 1.2
+            k = dome * bulge + 0.02
+            ring = c + (base - c) * k[:, None]
+            ring[:, 2] = zb + 0.105 * np.sin(t * np.pi / 2) - 0.035 * back * np.sin(np.pi * t)
+            ring[:, 1] += 0.06 * back * np.sin(np.pi * t)
+            rings.append(ring)
+        o = _loft('sakkos', rings, material, cap_top=True)
+        s = o.modifiers.new('thick', 'SOLIDIFY'); s.thickness = 0.003; s.offset = 1.0
+        o.modifiers.new('smooth', 'SUBSURF').levels = 1
+        parts = [o]
+    else:
+        raise KeyError(kind)
+    from lib import cast as _cast
+    for o in parts:
+        _cast.parent_to_bone(o, rig, 'head')
+    return parts
+
+
+def perizoma(human, rig, pos, material, frames=40, seg=96, sim=True):
+    """The PERIZOMA: a short loincloth wrapped round the hips, worn by fishermen, rowers, farm hands and athletes'
+    trainers in heat and hard work (Attic vases of fishermen and of men at the rowing benches; Thucydides 1.6 on
+    loincloths). A short tube from the hip bones to the upper thigh, tight at the top (tucked waist band).
+    Body must be blending into its pose (pose.blend_into_pose)."""
+    M = body_measure(human, rig, pos)
+    cy = M['cy']
+    top = M['hip_z'] + 0.07
+    hrx, hry = _chest(pos, M, M['hip_z'])
+    wrx, wry = hrx + 0.012, hry + 0.012
+    def top_fn(a):
+        return (wrx * math.cos(a), cy + wry * math.sin(a), top, 1.0)
+    o = _column_tube('perizoma', seg, top_fn, top - 0.03, lambda a: M['hip_z'] - 0.2 + 0.04 * abs(math.sin(a)),
+                     lambda a, z: (wrx * math.cos(a), cy + wry * math.sin(a)),
+                     lambda a, z, t: ((wrx + 0.03 * t) * math.cos(a), cy + (wry + 0.03 * t) * math.sin(a)),
+                     lambda a: (wrx * math.cos(a), cy + wry * math.sin(a)), 0.012, material)
+    _cloth(o, 'pin', mass=0.1, tension=12, bending=0.15).settings.quality = 8
+    _finish(o, 0.003)
+    if sim:
+        _sim_freeze([o], frames)
+    return o
+
+
+def purse(rig, leather, side='L', name='purse'):
+    """A small leather money pouch hanging from the belt (traders, shoppers: coins were also carried in the mouth,
+    Aristophanes, Wasps 791!). A soft bag shape tied at the neck, on the hip bone."""
+    import bmesh
+    hip = bone_pos(rig, f'upperleg01.{side}')
+    sgn = 1 if side == 'L' else -1
+    p = Vector((float(hip[0]) + sgn * 0.13, float(hip[1]) - 0.04, float(hip[2]) + 0.06))
+    bm = bmesh.new()
+    prof = [(0.001, -0.07), (0.035, -0.06), (0.045, -0.03), (0.035, 0.0), (0.012, 0.012), (0.018, 0.02)]
+    rings = []
+    for r, z in prof:
+        rings.append([bm.verts.new(p + Vector((r * math.cos(2 * math.pi * k / 16), r * 0.7 * math.sin(2 * math.pi * k / 16), z)))
+                      for k in range(16)])
+    for a, b in zip(rings[:-1], rings[1:]):
+        for k in range(16):
+            bm.faces.new((a[k], a[(k + 1) % 16], b[(k + 1) % 16], b[k]))
+    me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
+    o = link(bpy.data.objects.new(name, me)); o.data.materials.append(leather)
+    for pg in o.data.polygons:
+        pg.use_smooth = True
+    from lib import cast as _cast
+    _cast.parent_to_bone(o, rig, 'spine05')
+    return o
 
 
 # ------------------------------------------------------------------ DRESS A CROWD EXTRA (tc/crowd.py person -> clothes)
@@ -1593,7 +1967,7 @@ def _metal(name, color, rough):
     return m
 
 
-def dress(human, rig, pos, person, pose_name=None):
+def dress(human, rig, pos, person, pose_name=None, tools=True):
     """Dress one person from tc/crowd.py (or a library/cast spec with 'wardrobe' + 'dye').
     human, rig  = cast.build_human(spec); pos = cast.rest_surface(human)[0]; the body should be at rest.
     pose_name   = final pose (default: 'stand_open' for Greeks, 'royal_audience' for the Persian robe, else
@@ -1607,10 +1981,12 @@ def dress(human, rig, pos, person, pose_name=None):
         raise KeyError(f'no 480 BC garments for wardrobe {w!r} (yet): known {WARDROBES}')
     dye = person.get('dye') or {"rank": "common", "main": (0.52, 0.47, 0.37), "band": None, "grime": 0.3, "patched": False}
     seed = int(person.get('seed', 0)); rank = dye.get('rank', 'common')
+    role = person.get('role', '')                                     # fisherman, farmer, trader... (tc/crowd.py)
     female = (person.get('macro') or {}).get('gender', 1.0) < 0.5
     tag = f'{w}_{seed}'
-    main = crowd_cloth(tag + '_main', dye, seed=seed)                # linen (or coarse cloth for the poor)
-    wool = crowd_cloth(tag + '_wool', dye, wool=True, seed=seed + 1)  # mantles, peplos, veils
+    border, field = ornament_for(rank, seed, w)                       # woven borders / strewn patterns by rank
+    main = crowd_cloth(tag + '_main', dye, seed=seed, ornament=(border, None))           # tunics (linen / coarse)
+    wool = crowd_cloth(tag + '_wool', dye, wool=True, seed=seed + 1, ornament=(border, field))   # mantles, peplos
     bronze = _metal('pin_bronze', (0.55, 0.36, 0.16), 0.35)
     gold = _metal('jewel_gold', (0.92, 0.66, 0.26), 0.22)
     leather = bpy.data.materials.get('sandal_leather')
@@ -1627,7 +2003,23 @@ def dress(human, rig, pos, person, pose_name=None):
         _pose.blend_into_pose(rig, pn, start=1, end=15)            # 'blend' garments: simulated as the body poses
         def settle():
             rig.animation_data_clear(); _pose.apply_pose(rig, pn)
-        if w == 'greek_woman_480bc':
+        if w == 'greek_woman_480bc' and seed % 2 == 1:
+            # IONIC look (the commonest Classical women's dress): long linen chiton + wool himation diagonally
+            ch = chiton(human, rig, pos, main, length='ankle')
+            _sim_freeze([ch], 45)
+            settle()
+            if seed % 3 == 1:                                         # hair up in a sakkos, mantle on the shoulder
+                hm = himation(human, rig, pos, wool, side='L', over=ch)
+                _sim_freeze([hm], 60)
+                greek_hat(human, rig, crowd_cloth(tag + '_sakkos', {**dye, "main": tuple(dye.get('band') or (0.3, 0.05, 0.035))},
+                                                  seed=seed), kind='sakkos')
+            else:
+                veil(human, rig, wool)
+            if wealthy or seed % 2 == 0:
+                earrings(human, rig, gold)
+            if wealthy:
+                necklace(human, rig, gold)
+        elif w == 'greek_woman_480bc':
             body, over = peplos(human, rig, pos, wool)
             settle()
             belt(rig, over, main)
@@ -1638,11 +2030,22 @@ def dress(human, rig, pos, person, pose_name=None):
                 necklace(human, rig, gold)
             if seed % 3 != 1:                                         # most women outdoors draw the mantle over the head
                 veil(human, rig, crowd_cloth(tag + '_veil', {**dye, "main": (0.5, 0.46, 0.38)}, wool=True, seed=seed + 2))
+        elif w == 'greek_servant_480bc' and role in ('fisherman', 'rower') and seed % 2 == 0:
+            # at the oars or the nets: just a loincloth, a felt pilos against the sun for the fishermen
+            perizoma(human, rig, pos, main)
+            settle()
+            if role == 'fisherman':
+                greek_hat(human, rig, crowd_cloth(tag + '_pilos', {**dye, "patched": False}, wool=True, seed=seed), kind='pilos')
         elif w == 'greek_servant_480bc':
             ex = exomis(human, rig, pos, main)
             settle()
             belt(rig, ex, main)
             dress_pins(ex, rig, bronze, kind='fibula', per_side=1)
+            if role in ('fisherman', 'rower', 'potter', 'smith') or seed % 3 == 0:
+                greek_hat(human, rig, crowd_cloth(tag + '_pilos', {**dye, "patched": False}, wool=True, seed=seed), kind='pilos')
+            elif role in ('farmer', 'shepherd'):
+                greek_hat(human, rig, crowd_cloth(tag + '_hat', {**dye, "main": (0.4, 0.31, 0.18), "patched": False},
+                                                  wool=True, seed=seed), kind='petasos')
         elif w == 'greek_child_480bc':
             t = child_tunic(human, rig, pos, main)
             settle()
@@ -1655,13 +2058,26 @@ def dress(human, rig, pos, person, pose_name=None):
                 diadem(human, rig, gold, front=0.03, over=mantle); earrings(human, rig, gold); necklace(human, rig, gold)
             else:
                 fillet(human, rig, pale)
-        else:                                                         # civilian / hoplite: chiton (+ himation)
+        elif w == 'greek_civilian_480bc' and rank == 'poor':          # a working man: exomis + felt pilos
+            ex = exomis(human, rig, pos, main)
+            settle()
+            belt(rig, ex, main)
+            if seed % 2 == 0:
+                greek_hat(human, rig, crowd_cloth(tag + '_felt', {**dye, "patched": False}, wool=True, seed=seed), kind='pilos')
+        else:                                                         # civilian / hoplite: chiton (+ mantle)
             ch = chiton(human, rig, pos, main, length='knee')
             _sim_freeze([ch], 45)
             settle()
-            if w == 'greek_civilian_480bc' and rank != 'poor':
+            if w == 'greek_civilian_480bc' and seed % 3 == 0:         # a traveller / rider: chlamys + petasos
+                cl = chlamys(human, rig, wool)
+                dress_pins(cl, rig, bronze, kind='fibula', per_side=1)
+                greek_hat(human, rig, crowd_cloth(tag + '_hat', {**dye, "main": (0.36, 0.28, 0.17), "patched": False},
+                                                  wool=True, seed=seed), kind='petasos')
+            elif w == 'greek_civilian_480bc':                          # a citizen in his himation
                 m = himation(human, rig, pos, wool, side='L', over=ch)
                 _sim_freeze([m], 60)
+            if role in ('trader', 'merchant', 'shopper') or (w == 'greek_civilian_480bc' and seed % 4 == 1):
+                purse(rig, leather)                                   # money pouch at the hip
             # hoplite armour (helmet, cuirass, greaves, shield) is WS4's armour.py, added on top by the caller
         if rank != 'poor' and w != 'greek_child_480bc':
             sandals(human, rig, leather)
@@ -1671,6 +2087,8 @@ def dress(human, rig, pos, person, pose_name=None):
         _pose.apply_pose(rig, pn)                                     # 'posed' garments: body still, cloth falls
         trousers(human, rig, crowd_cloth(tag + '_trousers', dye, wool=True, seed=seed + 3))
         if robe_outfit:
+            if wealthy:                                               # patterned court robes (Susa archers)
+                main = crowd_cloth(tag + '_robe', dye, seed=seed, ornament=('lines', field or 'rosettes'))
             robe = candys(human, rig, pos, main)
             if w != 'persian_woman_480bc':
                 wide_sleeves(human, rig, main)
@@ -1688,4 +2106,25 @@ def dress(human, rig, pos, person, pose_name=None):
             persian_cap(human, rig, wool, kind='median')
         if wealthy:
             earrings(human, rig, gold)
+    if tools and female and role in ('villager', 'servant', 'citizen') and w.startswith('greek'):
+        # women's daily work: a water jar carried on the head (to/from the fountain) or spinning as they walk
+        from lib import market as _market, tools as _tools, cast as _cast
+        if seed % 2 == 0:
+            ppos = posed_surface(human)
+            head = bone_pos(rig, 'head')
+            near = np.linalg.norm(ppos - head, axis=1) < 0.25
+            top = float(ppos[near][:, 2].max())
+            h = _market.hydria((float(head[0]), float(head[1]) + 0.01, top + 0.035), height=0.4, seed=seed, name=f'{tag}_hydria')
+            _cast.parent_to_bone(h, rig, 'head')
+        else:
+            _tools.hold(_market.spindle(f'{tag}_spindle'), rig, 'R')
+        role = ''                                                     # (no trade tool on top of that)
+    if tools:                                                         # the tool of the trade (lib/tools.py)
+        from lib import tools as _tools
+        t = _tools.tool_for(role, seed)
+        if t is not None:
+            if t.name.startswith('carrying_pole'):
+                _tools.hold(t, rig, bone='clavicle.R', offset=(0.0, 0.0, 0.06), rot_deg=(0, 0, 90))
+            else:
+                _tools.hold(t, rig, 'R')
     return [o for o in bpy.data.objects if o not in before]

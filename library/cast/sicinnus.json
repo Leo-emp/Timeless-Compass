@@ -36,7 +36,7 @@
     "eyebrows-trans-down": 0.15
   },
   "age_lines": 0.3,
-  "stubble": 0.8,
+  "stubble": 0.5,
   "hair": {
     "density": 30000,
     "length": 0.022,
@@ -44,8 +44,8 @@
     "melanin": 0.99
   },
   "beard": {
-    "density": 14000,
-    "length": 0.007,
+    "density": 32000,
+    "length": 0.01,
     "curl": 0.001,
     "melanin": 0.99
   },

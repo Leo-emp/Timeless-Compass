@@ -1,0 +1,31 @@
+Traceback (most recent call last):
+  File "C:\Users\User\timeless-compass\blender\scenes\fight_test.py", line 27, in <module>
+    A = C.build_person(pa, (0, 0, 0), 0, frames=END)
+  File "C:\Users\User\timeless-compass\blender\scenes\..\lib\crowd.py", line 91, in build_person
+    arm_hoplite(p, human, rig, ch)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\timeless-compass\blender\scenes\..\lib\crowd.py", line 39, in arm_hoplite
+    from tc import emblems
+  File "C:\Users\User\timeless-compass\blender\lib\..\..\tc\emblems.py", line 10, in <module>
+    from PIL import Image, ImageDraw
+ModuleNotFoundError: No module named 'PIL'
+[INFO ] services.locationservice ...............: Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.
+[INFO ] mpfb.init ..............................: Build info 20261010
+[INFO ] mpfb.init ..............................: Online access preference is not enabled. Not checking if MakeHuman is online.
+[INFO ] mpfb.init ..............................: MPFB initialization has finished.
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Blender 5.3.0 (hash 02f0899d78e3 built 2026-11-10 01:33:43)
+OBJ import of 'base.obj' took 30.97 ms
+OBJ import of 'high-poly.obj' took 3.69 ms
+OBJ import of 'eyebrow001.obj' took 8.07 ms
+OBJ import of 'eyelashes01.obj' took 1.21 ms
+OBJ import of 'teeth_base.obj' took 5.87 ms
+
+Blender quit
+
+real	1m2.404s
+user	0m0.030s
+sys	0m0.030s

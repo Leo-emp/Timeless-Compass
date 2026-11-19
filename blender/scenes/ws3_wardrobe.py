@@ -7,6 +7,9 @@
 #           priest      long white linen chiton + pale himation with a purple border, wool fillet, sandals
 #           priestess   long white chiton + mantle drawn over the head, gold stephane, earrings, necklace, sandals
 #           crowd:<role>:<seed>[:<era>]  a tc/crowd.py extra dressed by wardrobe.dress() (e.g. crowd:servant:7)
+#           traveller   short chiton + chlamys (fibula on the right shoulder) + petasos + sandals
+#           woman_ionic long dotted chiton with meander hem + madder himation + sakkos + jewellery
+#           patterns    no person: 12 cloths showing every woven/painted ornament (borders + strewn fields)
 #           swatches    no person: four hanging cloths, WEAR BY RANK royal / rich / common / poor (tc/crowd dyes)
 #   shot:   full (default) | med | head
 import os, sys
@@ -89,8 +92,90 @@ def swatches():
     bpy.context.scene.view_settings.look = 'AgX - Medium High Contrast'
 
 
+def pattern_sampler():
+    """Twelve hanging cloths, one per ornament (borders on the hem + strewn fields), in era dyes."""
+    dark, ochre, navy = (0.04, 0.03, 0.025), (0.5, 0.34, 0.1), (0.06, 0.09, 0.24)
+    looks = [('meander', None, MADDER, dark, SAFFRON), ('wave', None, WOAD, SAFFRON, UNDYED_WOOL),
+             ('zigzag', None, dark, MADDER, SAFFRON), ('tongues', None, MADDER, dark, WHITE_LINEN),
+             ('lines', 'dots', WOAD, ochre, MADDER), ('meander', 'crosses', dark, MADDER, SAFFRON),
+             ('wave', 'stars', MADDER, ochre, WOAD), (None, 'rosettes', None, ochre, PURPLE),
+             ('lines', 'rosette_grid', ochre, PURPLE, navy), (None, 'checker', None, dark, WHITE_LINEN),
+             (None, 'stripes', None, MADDER, UNDYED_WOOL), ('tongues', 'dots', dark, SAFFRON, MADDER)]
+    for i, (border, field, band, pcol, dye) in enumerate(looks):
+        x0, z0 = ((i % 6) - 2.5) * 0.55, 2.3 if i < 6 else 1.25
+        nx, ny, w, h = 22, 40, 0.42, 0.8
+        verts = [(x0 + (u / (nx - 1) - 0.5) * w * (0.75 if v == 0 else 1.0), 0.03 * ((u % 4) in (1, 2)) * min(1, v / 4),
+                  z0 - v / (ny - 1) * h) for v in range(ny) for u in range(nx)]
+        faces = [(v * nx + u, v * nx + u + 1, (v + 1) * nx + u + 1, (v + 1) * nx + u) for v in range(ny - 1) for u in range(nx - 1)]
+        me = bpy.data.meshes.new(f'pat{i}'); me.from_pydata(verts, [], faces); me.update()
+        o = common.link(bpy.data.objects.new(f'pattern_{i}', me))
+        o.data.materials.append(wardrobe.patterned_cloth(f'patcloth{i}', 'rough_linen', dye, band=band, border=border,
+                                                         border_color=pcol, field=field, field_color=pcol,
+                                                         border_repeat=6, field_repeat=(5, 9), width=0.14,
+                                                         tiles=(3, 3), grime=0.05, sheen=0.15))
+        wardrobe.set_uv(o, [((k % nx) / (nx - 1), 1 - (k // nx) / (ny - 1)) for k in range(len(verts))])
+        vg = o.vertex_groups.new(name='pin'); vg.add(list(range(nx)), 1.0, 'REPLACE')
+        cm = wardrobe._cloth(o, 'pin', mass=0.12, tension=40, bending=0.3); cm.settings.quality = 8
+        o.modifiers.new('thick', 'SOLIDIFY').thickness = 0.003
+        o.modifiers.new('smooth', 'SUBSURF').levels = 1
+        bpy.ops.mesh.primitive_cylinder_add(radius=0.01, depth=0.5, location=(x0, 0, z0 + 0.012), rotation=(0, 1.5708, 0))
+        bpy.context.object.data.materials.append(common.principled('pole', (0.18, 0.11, 0.06), rough=0.6))
+    wardrobe.simulate(40)
+    bpy.ops.mesh.primitive_plane_add(size=30); g = bpy.context.object
+    bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.uv.reset(); bpy.ops.object.mode_set(mode='OBJECT')
+    g.data.materials.append(wardrobe.scan_cloth('ground', 'coast_sand_rocks_02', (0.55, 0.49, 0.41), tiles=(15, 15), grime=0, sheen=0))
+    common.hdri_world('qwantani_sunset_puresky', strength=0.38, rotate_deg=140)
+    c = Vector((0, 0, 1.6))
+    common.sun_light('sun', 2.6, (1.0, 0.6, 0.34), 14, 215)
+    common.area_light('key', 120, (1.0, 0.8, 0.6), c + Vector((1.5, -3.0, 0.8)), c, 2.5)
+    common.area_light('rim', 200, (1.0, 0.6, 0.35), c + Vector((-1.5, 1.8, 0.4)), c, 1.0)
+    common.camera('cam', Vector((0.0, -4.4, 1.75)), Vector((0, 0, 1.68)), lens=40, fstop=11)
+    common.render_settings(res=(960, 540), samples=SAMPLES, path=OUT)
+    bpy.context.scene.view_settings.look = 'AgX - Medium High Contrast'
+
+
 if OUTFIT == 'swatches':
     swatches()
+
+elif OUTFIT == 'patterns':
+    pattern_sampler()
+
+elif OUTFIT == 'traveller':
+    # a traveller / rider: short chiton, chlamys pinned on the right shoulder with a fibula, petasos hat, sandals
+    human, rig, pos = W.make_person(W.SERVANT)
+    pose.blend_into_pose(rig, 'stand_open', start=1, end=15)
+    ch = wardrobe.chiton(human, rig, pos, linen('trav_linen', (0.52, 0.47, 0.37), band=MADDER, grime=0.25))
+    wardrobe._sim_freeze([ch], 45)
+    rig.animation_data_clear(); pose.apply_pose(rig, 'stand_open')
+    cl = wardrobe.chlamys(human, rig, wardrobe.patterned_cloth('chlamys_wool', 'caban', MADDER, band=(0.04, 0.03, 0.025),
+                                                               border='wave', border_color=SAFFRON, tiles=(4, 10), width=0.06,
+                                                               grime=0.2, sheen=0.15))
+    wardrobe.dress_pins(cl, rig, bronze, kind='fibula', per_side=1)
+    wardrobe.greek_hat(human, rig, wool('petasos_felt', (0.36, 0.28, 0.17), grime=0.2), kind='petasos')
+    wardrobe.sandals(human, rig, leather)
+    W.dusk_set(rig, SHOT, samples=SAMPLES, out=OUT)
+
+elif OUTFIT == 'woman_ionic':
+    # the Ionic look: long linen chiton (dotted, meander hem) + madder himation with a wave border, hair in a sakkos
+    human, rig, pos = W.make_person(W.WOMAN)
+    pose.blend_into_pose(rig, 'stand_open', start=1, end=15)
+    ch = wardrobe.chiton(human, rig, pos, wardrobe.patterned_cloth('ionic_linen', 'rough_linen', WHITE_LINEN, band=MADDER,
+                                                                   border='meander', border_color=(0.04, 0.03, 0.025),
+                                                                   field='dots', field_color=MADDER, field_repeat=(44, 22),
+                                                                   tiles=(7, 5), width=0.06, grime=0.08, sheen=0.15),
+                         length='ankle')
+    wardrobe._sim_freeze([ch], 45)
+    rig.animation_data_clear(); pose.apply_pose(rig, 'stand_open')
+    hm = wardrobe.himation(human, rig, pos, wardrobe.patterned_cloth('ionic_wool', 'caban', MADDER, band=(0.04, 0.03, 0.025),
+                                                                     border='wave', border_color=SAFFRON, edge=1,
+                                                                     tiles=(4, 12), width=0.05, grime=0.08, sheen=0.15),
+                           side='L', over=ch)
+    wardrobe._sim_freeze([hm], 60)
+    wardrobe.greek_hat(human, rig, wardrobe.patterned_cloth('sakkos_cloth', 'rough_linen', SAFFRON, field='crosses',
+                                                            field_color=MADDER, field_repeat=(8, 6), tiles=(3, 3), grime=0.05),
+                       kind='sakkos')
+    wardrobe.earrings(human, rig, gold); wardrobe.necklace(human, rig, gold); wardrobe.sandals(human, rig, leather)
+    W.dusk_set(rig, SHOT, samples=SAMPLES, out=OUT)
 
 elif OUTFIT in ('woman', 'woman_pins'):
     human, rig, pos = W.make_person(W.WOMAN)

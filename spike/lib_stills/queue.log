@@ -26,3 +26,34 @@
 22:31 QUEUE6 FINISHED
 22:59 hero_best: 
 22:59 BEST FINISHED
+23:13 mixamo2: MIXAMO DONE 25
+23:30 thermo3: THERMOPYLAE DONE
+23:30 QUEUE7 FINISHED
+23:32 riding_0: RIDING DONE
+23:34 card3_leonidas: ModuleNotFoundError: No module named 'PIL'
+23:36 riding_90: RIDING DONE
+23:38 riding_180: RIDING DONE
+23:43 card3_artemisia: CARD DONE C:/Users/User/timeless-compass/spike/cards3\artemisia_card.jpg
+23:43 animals: ANIMALS DONE
+23:43 LOCAL FINISHED
+23:50 card3_xerxes: CARD DONE C:/Users/User/timeless-compass/spike/cards3\xerxes_card.jpg
+00:00 card3_themistocles: CARD DONE C:/Users/User/timeless-compass/spike/cards3\themistocles_card.jpg
+00:00 QUEUE8 FINISHED
+00:01 animals: ANIMALS DONE
+00:01 QUEUE9 FINISHED
+00:04 phalanx: ModuleNotFoundError: No module named 'PIL'
+00:04 QUEUE10 FINISHED
+00:05 courtyard: TypeError: _box() takes 4 positional arguments but 5 were given
+00:05 QUEUE11 FINISHED
+00:10 lab2: LAB DONE
+00:13 aigaleos3: AIGALEOS DONE
+00:16 palace3: PALACE DONE
+00:16 QUEUE12 FINISHED
+00:17 thebes: TypeError: _box() takes 4 positional arguments but 5 were given
+00:21 salamis_v2g: SET DONE
+00:21 QUEUE13 FINISHED
+00:25 battle: ModuleNotFoundError: No module named 'PIL'
+00:27 card4_leonidas: ModuleNotFoundError: No module named 'PIL'
+00:33 card4_xerxes: CARD DONE C:/Users/User/timeless-compass/spike/cards4\xerxes_card.jpg
+00:37 fight: ModuleNotFoundError: No module named 'PIL'
+00:37 FIGHT FINISHED

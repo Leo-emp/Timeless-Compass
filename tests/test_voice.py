@@ -69,3 +69,21 @@ def test_build_ssml_unchanged_without_dialogue():
 def test_dialogue_offsets_sum_the_pieces_before_each_line():
     segs = [{"kind": "ssml"}, {"kind": "dialogue", "index": 3}, {"kind": "ssml"}, {"kind": "dialogue", "index": 7}]
     assert voice.dialogue_offsets(segs, [10.0, 2.5, 4.0, 1.0]) == {"3": 10.0, "7": 16.5}
+
+
+# ---------- owner 2026-11-19: character (Fish) lines stay RAW, only levelled; the narrator keeps his chain ----------
+def test_master_graph_keeps_dialogue_raw():
+    g = voice.master_graph(3, raw={1})
+    narr0, dlg, narr2 = g.split(";")[:3]
+    assert "acompressor" in narr0 and "acompressor" in narr2
+    assert "acompressor" not in dlg and "equalizer" not in dlg and "loudnorm=I=-14" in dlg
+    assert "concat=n=3" in g
+
+
+def test_master_with_raw_piece_keeps_length(tmp_path):
+    a, b = tmp_path / "a.wav", tmp_path / "b.wav"
+    for p, f in ((a, 220), (b, 330)):
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i", f"sine=frequency={f}:duration=2",
+                        "-af", "volume=-20dB", "-ar", "48000", str(p)], check=True)
+    info = voice.master([a, b], tmp_path / "v.wav", raw={1})
+    assert 3.9 <= info["duration_s"] <= 4.2 and -16 <= info["lufs"] <= -12
