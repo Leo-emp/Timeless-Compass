@@ -3036,7 +3036,7 @@ def dress_harbour(loc=(0, 0, 0), heading_deg=0.0, length=40.0, ships=2, seed=0, 
     root = _root(name)
     L = length
     # back buildings
-    _put(market.stoa((0, 0, 0), 0, columns=10, spacing=3.2, name=f'{name}_stoa'), root, (-L * 0.15, 15.0, 0), 180)
+    _put(market.stoa((0, 0, 0), 0, columns=10, spacing=3.2, name=f'{name}_stoa'), root, (-L * 0.15, 15.0, 0), 0)   # colonnade to the quay
     for k, x in enumerate((L * 0.22, L * 0.38)):          # open fronts face the quay: you see INTO the workshops
         _put(market.workshop_shed((0, 0, 0), 0, w=6.5, d=4.0, h=3.0, name=f'{name}_shed{k}'), root, (x, 12.0, 0), 0)
         _put(amphora_rack((0, 0, 0), 0, rows=2, per_row=6, seed=seed + 40 + k, name=f'{name}_shedrack{k}'), root, (x - 1.5, 11.0, 0), 0)
@@ -3155,18 +3155,19 @@ def persian_tent(loc=(0, 0, 0), heading_deg=0.0, r=2.2, h=2.8, colors=((0.34, 0.
             else:
                 rad_ = rad
             verts.append((rad_ * math.cos(a), rad_ * math.sin(a), z))
+    panel = []                                            # which colour each face gets: by COLUMN only (vertical panels)
     for j in range(rows):
         for i in range(seg):
             a_ = i / seg * 2 * math.pi
             if j < 3 and abs(((a_ + 0.15) % (2 * math.pi)) - math.pi / 2) < 0.22:
                 continue                                    # the open door
             a, b = j * seg + i, j * seg + (i + 1) % seg
-            faces.append((a, b, b + seg, a + seg))
+            faces.append((a, b, b + seg, a + seg)); panel.append((i // 2) % 2)
     me = bpy.data.meshes.new(name); me.from_pydata(verts, [], faces); me.update()
     m1 = wool(f'ptent_a_{colors[0]}', colors[0], tile=0.35); m2 = wool(f'ptent_b_{colors[1]}', colors[1], tile=0.35)
     me.materials.append(m1); me.materials.append(m2)
     for k, p_ in enumerate(me.polygons):
-        p_.material_index = (k % seg // 2) % 2           # alternating vertical panels (2 segments wide)
+        p_.material_index = panel[k]                     # alternating vertical panels (2 segments wide)
         p_.use_smooth = True
     body = bpy.data.objects.new(name + '_body', me); link(body); body.parent = root
     body.modifiers.new('thick', 'SOLIDIFY').thickness = 0.01
@@ -3220,8 +3221,8 @@ def dress_persian_camp(loc=(0, 0, 0), heading_deg=0.0, size=(40.0, 28.0), seed=0
         for i in range(6):
             for sgn in (-1, 1):
                 x = sgn * (5.5 + row * 5.0 + rnd.uniform(-0.6, 0.6)); y = D_ / 2 - 10 - i * 4.2 + rnd.uniform(-0.6, 0.6)
-                pal = rnd.choice((((0.34, 0.08, 0.06), (0.62, 0.5, 0.3)), ((0.1, 0.12, 0.26), (0.6, 0.52, 0.36)),
-                                  ((0.45, 0.32, 0.12), (0.22, 0.12, 0.08)), ((0.5, 0.42, 0.3), (0.3, 0.07, 0.05))))
+                pal = rnd.choice((((0.24, 0.06, 0.045), (0.46, 0.37, 0.24)), ((0.08, 0.09, 0.19), (0.44, 0.38, 0.27)),
+                                  ((0.33, 0.23, 0.1), (0.17, 0.1, 0.07)), ((0.38, 0.31, 0.22), (0.22, 0.06, 0.045))))   # madder, indigo, ochre, undyed
                 t_ = persian_tent((0, 0, 0), r=rnd.uniform(1.9, 2.5), h=rnd.uniform(2.6, 3.2), colors=pal, seed=seed + k,
                                   name=f'{name}_tent{k}')
                 _put(t_, root, (x, y, 0), (90 if sgn < 0 else -90) + rnd.uniform(-15, 15))   # doors face the camp street
@@ -3255,9 +3256,9 @@ def dress_persian_camp(loc=(0, 0, 0), heading_deg=0.0, size=(40.0, 28.0), seed=0
             h.parent = root
         except Exception as ex:
             print('WARNING persian camp: no horse', ex)
-    for i in range(30):
+    for i in range(30):                                  # people stay in the camp street + by the fires (never inside a tent)
         m = bpy.data.objects.new(f'{name}_soldier{i:02d}', None); link(m); m.parent = root
-        m.location = (rnd.uniform(-W_ / 2 + 2, W_ / 2 - 2), rnd.uniform(-D_ / 2 + 2, D_ / 2 - 8), 0)
+        m.location = (rnd.uniform(-3.0, 3.0), rnd.uniform(-D_ / 2 + 2, D_ / 2 - 8), 0)
         m['role'] = rnd.choice(('immortal', 'archer', 'cook', 'groom', 'servant', 'scribe')); m.empty_display_size = 0.3
     return _place(root, loc, heading_deg)
 
