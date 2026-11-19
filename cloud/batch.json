@@ -1,15 +1,14 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "d-verify-7",
+  "batch": "b5-people",
   "run": [
-    "d_traveller",
-    "d_woman_pins",
-    "d_woman_veil",
-    "d_woman_ionic",
-    "d_country_floor",
-    "d_dress_village",
-    "d_crowd_farmer",
-    "d_crowd_fisher",
-    "d_crowd_villager"
+    "card_xerxes",
+    "card_leonidas",
+    "card_eurybiades",
+    "card_themistocles",
+    "card_ameinias",
+    "card_aristonice",
+    "card_old_steward",
+    "card_artemisia"
   ]
 }

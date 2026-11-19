@@ -96,7 +96,7 @@ def aged_bronze(name='aged_bronze'):
     ao = nt.nodes.new('ShaderNodeAmbientOcclusion'); ao.inputs['Distance'].default_value = 0.02
     noise = nt.nodes.new('ShaderNodeTexNoise'); noise.inputs['Scale'].default_value = 25; noise.inputs['Detail'].default_value = 10
     ramp = nt.nodes.new('ShaderNodeValToRGB')                       # bronze tones: dark worn -> bright edges
-    ramp.color_ramp.elements[0].color = (0.45, 0.25, 0.09, 1); ramp.color_ramp.elements[1].color = (0.92, 0.62, 0.30, 1)
+    ramp.color_ramp.elements[0].color = (0.30, 0.17, 0.065, 1); ramp.color_ramp.elements[1].color = (0.70, 0.46, 0.22, 1)   # worn, not new gold
     L(noise.outputs['Fac'], ramp.inputs['Fac'])
     mix = nt.nodes.new('ShaderNodeMix'); mix.data_type = 'RGBA'       # patina where AO is dark
     mix.inputs['B'].default_value = (0.16, 0.30, 0.24, 1)
@@ -104,10 +104,10 @@ def aged_bronze(name='aged_bronze'):
     one = nt.nodes.new('ShaderNodeMath'); one.operation = 'SUBTRACT'; one.inputs[0].default_value = 1.0
     L(ao.outputs['AO'], inv.inputs[0]); L(inv.outputs[0], one.inputs[1]); L(one.outputs[0], mix.inputs['Factor'])
     L(ramp.outputs['Color'], mix.inputs['A']); L(mix.outputs['Result'], b.inputs['Base Color'])
-    rough = nt.nodes.new('ShaderNodeMapRange'); rough.inputs['To Min'].default_value = 0.16; rough.inputs['To Max'].default_value = 0.42
+    rough = nt.nodes.new('ShaderNodeMapRange'); rough.inputs['To Min'].default_value = 0.3; rough.inputs['To Max'].default_value = 0.58
     L(noise.outputs['Fac'], rough.inputs['Value']); L(rough.outputs['Result'], b.inputs['Roughness'])
-    hammer = nt.nodes.new('ShaderNodeTexVoronoi'); hammer.inputs['Scale'].default_value = 180
-    bp = nt.nodes.new('ShaderNodeBump'); bp.inputs['Strength'].default_value = 0.12
+    hammer = nt.nodes.new('ShaderNodeTexVoronoi'); hammer.inputs['Scale'].default_value = 70     # visible hammer facets
+    bp = nt.nodes.new('ShaderNodeBump'); bp.inputs['Strength'].default_value = 0.22
     L(hammer.outputs['Distance'], bp.inputs['Height']); L(bp.outputs['Normal'], b.inputs['Normal'])
     return m
 

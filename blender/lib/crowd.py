@@ -43,6 +43,8 @@ def arm_hoplite(p, human, rig, chiton):
     seed = p.get('seed', abs(hash(p.get('name', 'hoplite'))) % 1000)
     if helm.get('crest', 'none') != 'none':
         shell, _crest = armour.corinthian_helmet(human, rig, bronze, crest_color=CREST.get(helm['crest'], CREST['red']))
+        if helm.get('worn') == 'up':                   # pushed up on the crown (vase paintings): the face shows
+            armour.helmet_up(rig, [shell, _crest])
         hair = [o for o in bpy.data.objects if o.type == 'CURVES' and o.parent is rig and o.parent_bone == 'head'
                 and not o.name.startswith(('crest', 'beard', 'brow'))]
         armour.tuck_hair_under(shell, hair)            # no hair poking out through the bronze

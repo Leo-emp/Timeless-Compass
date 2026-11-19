@@ -1146,6 +1146,21 @@ def persian_cap(human, rig, felt, band=None, kind='royal', height=None, lift=0.0
         cap = _loft('persian_' + kind, rings, felt, cap_top=True)
         s = cap.modifiers.new('thick', 'SOLIDIFY'); s.thickness = 0.004; s.offset = 1.0
         parts.append(cap)
+        if kind == 'royal' and band is not None:                      # CRENELLATED gold rim at the top (Darius'
+            top = rings[-1]; tc_ = top.mean(axis=0)                   # crown, Behistun relief): a band + merlons
+            t0 = tc_ + (top - tc_) * 1.01; t0[:, 2] = top[0, 2] - 0.022
+            t1 = tc_ + (top - tc_) * 1.012; t1[:, 2] = top[0, 2] + 0.001
+            tb = _loft('crown_rim', [t0, t1], band); tb.modifiers.new('thick', 'SOLIDIFY').thickness = 0.002
+            parts.append(tb)
+            nm = 20
+            for j in range(nm):                                      # stepped merlons standing above the rim
+                i = int(j * len(top) / nm)
+                pt = tc_ + (top[i] - tc_) * 1.01
+                out = Vector((float(pt[0] - tc_[0]), float(pt[1] - tc_[1]), 0.0)).normalized()
+                bpy.ops.mesh.primitive_cube_add(size=1, location=(float(pt[0]), float(pt[1]), float(top[0, 2]) + 0.009))
+                mer = bpy.context.object; mer.name = f'crown_merlon_{j}'
+                mer.scale = (0.012, 0.003, 0.018); mer.rotation_euler.z = math.atan2(out.y, out.x) + math.pi / 2
+                mer.data.materials.append(band); parts.append(mer)
         if band is not None:                                          # gold band with rosettes at the base
             b0 = c + (base - c) * 1.03; b0[:, 2] = zb
             b1 = c + (base - c) * 1.035; b1[:, 2] = zb + 0.03

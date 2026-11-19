@@ -528,3 +528,15 @@ def tuck_hair_under(helm, hair_objects, margin=0.004):
                     rad.data[start + k].value = 0.0
                 hidden += 1
         print(f'tuck_hair_under: {hidden} strands of {h.name} end inside the helmet')
+
+
+def helmet_up(rig, parts, angle_deg=-38.0, lift=0.075):
+    """Wear the Corinthian helmet PUSHED UP on top of the head, face open - how Greek vase painters show hoplites
+    off the battle line, talking, resting, pouring libations. Tilts the shell back about a pivot behind the crown."""
+    from mathutils import Matrix
+    hb = bone_head(rig, 'head')
+    pivot = Vector((hb.x, hb.y + 0.07, hb.z + 0.13))
+    M = Matrix.Translation(pivot + Vector((0, 0.01, lift))) @ Matrix.Rotation(math.radians(angle_deg), 4, 'X') @ Matrix.Translation(-pivot)
+    for o in parts:
+        o.matrix_world = M @ o.matrix_world
+    bpy.context.view_layer.update()

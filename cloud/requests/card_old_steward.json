@@ -1,0 +1,10 @@
+{
+  "name": "card_old_steward",
+  "active": true,
+  "script": "blender/scenes/cast_card.py",
+  "args": [
+    "old_steward",
+    "out/cards",
+    "24"
+  ]
+}

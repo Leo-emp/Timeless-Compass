@@ -580,8 +580,14 @@ def grow(name, roots, normals, lengths, rng, pts=8, flow=(0, 0, -1), flow_amt=0.
     gi = near = None
     if clumps and clump_amt:                                  # which lock (guide strand) every strand belongs to
         gi = rng.choice(n, size=min(clumps, n), replace=False)
-        d2 = ((roots[:, None, :] - roots[gi][None, :, :]) ** 2).sum(-1)
-        near = d2.argmin(axis=1)
+        # nearest guide per strand, in chunks (49k roots x 1.2k guides at once = 1.35 GB -> MemoryError, Session F)
+        g = roots[gi].astype(np.float32)
+        gg = (g * g).sum(1)
+        near = np.empty(n, dtype=np.int64)
+        for a0 in range(0, n, 4096):
+            r = roots[a0:a0 + 4096].astype(np.float32)
+            d2 = (r * r).sum(1)[:, None] - 2.0 * (r @ g.T) + gg[None, :]
+            near[a0:a0 + 4096] = d2.argmin(axis=1)
     phase = rng.random(n) * 2 * math.pi
     if lock_curls and near is not None:                       # a lock spirals TOGETHER: shared phase + tiny jitter
         lock_phase = rng.random(len(gi)) * 2 * math.pi
