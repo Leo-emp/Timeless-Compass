@@ -16,9 +16,12 @@ OUT = os.path.abspath(argv[0]) if argv else os.path.abspath('modern_people')
 SAMPLES = int(argv[1]) if len(argv) > 1 else 32
 CLIPS = len(argv) > 2 and argv[2] == '1'
 ENGINE = argv[3] if len(argv) > 3 else 'CYCLES'
+ONLY = [int(i) for i in argv[4].split(',')] if len(argv) > 4 else None   # e.g. 0,2,4 = only those people
 
-LINEUP = [('scientist', 'usa_1945', 11), ('general', 'usa_1945', 4), ('soldier', 'usa_1945', 2), ('agent', 'usa_1960', 5),
+LINEUP = [('scientist', 'usa_1945', 1), ('general', 'usa_1945', 4), ('soldier', 'usa_1945', 2), ('agent', 'usa_1960', 5),
           ('test_subject', 'usa_1960', 3), ('soldier', 'ussr_1960', 2), ('general', 'ussr_1960', 6), ('worker', 'ussr_1960', 1)]
+if ONLY:
+    LINEUP = [LINEUP[i] for i in ONLY]
 common.reset_scene()
 people = []
 for role, era, seed in LINEUP:
@@ -27,7 +30,7 @@ for role, era, seed in LINEUP:
         p['overlays'] = ['lab_coat']                     # the test must show the coat
     people.append(p)
     print('PERSON', role, era, p.get('overlays'), [c[0] for c in p['mpfb_clothes']], flush=True)
-marks = [(-4.2 + i * 1.2, 0.0, 0.0) for i in range(len(people))]
+marks = [(-4.2 + i * 1.2, 0.0, 0.0) for i in range(len(people))]   # first person always at x=-4.2 (close-up camera)
 modern_dress.modern_crowd(people, marks, frames=24, face_toward=None, clip=CLIPS)
 for r in [o for o in bpy.data.objects if o.name.startswith('modern_')]:
     r.rotation_euler.z = 0.0                             # everyone faces the camera (-Y)

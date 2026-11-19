@@ -119,60 +119,84 @@ def _ring(cx, cy, rx, ry, z, n=48, ex=2.6):
     return pts
 
 
-def _coat(human, rig, m, name, mat, sleeve='wrist', hem='knee', offset=0.024, flare=0.22):
-    """Upper part: the body surface between hip and neck (and the arms down to `sleeve`) pushed out by `offset`.
-    Lower part: a skirt lofted from just above the hip to the hem, each ring fitted around BOTH legs at its height
-    (and never narrower than the ring above: cloth hangs, it doesn't hug the thighs)."""
+def _apply_all(o):
+    with bpy.context.temp_override(object=o, active_object=o, selected_objects=[o]):
+        for md in list(o.modifiers):
+            bpy.ops.object.modifier_apply(modifier=md.name)
+
+
+def _coat(human, rig, m, name, mat, sleeve='wrist', hem='knee', offset=0.024, flare=0.22, vneck=False):
+    """Returns (upper, skirt).
+    upper: the body surface between hip and neck (+ the arms down to `sleeve`) pushed out by `offset`, thickened,
+           VOXEL-REMESHED into one clean shell (closes the source mesh's slits, even topology) and relaxed so the
+           cotton drapes over the body instead of hugging every muscle. vneck=True opens the front in a V from the
+           collar to the top button and adds two lapels (a lab coat shows the shirt + tie).
+    skirt: a separate loft from just above the hip to the hem, each ring fitted around BOTH legs (never narrower
+           than the ring above: cloth hangs, it does not hug the thighs). Kept as a thin lofted sheet - a voxel
+           remesh coarser than the sheet would shred it."""
+    import bmesh
     pos, nor, tris, g = m['pos'], m['nor'], m['tris'], m['groups']
     hip, neck = m['hip_z'], m['neck_z']
     keep = (g['head'] < 0.3) & (g['hand'] < 0.3) & (g['leg'] < 0.5) & (pos[:, 2] > hip - 0.02) & (pos[:, 2] < neck + 0.01)
     if sleeve == 'short':                                             # short sleeves: drop everything below the elbow
         elbow = _bone_z(rig, 'lowerarm01.L') or (neck - 0.3)
         keep &= ~((g['arm'] > 0.5) & (pos[:, 2] < elbow + 0.04))
-    sel = keep[tris].all(axis=1)
-    ft = tris[sel]
+    ft = tris[keep[tris].all(axis=1)]
     used = np.unique(ft)
     remap = -np.ones(len(pos), dtype=np.int64); remap[used] = np.arange(len(used))
-    verts = (pos[used] + nor[used] * offset).tolist()
-    faces = remap[ft].tolist()
+    up = mesh_obj(name, (pos[used] + nor[used] * offset).tolist(), remap[ft].tolist(), mat)
+    so = up.modifiers.new('thickness', 'SOLIDIFY'); so.thickness = 0.014; so.offset = 0.0
+    rm = up.modifiers.new('remesh', 'REMESH'); rm.mode = 'VOXEL'; rm.voxel_size = 0.007; rm.use_smooth_shade = True
+    sm = up.modifiers.new('drape', 'SMOOTH'); sm.factor = 0.8; sm.iterations = 30
+    _apply_all(up)
+    torso = pos[(g['arm'] < 0.3) & (g['hand'] < 0.3) & (np.abs(pos[:, 0]) < 0.04) & (pos[:, 2] > hip) & (pos[:, 2] < neck)]
+    front_y = float(torso[:, 1].min()) - offset
+    if vneck:                                                         # open V + lapels
+        zb = neck - 0.27                                              # top button height
+        bm = bmesh.new(); bm.from_mesh(up.data)
+        kill = []
+        for f in bm.faces:
+            c = f.calc_center_median()
+            if c.z > zb and c.y < front_y + 0.06 and abs(c.x) < 0.085 * (c.z - zb) / (neck - zb) + 0.004:
+                kill.append(f)
+        bmesh.ops.delete(bm, geom=kill, context='FACES'); bm.to_mesh(up.data); bm.free()
+        lapels = []
+        for sx in (-1, 1):                                            # lapel: folded-back flap along each V edge
+            pts = [(sx * 0.004, front_y - 0.006, zb), (sx * 0.09, front_y + 0.01, neck + 0.005),
+                   (sx * 0.15, front_y + 0.03, neck - 0.07), (sx * 0.06, front_y - 0.008, zb + 0.02)]
+            lp = mesh_obj(f'{name}_lapel{sx}', pts, [[0, 1, 2, 3] if sx > 0 else [3, 2, 1, 0]], mat)
+            lp.modifiers.new('t', 'SOLIDIFY').thickness = 0.004; _apply_all(lp); lapels.append(lp)
+        with bpy.context.temp_override(active_object=up, selected_editable_objects=[up] + lapels, selected_objects=[up] + lapels):
+            bpy.ops.object.join()                                     # one garment object
     # skirt
     hem_z = {'knee': m['knee_z'] - 0.04, 'shin': m['knee_z'] - 0.14}.get(hem, m['knee_z'] + 0.12)
     body_only = (g['arm'] < 0.3) & (g['hand'] < 0.3)
     rings, prev = [], None
-    zs = np.linspace(hip + 0.03, hem_z, 12)
+    zs = np.linspace(hip + 0.05, hem_z, 14)
     for i, z in enumerate(zs):
         band = pos[body_only & (np.abs(pos[:, 2] - z) < 0.025)]
         if len(band) < 8:
             band = pos[body_only & (np.abs(pos[:, 2] - z) < 0.06)]
         t = i / (len(zs) - 1)
         cx, cy = float(band[:, 0].mean()), float(band[:, 1].mean())
-        rx = float(np.ptp(band[:, 0])) / 2 + offset + 0.012 + flare * 0.25 * t
-        ry = float(np.ptp(band[:, 1])) / 2 + offset + 0.02 + flare * 0.18 * t
+        rx = float(np.ptp(band[:, 0])) / 2 + offset + 0.018 + flare * 0.25 * t
+        ry = float(np.ptp(band[:, 1])) / 2 + offset + 0.025 + flare * 0.18 * t
         if prev:                                                      # hanging cloth: never pulls in below the hips
             rx, ry = max(rx, prev[2]), max(ry, prev[3])
-        prev = (cx, cy, rx, ry); rings.append(_ring(cx, cy, rx, ry, float(z)))
-    base = len(verts); n = len(rings[0])
-    for r in rings:
-        verts += [list(p) for p in r]
+        prev = (cx, cy, rx, ry)
+        rings.append(_ring(cx, cy, rx, ry, float(z), n=64))
+    n = len(rings[0]); verts = [q for r in rings for q in r]; faces = []
     for i in range(len(rings) - 1):
         for k in range(n):
-            a, b = base + i * n + k, base + i * n + (k + 1) % n
-            faces.append([a, b, b + n, a + n])
-    o = mesh_obj(name, verts, faces, mat)
-    for f in o.data.polygons:
+            a2, b2 = i * n + k, i * n + (k + 1) % n
+            faces.append([a2, b2, b2 + n, a2 + n])
+    sk = mesh_obj(name + '_skirt', verts, faces, mat)
+    for f in sk.data.polygons:
         f.use_smooth = True
-    # cotton drapes over the body, it doesn't shrink-wrap every muscle: relax the surface (Laplacian-ish smooth,
-    # stronger on the torso than at the edges) so the coat reads as one smooth garment, not a quilted shell
-    # one clean garment shell: thicken the open surface, VOXEL-REMESH it (closes the source mesh's slits and gives
-    # even topology), then relax it so the cotton drapes over the body instead of hugging every muscle/breast;
-    # baked (applied) before the bone weights are copied
-    so = o.modifiers.new('thickness', 'SOLIDIFY'); so.thickness = 0.008; so.offset = 0.0
-    rm = o.modifiers.new('remesh', 'REMESH'); rm.mode = 'VOXEL'; rm.voxel_size = 0.009; rm.use_smooth_shade = True
-    sm = o.modifiers.new('drape', 'SMOOTH'); sm.factor = 0.8; sm.iterations = 25
-    with bpy.context.temp_override(object=o, active_object=o, selected_objects=[o]):
-        for md in list(o.modifiers):
-            bpy.ops.object.modifier_apply(modifier=md.name)
-    return o
+    sk.modifiers.new('t', 'SOLIDIFY').thickness = 0.004
+    sub = sk.modifiers.new('s', 'SUBSURF'); sub.levels = 1; sub.render_levels = 1
+    _apply_all(sk)
+    return up, sk
 
 
 def _placket(coat_m, m, name, mat_btn, n=5, sleeve_top=None):
@@ -181,7 +205,7 @@ def _placket(coat_m, m, name, mat_btn, n=5, sleeve_top=None):
     front_y = float(pos[(g['arm'] < 0.3) & (np.abs(pos[:, 0]) < 0.03) & (pos[:, 2] > m['hip_z']) & (pos[:, 2] < m['neck_z'] - 0.08), 1].min())
     parts = []
     for k in range(n):
-        z = m['neck_z'] - 0.14 - k * (m['neck_z'] - m['hip_z'] - 0.05) / max(n - 1, 1) * 1.05
+        z = m['neck_z'] - 0.29 - k * 0.11
         yb = float(pos[(np.abs(pos[:, 0]) < 0.04) & (np.abs(pos[:, 2] - z) < 0.02) & (g['arm'] < 0.3), 1].min()) - 0.03 \
             if ((np.abs(pos[:, 0]) < 0.04) & (np.abs(pos[:, 2] - z) < 0.02)).any() else front_y - 0.03
         bpy.ops.mesh.primitive_cylinder_add(vertices=12, radius=0.007, depth=0.004, location=(0.012, yb, z), rotation=(math.pi / 2, 0, 0))
@@ -248,19 +272,19 @@ def lab_coat(human, rig, m, seed=0):
     """Knee-length white lab coat (slightly warm white: cotton is never pure #fff, and pure white blows out)."""
     rnd = random.Random(seed)
     white = cotton(f'labcoat_{seed}', (0.78 + rnd.uniform(-0.03, 0.02), 0.77, 0.73 + rnd.uniform(-0.02, 0.02)), grime=0.18)
-    o = _coat(human, rig, m, f'labcoat_{seed}', white, sleeve='wrist', hem='knee', offset=0.034, flare=0.2)
+    o, sk = _coat(human, rig, m, f'labcoat_{seed}', white, sleeve='wrist', hem='knee', offset=0.026, flare=0.2, vneck=True)
     btn = bpy.data.materials.get('coat_button') or principled('coat_button', (0.6, 0.6, 0.58), rough=0.3)
-    parts = [o] + _placket(o, m, f'labcoat_{seed}', btn)
-    for p in parts:
-        bind(p, human, rig) if p is o else cast.parent_to_bone(p, rig, 'spine03')
+    for b in _placket(o, m, f'labcoat_{seed}', btn, n=4):
+        cast.parent_to_bone(b, rig, 'spine03')
+    bind(o, human, rig); bind(sk, human, rig)
     return o
 
 
 def hospital_gown(human, rig, m, seed=0):
     """Pale washed blue-grey gown with a tiny print, short sleeves, to the knee."""
     mat = cotton(f'gown_{seed}', (0.48, 0.55, 0.6), print_color=(0.3, 0.36, 0.45), grime=0.12)
-    o = _coat(human, rig, m, f'gown_{seed}', mat, sleeve='short', hem='shin', offset=0.03, flare=0.28)
-    bind(o, human, rig)
+    o, sk = _coat(human, rig, m, f'gown_{seed}', mat, sleeve='short', hem='shin', offset=0.024, flare=0.28)
+    bind(o, human, rig); bind(sk, human, rig)
     return o
 
 
@@ -323,12 +347,12 @@ def _peaked(name, m, crown_m, band_m, visor_m, badge_m, soviet=False):
 
 def _side_cap(name, m, mat, tilt_deg=8.0):
     """Garrison cap / pilotka: a folded boat shape along the head (front to back), sitting tilted to the right."""
-    cx, cy, rx, ry = _head_fit(m); z0 = m['top'] - 0.045
+    cx, cy, rx, ry = _head_fit(m); z0 = m['top'] - 0.035
     secs = []
     for t in np.linspace(-1, 1, 14):                                  # along the head, front (-1) to back (+1)
         y = cy + t * ry * 1.05
-        half = rx * 0.82 * math.sqrt(max(0.05, 1 - (t * 0.85) ** 2))
-        hgt = 0.06 * (0.75 + 0.25 * (1 - abs(t)))
+        half = rx * 0.95 * math.sqrt(max(0.05, 1 - (t * 0.8) ** 2))
+        hgt = 0.075 * (0.75 + 0.25 * (1 - abs(t)))
         secs.append([(cx - half, y, z0), (cx - half * 0.45, y, z0 + hgt * 0.95), (cx, y, z0 + hgt),
                      (cx + half * 0.45, y, z0 + hgt * 0.95), (cx + half, y, z0)])
     verts = [p for s in secs for p in s]; faces = []

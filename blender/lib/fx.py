@@ -417,3 +417,214 @@ def hoof_dust(movers, frames=(1, 240), width_pad=4.0, length=14.0, height=3.5, d
         st.particle_size = 0.9; st.size_random = 0.6
         out.append(em)
     return out
+
+
+# =====================================================================================================================
+# WS17 (Session F): the big moments of the secret-project films - an ATOMIC TEST and a ROCKET LAUNCH. New functions
+# only; they reuse smoke_column / flames / fire_light above.
+# Sources for the look + timing: Trinity test film (16 July 1945, 05:29:45, Alamogordo; LANL / National Archives
+# RG 434), Operation Crossroads + Upshot-Knothole Lookout Mountain films, S. Glasstone, "The Effects of Nuclear
+# Weapons" (1962) ch. II (fireball growth, rise, toroidal circulation, stem of drawn-up dust, base surge);
+# Mercury-Redstone and Vostok launch films (NASA, Roscosmos archive).
+# =====================================================================================================================
+def _math(nt, op, a, b=None, c=None):
+    """One Math node: a OP b (OP c) - each a float or an output socket. Returns the output socket."""
+    n = nt.nodes.new('ShaderNodeMath'); n.operation = op
+    for i, x in enumerate((a, b, c)):
+        if x is None:
+            continue
+        if isinstance(x, (int, float)):
+            n.inputs[i].default_value = float(x)
+        else:
+            nt.links.new(x, n.inputs[i])
+    return n.outputs[0]
+
+
+def _len2(nt, x, y):
+    return _math(nt, 'SQRT', _math(nt, 'ADD', _math(nt, 'MULTIPLY', x, x), _math(nt, 'MULTIPLY', y, y)))
+
+
+def _shape_volume(name, shape, density, color, frames, emission=0.0, temp=3000.0, noise_scale=2.2, churn=0.35,
+                  anisotropy=0.2):
+    """Volume material whose DENSITY is a shape inside its cube domain (Generated coords, so it keeps its shape while
+    the object is scaled / moved by keyframes) times churning 4D noise:
+      'sphere' - fireball            'cap' - mushroom cap: flattened dome + a fat rolling torus rim under it
+      'column' - stem, wider at top  'ring' - base surge: a low ring of dust rolling outward along the ground
+    Returns (material, principled volume node, blackbody node or None) so callers can keyframe colour/heat."""
+    m = bpy.data.materials.new(name); m.use_fake_user = True
+    nt = m.node_tree; nt.nodes.remove(nt.nodes['Principled BSDF']); L = nt.links.new
+    v = nt.nodes.new('ShaderNodeVolumePrincipled'); v.inputs['Color'].default_value = (*color, 1)
+    v.inputs['Anisotropy'].default_value = anisotropy
+    tc = nt.nodes.new('ShaderNodeTexCoord')
+    sep = nt.nodes.new('ShaderNodeSeparateXYZ'); L(tc.outputs['Generated'], sep.inputs['Vector'])
+    px, py, pz = [_math(nt, 'MULTIPLY_ADD', sep.outputs[a], 2.0, -1.0) for a in ('X', 'Y', 'Z')]   # -1..1 in the box
+    rxy = _len2(nt, px, py)
+    if shape == 'sphere':
+        d = _math(nt, 'SUBTRACT', 1.0, _len2(nt, rxy, pz))
+    elif shape == 'cap':
+        ell = _math(nt, 'SUBTRACT', 1.0, _len2(nt, rxy, _math(nt, 'DIVIDE', _math(nt, 'SUBTRACT', pz, 0.15), 0.6)))
+        tor = _math(nt, 'SUBTRACT', 0.38, _len2(nt, _math(nt, 'SUBTRACT', rxy, 0.62), _math(nt, 'DIVIDE', _math(nt, 'ADD', pz, 0.25), 0.75)))
+        d = _math(nt, 'MAXIMUM', ell, _math(nt, 'MULTIPLY', tor, 2.2))
+    elif shape == 'column':                                           # r < 0.45 + 0.25*z (flares toward the cap)
+        d = _math(nt, 'SUBTRACT', _math(nt, 'MULTIPLY_ADD', pz, 0.25, 0.6), rxy)
+        d = _math(nt, 'MULTIPLY', d, 1.6)
+    else:                                                             # 'ring'
+        d = _math(nt, 'SUBTRACT', 0.32, _len2(nt, _math(nt, 'SUBTRACT', rxy, 0.68), _math(nt, 'DIVIDE', _math(nt, 'ADD', pz, 0.7), 0.35)))
+        d = _math(nt, 'MULTIPLY', d, 3.0)
+    d = _math(nt, 'MAXIMUM', d, 0.0)
+    soft = _math(nt, 'MINIMUM', _math(nt, 'MULTIPLY', d, 3.0), 1.0)  # soft edge -> solid core
+    # churning 4D noise (billows roll + evolve over the shot)
+    noise = nt.nodes.new('ShaderNodeTexNoise'); noise.noise_dimensions = '4D'
+    noise.inputs['Scale'].default_value = noise_scale; noise.inputs['Detail'].default_value = 9; noise.inputs['Roughness'].default_value = 0.62
+    L(tc.outputs['Object'], noise.inputs['Vector'])
+    noise.inputs['W'].default_value = 0.0; noise.inputs['W'].keyframe_insert('default_value', frame=frames[0])
+    noise.inputs['W'].default_value = (frames[1] - frames[0]) / 24 * churn; noise.inputs['W'].keyframe_insert('default_value', frame=frames[1])
+    puffs = nt.nodes.new('ShaderNodeMapRange'); puffs.inputs['From Min'].default_value = 0.38; puffs.inputs['From Max'].default_value = 0.68
+    puffs.inputs['To Min'].default_value = 0.15; L(noise.outputs['Fac'], puffs.inputs['Value'])
+    dens = _math(nt, 'MULTIPLY', _math(nt, 'MULTIPLY', soft, puffs.outputs['Result']), density)
+    L(dens, v.inputs['Density'])
+    bb = None
+    if emission:
+        bb = nt.nodes.new('ShaderNodeBlackbody'); bb.inputs['Temperature'].default_value = temp
+        L(bb.outputs['Color'], v.inputs['Emission Color'])
+        # the hot CORE glows most: emission ~ soft^2 * noise
+        L(_math(nt, 'MULTIPLY', _math(nt, 'MULTIPLY', soft, soft), puffs.outputs['Result']), v.inputs['Emission Strength'])
+        v.inputs['Emission Strength'].default_value = emission
+    L(v.outputs[0], nt.nodes['Material Output'].inputs['Volume'])
+    return m, v, bb
+
+
+def _domain(name, loc, size, mat):
+    bpy.ops.mesh.primitive_cube_add(size=1, location=loc)
+    o = bpy.context.object; o.name = name; o.scale = size
+    o.data.materials.append(mat)
+    return o
+
+
+def _key(o, frame, loc=None, scale=None, interp=None):
+    if loc is not None:
+        o.location = loc; o.keyframe_insert('location', frame=frame)
+    if scale is not None:
+        o.scale = scale; o.keyframe_insert('scale', frame=frame)
+
+
+def _key_emission(node_in, frame, value):
+    node_in.default_value = value; node_in.keyframe_insert('default_value', frame=frame)
+
+
+def atomic_test(loc=(0.0, 0.0, 0.0), radius=150.0, frame=24, frames=(1, 480), name='trinity', dawn=True):
+    """A ~20 kt tower shot seen from the observation bunkers (Trinity, 1945), TIME-COMPRESSED for film (~16 s from
+    flash to a fully formed mushroom; the real cloud took ~8 min to reach ~11 km). `radius` = largest fireball radius
+    in metres (Trinity ~ 150-200 m); every other size follows Glasstone's proportions.
+      0   flash        - a white-hot sphere + a light brighter than the sun (lights the whole desert, 3 frames)
+      0-8 fireball     - grows to `radius` in a fraction of a second, ~7000 K -> orange, starts to rise
+      ~2s rise         - the fireball lifts off the ground and turns over into a TORUS (rolling ring of fire + smoke)
+      2s+ stem         - dust and debris are sucked up under it in a column
+      ~5s+ cap         - the torus cools into the dark brown-red, then grey-white mushroom cap, still rising
+      0-16s base surge - a low ring of desert dust races outward along the ground
+    Returns the root empty (everything parented). Call fx.explosion() too if you want debris at ground zero."""
+    R = radius; f0 = frame
+    root = bpy.data.objects.new(name, None); bpy.context.scene.collection.objects.link(root); root.location = loc
+    # 1) FLASH: light + white-hot core
+    bpy.ops.object.light_add(type='POINT', location=(0, 0, R * 0.6)); fl = bpy.context.object; fl.name = name + '_flash'; fl.parent = root
+    fl.data.color = (1.0, 0.93, 0.82); fl.data.shadow_soft_size = R * 0.5
+    for f, e in ((f0 - 1, 0.0), (f0, 9e11), (f0 + 2, 6e11), (f0 + 6, 1.5e11), (f0 + 24, 4e10), (f0 + 72, 1.2e10), (f0 + 160, 2e9), (f0 + 260, 0.0)):
+        fl.data.energy = e; fl.data.keyframe_insert('energy', frame=f)
+    for f, z in ((f0, R * 0.6), (f0 + 48, R * 2.0), (f0 + 160, R * 6.0)):     # the light rises with the fireball
+        _key(fl, f, loc=(0, 0, z))
+    # 2) FIREBALL: emissive sphere, grows, rises, cools (temperature + emission keyframed)
+    fm, fv, fbb = _shape_volume(name + '_fireball_mat', 'sphere', 0.08, (0.9, 0.55, 0.3), frames, emission=60.0, temp=7000,
+                                noise_scale=2.6, churn=0.6)
+    fb = _domain(name + '_fireball', (0, 0, R * 0.6), (0.01, 0.01, 0.01), fm); fb.parent = root
+    _key(fb, f0 - 1, scale=(0.01, 0.01, 0.01))
+    _key(fb, f0, loc=(0, 0, R * 0.5), scale=(R * 0.5, R * 0.5, R * 0.5))
+    _key(fb, f0 + 8, loc=(0, 0, R * 0.9), scale=(R * 2.0, R * 2.0, R * 1.9))
+    _key(fb, f0 + 48, loc=(0, 0, R * 2.4), scale=(R * 2.5, R * 2.5, R * 2.2))
+    _key(fb, f0 + 110, loc=(0, 0, R * 5.0), scale=(R * 3.0, R * 3.0, R * 2.0))
+    _key(fb, f0 + 170, loc=(0, 0, R * 7.0), scale=(R * 1.0, R * 1.0, R * 0.7))     # absorbed into the cap
+    _key(fb, f0 + 200, scale=(0.01, 0.01, 0.01))
+    for f, t in ((f0, 7500), (f0 + 6, 5500), (f0 + 24, 3200), (f0 + 72, 2200), (f0 + 140, 1500)):
+        _key_emission(fbb.inputs['Temperature'], f, t)
+    for f, e in ((f0, 400.0), (f0 + 8, 160.0), (f0 + 40, 60.0), (f0 + 110, 18.0), (f0 + 180, 2.0)):
+        _key_emission(fv.inputs['Emission Strength'], f, e)
+    # 3) CAP: toroidal mushroom head that keeps rising + spreading; glows dull red inside at first, then smoke
+    cm, cv, cbb = _shape_volume(name + '_cap_mat', 'cap', 0.05, (0.55, 0.44, 0.36), frames, emission=6.0, temp=1500,
+                                noise_scale=3.2, churn=0.25, anisotropy=0.35)
+    cap = _domain(name + '_cap', (0, 0, R * 3.0), (0.01, 0.01, 0.01), cm); cap.parent = root
+    _key(cap, f0 + 40, loc=(0, 0, R * 3.0), scale=(0.01, 0.01, 0.01))
+    _key(cap, f0 + 70, loc=(0, 0, R * 3.6), scale=(R * 3.2, R * 3.2, R * 1.8))
+    _key(cap, f0 + 160, loc=(0, 0, R * 7.5), scale=(R * 6.0, R * 6.0, R * 3.0))
+    _key(cap, frames[1], loc=(0, 0, R * 13.0), scale=(R * 9.5, R * 9.5, R * 4.2))
+    for f, e in ((f0 + 40, 30.0), (f0 + 100, 10.0), (f0 + 200, 1.0), (f0 + 300, 0.0)):
+        _key_emission(cv.inputs['Emission Strength'], f, e)
+    for f, c in ((f0 + 40, (0.35, 0.22, 0.15)), (f0 + 200, (0.55, 0.45, 0.38)), (frames[1], (0.72, 0.68, 0.64))):
+        cv.inputs['Color'].default_value = (*c, 1); cv.inputs['Color'].keyframe_insert('default_value', frame=f)
+    # 4) STEM: dust drawn up under the cap (its top follows the cap's underside)
+    sm, sv, _ = _shape_volume(name + '_stem_mat', 'column', 0.04, (0.6, 0.5, 0.4), frames, noise_scale=2.0, churn=0.3, anisotropy=0.3)
+    st = _domain(name + '_stem', (0, 0, 0), (0.01, 0.01, 0.01), sm); st.parent = root
+    for f, top, w in ((f0 + 30, R * 0.5, 0.01), (f0 + 70, R * 3.0, R * 1.0), (f0 + 160, R * 6.5, R * 1.6), (frames[1], R * 11.5, R * 2.2)):
+        _key(st, f, loc=(0, 0, top / 2), scale=(w, w, top))
+    # 5) BASE SURGE: a low ring of dust racing outward along the desert floor
+    bm_, bv, _ = _shape_volume(name + '_surge_mat', 'ring', 0.05, (0.62, 0.52, 0.4), frames, noise_scale=3.0, churn=0.5, anisotropy=0.3)
+    bs = _domain(name + '_surge', (0, 0, R * 0.4), (0.01, 0.01, 0.01), bm_); bs.parent = root
+    _key(bs, f0 + 2, loc=(0, 0, R * 0.3), scale=(R * 1.5, R * 1.5, R * 0.6))
+    _key(bs, f0 + 60, loc=(0, 0, R * 0.5), scale=(R * 7.0, R * 7.0, R * 1.0))
+    _key(bs, frames[1], loc=(0, 0, R * 0.7), scale=(R * 14.0, R * 14.0, R * 1.5))
+    for o in (fb, cap, st, bs):
+        o.visible_shadow = True
+        if o.animation_data and o.animation_data.action and hasattr(o.animation_data.action, 'fcurves'):
+            for fc in o.animation_data.action.fcurves:
+                for k in fc.keyframe_points:
+                    k.interpolation = 'BEZIER'; k.easing = 'EASE_OUT'
+    return root
+
+
+def rocket_launch(kind='redstone', loc=(0.0, 0.0, 0.0), ignite=24, frames=(1, 240), accel=4.0, hold_s=1.5, name=None):
+    """Engine start -> hold-down -> lift-off of a 1950s-60s rocket (modern_props.rocket kind 'v2' / 'redstone' /
+    'r7'): a blinding white-yellow exhaust plume (blackbody ~2400 K volume + flicker light), billowing white-grey
+    smoke + steam rolling out sideways across the pad, then the rocket climbs with constant acceleration
+    (z = a t^2 / 2; Mercury-Redstone lift-off acceleration ~0.3 g net -> slow, majestic first seconds) on a
+    growing smoke trail. Returns the flight empty (rocket + plume ride on it)."""
+    from lib import modern_props
+    name = name or f'launch_{kind}'
+    root = bpy.data.objects.new(name, None); bpy.context.scene.collection.objects.link(root); root.location = loc
+    flight = bpy.data.objects.new(name + '_flight', None); bpy.context.scene.collection.objects.link(flight); flight.parent = root
+    rk = modern_props.rocket(kind, (0, 0, 0)); rk.parent = flight
+    lift = ignite + int(hold_s * 24)
+    f = frames[0]
+    while f <= frames[1]:                                          # constant acceleration after lift-off
+        t = max(0.0, (f - lift) / 24)
+        flight.location = (0, 0, 0.5 * accel * t * t); flight.keyframe_insert('location', frame=f)
+        f += 2
+    # exhaust plume: bright core + longer softer flame below the nozzle (rides on the rocket)
+    wide = 1.4 if kind != 'r7' else 4.2
+    core = flames((0, 0, -4.0), height=4.0, width=wide * 0.7, intensity=90.0, temp=2600, frames=frames, name=name + '_core')
+    plume = flames((0, 0, -12.0), height=12.0, width=wide * 1.3, intensity=30.0, temp=2100, frames=frames, name=name + '_plume')
+    for o in (core, plume):
+        o.parent = flight
+        sc = o.scale.copy()
+        o.scale = (0.001, 0.001, 0.001); o.keyframe_insert('scale', frame=ignite - 1)
+        o.scale = sc; o.keyframe_insert('scale', frame=ignite + 6)
+    lt = fire_light((0, 0, -3.0), power=6e5, color=(1.0, 0.78, 0.45), radius=1.5, frames=(ignite, frames[1]), seed=7, name=name + '_light')
+    lt.parent = flight
+    lt.data.energy = 0.0; lt.data.keyframe_insert('energy', frame=ignite - 1)
+    # pad smoke + steam: two low wide billows rolling out sideways (flame trench exits), grow after ignition
+    for k, (dx, dy) in enumerate(((12.0, 0.0), (-10.0, 6.0))):
+        s = smoke_column((dx, dy, 0.0), height=14.0, width=10.0, density=0.35, color=(0.78, 0.76, 0.73), frames=frames,
+                         name=f'{name}_pad_smoke{k}', wind=0.15)
+        s.parent = root; sc = s.scale.copy()
+        s.scale = (0.01, 0.01, 0.01); s.keyframe_insert('scale', frame=ignite)
+        s.scale = (sc[0] * 0.5, sc[1] * 0.5, sc[2] * 0.4); s.keyframe_insert('scale', frame=ignite + 24)
+        s.scale = (sc[0] * 1.4, sc[1] * 1.3, sc[2] * 1.2); s.keyframe_insert('scale', frame=frames[1])
+    # smoke trail: a thin column from the pad up to the rocket's tail, stretched every few frames
+    tr = smoke_column((0, 0, 0), height=1.0, width=wide * 2.2, density=0.25, color=(0.85, 0.84, 0.82), frames=frames,
+                      name=name + '_trail', wind=0.05)
+    tr.parent = root
+    f = lift
+    while f <= frames[1]:
+        t = (f - lift) / 24; top = max(0.5, 0.5 * accel * t * t)
+        tr.location = (0, 0, top / 2); tr.scale = (wide * 2.2 * (1 + t * 0.15), wide * 2.2 * (1 + t * 0.15), top)
+        tr.keyframe_insert('location', frame=f); tr.keyframe_insert('scale', frame=f)
+        f += 4
+    tr.scale = (0.01, 0.01, 0.01); tr.keyframe_insert('scale', frame=lift - 1)
+    return flight

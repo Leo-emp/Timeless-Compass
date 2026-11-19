@@ -276,14 +276,18 @@ Owner 2026-11-20: build every library piece to MAXIMUM (hero) quality - "ships m
 Files: `blender/lib/modern.py`, NEW `blender/lib/modern_props.py`, NEW `blender/lib/modern_dress.py`, new functions appended to `blender/lib/fx.py`,
 NEW `blender/scenes/modern_*_test.py`, NEW `tc/archive.py` + `tests/test_archive.py`, the usa_1945/usa_1960/ussr_1960 block
 in `tc/crowd.py` (+ its tests), `cloud/requests/modern_*.json`, `spike/lib_stills/modern/`. Sources in each docstring.
-- [ ] Sets: government office, bunker command room, aircraft hangar, desert test site, interrogation room, psych ward,
-      mission control, Los Alamos huts
-- [ ] Props: typewriter, rotary phone, reel-to-reel, stamped folders, cars/jeeps/trucks, aircraft, rockets, Geiger
-      counter, film projector
-- [ ] People: eras usa_1945 / usa_1960 / ussr_1960 + roles (tests first)
-- [ ] Big moments: atomic test (flash, fireball, mushroom cloud) + rocket launch (new fx functions)
-- [ ] "Declassified archive footage" look (`tc/archive.py`)
-- [ ] One test scene per set + review stills
+- [~] Sets (`modern.py`): government_office, bunker_command, hangar, desert_test_site (Trinity), interrogation_room,
+      psych_ward, mission_control, los_alamos_huts - code written, sources in docstrings; first renders pending
+- [~] Props (`modern_props.py`): typewriter, rotary phone, reel-to-reel, stamped folders, Geiger counter, projector,
+      desk/chair/filing cabinet/blinds/clock/lamp, jeep, truck, sedans, B-29 shape, jet, V-2 / Redstone / R-7, gantry
+- [x] People: eras usa_1945 / usa_1960 / ussr_1960, 10 roles, clothes by sex, adult ages, overlays (tests green).
+      `modern_dress.py`: rebind_mpfb_clothes (MakeHuman suits no longer tear when posed - now also called by
+      cast.build_human), redye (olive drab reads olive), caps (garrison/peaked/Soviet/pilotka/patrol/flat/nurse),
+      ribbons. Open: lab coat + gown skirt shape (v3 in test), still `spike/lib_stills/modern/people/`
+- [~] Big moments: `fx.atomic_test` (flash, fireball, cap, stem, base surge) + `fx.rocket_launch` - render pending
+- [x] "Declassified archive footage" look: `python -m tc.archive in out --look kinescope|aged_print|test_film [--pillarbox]`
+- [~] Test scenes: `blender/scenes/modern_{office,bunker,hangar,desert,interrogation,ward,mission,huts,props,vehicles,atomic,rocket}_test.py`
+      (shared runner `modern_shot.py`, error check `modern_dry_build.py`)
 
 ## WS15 Housekeeping
 - [ ] Keep `README.md`, `blender/README.md`, plan docs current
