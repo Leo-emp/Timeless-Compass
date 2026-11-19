@@ -36,7 +36,6 @@ def arm_hoplite(p, human, rig, chiton):
     root_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
     if root_dir not in sys.path:
         sys.path.insert(0, root_dir)
-    from tc import emblems
     bronze = bpy.data.materials.get('aged_bronze') or common.aged_bronze()
     leather = bpy.data.materials.get('pteruges_leather') or common.principled('pteruges_leather', (0.18, 0.1, 0.05), rough=0.8)
     wood = bpy.data.materials.get('spear_ash') or common.principled('spear_ash', (0.35, 0.24, 0.13), rough=0.7)
@@ -52,6 +51,7 @@ def arm_hoplite(p, human, rig, chiton):
     img = os.path.join(root_dir, 'spike', 'emblems_gen', f"{sh['emblem']}_{seed}.png")
     if not os.path.exists(img):
         try:
+            from tc import emblems                     # needs Pillow (not in Blender's own Python on every machine)
             emblems.paint(sh['emblem'], img, size=512, seed=seed)
         except ImportError:                            # Blender's own Python has no Pillow: paint with the system one
             import subprocess

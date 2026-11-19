@@ -56,7 +56,7 @@ def hair_material(name, melanin=0.85, redness=0.3, rough=0.35, grey=0.0):
     h.inputs['Melanin'].default_value = melanin
     h.inputs['Melanin Redness'].default_value = redness
     h.inputs['Roughness'].default_value = rough
-    h.inputs['Random Color'].default_value = 0.15
+    h.inputs['Random Color'].default_value = 0.24           # strand-to-strand colour variation
     h.inputs['Random Roughness'].default_value = 0.2
     if grey > 0:
         white = nt.nodes.new('ShaderNodeBsdfHairPrincipled'); white.parametrization = 'MELANIN'

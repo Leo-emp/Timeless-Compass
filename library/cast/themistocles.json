@@ -35,7 +35,7 @@
     "grey": 0.0
   },
   "beard": {
-    "density": 34000,
+    "density": 26000,
     "length": 0.034,
     "curl": 0.0022,
     "melanin": 0.97,
@@ -71,5 +71,19 @@
     "neck-scale-horiz-incr": 0.4
   },
   "face_note": "Ostia herm: broad square face, heavy brow ridge, low forehead, wide slightly humped nose, strong jaw, thick neck",
-  "brow_strands": true
+  "brow_strands": true,
+  "grooming": {
+    "hairstyle": "short, combed forward from the crown",
+    "hair_length": "3 cm",
+    "hair_texture": "wavy",
+    "hair_density": "medium-full",
+    "hairline": "slightly irregular, faint recession at the temples (age ~45)",
+    "hair_colour": "near-black brown",
+    "beard_style": "full, trimmed close to the jaw (Ostia herm, Roman copy of a c. 470 BC portrait)",
+    "beard_length": "3-4 cm",
+    "beard_density": "full on chin, thinner on upper cheeks",
+    "moustache": "joined to the beard, trimmed off the lip",
+    "sideburns": "connect to the beard",
+    "condition": "groomed - a politician"
+  }
 }

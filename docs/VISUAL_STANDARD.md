@@ -61,3 +61,17 @@ don't illustrate every sentence literally.
 - ANATOMY: hands + fingers right? proportions? pose physically possible? feet on the ground?
 - CINEMA: light coherent? composition strong? supports the story?
 If it fails: name the exact defect, fix the code or the shot, render again. Never accept an obviously defective frame.
+
+## 10. Hair, beards, brows  (owner hair spec 2026-11-20; code: `cast.grow`, `scalp_hair`, `beard`, `brow_strands`)
+Natural human hair, NEVER bushy, helmet-like, sculpted clay, plastic wig or oversized beard.
+- Fine individual strands, real density, growth direction; hair LIES along head and face (lift <= 0.15)
+- Soft waves / defined curls of the right type (straight / wavy / curly / coily per character); no big curl clumps
+- Hairline with small irregularities (edge fade + thinning); roots darken the scalp skin under short hair
+- Every strand its own thickness (`thick_var`), strand-to-strand colour variation (Random Color 0.24), grey as
+  salt-and-pepper strands, ~2 % flyaways (`flyaway`) breaking the outline; controlled volume
+- Beards: directional growth, length varies (shorter on cheeks, longer on chin), soft skin-to-beard transition, no
+  ruler-straight edges, never a solid dark surface; moustache + sideburns join naturally (Spartans: upper lip shaved)
+- Brows: individual strand hairs on every named character; lashes subtle
+- GROOMING PROFILE per character (`library/cast/<id>.json` -> `grooming`: hairstyle, hair_length, hair_texture,
+  hair_density, hairline, hair_colour, beard_style, beard_length, beard_density, moustache, sideburns, condition),
+  enforced by `tests/test_grooming.py`, kept identical across scenes unless the story changes it

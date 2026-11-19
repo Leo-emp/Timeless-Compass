@@ -70,5 +70,19 @@
   },
   "helmet": {
     "crest": "tall_red"
+  },
+  "grooming": {
+    "hairstyle": "long, combed back, worn loose (Spartans combed their hair before battle, Hdt. 7.208)",
+    "hair_length": "18 cm",
+    "hair_texture": "wavy",
+    "hair_density": "medium, thinning slightly at the crown (age ~60)",
+    "hairline": "receded at the temples",
+    "hair_colour": "dark brown with heavy grey",
+    "beard_style": "full Spartan beard, upper lip shaved",
+    "beard_length": "6 cm",
+    "beard_density": "full, grey-streaked",
+    "moustache": "none (shaved - Spartan custom)",
+    "sideburns": "connect to the beard",
+    "condition": "groomed for battle"
   }
 }

@@ -52,7 +52,7 @@ def build_human(spec: dict):
     if spec.get('age_lines'):
         age_face(human, rig, spec['age_lines'])
     face_materials(rig, hair_melanin=(spec.get('hair') or {}).get('melanin', 0.9))
-    if spec.get('brow_strands'):                     # real brow hairs (close-ups); off by default until tested
+    if spec.get('brow_strands', bool(spec.get('grooming'))):   # real brow hairs: on for every named character
         h = spec.get('hair') or {}
         brow_strands(human, rig, density=spec.get('brow_density', 1400), melanin=spec.get('brow_melanin', h.get('melanin', 0.9)),
                      grey=h.get('grey', 0.0) * 0.6)
@@ -234,6 +234,8 @@ def skin_v2(human, rig, stubble=0.0):
     front = rel[:, 1] < -0.02
     jaw_zone = front & (pos[:, 2] < mouth_z + 0.018) & (pos[:, 2] > chin[2] - 0.035) & (np.abs(rel[:, 0]) < 0.07)
     stub = np.clip(jaw_zone * (1 - lips) * stubble, 0, 1)
+    scalp_w = group_weights(human, 'scalp')[:len(pos)]                 # hair spec A: roots seen through the hair
+    stub = np.maximum(stub, np.clip(scalp_w, 0, 1) * 0.55)
     forehead = front & (pos[:, 2] > eye_z + 0.03) & (pos[:, 2] < eye_z + 0.085) & (np.abs(rel[:, 0]) < 0.05)
     oil = np.clip(forehead * 0.8 + 0.9 * _blob(pos, nose, 0.03), 0, 1)
     wet = np.zeros(len(pos), dtype=np.float32)          # FACE STANDARD 3: moist lower-lid margin + inner corner
@@ -555,7 +557,7 @@ def sample_on(tris, pos, nor, vert_mask, count, rng):
 
 def grow(name, roots, normals, lengths, rng, pts=8, flow=(0, 0, -1), flow_amt=0.5, curl_r=0.0, curl_turns=0.0,
          root_r=0.00022, tip_r=0.00005, frizz=0.0015, material=None, lift=0.35, clumps=0, clump_amt=0.0,
-         lock_curls=False):
+         lock_curls=False, flyaway=0.02, thick_var=0.25):
     """Grow one strand per root. Real hair LIES ALONG the skin: the start direction is the flow direction
     projected onto the skin surface, lifted off it by `lift` (0 = flat on the skin, 1 = straight out).
     Optional helix curl, frizz, and CLUMPING: strands are pulled toward the nearest of `clumps` guide strands
@@ -593,15 +595,29 @@ def grow(name, roots, normals, lengths, rng, pts=8, flow=(0, 0, -1), flow_amt=0.
         if frizz:
             base = base + rng.normal(0, frizz * t, (n, 3))
         P[:, i] = base
+    if flyaway:
+        # FLYAWAYS (hair spec A): a few % of strands escape their lock - lifted off the surface, wandering at the tip,
+        # a little longer. Gives the fine broken silhouette of real hair instead of a solid, sculpted outline.
+        fa = rng.random(n) < flyaway
+        if fa.any():
+            k = int(fa.sum())
+            t = np.linspace(0, 1, pts)[None, :, None]
+            drift = (normals[fa] * rng.uniform(0.15, 0.5, (k, 1)) + rng.normal(0, 0.6, (k, 3)))[:, None, :]
+            P[fa] = P[fa] + drift * (lengths[fa][:, None, None] * 0.35) * t ** 2
     if near is not None:
         # each strand joins its nearest guide strand toward the tip (guides = a random subset of strands)
         G = P[gi]                                                                  # guides: (clumps, pts, 3)
         w = (np.linspace(0, 1, pts) ** 1.5 * clump_amt)[None, :, None]
         offset = (roots - roots[gi][near])[:, None, :]                             # keep each root where it is
+        w = np.broadcast_to(w, P.shape).copy()
+        if flyaway:
+            w[fa] *= 0.25                                                          # flyaways stay out of the lock
         P = P * (1 - w) + (G[near] + offset * (1 - np.linspace(0, 1, pts)[None, :, None])) * w
     c.attributes['position'].data.foreach_set('vector', P.reshape(-1))
     rad = c.attributes.new('radius', 'FLOAT', 'POINT')
-    rad.data.foreach_set('value', np.tile(np.linspace(root_r, tip_r, pts), n).astype(np.float32))
+    # every strand its own thickness (hair spec A: natural variation, never perfectly uniform strands)
+    k = np.exp(rng.normal(0, thick_var, n))[:, None] if thick_var else np.ones((n, 1))
+    rad.data.foreach_set('value', (np.linspace(root_r, tip_r, pts)[None, :] * k).astype(np.float32).ravel())
     o = link(bpy.data.objects.new(name, c))
     if material:
         c.materials.append(material)
@@ -696,7 +712,7 @@ def beard(human, rig, style: dict, seed=1):
         side = np.clip(np.abs(roots[:, 0] - float(np.mean(roots[:, 0]))) / 0.06, 0, 1)
         length = np.clip(roots[:, 2] - bottom, 0.01, None) * rng.uniform(0.88, 1.04, len(roots)) * (1 - 0.18 * side ** 2)
     mat = hair_material('beard_mat', melanin=style.get('melanin', 0.9), grey=style.get('grey', 0.0),
-                        redness=style.get('redness', 0.15))
+                        redness=style.get('redness', 0.08))
     # strands rooted on the jaw move with the jaw (the mouth can open under the beard); the rest ride the head
     jaw_w = group_weights(human, 'jaw')
     from mathutils.kdtree import KDTree
@@ -717,8 +733,8 @@ def beard(human, rig, style: dict, seed=1):
             continue
         o = grow('beard_' + bone, roots[sel], norms[sel], length[sel], rng, pts=12, flow=(0, -0.25, -1), flow_amt=0.72,
                  lift=0.14, curl_r=min(style.get('curl', 0.0016), 0.0018), curl_turns=min(style.get('turns', 1.2), 1.4),
-                 root_r=0.0001, tip_r=0.00003, frizz=0.00012, material=mat, clumps=int(sel.sum() / 50), clump_amt=0.5,
-                 lock_curls=True)   # groomed: lies along the jaw, soft waves (was lift 0.3 + tight clumps = bushy wool)
+                 root_r=0.00008, tip_r=0.00002, frizz=0.00015, material=mat, clumps=int(sel.sum() / 30), clump_amt=0.3,
+                 lock_curls=False)   # groomed: lies along the jaw, soft waves (was lift 0.3 + tight clumps = bushy wool)
         parent_to_bone(o, rig, bone)
         parts.append(o)
     return parts[-1]
@@ -734,7 +750,7 @@ def scalp_hair(human, rig, style: dict, seed=2):
     roots, norms, fade = _thin(roots, norms, fade, rng)
     length = style.get('length', 0.035) * (0.4 + 0.6 * fade) * rng.uniform(0.75, 1.15, len(roots))
     mat = hair_material('hair_mat', melanin=style.get('melanin', 0.9), grey=style.get('grey', 0.0),
-                        redness=style.get('redness', 0.15))
+                        redness=style.get('redness', 0.08))
     long_hair = style.get('length', 0.035) > 0.07
     if not long_hair:
         # NATURAL, NOT BUSHY (owner 2026-11-20): strands lie close to the head (lift 0.12, was 0.3 = fur standing up),
@@ -743,7 +759,7 @@ def scalp_hair(human, rig, style: dict, seed=2):
         o = grow('hair', roots, norms, length, rng, pts=12, flow=style.get('flow', (0, 0.6, -1)), flow_amt=style.get('flow_amt', 0.55),
                  curl_r=min(style.get('curl', 0.0022), 0.0026) * 0.8, curl_turns=min(style.get('turns', 1.2), 1.4), root_r=0.00011,
                  tip_r=0.00003, frizz=0.00012, material=mat, lift=min(style.get('lift', 0.12), 0.15),
-                 clumps=style.get('clumps', int(len(roots) / 70)), clump_amt=min(style.get('clump_amt', 0.45), 0.5), lock_curls=True)
+                 clumps=style.get('clumps', int(len(roots) / 40)), clump_amt=min(style.get('clump_amt', 0.28), 0.3), lock_curls=False)
         parent_to_bone(o, rig, 'head')
         return o
     # LONG hair (Spartans, gods, old men) is COMBED BACK: strands on the front half of the scalp first run back over

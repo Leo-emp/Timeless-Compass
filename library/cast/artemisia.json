@@ -72,5 +72,19 @@
   },
   "notes": [
     "Queen of Halicarnassus (Dorian Greek city in Caria), Xerxes ally at Salamis (Hdt. 8.87-88): Greek royal dress, not Median."
-  ]
+  ],
+  "grooming": {
+    "hairstyle": "long hair gathered into a low bun at the nape, centre parting",
+    "hair_length": "long (in bun)",
+    "hair_texture": "wavy",
+    "hair_density": "full",
+    "hairline": "soft, natural, fine baby hairs at the temples",
+    "hair_colour": "black",
+    "beard_style": "none",
+    "beard_length": "none",
+    "beard_density": "none",
+    "moustache": "none",
+    "sideburns": "none",
+    "condition": "groomed - royal"
+  }
 }
