@@ -1,0 +1,10 @@
+{
+  "name": "thebes",
+  "active": true,
+  "script": "blender/scenes/thebes_test.py",
+  "args": [
+    "out/thebes",
+    "16",
+    "0.5"
+  ]
+}

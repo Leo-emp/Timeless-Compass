@@ -16,7 +16,7 @@ from lib import common, props, scans_glb
 
 OUT, SAMPLES, VARIANT = W.args('furniture_v1.png')
 common.reset_scene()
-W.room(w=8.0, d=6.0, wall='clay_plaster', wall_tint=(0.6, 0.57, 0.52), floor_tint=(0.6, 0.58, 0.55))
+W.room(w=8.0, d=6.0, floor='damaged_plaster', wall='clay_plaster', wall_tint=(0.6, 0.57, 0.52), floor_tint=(0.42, 0.41, 0.4))
 W.dark_world(0.015)
 lit = VARIANT != 'day'
 

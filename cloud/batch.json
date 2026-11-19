@@ -1,0 +1,20 @@
+{
+  "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
+  "batch": "b1",
+  "run": [
+    "battle",
+    "phalanx",
+    "courtyard",
+    "lab",
+    "aigaleos",
+    "palace",
+    "salamis",
+    "thermopylae",
+    "thebes",
+    "card_leonidas",
+    "card_xerxes",
+    "card_artemisia",
+    "card_sicinnus",
+    "card_themistocles"
+  ]
+}

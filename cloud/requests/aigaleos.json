@@ -1,0 +1,10 @@
+{
+  "name": "aigaleos",
+  "active": true,
+  "script": "blender/scenes/aigaleos_test.py",
+  "args": [
+    "out/aigaleos",
+    "16",
+    "0.5"
+  ]
+}

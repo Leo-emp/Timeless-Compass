@@ -1,0 +1,10 @@
+{
+  "name": "phalanx",
+  "active": true,
+  "script": "blender/scenes/phalanx_test.py",
+  "args": [
+    "out/phalanx",
+    "16",
+    "8"
+  ]
+}

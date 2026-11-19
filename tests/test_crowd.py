@@ -88,3 +88,13 @@ def test_rome_and_egypt_eras_have_their_own_people():
     afr_g = sum(crowd.person(s, "citizen", "greece_480bc")["macro"]["race"]["african"] for s in range(20))
     afr_e = sum(crowd.person(s, "worker", "egypt_1250bc")["macro"]["race"]["african"] for s in range(20))
     assert afr_e > afr_g
+
+
+def test_spartans_have_long_hair_beards_crimson_cloaks_and_mostly_personal_emblems():
+    sp = [crowd.person(s, "spartan", "greece_480bc") for s in range(20)]
+    assert all(p["hair"]["length"] > 0.1 for p in sp)                 # long, combed hair (Herodotus 7.208)
+    assert all(p.get("beard") for p in sp)
+    assert all(p["cloak"] == "crimson" for p in sp)                    # phoinikis (Xenophon, Lac. 11.3)
+    assert all(p["wardrobe"] == "greek_hoplite_480bc" for p in sp)
+    lambdas = sum(1 for p in sp if p["shield"]["emblem"] == "lambda")
+    assert 0 < lambdas < 10                                            # uniform lambda came later (~420s BC)

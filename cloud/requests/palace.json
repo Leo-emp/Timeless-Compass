@@ -1,0 +1,9 @@
+{
+  "name": "palace",
+  "active": true,
+  "script": "blender/scenes/palace_test.py",
+  "args": [
+    "out/palace",
+    "20"
+  ]
+}

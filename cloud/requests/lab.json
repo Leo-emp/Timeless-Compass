@@ -1,0 +1,10 @@
+{
+  "name": "lab",
+  "active": true,
+  "script": "blender/scenes/lab_test.py",
+  "args": [
+    "out/lab",
+    "20",
+    "1"
+  ]
+}

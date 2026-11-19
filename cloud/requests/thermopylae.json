@@ -1,0 +1,10 @@
+{
+  "name": "thermopylae",
+  "active": true,
+  "script": "blender/scenes/thermopylae_test.py",
+  "args": [
+    "out/thermopylae",
+    "16",
+    "0.5"
+  ]
+}

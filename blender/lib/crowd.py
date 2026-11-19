@@ -55,6 +55,14 @@ def arm_hoplite(p, human, rig, chiton):
     armour.aspis(rig, bronze, emblem_image=img)
     armour.dory(rig, bronze, wood)
     armour.follow_body(rig, cu, pt, gr)
+    if p.get('cloak') == 'crimson':                    # the Spartan phoinikis, draped over the bronze from the shoulders
+        from lib import wardrobe
+        red = bpy.data.materials.get('phoinikis') or wardrobe.scan_cloth('phoinikis', 'caban', (0.36, 0.035, 0.03),
+                                                                         tiles=(4, 12), grime=0.3, sheen=0.12)
+        pos, _, _ = cast.rest_surface(human)
+        cl = wardrobe.himation(human, rig, pos, red, side='L', over=cu)
+        wardrobe.simulate(50); wardrobe.freeze(cl)
+        wardrobe.bind_to_skeleton(cl, human, rig)
 
 
 def build_person(p, mark=(0, 0, 0), turn_deg=0.0, frames=96, settle=40):
@@ -76,6 +84,14 @@ def build_person(p, mark=(0, 0, 0), turn_deg=0.0, frames=96, settle=40):
     else:                                                     # the full era outfit for this role (Session D garments)
         from lib import costume
         costume.dress(human, rig, pos, w, dye=p.get('dye'), seed=p['seed'])
+        if p.get('role') in ('immortal', 'soldier', 'archer') and p.get('era') == 'persia_480bc':
+            from lib import armour, common
+            gold = bpy.data.materials.get('costume_gold') or common.principled('costume_gold', (0.83, 0.62, 0.26), metal=1.0, rough=0.3)
+            wood = bpy.data.materials.get('spear_ash') or common.principled('spear_ash', (0.35, 0.24, 0.13), rough=0.7)
+            leather = bpy.data.materials.get('costume_leather') or common.principled('costume_leather', (0.22, 0.13, 0.07), rough=0.75)
+            armour.immortal_kit(rig, gold, wood, leather)     # spear + pomegranate, bow, quiver
+            if p.get('role') == 'soldier':
+                armour.spara(rig)                             # front-rank sparabara: big wicker shield
     m = p.get('motion') or {}
     clip = m.get('clip')
     if clip:

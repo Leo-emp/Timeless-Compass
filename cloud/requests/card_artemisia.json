@@ -1,0 +1,10 @@
+{
+  "name": "card_artemisia",
+  "active": true,
+  "script": "blender/scenes/cast_card.py",
+  "args": [
+    "artemisia",
+    "out/cards",
+    "24"
+  ]
+}

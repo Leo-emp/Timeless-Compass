@@ -40,7 +40,7 @@ elif VARIANT == 'oars':
     common.camera('cam', Vector((17.0, 8.0, 3.2)), Vector((17.0, 30.0, 1.8)), lens=35)
 else:
     props.fishing_boat((0, 6, 0), heading_deg=-35, oars='rest', seed=3, name='fisher')
-    common.camera('cam', Vector((7.5, -3.0, 2.6)), Vector((2.6, 7.0, 0.5)), lens=35)
+    common.camera('cam', Vector((7.0, -1.5, 3.6)), Vector((2.8, 6.2, 0.2)), lens=35)   # high enough to see into the boat
 
 sc.frame_set(FRAME)
 common.render_settings(res=(960, 540), samples=SAMPLES, path=OUT)

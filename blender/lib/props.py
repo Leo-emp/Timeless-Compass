@@ -269,7 +269,7 @@ def banner(loc, color=(0.45, 0.05, 0.05), height=4.0, name='banner'):
 # =====================================================================================================================
 import random as _random
 
-from lib.common import fabric                          # woven-cloth material (wool/linen) for cushions, sails, tack
+from lib.common import fabric                          # (kept for other sessions' code; WS7 uses the scanned wool())
 
 
 # ------------------------------------------------------------------ small building blocks (used by all the props)
@@ -305,9 +305,12 @@ def _box(name, c, size, mat, bevel=0.006, parent=None):
     """A bevelled box: centre c, full size (x, y, z). Real furniture never has razor-sharp edges, so every box gets
     a tiny bevel that catches a line of light."""
     bpy.ops.mesh.primitive_cube_add(size=1, location=c)
-    o = bpy.context.object; o.name = name; o.scale = size
+    o = bpy.context.object; o.name = name
+    # the size goes INTO the mesh (object scale stays 1): scanned textures then keep their real size in metres on
+    # every face instead of stretching along the long side of a plank, and the bevel is a true bevel in metres
+    o.data.transform(Matrix.Diagonal((*size, 1.0)))
     if bevel:
-        b = o.modifiers.new('bevel', 'BEVEL'); b.width = bevel; b.segments = 2
+        b = o.modifiers.new('bevel', 'BEVEL'); b.width = min(bevel, 0.45 * min(size)); b.segments = 2
     o.data.materials.append(mat)
     if parent:
         o.parent = parent
@@ -385,27 +388,86 @@ def _place(root, loc, heading_deg):
 
 
 # ------------------------------------------------------------------ materials for the props
-def old_wood(name='old_wood', color=(0.26, 0.15, 0.08), grain=1.0):
-    """Hand-worked wood: long grain streaks (noise stretched along X) + fine bump, satin from years of handling.
-    Greek furniture was mostly olive, maple, boxwood or imported ebony; oiled, sometimes painted."""
+# Real photographed surfaces (Poly Haven CC0 scans in library/scans/) look far more real than noise patterns.
+# We use the scan's DETAIL (grain, weave, creases, wear: its brightness + normal + roughness maps) and choose the
+# COLOUR ourselves, so one wood scan can be olive, maple or ebony, and the (blue-dyed) linen scan any wool colour.
+# Mapping: object coordinates in metres, box projection, `tile` = metres per texture repeat.
+_SCAN_LUM = {'brown_planks_04': 0.175, 'rough_linen': 0.39, 'fabric_leather_02': 0.10, 'hessian_230': 0.20,
+             'wicker_basket_01': 0.049}          # average brightness of each scan (measured), to normalise the detail
+_SCAN_AVG = {'brown_planks_04': (0.221, 0.168, 0.138)}   # average linear colour (for keep_hue)
+
+
+def _scan_files(scan):
+    import os
+    from lib.common import SCANS
+    d = os.path.join(SCANS, scan)
+    files = []
+    for root, _, fs in os.walk(d):
+        files += [os.path.join(root, f) for f in fs]
+    pick = lambda *keys: next((f for f in files if any(k in os.path.basename(f) for k in keys)), None)
+    return pick('_diff_', '_albedo_'), pick('_rough_'), pick('_nor_gl_')
+
+
+def scan_surface(name, scan, color, tile=0.6, rough=(0.5, 0.9), normal=1.0, keep_hue=False, metal=0.0):
+    """Material from a scanned texture set: colour = `color` x the scan's brightness detail (keep_hue=True keeps the
+    scan's own colour variation, rescaled to `color`). Falls back to a plain material if the scan is missing."""
     m = bpy.data.materials.get(name)
     if m:
         return m
-    m = principled(name, color, rough=0.62)
+    diff, rgh, nor = _scan_files(scan)
+    m = principled(name, color, metal=metal, rough=sum(rough) / 2)
+    if diff is None:
+        return m
     nt = m.node_tree; b = nt.nodes['Principled BSDF']; L = nt.links.new
     tc = nt.nodes.new('ShaderNodeTexCoord')
-    mp = nt.nodes.new('ShaderNodeMapping'); mp.inputs['Scale'].default_value = (2.0, 40.0 * grain, 40.0 * grain)
+    mp = nt.nodes.new('ShaderNodeMapping'); mp.inputs['Scale'].default_value = (1 / tile,) * 3
     L(tc.outputs['Object'], mp.inputs['Vector'])
-    n = nt.nodes.new('ShaderNodeTexNoise'); n.inputs['Scale'].default_value = 3.0; n.inputs['Detail'].default_value = 8
-    n.inputs['Distortion'].default_value = 1.5
-    L(mp.outputs['Vector'], n.inputs['Vector'])
-    ramp = nt.nodes.new('ShaderNodeValToRGB')
-    ramp.color_ramp.elements[0].color = (color[0] * 0.55, color[1] * 0.5, color[2] * 0.45, 1)       # dark late-wood
-    ramp.color_ramp.elements[1].color = (min(1, color[0] * 1.35), min(1, color[1] * 1.3), min(1, color[2] * 1.2), 1)
-    L(n.outputs['Fac'], ramp.inputs['Fac']); L(ramp.outputs['Color'], b.inputs['Base Color'])
-    bp = nt.nodes.new('ShaderNodeBump'); bp.inputs['Strength'].default_value = 0.12
-    L(n.outputs['Fac'], bp.inputs['Height']); L(bp.outputs['Normal'], b.inputs['Normal'])
+
+    def tex(path, data):
+        t = nt.nodes.new('ShaderNodeTexImage'); t.image = bpy.data.images.load(path, check_existing=True)
+        if data:
+            t.image.colorspace_settings.name = 'Non-Color'
+        t.projection = 'BOX'; t.projection_blend = 0.3
+        L(mp.outputs['Vector'], t.inputs['Vector'])
+        return t
+    td = tex(diff, False)
+    lum = _SCAN_LUM.get(scan, 0.2)
+    mix = nt.nodes.new('ShaderNodeMix'); mix.data_type = 'RGBA'; mix.blend_type = 'MULTIPLY'
+    mix.inputs['Factor'].default_value = 1.0; mix.name = 'tint'                 # 'tint' B input = the colour
+    mix.inputs['B'].default_value = (*color, 1)
+    if keep_hue:                                           # scan colour x (wanted colour / scan's average colour)
+        avg = _SCAN_AVG.get(scan, (lum,) * 3)
+        mix.inputs['B'].default_value = (*[min(4.0, c / a) for c, a in zip(color, avg)], 1)
+        L(td.outputs['Color'], mix.inputs['A'])
+    else:
+        bw = nt.nodes.new('ShaderNodeRGBToBW'); L(td.outputs['Color'], bw.inputs['Color'])
+        dv = nt.nodes.new('ShaderNodeMath'); dv.operation = 'DIVIDE'; dv.inputs[1].default_value = lum
+        L(bw.outputs['Val'], dv.inputs[0]); L(dv.outputs[0], mix.inputs['A'])
+    L(mix.outputs['Result'], b.inputs['Base Color'])
+    if rgh:
+        mr = nt.nodes.new('ShaderNodeMapRange'); mr.inputs['To Min'].default_value = rough[0]; mr.inputs['To Max'].default_value = rough[1]
+        L(tex(rgh, True).outputs['Color'], mr.inputs['Value']); L(mr.outputs['Result'], b.inputs['Roughness'])
+    if nor and normal:
+        nm = nt.nodes.new('ShaderNodeNormalMap'); nm.inputs['Strength'].default_value = normal
+        L(tex(nor, True).outputs['Color'], nm.inputs['Color']); L(nm.outputs['Normal'], b.inputs['Normal'])
+    b.inputs['Specular IOR Level'].default_value = 0.4
     return m
+
+
+def old_wood(name='old_wood', color=(0.26, 0.15, 0.08), grain=1.0):
+    """Hand-worked wood (olive, maple, boxwood; imported ebony for the rich): the scanned plank texture gives real
+    grain, knots and wear; satin from years of handling. Grain repeats every ~0.5 m (grain=2 -> finer)."""
+    return scan_surface(name, 'brown_planks_04', color, tile=0.55 / grain, rough=(0.45, 0.8), normal=0.6, keep_hue=True)
+
+
+def wool(name, color, tile=0.25):
+    """Woven wool / linen cloth: the scanned rough-linen weave + creases, in any dye colour."""
+    return scan_surface(name, 'rough_linen', color, tile=tile, rough=(0.75, 0.95), normal=0.8)
+
+
+def leather(name='tack_leather', color=(0.10, 0.055, 0.03)):
+    """Oiled leather straps (bridles, girths, sandals): scanned leather grain."""
+    return scan_surface(name, 'fabric_leather_02', color, tile=0.15, rough=(0.4, 0.7), normal=0.7)
 
 
 def black_gloss(name='black_gloss'):
@@ -419,26 +481,14 @@ def black_gloss(name='black_gloss'):
 
 
 def wicker(name='wicker', color=(0.42, 0.30, 0.16)):
-    """Woven reed / willow: a basket weave (brick pattern) as colour + bump."""
-    m = bpy.data.materials.get(name)
-    if m:
-        return m
-    m = principled(name, color, rough=0.85)
-    nt = m.node_tree; b = nt.nodes['Principled BSDF']; L = nt.links.new
-    br = nt.nodes.new('ShaderNodeTexBrick'); br.inputs['Scale'].default_value = 60.0
-    br.inputs['Mortar Size'].default_value = 0.02; br.offset = 0.5
-    br.inputs['Color1'].default_value = (*color, 1)
-    br.inputs['Color2'].default_value = (color[0] * 0.75, color[1] * 0.7, color[2] * 0.6, 1)
-    br.inputs['Mortar'].default_value = (color[0] * 0.3, color[1] * 0.25, color[2] * 0.2, 1)
-    L(br.outputs['Color'], b.inputs['Base Color'])
-    bp = nt.nodes.new('ShaderNodeBump'); bp.inputs['Strength'].default_value = 0.35
-    L(br.outputs['Fac'], bp.inputs['Height']); L(bp.outputs['Normal'], b.inputs['Normal'])
-    return m
+    """Woven reed / willow: the scanned wicker basket weave."""
+    return scan_surface(name, 'wicker_basket_01', color, tile=0.18, rough=(0.6, 0.9), normal=1.0)
 
 
 def rope_fibre(name='rope_fibre', color=(0.45, 0.36, 0.22)):
-    """Twisted hemp / esparto / papyrus rope (Herodotus 7.25 + 7.36: Xerxes' bridge cables of white flax and papyrus)."""
-    return bpy.data.materials.get(name) or principled(name, color, rough=0.92, bump=0.5, bump_scale=180)
+    """Twisted hemp / esparto / papyrus rope (Herodotus 7.25 + 7.36: Xerxes' bridge cables of white flax and papyrus):
+    scanned hessian fibres at a small scale."""
+    return scan_surface(name, 'hessian_230', color, tile=0.08, rough=(0.8, 0.98), normal=1.0)
 
 
 def ember_glow(name='ember_glow', strength=6.0, temp=1250.0):
@@ -471,6 +521,71 @@ def flame_glow(name='lamp_flame', strength=30.0, temp=1800.0):
     nt.links.new(bb.outputs['Color'], em.inputs['Color'])
     nt.links.new(em.outputs[0], nt.nodes['Material Output'].inputs['Surface'])
     return m
+
+
+def tongue_flame_material(name='flame_tongue', strength=40.0):
+    """Flame like a real wood/oil flame: hottest (yellow-white, ~1900 K) at the root, cooling to red (~1200 K) toward
+    the tip, and fading to nothing at the top and edges (a flame has no hard outline). Uses each tongue's own
+    0..1 'Generated' height, so it works at any size."""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = bpy.data.materials.new(name); m.use_fake_user = True
+    nt = m.node_tree; nt.nodes.remove(nt.nodes['Principled BSDF']); L = nt.links.new
+    tc = nt.nodes.new('ShaderNodeTexCoord')
+    sep = nt.nodes.new('ShaderNodeSeparateXYZ'); L(tc.outputs['Generated'], sep.inputs['Vector'])
+    noise = nt.nodes.new('ShaderNodeTexNoise'); noise.inputs['Scale'].default_value = 4.0; noise.inputs['Detail'].default_value = 3
+    L(tc.outputs['Generated'], noise.inputs['Vector'])
+    zt = nt.nodes.new('ShaderNodeMath'); zt.operation = 'MULTIPLY_ADD'               # height + a little noise: ragged
+    zt.inputs[1].default_value = 0.35; L(noise.outputs['Fac'], zt.inputs[0]); L(sep.outputs['Z'], zt.inputs[2])
+    temp = nt.nodes.new('ShaderNodeMapRange'); temp.inputs['From Min'].default_value = 0.15; temp.inputs['From Max'].default_value = 1.2
+    temp.inputs['To Min'].default_value = 1950.0; temp.inputs['To Max'].default_value = 1150.0
+    L(zt.outputs['Value'], temp.inputs['Value'])
+    bb = nt.nodes.new('ShaderNodeBlackbody'); L(temp.outputs['Result'], bb.inputs['Temperature'])
+    fade = nt.nodes.new('ShaderNodeMapRange'); fade.inputs['From Min'].default_value = 0.35; fade.inputs['From Max'].default_value = 1.25
+    fade.inputs['To Min'].default_value = 1.0; fade.inputs['To Max'].default_value = 0.0
+    L(zt.outputs['Value'], fade.inputs['Value'])
+    em = nt.nodes.new('ShaderNodeEmission'); L(bb.outputs['Color'], em.inputs['Color'])
+    st = nt.nodes.new('ShaderNodeMath'); st.operation = 'MULTIPLY'; st.inputs[1].default_value = strength
+    L(fade.outputs['Result'], st.inputs[0]); L(st.outputs[0], em.inputs['Strength'])
+    tr = nt.nodes.new('ShaderNodeBsdfTransparent')
+    mix = nt.nodes.new('ShaderNodeMixShader'); L(fade.outputs['Result'], mix.inputs['Fac'])
+    L(tr.outputs[0], mix.inputs[1]); L(em.outputs[0], mix.inputs[2])
+    L(mix.outputs[0], nt.nodes['Material Output'].inputs['Surface'])
+    return m
+
+
+def flame_tongues(parent, loc, height=0.4, width=0.25, n=6, frames=(1, 240), seed=0, name='flame', strength=40.0):
+    """A small fire as several teardrop 'tongues' of glowing gas that flicker and sway (keyframed scale + lean every
+    2-3 frames). Light-weight and readable at any distance - no volume simulation. Returns the tongue objects."""
+    rnd = _random.Random(seed)
+    mat = tongue_flame_material(f'{name}_mat', strength)
+    out = []
+    for i in range(n):
+        w = width * (0.35 + 0.4 * rnd.random()) if i else width * 0.6
+        h = height * (0.5 + 0.5 * rnd.random()) if i else height
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=14, ring_count=10, radius=0.5)
+        o = bpy.context.object; o.name = f'{name}_tongue'
+        for v in o.data.vertices:                      # teardrop: round bottom, pointed top
+            z = v.co.z + 0.5                          # 0..1
+            k = 1.0 if z < 0.35 else max(0.02, (1 - (z - 0.35) / 0.65)) ** 1.4
+            v.co.x *= k; v.co.y *= k; v.co.z = z
+        o.data.transform(Matrix.Diagonal((w, w, h, 1.0)))
+        for p_ in o.data.polygons:
+            p_.use_smooth = True
+        o.data.materials.append(mat)
+        o.visible_shadow = False                      # glowing gas casts no shadow
+        o.parent = parent
+        r = width * 0.3 * math.sqrt(rnd.random()); a = rnd.uniform(0, 2 * math.pi)
+        o.location = (loc[0] + r * math.cos(a), loc[1] + r * math.sin(a), loc[2])
+        f = frames[0]
+        while f <= frames[1]:                          # flicker: height pulses, the tongue leans and turns
+            o.scale = (rnd.uniform(0.85, 1.1), rnd.uniform(0.85, 1.1), rnd.uniform(0.7, 1.25))
+            o.rotation_euler = (rnd.uniform(-0.18, 0.18), rnd.uniform(-0.18, 0.18), rnd.uniform(0, 6.28))
+            o.keyframe_insert('scale', frame=f); o.keyframe_insert('rotation_euler', frame=f)
+            f += rnd.choice((2, 3))
+        out.append(o)
+    return out
 
 
 def _flicker_light(loc, power, parent, name, frames=(1, 240), seed=0, radius=0.04, color=(1.0, 0.72, 0.48)):
@@ -550,15 +665,15 @@ def kline(loc=(0, 0, 0), heading_deg=0.0, wood=None, mattress=(0.36, 0.10, 0.07)
                                    (L / 2 - 0.12, sy * (W / 2 - 0.05), H + 0.3)], 0.02, w, root)
     _box(f'{name}_headboard', (L / 2 - 0.05, 0, H + 0.14), (0.03, W - 0.08, 0.24), w, parent=root)
     # mattress (wool) + two cushions propped against the head end
-    mt = fabric(f'{name}_mattress', tuple(mattress))
+    mt = wool(f'{name}_mattress', tuple(mattress))
     m = _box(f'{name}_mattress', (0, 0, H + 0.07), (L - 0.12, W - 0.06, 0.12), mt, bevel=0.04, parent=root)
     m.modifiers['bevel'].segments = 5
-    cu = fabric(f'{name}_cushion', (0.55, 0.38, 0.18))
+    cu = wool(f'{name}_cushion', (0.55, 0.38, 0.18))
     for k, dy in enumerate((-0.18, 0.18)):
         c = _box(f'{name}_cushion{k}', (L / 2 - 0.22, dy, H + 0.2), (0.14, 0.34, 0.22), cu, bevel=0.05, parent=root)
         c.modifiers['bevel'].segments = 5; c.rotation_euler.y = math.radians(-18)
     # blanket: lies over the mattress and hangs down the -Y front with soft folds (cloth sim is WS3's job)
-    bl = fabric(f'{name}_blanket', tuple(blanket), weave_scale=260.0)   # coarse wool: a fine weave flickers (aliasing)
+    bl = wool(f'{name}_blanket', tuple(blanket), tile=0.35)             # scanned weave (procedural one flickered)
     verts, faces = [], []
     nx, ny = 24, 14
     for i in range(nx + 1):
@@ -655,11 +770,9 @@ def oil_lamp(loc=(0, 0, 0), heading_deg=0.0, lit=True, power=6.0, frames=(1, 240
          bevel=0.002, parent=root)
     _tube(f'{name}_handle', [(-0.035, -0.012, 0.022), (-0.055, 0, 0.026), (-0.035, 0.012, 0.022)], 0.004, bg, root)
     if lit:
-        bpy.ops.mesh.primitive_uv_sphere_add(segments=16, ring_count=8, radius=0.006, location=(0.079, 0, 0.034))
-        f = bpy.context.object; f.name = f'{name}_flame'; f.scale = (0.75, 0.75, 2.4)    # a teardrop flame ~3 cm tall
-        f.data.materials.append(flame_glow()); f.parent = root
-        f.visible_shadow = False
-        _flicker_light((0.079, 0, 0.05), power, root, f'{name}_light', frames, seed, radius=0.01)
+        flame_tongues(root, (0.079, 0, 0.024), height=0.032, width=0.011, n=1, frames=frames, seed=seed,
+                      name=f'{name}_flame', strength=25.0)
+        _flicker_light((0.079, 0, 0.075), power, root, f'{name}_light', frames, seed, radius=0.012)   # above the flame: lights the room, not just the lamp
     return _place(root, loc, heading_deg)
 
 
@@ -721,11 +834,9 @@ def brazier(loc=(0, 0, 0), heading_deg=0.0, kind='bronze', lit=True, power=180.0
             c.scale = (rnd.uniform(0.7, 1.3), rnd.uniform(0.7, 1.3), rnd.uniform(0.5, 0.9))
             c.rotation_euler = (rnd.random() * 3, rnd.random() * 3, rnd.random() * 3)
             c.data.materials.append(coal); c.parent = root
-        if flames:
-            from lib import fx                                # the shared FX library (glowing volume flames)
-            fl = fx.flames((0, 0, 0), height=coal_r * 2.2, width=coal_r * 1.3, intensity=45.0, frames=frames,
-                           name=f'{name}_flames')
-            fl.parent = root; fl.location = (0, 0, coal_z + 0.02 + coal_r * 1.1)
+        if flames:                                    # flame tongues licking up from the coals
+            flame_tongues(root, (0, 0, coal_z + 0.02), height=coal_r * 2.0, width=coal_r * 0.9, n=7, frames=frames,
+                          seed=seed, name=f'{name}_flame')
         _flicker_light((0, 0, coal_z + 0.25), power, root, f'{name}_light', frames, seed, radius=0.12,
                        color=(1.0, 0.66, 0.4))
     return _place(root, loc, heading_deg)
@@ -990,7 +1101,7 @@ def fishing_boat(loc=(0, 0, 0), heading_deg=0.0, L=6.6, oars='rest', mast=True, 
             bl.rotation_mode = 'QUATERNION'; bl.rotation_quaternion = d.to_track_quat('Y', 'Z')   # box length along the oar
     if mast:
         _cyl(f'{name}_mast', (L * 0.58, 0, 2.0), 0.06, 3.4, wood, verts=12, parent=root, r2=0.045)
-        sail = fabric(f'{name}_sail', (0.70, 0.62, 0.48))
+        sail = wool(f'{name}_sail', (0.70, 0.62, 0.48))
         _cyl(f'{name}_yard', (L * 0.58, 0, 3.55), 0.07, 3.0, sail, rot=(math.radians(90), 0, 0), verts=12, parent=root)
         _tube(f'{name}_stay', [(L * 0.58, 0, 3.6), (L + 0.05, 0, 1.2)], 0.006, rope_fibre(), root, poly=True)
         _tube(f'{name}_stay2', [(L * 0.58, 0, 3.6), (0.1, 0, 1.4)], 0.006, rope_fibre(), root, poly=True)
@@ -1050,31 +1161,69 @@ def _oar_mesh(name, inboard, outboard, r=0.045, blade=(0.025, 0.62, 0.15)):
     return me
 
 
-def _person_proxy(name, role, parent, loc, face_deg, mats, rnd):
-    """A low-poly stand-in person for WIDE shots only (a ship 50+ m away: crew read as small silhouettes).
-    Close shots replace these with real cast/crowd characters at the same marker (WS1/WS2)."""
-    h = rnd.uniform(1.62, 1.76)
-    body = _cyl(f'{name}_body', (0, 0, h * 0.42), 0.17, h * 0.84, mats['cloth' if role not in ('marine', 'archer') else role],
-                verts=10, r2=0.12)
-    head = None
-    bpy.ops.mesh.primitive_uv_sphere_add(segments=10, ring_count=6, radius=0.11, location=(0, 0, h - 0.1))
-    head = bpy.context.object; head.name = f'{name}_head'; head.data.materials.append(mats['skin' if role != 'marine' else 'bronze'])
-    grp = bpy.data.objects.new(name, None); link(grp)
-    body.parent = grp; head.parent = grp
-    if role == 'marine':                           # crest + shield + spear make a hoplite read even at 100 m
-        _box(f'{name}_crest', (0, 0, h + 0.05), (0.04, 0.3, 0.12), mats['crest'], bevel=0.0, parent=grp)
-        _cyl(f'{name}_aspis', (0.18, 0, h * 0.5), 0.45, 0.06, mats['bronze'], rot=(0, math.radians(90), 0), verts=16, parent=grp)
-        _cyl(f'{name}_dory', (-0.18, 0, h * 0.8), 0.015, 2.4, mats['wood'], verts=6, parent=grp)
+def _proxy_mesh(role, mats):
+    """ONE low-poly person mesh per role (shared by every crew member of that role = cheap): legs, tunic, torso with
+    shoulders, arms, neck, head; marines add a bronze helmet + crest, a round aspis on the left arm and a spear;
+    archers a bow. 1.7 m tall, feet at z = 0, facing +X. For WIDE shots only; close shots put real cast/crowd
+    characters on the same markers (WS1/WS2)."""
+    import bmesh
+    key = f'crew_proxy_{role}'
+    me = bpy.data.meshes.get(key)
+    if me:
+        return me
+    cloth = {'marine': 'marine', 'archer': 'archer'}.get(role, 'cloth')
+    order = [cloth, 'skin', 'bronze', 'crest', 'wood']
+    bm = bmesh.new()
+
+    def part(kind, mi, mat4, **kw):
+        if kind == 'cone':
+            r = bmesh.ops.create_cone(bm, cap_ends=True, segments=kw.get('seg', 8), radius1=kw['r1'], radius2=kw['r2'],
+                                      depth=kw['d'], matrix=mat4)
+        elif kind == 'sphere':
+            r = bmesh.ops.create_uvsphere(bm, u_segments=10, v_segments=7, radius=kw['r'], matrix=mat4)
+        else:
+            r = bmesh.ops.create_cube(bm, size=1.0, matrix=mat4 @ Matrix.Diagonal((*kw['s'], 1.0)))
+        for f in {f for v in r['verts'] for f in v.link_faces}:
+            f.material_index = mi
+    T = Matrix.Translation
+    R = lambda deg, ax: Matrix.Rotation(math.radians(deg), 4, ax)
+    for sy in (-1, 1):
+        part('cone', 1, T((0, sy * 0.09, 0.42)), r1=0.045, r2=0.07, d=0.84)                 # legs (bare: tunic is short)
+        part('cone', 0, T((0.02, sy * 0.25, 1.22)) @ R(8 * sy, 'X'), r1=0.04, r2=0.055, d=0.6)   # arms in sleeves
+        part('sphere', 1, T((0.03, sy * 0.27, 0.9)), r=0.045)                                 # hands
+    part('cone', 0, T((0, 0, 0.92)), r1=0.25, r2=0.17, d=0.36, seg=10)                         # tunic skirt (flared)
+    part('cone', 0, T((0, 0, 1.3)), r1=0.16, r2=0.21, d=0.5, seg=10)                           # torso -> shoulders
+    part('cone', 1, T((0, 0, 1.58)), r1=0.05, r2=0.05, d=0.1)                                  # neck
+    part('sphere', 1, T((0.01, 0, 1.68)), r=0.105)                                             # head
+    if role == 'marine':
+        part('sphere', 2, T((0, 0, 1.71)) @ Matrix.Diagonal((1.12, 1.05, 1.08, 1)), r=0.115)   # Corinthian helmet
+        part('box', 3, T((-0.02, 0, 1.86)), s=(0.32, 0.04, 0.1))                               # horsehair crest
+        part('cone', 2, T((0.12, -0.32, 1.12)) @ R(90, 'X') @ R(12, 'Y'), r1=0.45, r2=0.45, d=0.05, seg=20)   # aspis
+        part('cone', 4, T((0.15, 0.3, 1.25)), r1=0.014, r2=0.012, d=2.4, seg=6)                 # dory (spear)
     elif role == 'archer':
-        _tube(f'{name}_bow', [(0.2, 0, h * 0.4), (0.3, 0, h * 0.6), (0.2, 0, h * 0.85)], 0.012, mats['wood'], grp)
-    grp.parent = parent; grp.location = loc; grp.rotation_euler.z = math.radians(face_deg)
-    return grp
+        part('cone', 4, T((0.12, -0.3, 1.2)) @ R(-10, 'X'), r1=0.012, r2=0.012, d=1.3, seg=6)   # bow stave
+        part('cone', 0, T((-0.14, 0.12, 1.32)) @ R(20, 'X'), r1=0.05, r2=0.05, d=0.5, seg=8)   # quiver on the back
+    me = bpy.data.meshes.new(key); bm.to_mesh(me); bm.free()
+    for nm in order:
+        me.materials.append(mats[nm])
+    for p_ in me.polygons:
+        p_.use_smooth = True
+    return me
+
+
+def _person_proxy(name, role, parent, loc, face_deg, mats, rnd):
+    """Place one stand-in person (a cheap object sharing its role's mesh), a little bigger or smaller each time."""
+    o = bpy.data.objects.new(name, _proxy_mesh(role, mats)); link(o)
+    k = rnd.uniform(0.95, 1.04)
+    o.parent = parent; o.location = loc; o.scale = (k, k, k)
+    o.rotation_euler.z = math.radians(face_deg)
+    return o
 
 
 def _crew_mats():
     # muted, sun-faded dyes: at 50+ m bright red/white proxies read as toy soldiers
-    return {'cloth': fabric('crew_cloth', (0.26, 0.22, 0.17)), 'marine': fabric('crew_marine', (0.22, 0.07, 0.05)),
-            'archer': fabric('crew_archer', (0.18, 0.15, 0.11)), 'skin': principled('crew_skin', (0.30, 0.18, 0.11), rough=0.6),
+    return {'cloth': wool('crew_cloth', (0.26, 0.22, 0.17)), 'marine': wool('crew_marine', (0.22, 0.07, 0.05)),
+            'archer': wool('crew_archer', (0.18, 0.15, 0.11)), 'skin': principled('crew_skin', (0.30, 0.18, 0.11), rough=0.6),
             'bronze': bpy.data.materials.get('bronze') or aged_bronze('bronze'),
             'crest': principled('crew_crest', (0.35, 0.05, 0.04), rough=0.8),
             'wood': bpy.data.materials.get('oar_wood_old') or old_wood('oar_wood_old', (0.40, 0.29, 0.17))}
@@ -1140,7 +1289,7 @@ def trireme_v2(loc=(0, 0, 0), heading_deg=0.0, oars='row', stroke_frames=34, fra
     # ---- sail
     if sail == 'set':
         mast_x = L * 0.55
-        linen = principled(f'{name}_sail_linen', (0.72, 0.64, 0.50), rough=0.9, bump=0.2, bump_scale=500)
+        linen = wool(f'{name}_sail_linen', (0.72, 0.64, 0.50), tile=1.2)
         nt = linen.node_tree; b = nt.nodes['Principled BSDF']
         b.inputs['Subsurface Weight'].default_value = 0.0
         # brails + seams: vertical lines every ~0.75 m and horizontal strips (the grid of a sewn Greek sail)
@@ -1366,7 +1515,7 @@ def _cloth_material(name, style):
         base, border, edge = (0.05, 0.07, 0.20), (0.45, 0.07, 0.04), (0.65, 0.45, 0.12)
     else:
         base, border, edge = (0.40, 0.10, 0.06), (0.08, 0.06, 0.05), (0.62, 0.55, 0.42)
-    m = fabric(name, base)
+    m = wool(name, base)
     nt = m.node_tree; b = nt.nodes['Principled BSDF']; L = nt.links.new
     uv = nt.nodes.new('ShaderNodeUVMap')
     sep = nt.nodes.new('ShaderNodeSeparateXYZ'); L(uv.outputs['UV'], sep.inputs['Vector'])
@@ -1390,11 +1539,11 @@ def _cloth_material(name, style):
     else:
         bsock = col_b.outputs[0]
     m1 = nt.nodes.new('ShaderNodeMix'); m1.data_type = 'RGBA'
-    src = b.inputs['Base Color'].default_value
-    m1.inputs['A'].default_value = src; L(bsock, m1.inputs['B']); L(band.outputs[0], m1.inputs['Factor'])
+    m1.inputs['A'].default_value = (*base, 1); L(bsock, m1.inputs['B']); L(band.outputs[0], m1.inputs['Factor'])
     m2 = nt.nodes.new('ShaderNodeMix'); m2.data_type = 'RGBA'
     L(m1.outputs['Result'], m2.inputs['A']); m2.inputs['B'].default_value = (*edge, 1); L(line.outputs[0], m2.inputs['Factor'])
-    L(m2.outputs['Result'], b.inputs['Base Color'])
+    tint = nt.nodes.get('tint')                              # the scanned weave multiplies our pattern
+    L(m2.outputs['Result'], tint.inputs['B'] if tint else b.inputs['Base Color'])
     return m
 
 
@@ -1415,7 +1564,7 @@ def horse_tack(horse_root, cloth='greek', bridle=True, reins=True, girth=True, n
     bpy.context.view_layer.update()
     body, bverts, tree = _rest_body(rig)
     s = horse_root.scale.x                              # metres per model unit - offsets below are real metres
-    leather = principled(f'{name}_leather', (0.10, 0.055, 0.03), rough=0.55, bump=0.2, bump_scale=300)
+    leather = globals()['leather'](f'{name}_leather')    # scanned leather grain (name clash: local var)
     bronze = bpy.data.materials.get('bronze') or aged_bronze('bronze')
     made = []
     # ----- landmarks from the skeleton

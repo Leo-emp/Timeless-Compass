@@ -1,0 +1,10 @@
+{
+  "name": "card_sicinnus",
+  "active": true,
+  "script": "blender/scenes/cast_card.py",
+  "args": [
+    "sicinnus",
+    "out/cards",
+    "24"
+  ]
+}

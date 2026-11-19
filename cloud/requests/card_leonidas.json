@@ -1,0 +1,10 @@
+{
+  "name": "card_leonidas",
+  "active": true,
+  "script": "blender/scenes/cast_card.py",
+  "args": [
+    "leonidas",
+    "out/cards",
+    "24"
+  ]
+}

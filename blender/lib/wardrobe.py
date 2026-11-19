@@ -803,7 +803,7 @@ def child_tunic(human, rig, pos, material, frames=45, seg=112, sim=True):
     M['waist_z'] = M['hip_z'] + 0.36 * (M['shoulder_z'] - M['hip_z']) + 0.02
     M['waist_rx'], M['waist_ry'] = _chest(pos, M, M['waist_z'])
     crx, cry = _chest(pos, M, M['shoulder_z'] - 0.09)
-    rx, ry = crx + 0.045, cry + 0.05
+    rx, ry = crx + 0.022, cry + 0.045                                 # inside the arms: they pass the armholes
     top_z = M['shoulder_z'] + 0.015
     wrx, wry = M['waist_rx'] + 0.01, M['waist_ry'] + 0.01
     ring = lambda a, z, *t: (rx * math.cos(a), cy + ry * math.sin(a))
@@ -813,7 +813,7 @@ def child_tunic(human, rig, pos, material, frames=45, seg=112, sim=True):
     o = _column_tube('child_tunic', seg, _seam_top(pos, M, rx, ry, top_z, seam_lo=0.05, seam_hi=s + 0.015, lift=0.005),
                      M['waist_z'] - 0.02, lambda a: M['knee_z'] + 0.03, ring, skirt,
                      lambda a: (wrx * math.cos(a), cy + wry * math.sin(a)),
-                     0.011, material, slit_z=M['shoulder_z'] - 0.12)
+                     0.011, material, slit_z=M['shoulder_z'] - 0.16)
     _cloth(o, 'pin', mass=0.1, tension=10, bending=0.05).settings.quality = 10
     _finish(o, 0.0022)
     if sim:
@@ -1218,6 +1218,10 @@ def dress_pins(garment, rig, metal, kind='perone', per_side=2):
     P = P[(P[:, 2] > P[:, 2].max() - 0.08) & (np.abs(P[:, 0]) > 0.04)]   # shoulder seam points (not the belt)
     parts = []
     from lib import cast as _cast
+    C = _evaluated_points([garment])                                  # the cloth as rendered (with thickness)
+    def cloth_top(q, r=0.025):
+        near = np.linalg.norm(C[:, :2] - q[:2], axis=1) < r
+        return float(C[near][:, 2].max()) if near.any() else float(q[2])
     for side, sgn in (('L', 1), ('R', -1)):
         S = P[P[:, 0] * sgn > 0]
         if not len(S):
@@ -1226,11 +1230,18 @@ def dress_pins(garment, rig, metal, kind='perone', per_side=2):
         for q in (np.linspace(0.15, 0.85, per_side) if per_side > 1 else [0.5]):
             x = xs[int(q * (len(xs) - 1))]
             near = S[np.abs(np.abs(S[:, 0]) - x) < 0.012]
-            p = near.mean(axis=0); p[2] = near[:, 2].max() + 0.004
+            p = near.mean(axis=0); p[2] = cloth_top(p) + 0.004              # ON the cloth, never under it
             made = []
             if kind == 'perone':                                      # lies front-to-back over the shoulder,
-                a = p + np.array([0, -0.075, -0.045]); b = p + np.array([0, 0.07, -0.035])  # ball head in front
-                line = [a + (b - a) * t + np.array([0, 0, 0.03 * math.sin(math.pi * t)]) for t in np.linspace(0, 1, 10)]
+                # lies along the top of the shoulder, front to back, ball head standing up a little in front
+                # (as on the Peplos Kore / bronze peplophoroi); each point is lifted onto the cloth's surface
+                a = p + np.array([0, -0.06, 0.0]); b = p + np.array([0, 0.07, 0.0])
+                line = []
+                for t in np.linspace(0, 1, 10):
+                    q = a + (b - a) * t
+                    q[2] = max(q[2] - 0.03 * t, cloth_top(q, 0.012) + 0.002)
+                    line.append(q)
+                a = line[0] + np.array([0, -0.004, 0.006])
                 made.append(_mesh_from_curve('dress_pin', line, 0.0025, metal, closed=False))
                 bpy.ops.mesh.primitive_uv_sphere_add(radius=0.011, location=tuple(map(float, a)))
                 hd = bpy.context.object; hd.name = 'pin_head'; hd.data.materials.append(metal); made.append(hd)
@@ -1543,3 +1554,138 @@ def crowd_cloth(name, dye, wool=False, scan=None, seed=0):
     return worn_cloth(name, scan, tuple(dye['main']), band=band, grime=float(dye.get('grime', 0.3)),
                       patched=bool(dye.get('patched', False)), fray=RANK_FRAY.get(rank, 0.0), seed=seed,
                       tiles=tiles, width=0.035, sheen=0.15 if rank != 'poor' else 0.05)
+
+
+# ------------------------------------------------------------------ DRESS A CROWD EXTRA (tc/crowd.py person -> clothes)
+# tc/crowd.py gives every generated person a 'wardrobe' name (the manifests in library/wardrobe/) and a 'dye' dict
+# (rank, main colour, border colour, grime, patched). dress() turns that into simulated clothes in one call, so the
+# crowd builder (WS2) and the shot pipeline (WS10) never need to know which garment functions make which outfit.
+# Each outfit follows the same recipe as its test still (blender/scenes/ws3_wardrobe.py, xerxes_v2.py).
+
+GREEK_WARDROBES = ('greek_civilian_480bc', 'greek_woman_480bc', 'greek_child_480bc', 'greek_servant_480bc',
+                   'greek_priest_480bc', 'greek_priestess_480bc', 'greek_hoplite_480bc')
+PERSIAN_WARDROBES = ('persian_king_480bc', 'persian_court_480bc', 'persian_servant_480bc', 'persian_soldier_480bc',
+                     'persian_immortal_480bc', 'persian_woman_480bc')
+WARDROBES = GREEK_WARDROBES + PERSIAN_WARDROBES
+
+
+def _ensure_poses():
+    """Two standing poses the garments are tuned for (added at run time; pose.py belongs to WS5):
+      stand_open     : arms hanging a little away from the body (hands clear of the hips, skirts fall between)
+      royal_audience : upper arms out, forearms raised forward (Persepolis audience pose; room for wide sleeves)"""
+    from lib import pose as _pose
+    P = _pose.POSES
+    P.setdefault('stand_open', {**P['stand_relaxed'],
+                                "upperarm01.R": (-0.22, 0.02, -1), "lowerarm01.R": (-0.1, -0.14, -1),
+                                "upperarm01.L": (0.22, 0.02, -1), "lowerarm01.L": (0.1, -0.14, -1)})
+    P.setdefault('royal_audience', {**P['stand_relaxed'],
+                                    "upperarm01.R": (-0.5, -0.22, -1), "lowerarm01.R": (-0.12, -1, 0.3),
+                                    "upperarm01.L": (0.5, -0.22, -1), "lowerarm01.L": (0.12, -1, 0.12),
+                                    "_fingers": 0.6})
+    return _pose
+
+
+def _metal(name, color, rough):
+    from lib.common import principled
+    m = bpy.data.materials.get(name)
+    if m is None:
+        m = principled(name, color, metal=1.0, rough=rough, bump=0.02, bump_scale=300); m.use_fake_user = True
+    return m
+
+
+def dress(human, rig, pos, person, pose_name=None):
+    """Dress one person from tc/crowd.py (or a library/cast spec with 'wardrobe' + 'dye').
+    human, rig  = cast.build_human(spec); pos = cast.rest_surface(human)[0]; the body should be at rest.
+    pose_name   = final pose (default: 'stand_open' for Greeks, 'royal_audience' for the Persian robe, else
+                  'stand_open'). The body ends in that pose, still. Returns the list of garment/accessory objects.
+    The person's own seed decides small choices (a married woman's veil, which jewellery), so two extras of the
+    same rank are never dressed alike; cloth colour/wear come from person['dye'] through crowd_cloth()."""
+    from lib import pose as _pose
+    _ensure_poses()
+    w = person.get('wardrobe') or 'greek_civilian_480bc'
+    if w not in WARDROBES:
+        raise KeyError(f'no 480 BC garments for wardrobe {w!r} (yet): known {WARDROBES}')
+    dye = person.get('dye') or {"rank": "common", "main": (0.52, 0.47, 0.37), "band": None, "grime": 0.3, "patched": False}
+    seed = int(person.get('seed', 0)); rank = dye.get('rank', 'common')
+    female = (person.get('macro') or {}).get('gender', 1.0) < 0.5
+    tag = f'{w}_{seed}'
+    main = crowd_cloth(tag + '_main', dye, seed=seed)                # linen (or coarse cloth for the poor)
+    wool = crowd_cloth(tag + '_wool', dye, wool=True, seed=seed + 1)  # mantles, peplos, veils
+    bronze = _metal('pin_bronze', (0.55, 0.36, 0.16), 0.35)
+    gold = _metal('jewel_gold', (0.92, 0.66, 0.26), 0.22)
+    leather = bpy.data.materials.get('sandal_leather')
+    if leather is None:
+        from lib.common import principled
+        leather = principled('sandal_leather', (0.16, 0.08, 0.04), rough=0.6, bump=0.15, bump_scale=120)
+        leather.use_fake_user = True
+    add_collision(human)
+    before = set(bpy.data.objects)
+    wealthy = rank in ('royal', 'rich')
+
+    if w in GREEK_WARDROBES:
+        pn = pose_name or 'stand_open'
+        _pose.blend_into_pose(rig, pn, start=1, end=15)            # 'blend' garments: simulated as the body poses
+        def settle():
+            rig.animation_data_clear(); _pose.apply_pose(rig, pn)
+        if w == 'greek_woman_480bc':
+            body, over = peplos(human, rig, pos, wool)
+            settle()
+            belt(rig, over, main)
+            dress_pins(over, rig, gold if wealthy else bronze, per_side=1)
+            if wealthy or seed % 2 == 0:
+                earrings(human, rig, gold)
+            if wealthy:
+                necklace(human, rig, gold)
+            if seed % 3 != 1:                                         # most women outdoors draw the mantle over the head
+                veil(human, rig, crowd_cloth(tag + '_veil', {**dye, "main": (0.5, 0.46, 0.38)}, wool=True, seed=seed + 2))
+        elif w == 'greek_servant_480bc':
+            ex = exomis(human, rig, pos, main)
+            settle()
+            belt(rig, ex, main)
+            dress_pins(ex, rig, bronze, kind='fibula', per_side=1)
+        elif w == 'greek_child_480bc':
+            t = child_tunic(human, rig, pos, main)
+            settle()
+            belt(rig, t, wool, max_r=0.13)
+        elif w in ('greek_priest_480bc', 'greek_priestess_480bc'):
+            white = crowd_cloth(tag + '_white', {**dye, "main": (0.6, 0.57, 0.5), "grime": 0.05, "patched": False}, seed=seed)
+            pale = crowd_cloth(tag + '_pale', {**dye, "main": (0.5, 0.46, 0.38), "grime": 0.05, "patched": False}, wool=True, seed=seed)
+            ch, mantle = priest_robes(human, rig, pos, white, pale, pose_name=pn, female=female)
+            if female:
+                diadem(human, rig, gold, front=0.03, over=mantle); earrings(human, rig, gold); necklace(human, rig, gold)
+            else:
+                fillet(human, rig, pale)
+        else:                                                         # civilian / hoplite: chiton (+ himation)
+            ch = chiton(human, rig, pos, main, length='knee')
+            _sim_freeze([ch], 45)
+            settle()
+            if w == 'greek_civilian_480bc' and rank != 'poor':
+                m = himation(human, rig, pos, wool, side='L', over=ch)
+                _sim_freeze([m], 60)
+            # hoplite armour (helmet, cuirass, greaves, shield) is WS4's armour.py, added on top by the caller
+        if rank != 'poor' and w != 'greek_child_480bc':
+            sandals(human, rig, leather)
+    else:
+        robe_outfit = w in ('persian_king_480bc', 'persian_immortal_480bc', 'persian_woman_480bc')
+        pn = pose_name or ('royal_audience' if w == 'persian_king_480bc' else 'stand_open')
+        _pose.apply_pose(rig, pn)                                     # 'posed' garments: body still, cloth falls
+        trousers(human, rig, crowd_cloth(tag + '_trousers', dye, wool=True, seed=seed + 3))
+        if robe_outfit:
+            robe = candys(human, rig, pos, main)
+            if w != 'persian_woman_480bc':
+                wide_sleeves(human, rig, main)
+            belt(rig, robe, gold if wealthy else leather, kind='strap', knot=False)
+            if w == 'persian_king_480bc':
+                persian_cap(human, rig, wool, band=gold, kind='royal')
+            elif w == 'persian_immortal_480bc':
+                fillet(human, rig, wool)                              # Susa glazed-brick archers: a twisted headband
+            else:
+                veil(human, rig, wool)                                # Achaemenid women: long robe + veil (seals, stelai)
+        else:                                                         # court / servant / soldier: Median dress
+            tunic = median_tunic(human, rig, pos, main)
+            tight_sleeves(human, rig, main)
+            belt(rig, tunic, leather, kind='strap', knot=False)
+            persian_cap(human, rig, wool, kind='median')
+        if wealthy:
+            earrings(human, rig, gold)
+    return [o for o in bpy.data.objects if o not in before]

@@ -6,6 +6,7 @@
 #           child       child's tunic (chitoniskos), cord belt, barefoot
 #           priest      long white linen chiton + pale himation with a purple border, wool fillet, sandals
 #           priestess   long white chiton + mantle drawn over the head, gold stephane, earrings, necklace, sandals
+#           crowd:<role>:<seed>[:<era>]  a tc/crowd.py extra dressed by wardrobe.dress() (e.g. crowd:servant:7)
 #           swatches    no person: four hanging cloths, WEAR BY RANK royal / rich / common / poor (tc/crowd dyes)
 #   shot:   full (default) | med | head
 import os, sys
@@ -127,10 +128,10 @@ elif OUTFIT == 'child':
 elif OUTFIT in ('priest', 'priestess'):
     female = OUTFIT == 'priestess'
     human, rig, pos = W.make_person(W.PRIESTESS if female else W.PRIEST)
-    pose.blend_into_pose(rig, 'stand_relaxed', start=1, end=15)
+    pose.blend_into_pose(rig, 'stand_open', start=1, end=15)
     ch, mantle = wardrobe.priest_robes(human, rig, pos, linen('ritual_linen', WHITE_LINEN, grime=0.05),
                                        wool('ritual_wool', UNDYED_WOOL, band=PURPLE if not female else SAFFRON, grime=0.05),
-                                       female=female)
+                                       female=female, pose_name='stand_open')
     wardrobe.sandals(human, rig, leather)
     if female:
         wardrobe.diadem(human, rig, gold, front=0.03, over=mantle)   # a gold stephane worn over the veil
@@ -138,6 +139,19 @@ elif OUTFIT in ('priest', 'priestess'):
         wardrobe.necklace(human, rig, gold)
     else:
         wardrobe.fillet(human, rig, wool('fillet_wool', (0.62, 0.6, 0.55), grime=0.0))
+    W.dusk_set(rig, SHOT, samples=SAMPLES, out=OUT)
+
+elif OUTFIT.startswith('crowd:'):
+    # crowd:<role>:<seed>[:<era>] -> a generated extra from tc/crowd.py, dressed by wardrobe.dress()
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
+    from tc import crowd
+    _, role, seed, *era = OUTFIT.split(':')
+    person = crowd.person(int(seed), role, era[0] if era else 'greece_480bc')
+    print('crowd person:', person['role'], person['wardrobe'], person['dye'])
+    if person.get('hair', {}).get('length', 0) > 0.08:                # long women's hair is WS1's: keep it short here
+        person['hair']['length'] = 0.06
+    human, rig, pos = W.make_person(person)
+    wardrobe.dress(human, rig, pos, person)
     W.dusk_set(rig, SHOT, samples=SAMPLES, out=OUT)
 
 else:

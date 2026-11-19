@@ -631,6 +631,11 @@ def beard(human, rig, style: dict, seed=1):
     nose = (rel[:, 2] > -0.011) & (np.abs(rel[:, 0]) < 0.026)                      # keep the nose and nostrils bare (upper lip = moustache)
     inside = (m | cheeks | under_jaw) & ~lips & ~nose & (rel[:, 2] < 0.012)
     roots, norms, _ = sample_on(tris, pos, nor, inside, int(style.get('density', 26000) * 1.6), rng)
+    if style.get('moustache') is False:              # Spartan custom: the upper lip is shaved, the beard kept
+        lm = landmarks(human, rig, pos)
+        rr = roots - np.asarray(lm['nose'])
+        lip = (roots[:, 2] > float(lm['mouth_top']) - 0.004) & (np.abs(rr[:, 0]) < 0.032)
+        roots, norms = roots[~lip], norms[~lip]
     edge = edge_fade(pos, inside, roots, width=style.get('edge', 0.014))
     roots, norms, edge = _thin(roots, norms, edge, rng)
     r = roots - hb

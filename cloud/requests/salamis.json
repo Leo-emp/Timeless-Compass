@@ -1,0 +1,10 @@
+{
+  "name": "salamis",
+  "active": true,
+  "script": "blender/scenes/salamis_v2_test.py",
+  "args": [
+    "out/salamis",
+    "20",
+    "1.0"
+  ]
+}

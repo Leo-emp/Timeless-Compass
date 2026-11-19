@@ -53,6 +53,7 @@ ERAS = {
             "priest": ("male", (0.5, 0.95), "rich", "greek_priest_480bc", "solemn"),
             "priestess": ("female", (0.3, 0.9), "rich", "greek_priestess_480bc", "solemn"),
             "hoplite": ("male", (0.25, 0.6), "common", "greek_hoplite_480bc", "soldier"),
+            "spartan": ("male", (0.25, 0.75), "common", "greek_hoplite_480bc", "soldier"),
             "commander": ("male", (0.45, 0.8), "rich", "greek_hoplite_480bc", "commanding"),
             "rower": ("male", (0.2, 0.6), "poor", "greek_servant_480bc", "labour"),
             "fisherman": ("male", (0.25, 0.9), "poor", "greek_servant_480bc", "labour"),
@@ -199,8 +200,18 @@ def person(seed: int, role: str, era: str, age: float | None = None) -> dict:
                       "curl": round(_u(r, (0.001, 0.003)), 4), "melanin": p["hair"]["melanin"], "grey": round(min(1.0, grey * 1.1), 3)}
     elif gender == "male" and a >= 0.26 and role != "child":                 # late teens: first fuzz
         p["beard"] = {"density": 9000, "length": 0.004, "curl": 0.001, "melanin": p["hair"]["melanin"], "grey": 0.0}   # first fuzz
+    if role == "spartan":                                         # Spartiates at Thermopylae, 480 BC
+        p["hair"]["length"] = round(_u(r, (0.14, 0.24)), 4)       # long hair, combed before battle (Hdt. 7.208)
+        p["hair"]["curl"] = round(_u(r, (0.002, 0.0045)), 4)
+        p["cloak"] = "crimson"                                    # the phoinikis (Xenophon, Lac. Pol. 11.3)
+        p["beard"]["moustache"] = False                           # Spartan custom: beard kept, moustache shaved
     if (p["wardrobe"] or "").endswith("hoplite_480bc"):
-        p["shield"] = {"emblem": r.choice(EMBLEMS), "rim": r.choice(["bronze", "painted"]), "wear": round(r.uniform(0.2, 0.9), 2)}
+        emblem = r.choice(EMBLEMS)
+        if role == "spartan" and r.random() < 0.25:               # a few lambdas; the uniform blazon is later (~420s BC)
+            emblem = "lambda"
+        elif role == "spartan" and emblem == "lambda":
+            emblem = r.choice([e for e in EMBLEMS if e != "lambda"])
+        p["shield"] = {"emblem": emblem, "rim": r.choice(["bronze", "painted"]), "wear": round(r.uniform(0.2, 0.9), 2)}
         p["helmet"] = {"type": r.choice(["corinthian", "corinthian", "chalcidian", "pilos"]),
                        "crest": r.choice(["red", "black", "white", "none"]) if role != "commander" else "tall_" + r.choice(["red", "white"])}
     return p

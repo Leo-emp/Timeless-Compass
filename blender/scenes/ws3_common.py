@@ -66,7 +66,7 @@ def dusk_set(rig, shot='full', target_z=None, cam_dist=1.0, res=(960, 540), samp
     bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.uv.reset(); bpy.ops.object.mode_set(mode='OBJECT')
     g.data.materials.append(wardrobe.scan_cloth('ground', 'coast_sand_rocks_02', (0.55, 0.49, 0.41), tiles=(15, 15),
                                                 grime=0.0, sheen=0.0))
-    common.hdri_world('qwantani_sunset_puresky', strength=0.45, rotate_deg=140)
+    common.hdri_world('qwantani_sunset_puresky', strength=0.38, rotate_deg=140)
     head = rig.matrix_world @ rig.pose.bones['head'].head
     eyes = rig.matrix_world @ ((rig.pose.bones['eye.L'].head + rig.pose.bones['eye.R'].head) / 2)
     common.sun_light('sun', 2.6, (1.0, 0.6, 0.34), 10, 215)                           # low golden sun
@@ -85,5 +85,5 @@ def dusk_set(rig, shot='full', target_z=None, cam_dist=1.0, res=(960, 540), samp
         d = (H + 0.25) / 1.9 * 4.8 * cam_dist                       # back off for taller figures
         common.camera('cam', Vector((0.3 * d, -d, tz + 0.15)), Vector((0, 0, tz)), lens=45, fstop=5.6, focus=eyes)
     common.render_settings(res=res, samples=samples, path=out)
-    bpy.context.scene.view_settings.look = 'AgX - Medium High Contrast'
+    bpy.context.scene.view_settings.look = 'AgX - High Contrast'    # tc look: full shots had too little contrast
     bpy.context.scene.view_settings.exposure = -0.6               # tc look: first stills were too bright (0.60 > 0.51)

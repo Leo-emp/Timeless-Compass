@@ -366,3 +366,74 @@ def follow_body(rig, cuirass=None, pteruges_objs=(), greaves_objs=()):
     for g in greaves_objs:
         side = 'L' if g.name.endswith('_L') or '_L.' in g.name else 'R'
         cast.parent_to_bone(g, rig, f'lowerleg01.{side}')
+
+
+# ------------------------------------------------------------------ Persian infantry, 480 BC
+def wicker(name='spara_wicker'):
+    """Woven wicker (osier) with a leather facing: procedural weave (two crossed wave textures) for the spara."""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = principled(name, (0.42, 0.32, 0.18), rough=0.85)
+    nt = m.node_tree; b = nt.nodes['Principled BSDF']; L = nt.links.new
+    tc = nt.nodes.new('ShaderNodeTexCoord')
+    w1 = nt.nodes.new('ShaderNodeTexWave'); w1.wave_type = 'BANDS'; w1.bands_direction = 'X'; w1.inputs['Scale'].default_value = 60
+    w2 = nt.nodes.new('ShaderNodeTexWave'); w2.wave_type = 'BANDS'; w2.bands_direction = 'Z'; w2.inputs['Scale'].default_value = 60
+    L(tc.outputs['Object'], w1.inputs['Vector']); L(tc.outputs['Object'], w2.inputs['Vector'])
+    mx = nt.nodes.new('ShaderNodeMath'); mx.operation = 'MAXIMUM'; L(w1.outputs['Fac'], mx.inputs[0]); L(w2.outputs['Fac'], mx.inputs[1])
+    bump = nt.nodes.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = 0.6; L(mx.outputs[0], bump.inputs['Height'])
+    L(bump.outputs['Normal'], b.inputs['Normal'])
+    ramp = nt.nodes.new('ShaderNodeValToRGB')
+    ramp.color_ramp.elements[0].color = (0.25, 0.18, 0.09, 1); ramp.color_ramp.elements[1].color = (0.55, 0.43, 0.25, 1)
+    L(mx.outputs[0], ramp.inputs['Fac']); L(ramp.outputs['Color'], b.inputs['Base Color'])
+    return m
+
+
+def spara(rig, facing_deg=-15.0, w=0.75, h=1.3):
+    """The sparabara's big rectangular wicker shield (Herodotus 7.61 'wicker shields'), held on the left forearm,
+    slightly curved, its foot near the ground."""
+    fa = (bone_head(rig, 'lowerarm01.L') + bone_tail(rig, 'lowerarm01.L')) / 2
+    loc = fa + Vector((0.08, -0.2, -0.2))
+    bpy.ops.mesh.primitive_plane_add(size=1, location=loc, rotation=(math.pi / 2, 0, math.radians(facing_deg)))
+    s = bpy.context.object; s.name = 'spara'; s.scale = (w, h, 1)
+    bpy.ops.object.transform_apply(scale=True)
+    sub = s.modifiers.new('sub', 'SUBSURF'); sub.levels = 3; sub.subdivision_type = 'SIMPLE'
+    bend = s.modifiers.new('curve', 'SIMPLE_DEFORM'); bend.deform_method = 'BEND'; bend.angle = math.radians(35); bend.deform_axis = 'Z'
+    s.modifiers.new('thick', 'SOLIDIFY').thickness = 0.02
+    s.data.materials.append(wicker())
+    cast.parent_to_bone(s, rig, 'lowerarm01.L')
+    return s
+
+
+def immortal_kit(rig, gold, wood, leather):
+    """Persepolis guard / Immortal (Herodotus 7.83): spear with a pomegranate-shaped butt (gold for the 1,000 royal
+    guards, silver for the rest), a recurved bow over the left shoulder, a quiver on the back."""
+    hand = bone_tail(rig, 'wrist.R') if 'wrist.R' in rig.pose.bones else bone_tail(rig, 'lowerarm02.R')
+    bpy.ops.mesh.primitive_cylinder_add(vertices=12, radius=0.013, depth=2.1, location=(hand.x, hand.y - 0.01, 1.12))
+    shaft = bpy.context.object; shaft.data.materials.append(wood)
+    bpy.ops.mesh.primitive_cone_add(vertices=12, radius1=0.025, depth=0.22, location=shaft.location + Vector((0, 0, 1.15)))
+    tip = bpy.context.object; tip.data.materials.append(bpy.data.materials.get('aged_bronze') or gold)
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=16, ring_count=8, radius=0.05, location=shaft.location - Vector((0, 0, 1.08)))
+    pom = bpy.context.object; pom.scale = (1.0, 1.0, 0.85); pom.data.materials.append(gold)       # the pomegranate
+    parts = [shaft, tip, pom]
+    for o in parts:
+        cast.parent_to_bone(o, rig, 'wrist.R' if 'wrist.R' in rig.pose.bones else 'lowerarm02.R')
+    back = bone_head(rig, 'spine01') + Vector((0.06, 0.16, 0.05))
+    bpy.ops.mesh.primitive_cylinder_add(vertices=16, radius=0.06, depth=0.7, location=back, rotation=(0.15, 0.35, 0))
+    q = bpy.context.object; q.name = 'quiver'; q.data.materials.append(leather)
+    for k in range(6):                                                   # arrow shafts + fletching sticking out
+        bpy.ops.mesh.primitive_cylinder_add(vertices=6, radius=0.004, depth=0.25, location=back + Vector((0.01 * k - 0.025, 0.0, 0.42)),
+                                            rotation=(0.15, 0.35, 0))
+        a = bpy.context.object; a.data.materials.append(wood); cast.parent_to_bone(a, rig, 'spine01')
+    cast.parent_to_bone(q, rig, 'spine01')
+    # the bow: a recurved arc slung over the left shoulder
+    sh = bone_head(rig, 'clavicle.L')
+    cu = bpy.data.curves.new('bow', 'CURVE'); cu.dimensions = '3D'; cu.bevel_depth = 0.008; cu.bevel_resolution = 2
+    sp = cu.splines.new('BEZIER'); pts = [(-0.05, 0.12, -0.45), (0.12, 0.18, 0.0), (-0.05, 0.12, 0.45)]
+    sp.bezier_points.add(len(pts) - 1)
+    for bp, pnt in zip(sp.bezier_points, pts):
+        bp.co = pnt; bp.handle_left_type = bp.handle_right_type = 'AUTO'
+    bow = bpy.data.objects.new('bow', cu); bpy.context.scene.collection.objects.link(bow)
+    bow.location = sh + Vector((0.05, 0.0, -0.1)); cu.materials.append(wood)
+    cast.parent_to_bone(bow, rig, 'spine01')
+    return parts + [q, bow]
