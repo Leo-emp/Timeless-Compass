@@ -152,36 +152,30 @@ Read-only use of scans_glb/props (Session E), riding/cannon/crowd/cast (main), m
       hand; `dress()` gives each trade its tool
 
 ## WS7 Props & ships — files: `blender/lib/props.py`, NEW `blender/lib/scans_glb.py` — CLAIMED: Session E
-Owner 2026-11-20: build every library piece to MAXIMUM (hero) quality - "ships majestic". Renders on GitHub
-`render-batch` (cloud/requests/ws7_*.json, ~3 min per batch); museum scans only on the laptop.
-- [x] Trireme, code amphora
-- [x] glb scan loader `scans_glb.load_glb` (museum size, base on ground, IOR-1000 mirror fix, rigged scans,
-      placeholder when a scan is missing on cloud runners)
-- [x] Museum pottery + Corinthian helmet (era-checked manifests; krater = background only) — look 83
-- [x] Horse 1.42 m withers, 3 clips; `horse_tack()` greek/persian cloth, bridle, bit, reins (no saddle/stirrups) — 100
-- [x] Furniture (klismos, kline, trapeza, footstool, kibotos) with scanned wood/wool, edge wear + grime, meander bands;
-      oil lamp, lamp stand, braziers with flame tongues; baskets, rope coil, stone anchor; phoenician trireme v1,
-      fishing boat. Room still look 67 (too warm) - lighting, not props
-- [x] Trireme v3 / majestic kit: plank-scan pitch with salt streaks + waterline, wales, open outrigger + thole pins,
-      painted meander outrigger panel, leather askomata, marble eye plates, catheads, 5-tip aphlaston, stolos, stylis
-      + pennants, side-screen rolls, spare oars, water jars, full rope rigging + brails; set sail with folds + wind;
-      oar splashes, leaning thranite rowers, bow wave + wake; instanced (1 s first ship, 0.2 s each copy); `fleet()`
-- [x] Dressing kits: `dress_symposion`, `dress_storeroom`, `dress_quay`
-- [x] Story props for the 5 Salamis Shorts: `ram_athlit` (corroded / new), `wreck_debris`, `tripod_cauldron`,
-      `omphalos`, `suppliant_branch`, `timber_barricade` (burning), `scribe_kit` (Persian scroll / Greek wax tablet),
-      `royal_parasol`, `incense_burner`, `phiale`, `rhyton`, `carpet`
-- [~] Hero-quality review loop (in progress): hero ship shots (low bow-quarter camera), court still, ram corrosion
-- [x] Sketchfab scan audit (2026-11-20, `blender/scenes/ws7_scan_audit.py` -> `spike/lib_stills/ws7/scan_audit.json`,
-      28 scans). NOT problems: horse_akhalteke + animal_raven_cc0 "duplicates" are Sketchfab 65k-vertex chunks of one mesh;
-      raw import sizes are corrected by each loader (scans_glb.KNOWN, animals.SPECS, scatter.REAL_HEIGHT). REAL issues:
-      - animal_hound (WS18): imports 60 x 2.2 units = probably lying on its side (wrong up-axis); parts named Plane.* are the dog
-      - animal_cat (WS18): imports ~150 km long - check animals.py scales it; `whiskers` material has no texture (fine if plain)
-      - tree_cypress (WS6/WS16): bark materials Cypress_bark.1/.2 have NO texture after import - lost textures
-      - no real size in ANY loader: animal_cow (0.68 m raw), animal_dog_run (5.4 m), animal_seagull (2.0 m),
-        animal_camels (19 m, 5 meshes), horse_realistic (1.2 m) - give them a spec in animals.py before use
-      - amphora_neck_cleveland: 2nd material is plain near-black (the inside/foot) - intended, not lost
-- [ ] Crew for close shots: replace low-poly proxies with real crowd characters on the markers (needs WS2)
-- [ ] Sail: true cloth simulation baked into the kit (now shaped mesh + wave ripple)
+Owner 2026-11-20: MAXIMUM (hero) quality, "ships majestic", RICH scenes (layered, no plain backgrounds, people in them).
+Renders: GitHub render-batch (`cloud/requests/ws7_*.json`; ask Session D / main before pushing cloud/batch.json - the
+queue workflow `render-queue.yml` is not committed yet). Museum Sketchfab scans exist only on the laptop.
+- [x] glb loader `scans_glb.load_glb` (museum size, IOR-1000 mirror fix, rigged scans, placeholder when missing on CI)
+- [x] Museum pottery + helmet (era manifests); horse 1.42 m withers + `horse_tack` (no saddle/stirrups)
+- [x] Scanned materials (wood/linen/leather/rope/wicker) + edge wear/grime, code-drawn meander, flame tongues (colour ramp)
+- [x] Furniture, lamps, braziers, baskets, rope, anchor; Phoenician trireme v1; fishing boat
+- [x] Trireme v3 majestic kit, instanced (1 s first ship / 0.2 s copies), `fleet()`, hero camera; eye plates, painted
+      outrigger, 5-tip aphlaston, stolos, stylis + pennants, side-screens, 3-strand LAID ROPE rigging (`_bm_laid_rope`)
+- [x] Set sail = real cloth simulation (`trireme_sail_cloth`, wind 700 / 60 fr) + panel puff between strips/brails
+- [x] Oar splashes, thranite rowers, bow wave + wake
+- [x] Story props: Athlit ram, wreck debris, Delphi tripod / omphalos / suppliant branch, burning timber barricade,
+      scribe kit, royal parasol, incense burner, phiale, rhyton, carpet
+- [x] RICH kits: `dress_andron` (painted room shell + wall clutter), `dress_symposion/storeroom/quay`, `dress_harbour`,
+      `dress_persian_camp` (`persian_tent`: striped panels, valance, guy ropes), `dress_beach_camp`; Aigaleos court dressing
+- [x] `populate(kit, era, camera)`: role markers -> REAL crowd extras (lib/crowd) + instances; people ride moving ships
+- [x] Ship PLACES for Session B's shots (marks for people + cameras): `place_trireme_rowing_hold` (seated rowing extras
+      via `row_seated`, light shafts), `place_trireme_deck`, `place_persian_flagship` (night, fleet lanterns)
+- [x] Sketchfab scan audit (`ws7_scan_audit.py` -> `spike/lib_stills/ws7/scan_audit.json`); findings passed to G + D:
+      hound probably lying on its side, cat ~150 km, cypress bark lost textures, no size for cow / dog_run / seagull /
+      camels / horse_realistic (horse + raven "duplicates" are only 65k-vertex chunks)
+- [ ] Rowing hold: rowers still too dark to read; needs WS5 rowing mocap for a convincing stroke
+- [ ] Seated / reclining extras (symposion guests, riders) need WS5 sitting + reclining clips (markers already placed)
+- [ ] Museum cups/amphorae appear only in laptop renders (R2 cache needed for CI)
 
 ## WS8 Lighting & camera — files: NEW `blender/lib/lighting.py`, `blender/lib/camera_moves.py`
 - [x] `blender/lib/lighting.py` film_lights(subject, camera, mood): dusk/day/night/firelit/interior/menace; used by shot.py
