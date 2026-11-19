@@ -47,7 +47,7 @@ def arm_hoplite(p, human, rig, chiton):
             armour.helmet_up(rig, [shell, _crest])
         hair = [o for o in bpy.data.objects if o.type == 'CURVES' and o.parent is rig and o.parent_bone == 'head'
                 and not o.name.startswith(('crest', 'beard', 'brow'))]
-        armour.tuck_hair_under(shell, hair)            # no hair poking out through the bronze
+        armour.tuck_hair_under(shell, hair)            # strands rooted under the bronze end inside it (up or down)
     cu, hem_z, cy = armour.muscle_cuirass(human, rig, bronze)
     armour.delete_verts(chiton, lambda q: q.z > hem_z - 0.02)               # only the tunic skirt shows below the bronze
     pt = armour.pteruges(hem_z, cy, 0.205, 0.165, leather)

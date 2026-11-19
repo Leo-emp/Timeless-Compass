@@ -248,7 +248,7 @@ def scan_material(name, scan, tint=(1, 1, 1), tiles=20.0, disp=0.0, rough=(0.6, 
         mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'
         L(soft.outputs['Result'], mx.inputs['Factor']); L(t.outputs['Color'], mx.inputs['A']); L(t2.outputs['Color'], mx.inputs['B'])
         return _Out(mx.outputs['Result'])
-    diff = tex(img('diff'))
+    diff = tex(img('diff') or img('albedo') or img('col') or img('basecolor'))   # scans name the colour map differently
     tint_n = nt.nodes.new('ShaderNodeMix'); tint_n.data_type = 'RGBA'; tint_n.blend_type = 'MULTIPLY'
     tint_n.inputs['Factor'].default_value = 1.0; tint_n.inputs['B'].default_value = (*tint, 1)
     L(diff.outputs['Color'], tint_n.inputs['A']); L(tint_n.outputs['Result'], b.inputs['Base Color'])

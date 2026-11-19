@@ -472,9 +472,7 @@ def xerxes_throne_aigaleos(density=1.0):
         st = bpy.context.object; st.name = f'podium_step_{k}'; st.scale = (3.2, step_d, h)
         st.data.materials.append(ashlar); st.modifiers.new('arris', 'BEVEL').width = 0.02
         k += 1
-    for sgn in (-1, 1):                                               # low parapet on the downhill corners
-        bpy.ops.mesh.primitive_cube_add(size=1, location=(sgn * 3.0, -36.75, top + 0.25))
-        pp = bpy.context.object; pp.scale = (2.0, 0.4, 0.5); pp.data.materials.append(ashlar)
+
     pav = P.pavilion((0, -40, z0 + 0.4), heading_deg=0)
     thr = P.throne((0, -40.6, z0 + 0.4), heading_deg=180)
     P.royal_dress_up(thr, pav)                                         # folded valances, lion-paw feet, carpet

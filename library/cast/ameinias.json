@@ -11,8 +11,8 @@
   "macro": {
     "gender": 1.0,
     "age": 0.6,
-    "muscle": 0.7,
-    "weight": 0.45,
+    "muscle": 0.75,
+    "weight": 0.55,
     "proportions": 0.65,
     "height": 0.6,
     "cupsize": 0.5,
@@ -30,13 +30,15 @@
     0.45,
     0.32
   ],
-  "brows": "eyebrow001",
+  "brows": "eyebrow002",
   "face": {
-    "head-rectangular": 0.35,
-    "cheek-bones-incr": 0.35,
-    "nose-hump-incr": 0.3,
-    "chin-prominent-incr": 0.25,
-    "eyebrows-trans-down": 0.2,
+    "head-square": 0.4,
+    "head-scale-horiz-incr": 0.2,
+    "nose-volume-incr": 0.35,
+    "nose-scale-horiz-incr": 0.25,
+    "chin-width-incr": 0.3,
+    "forehead-trans-forward": 0.2,
+    "cheek-bones-incr": 0.2,
     "eye-bag-incr": 0.2
   },
   "age_lines": 0.5,
@@ -45,14 +47,14 @@
     "density": 34000,
     "length": 0.035,
     "curl": 0.0022,
-    "melanin": 0.9,
+    "melanin": 0.97,
     "grey": 0.12
   },
   "beard": {
     "density": 30000,
     "length": 0.03,
     "curl": 0.0016,
-    "melanin": 0.9,
+    "melanin": 0.97,
     "grey": 0.12
   },
   "dye": {

@@ -515,12 +515,16 @@ def tuck_hair_under(helm, hair_objects, margin=0.004):
         for ci, curve in enumerate(c.curves):
             start, n = curve.first_point_index, curve.points_length
             cut = None
-            for k in range(n):
+            r0 = inv @ (h.matrix_world @ Vector(pos[start].vector))
+            loc0, nrm0, _, _ = bvh.find_nearest(r0)
+            if loc0 is None or (r0 - loc0).dot(nrm0) > -margin:
+                continue                                   # root NOT under the bronze (sides / nape): leave it alone
+            for k in range(1, n):
                 pw = h.matrix_world @ Vector(pos[start + k].vector)
                 if pw.z < rim:
-                    break                                  # below the helmet: free hair
+                    break                                  # left the helmet through its open bottom: free hair
                 loc, nrm, _, dist = bvh.find_nearest(inv @ pw)
-                if loc is not None and (inv @ pw - loc).dot(nrm) > -margin:   # on / outside the shell
+                if loc is not None and (inv @ pw - loc).dot(nrm) > -margin:   # reaches the shell: ends here
                     cut = k
                     break
             if cut is not None:
@@ -530,13 +534,14 @@ def tuck_hair_under(helm, hair_objects, margin=0.004):
         print(f'tuck_hair_under: {hidden} strands of {h.name} end inside the helmet')
 
 
-def helmet_up(rig, parts, angle_deg=-38.0, lift=0.075):
+def helmet_up(rig, parts, angle_deg=-58.0, lift=0.02):
     """Wear the Corinthian helmet PUSHED UP on top of the head, face open - how Greek vase painters show hoplites
     off the battle line, talking, resting, pouring libations. Tilts the shell back about a pivot behind the crown."""
     from mathutils import Matrix
     hb = bone_head(rig, 'head')
-    pivot = Vector((hb.x, hb.y + 0.07, hb.z + 0.13))
-    M = Matrix.Translation(pivot + Vector((0, 0.01, lift))) @ Matrix.Rotation(math.radians(angle_deg), 4, 'X') @ Matrix.Translation(-pivot)
+    # pivot at the back of the crown: the face plate swings UP and back, the shell then rests on top of the skull
+    pivot = Vector((hb.x, hb.y + 0.05, hb.z + 0.17))
+    M = Matrix.Translation(pivot + Vector((0, 0.0, lift))) @ Matrix.Rotation(math.radians(angle_deg), 4, 'X') @ Matrix.Translation(-pivot)
     for o in parts:
         o.matrix_world = M @ o.matrix_world
     bpy.context.view_layer.update()

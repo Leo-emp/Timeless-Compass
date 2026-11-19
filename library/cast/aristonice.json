@@ -10,7 +10,7 @@
   "design_source": "no portrait exists: Pythias of this period were women past fifty who dressed as maidens (Diodorus 16.26); an older woman, austere, remote, in white with a laurel wreath",
   "macro": {
     "gender": 0.0,
-    "age": 0.78,
+    "age": 0.88,
     "muscle": 0.35,
     "weight": 0.4,
     "proportions": 0.55,
@@ -23,7 +23,7 @@
       "african": 0.05
     }
   },
-  "skin": "middleage_caucasian_female",
+  "skin": "old_caucasian_female",
   "tan": 0.3,
   "tan_color": [
     0.72,
@@ -35,10 +35,11 @@
     "head-oval": 0.3,
     "cheek-bones-incr": 0.3,
     "nose-hump-incr": 0.15,
-    "eye-bag-incr": 0.35,
-    "mouth-laugh-lines-in": 0.2
+    "eye-bag-incr": 0.45,
+    "mouth-laugh-lines-in": 0.2,
+    "head-age-incr": 0.5
   },
-  "age_lines": 0.75,
+  "age_lines": 0.9,
   "seed": 4102,
   "hair": {
     "density": 36000,

@@ -40,4 +40,17 @@ for kind in ('themistocles', 'council'):
         m = places.tent_interior(kind)
         shoot(f'tent_{kind}', {'flap': (m['cam_flap'], Vector((0, -1.0, 1.0)), 24),
                                'inside': (Vector((-1.2, 1.0, 1.5)), Vector((0.6, -1.6, 0.9)), 28)})
+if WHICH in ('pnyx', 'all2'):
+    common.reset_scene()
+    m = places.pnyx_assembly()
+    shoot('pnyx', {'behind_speaker': (m['cam_behind_speaker'], Vector((0, -10, 2.0)), 28),
+                   'crowd_low': (m['cam_crowd_low'], Vector((0, 0, 1.2)), 35)})
+if WHICH in ('athlit', 'all2'):
+    common.reset_scene()
+    m = places.athlit_seabed_1980()
+    shoot('athlit_seabed', {'low': (m['cam_low'], m['ram'], 30)})
+    common.reset_scene()
+    m = places.athlit_ram_display()
+    shoot('athlit_museum', {'three_quarter': (m['cam_three_quarter'], m['ram'], 40),
+                            'close': (m['cam_close'], m['ram'], 50)})
 print('PLACES DONE')

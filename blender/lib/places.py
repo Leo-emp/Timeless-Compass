@@ -126,8 +126,8 @@ def tent_interior(kind='themistocles', frames=(1, 240), seed=0):
     W, D, H = (6.0, 8.0, 3.4) if big else (4.0, 5.0, 3.0)
     root = bpy.data.objects.new(f'tent_{kind}', None)
     link(root)
-    leather = _scan(f'tent_leather_{kind}', 'brown_leather', tint=(0.85, 0.72, 0.58), tiles=4.0)
-    canvas = _scan(f'tent_canvas_{kind}', 'hessian_230', tint=(0.78, 0.68, 0.52), tiles=6.0)
+    leather = _scan(f'tent_leather_{kind}', 'brown_leather', tint=(0.85, 0.72, 0.58), tiles=6.0)
+    canvas = _scan(f'tent_canvas_{kind}', 'hessian_230', tint=(0.78, 0.68, 0.52), tiles=22.0)   # fine weave, not bricks
     ground = _scan(f'tent_ground_{kind}', 'brown_mud_dry', tint=(0.7, 0.6, 0.48), tiles=2.0)
     _box(f'tent_floor_{kind}', (0, 0, -0.05), (W + 2, D + 2, 0.1), ground, root)
     # the roof: two sloping panels to a ridge pole (thin boxes, a little sag from a simple subdivision + noise)
@@ -161,11 +161,11 @@ def tent_interior(kind='themistocles', frames=(1, 240), seed=0):
         marks['seats'] = seats
         marks['speaker'] = Vector((0, -2.6, 0))
         for i, (x, y) in enumerate(((-1.8, -2.8), (1.8, -2.8), (-1.8, 2.6), (1.8, 2.6))):
-            props.lamp_stand(loc=(x, y, 0), height=1.25, lit=True, power=9.0, frames=frames, seed=seed + i, name=f'council_lamp{i}')
+            props.lamp_stand(loc=(x, y, 0), height=1.25, lit=True, power=22.0, frames=frames, seed=seed + i, name=f'council_lamp{i}')
     else:                                                   # Themistocles' own tent
         props.trapeza(loc=(0.6, -1.0, 0), heading_deg=0, name='them_table')
         props.klismos(loc=(0.6, -1.65, 0), heading_deg=0, name='them_chair')
-        props.oil_lamp(loc=(0.85, -1.0, 0.74), lit=True, power=7.0, frames=frames, seed=seed, name='them_lamp')
+        props.oil_lamp(loc=(0.85, -1.0, 0.74), lit=True, power=18.0, frames=frames, seed=seed, name='them_lamp')
         props.kline(loc=(-1.3, -1.3, 0), heading_deg=90, name='them_couch')
         try:                                                # his arms on a stand: helmet, shield, spear (armour kit)
             bronze = bpy.data.materials.get('aged_bronze') or common.aged_bronze()
@@ -184,6 +184,127 @@ def tent_interior(kind='themistocles', frames=(1, 240), seed=0):
         bpy.ops.object.light_add(type='POINT', location=(x, y, 0.5))
         f = bpy.context.object; f.data.energy = 300; f.data.color = (1.0, 0.55, 0.25); f.data.shadow_soft_size = 0.4
     room_haze((0, 0, H / 2), (W - 0.1, D - 0.1, H - 0.1), density=0.012, color=(1.0, 0.85, 0.65), name=f'tent_haze_{kind}')
-    common.area_light(f'tent_fill_{kind}', 25, (0.7, 0.78, 1.0), Vector((0, D / 2 + 1.0, 2.0)), Vector((0, 0, 1.0)), 2.0)
+    common.area_light(f'tent_fill_{kind}', 60, (0.7, 0.78, 1.0), Vector((0, D / 2 + 1.0, 2.0)), Vector((0, 0, 1.0)), 2.0)
     marks['cam_flap'] = Vector((0.3, D / 2 + 0.6, 1.6))
     return marks
+
+
+# ------------------------------------------------------------------ ATHENS: the Pnyx
+def pnyx_assembly(citizens=60, frames=(1, 240), seed=0):
+    """The Pnyx in 480 BC (Phase I, before the 400s rebuilding): a natural rocky slope west of the Acropolis where the
+    Assembly met - citizens sitting and standing on the bare hillside, a speaker on the rock-cut bema at the foot of
+    the slope, the Acropolis rock in view to the east. Herodotus 7.143: here Themistocles argued that the 'wooden
+    walls' meant the fleet. Origin = the bema; the audience slope rises toward -Y; the Acropolis lies to +X."""
+    from lib import sets, scatter
+    root = bpy.data.objects.new('pnyx', None)
+    link(root)
+    # the slope must stay BELOW the bema (v1 buried it: land() noise put metres of hill over the origin) - a gentle
+    # bowl rising away from the speaker, built from one formula so marks and camera heights are predictable
+    bpy.ops.mesh.primitive_grid_add(x_subdivisions=120, y_subdivisions=120, size=140, location=(0, -30, 0))
+    hill = bpy.context.object
+    hill.name = 'pnyx_hill'
+    for v in hill.data.vertices:
+        y = v.co.y - 30.0                                    # world y (grid centred at -30)
+        r = math.hypot(v.co.x, y)
+        v.co.z = max(0.0, (-(y) - 3.0)) * 0.16 + 0.0015 * r * r * (1 if y < 0 else 0.3) - 0.05
+    hill.data.update()
+    hill.data.materials.append(_scan('pnyx_ground', 'coast_land_rocks_01', tint=(0.92, 0.85, 0.72), tiles=4.0))
+    rock = _scan('pnyx_rock', 'rock_wall_08', tint=(0.85, 0.8, 0.72), tiles=1.5)
+    _box('bema_base', (0, 0, 0.45), (3.4, 2.4, 0.9), rock, root)               # the speaker's platform, cut from rock
+    for k in range(3):
+        _box(f'bema_step{k}', (0, -1.45 - k * 0.35, 0.15 * (3 - k)), (2.2, 0.35, 0.3 * (3 - k)), rock, root)
+    sets.mesa('acropolis_far', (420, 40, 0), size=(300, 140), height=70, seed=seed + 3)
+    try:
+        scatter.scatter(hill, ['grass_medium_01', 'dry_branches_medium_01'], 900, (-60, 60, -80, 20), seed=seed + 11,
+                        size=(0.8, 1.4), clusters=50, cluster_r=4.0, min_z=-5, keep_clear=[(0, 0, 4), (0, -14, 14)],
+                        collection_name='pnyx_grass', lod=1)
+    except Exception as e:
+        print('pnyx grass skipped', e)
+    marks = {'root': root, 'speaker': Vector((0, 0, 0.9)), 'acropolis': Vector((420, 40, 60))}
+    rnd = random.Random(seed)                                # audience marks in arcs up the slope (crowd extras go here)
+    aud = []
+    for i in range(citizens):
+        r = 5.0 + (i // 12) * 1.6 + rnd.uniform(-0.3, 0.3)
+        a = math.radians(-60 + (i % 12) * 10 + rnd.uniform(-3, 3))
+        x, y = math.sin(a) * r, -math.cos(a) * r
+        z = max(0.0, (-y - 3.0)) * 0.16 + 0.0015 * (x * x + y * y) * (1 if y < 0 else 0.3) - 0.05   # on the slope
+        aud.append(Vector((x, y, z)))
+    marks['audience'] = aud
+    marks['cam_behind_speaker'] = Vector((1.2, 3.5, 2.2))
+    marks['cam_crowd_low'] = Vector((-4.0, -7.0, 1.2 + 0.16 * 4.0 + 0.0015 * 65))
+    common.hdri_world('kloofendal_48d_partly_cloudy_puresky', strength=1.0)
+    common.sun_light('pnyx_sun', 3.2, (1.0, 0.92, 0.8), 38, 140)
+    return marks
+
+
+# ------------------------------------------------------------------ ATHLIT: the ram, found 1980, and in the museum
+def _water_volume(name, size, loc, density=0.07):
+    bpy.ops.mesh.primitive_cube_add(size=1, location=loc)
+    w = bpy.context.object
+    w.name = name
+    w.scale = size
+    m = bpy.data.materials.new(name + '_mat')
+    nt = m.node_tree
+    nt.nodes.remove(nt.nodes['Principled BSDF'])
+    v = nt.nodes.new('ShaderNodeVolumePrincipled')
+    v.inputs['Color'].default_value = (0.25, 0.6, 0.62, 1)
+    v.inputs['Density'].default_value = density
+    v.inputs['Absorption Color'].default_value = (0.1, 0.45, 0.5, 1)
+    v.inputs['Anisotropy'].default_value = 0.6
+    nt.links.new(v.outputs[0], nt.nodes['Material Output'].inputs['Volume'])
+    w.data.materials.append(m)
+    w.visible_shadow = False
+    return w
+
+
+def athlit_seabed_1980(frames=(1, 240), seed=0):
+    """Athlit, Israel, November 1980: the bronze ram found on the seabed just off the coast (a few metres deep), half
+    buried in sand, a diver's lamp on it. Underwater look: blue-green volume, sun shafts from the surface, ripples."""
+    root = bpy.data.objects.new('athlit_seabed', None)
+    link(root)
+    bpy.ops.mesh.primitive_plane_add(size=60, location=(0, 0, 0))
+    sand = bpy.context.object
+    sand.name = 'seabed_sand'
+    sub = sand.modifiers.new('sub', 'SUBSURF')
+    sub.levels = 5
+    sub.subdivision_type = 'SIMPLE'
+    tex = bpy.data.textures.new('ripples', 'WOOD')
+    tex.wood_type = 'BANDNOISE'
+    tex.noise_scale = 0.6
+    tex.turbulence = 4
+    dsp = sand.modifiers.new('ripples', 'DISPLACE')
+    dsp.texture = tex
+    dsp.strength = 0.04
+    sand.data.materials.append(_scan('seabed_mat', 'coast_sand_rocks_02', tint=(0.8, 0.85, 0.8), tiles=8.0))
+    ram = props.ram_athlit(loc=(0, 0, -0.25), heading_deg=25, plinth=False, corroded=True, name='athlit_ram_found')
+    if ram is not None:
+        ram.rotation_euler.x = math.radians(6)                     # tilted, half in the sand
+    _water_volume('sea_volume', (60, 60, 4.0), (0, 0, 2.0))
+    common.sun_light('surface_sun', 6.0, (0.85, 0.97, 1.0), 70, 160)
+    bpy.ops.object.light_add(type='SPOT', location=(1.6, 1.4, 1.2))   # the diver's lamp
+    lamp = bpy.context.object
+    lamp.data.energy = 600
+    lamp.data.spot_size = math.radians(35)
+    lamp.data.color = (1.0, 0.95, 0.85)
+    lamp.rotation_euler = (Vector((0, 0, 0)) - lamp.location).to_track_quat('-Z', 'Y').to_euler()
+    return {'root': root, 'ram': Vector((0, 0, 0)), 'diver': Vector((1.8, 1.6, 0.6)), 'cam_low': Vector((2.6, -2.2, 0.5))}
+
+
+def athlit_ram_display(frames=(1, 240), seed=0):
+    """The Athlit ram today: National Maritime Museum, Haifa - the corroded bronze ram on a low plinth in a dark
+    gallery, a warm spotlight from above, a plain wall behind (documentary 'now' shot)."""
+    root = bpy.data.objects.new('athlit_gallery', None)
+    link(root)
+    _box('gallery_floor', (0, 0, -0.05), (10, 10, 0.1), principled('gallery_floor', (0.06, 0.06, 0.065), rough=0.35), root)
+    _box('gallery_wall', (0, -3.0, 2.5), (10, 0.2, 5), _scan('gallery_wall', 'grey_plaster_02', tint=(0.35, 0.36, 0.38), tiles=3.0), root)
+    props.ram_athlit(loc=(0, 0, 0), heading_deg=30, plinth=True, corroded=True, name='athlit_ram_museum')
+    bpy.ops.object.light_add(type='SPOT', location=(0.8, 1.2, 4.2))
+    key = bpy.context.object
+    key.data.energy = 2500
+    key.data.spot_size = math.radians(28)
+    key.data.spot_blend = 0.4
+    key.data.color = (1.0, 0.86, 0.68)
+    key.rotation_euler = (Vector((0, 0, 0.6)) - key.location).to_track_quat('-Z', 'Y').to_euler()
+    common.area_light('gallery_rim', 120, (0.7, 0.8, 1.0), Vector((-2.2, -2.0, 2.0)), Vector((0, 0, 0.6)), 1.5)
+    return {'root': root, 'ram': Vector((0, 0, 0.6)), 'cam_three_quarter': Vector((2.4, 2.6, 1.3)),
+            'cam_close': Vector((0.9, 1.1, 0.8))}
