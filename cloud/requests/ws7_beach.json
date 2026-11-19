@@ -1,0 +1,11 @@
+{
+  "name": "ws7_beach",
+  "active": true,
+  "script": "blender/scenes/ws7_exteriors.py",
+  "args": [
+    "out/ws7_beach.png",
+    "24",
+    "beach",
+    "12"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "ws7_camp",
+  "active": true,
+  "script": "blender/scenes/ws7_exteriors.py",
+  "args": [
+    "out/ws7_camp.png",
+    "24",
+    "camp",
+    "12"
+  ]
+}

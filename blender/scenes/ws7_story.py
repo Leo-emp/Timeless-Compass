@@ -74,6 +74,26 @@ elif VARIANT == 'court':                   # Xerxes' throne on Aigaleos: the kin
     sc.frame_set(FRAME)
     common.camera('cam', Vector((0.9, -1.9, 1.25)), Vector((-0.1, 2.0, 1.0)), lens=28, fstop=4.0, focus=(0.0, 2.2, 1.0))
     W.finish(OUT, SAMPLES, exposure=-0.5)
+elif VARIANT == 'aigaleos':               # the REAL setting (Herodotus 8.90, Plutarch): outdoors above the strait
+    sets.xerxes_throne_aigaleos(density=0.8)
+    z0 = 0.18 * 34 + 0.5 + 0.4                   # top of the throne platform (see sets.xerxes_throne_aigaleos)
+    for x in (-2.2, 2.2):                        # incense smoking either side of the king (Persepolis Treasury relief)
+        props.incense_burner((x, -38.6, z0), name=f'incense_{"l" if x < 0 else "r"}')
+    props.royal_parasol((0.7, -41.2, z0), heading_deg=180, tilt_deg=-8)
+    props.trapeza((-3.2, -40.0, z0), heading_deg=90, name='side_table')
+    props.phiale((-3.25, -40.15, z0 + 0.5), name='phiale_gold')
+    props.rhyton((-3.15, -39.8, z0 + 0.5), heading_deg=200)
+    for i, (x, y) in enumerate(((2.8, -38.0), (3.6, -39.2))):   # the secretaries sit on the platform edge writing
+        props.scribe_kit((x, y, z0), heading_deg=150 + i * 20, persian=True, name=f'secretary_kit{i}')
+    for i, (x, y, role) in enumerate(((2.9, -37.6, 'scribe'), (3.7, -38.8, 'scribe'), (-1.6, -41.5, 'guard'),
+                                      (1.6, -41.5, 'guard'), (-4.5, -37.2, 'courtier'))):
+        m = bpy.data.objects.new(f'court_{role}{i}', None); bpy.context.scene.collection.objects.link(m)
+        m.location = (x, y, z0); m['role'] = role
+    sc.frame_set(FRAME)
+    common.camera('cam', Vector((4.5, -27.0, z0 + 1.0)), Vector((-0.5, -40.0, z0 + 1.6)), lens=32)
+    common.render_settings(res=(960, 540), samples=SAMPLES, path=OUT)
+    sc.view_settings.look = 'AgX - High Contrast'; sc.view_settings.exposure = 0.2
+    common.render()
 elif VARIANT == 'scribes':
     W.room(w=8.0, d=6.0, floor='old_sandstone_02', wall='plastered_wall_02', floor_tint=(0.5, 0.48, 0.45), wall_tint=(0.55, 0.52, 0.48))
     W.dark_world(0.02)

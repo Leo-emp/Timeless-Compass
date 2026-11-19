@@ -1,0 +1,11 @@
+{
+  "name": "ws7_sail4",
+  "active": true,
+  "script": "blender/scenes/ws7_ships_v3.py",
+  "args": [
+    "out/ws7_sail4.png",
+    "24",
+    "hero_sail",
+    "20"
+  ]
+}

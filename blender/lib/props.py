@@ -1733,6 +1733,34 @@ def _bm_tube(bm, pts, radius, mi, seg=8, caps=True):
             f = bm.faces.new(r[::-1]); f.material_index = mi
 
 
+def _bm_laid_rope(bm, pts, radius, mi, seg=5, samples_per_twist=8):
+    """LAID ROPE straight into a bmesh: three strands twisted round the path (one full twist every ~8 rope diameters,
+    like real 3-strand hemp/flax rope). For hero close-ups of rigging; far away it reads like a plain line anyway."""
+    pts = [Vector(p) for p in pts]
+    pitch = radius * 8
+    dist = [0.0]
+    for a, b in zip(pts, pts[1:]):
+        dist.append(dist[-1] + (b - a).length)
+    step = pitch / samples_per_twist
+    fine, j, d = [], 0, 0.0
+    while d <= dist[-1]:
+        while j < len(pts) - 2 and dist[j + 1] < d:
+            j += 1
+        u = (d - dist[j]) / max(dist[j + 1] - dist[j], 1e-9)
+        fine.append((pts[j].lerp(pts[j + 1], u), (pts[j + 1] - pts[j]).normalized(), d)); d += step
+    if len(fine) < 2:
+        return
+    side = fine[0][1].orthogonal().normalized()
+    for s_ in range(3):
+        path = []
+        for p, t, dd in fine:
+            side = (side - t * side.dot(t)).normalized()       # carry the frame along (no sudden flips)
+            up = t.cross(side)
+            a = 2 * math.pi * (dd / pitch + s_ / 3)
+            path.append(p + (side * math.cos(a) + up * math.sin(a)) * radius * 0.5)
+        _bm_tube(bm, path, radius * 0.55, mi, seg=seg, caps=False)
+
+
 def _bm_box(bm, centre, size, mi, rot=None):
     import bmesh
     M = Matrix.Translation(centre) @ (rot.to_4x4() if rot is not None else Matrix.Identity(4)) @ Matrix.Diagonal((*size, 1.0))
@@ -1913,7 +1941,7 @@ def _trireme_kit(phoenician=False, furled=True):
     for a_, b_ in rig:                                   # each rope sags a little between its ends
         a_, b_ = Vector(a_), Vector(b_)
         mid = a_.lerp(b_, 0.5) + Vector((0, 0, -0.02 * (b_ - a_).length))
-        _bm_tube(bm, [a_, a_.lerp(mid, 0.5), mid, mid.lerp(b_, 0.5), b_], 0.022, 5, seg=6, caps=False)
+        _bm_laid_rope(bm, [a_, a_.lerp(mid, 0.5), mid, mid.lerp(b_, 0.5), b_], 0.028, 5)   # 3-strand laid rope
     # ======== HERO DETAIL (owner 2026-11-20: build the ships majestically) ========
     for sgn in (-1, 1):
         # marble EYE PLATES on the bow (almond plates like the marble ophthalmoi found at Piraeus), painted iris
