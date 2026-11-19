@@ -1,0 +1,12 @@
+{
+  "name": "d_dress_beach",
+  "active": true,
+  "script": "blender/scenes/daily_life_test.py",
+  "args": [
+    "out/beach_dressed.png",
+    "24",
+    "beach",
+    "0",
+    "dress"
+  ]
+}

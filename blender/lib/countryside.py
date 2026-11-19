@@ -880,17 +880,19 @@ def persian_garden(loc=(0, 0, 0), size=(80.0, 60.0), seed=0, name='paradeisos'):
     wa = link(bpy.data.objects.new(name + '_water', me)); wa.data.materials.append(water)
     # trees: cypress rows along the channels, date palms + olives in the four beds, all in straight rows
     pts = {'tree_cypress': [], 'tree_date_palm': [], 'tree_olive_zakynthos': []}
-    for t in np.arange(-W / 2 + 3, W / 2, 6.0):
+    # an AIRY royal park: cypresses in stately rows set back from the walks (light reaches the water and the paths),
+    # fruit trees and palms spaced wide in the four beds
+    for t in np.arange(-W / 2 + 4, W / 2, 9.0):
         for sgn in (-1, 1):
-            pts['tree_cypress'].append(Vector((cx + t, cy + sgn * 3.0, loc[2])))
-    for t in np.arange(-D / 2 + 3, D / 2, 6.0):
+            pts['tree_cypress'].append(Vector((cx + t, cy + sgn * 5.5, loc[2])))
+    for t in np.arange(-D / 2 + 4, D / 2, 9.0):
         for sgn in (-1, 1):
-            if abs(t) > 4:
-                pts['tree_cypress'].append(Vector((cx + sgn * 3.0, cy + t, loc[2])))
+            if abs(t) > 7:
+                pts['tree_cypress'].append(Vector((cx + sgn * 5.5, cy + t, loc[2])))
     for qx in (-1, 1):
         for qy in (-1, 1):
-            for i, x in enumerate(np.arange(8, W / 2 - 3, 8.0)):
-                for j, y in enumerate(np.arange(8, D / 2 - 3, 8.0)):
+            for i, x in enumerate(np.arange(13, W / 2 - 3, 12.0)):
+                for j, y in enumerate(np.arange(13, D / 2 - 3, 12.0)):
                     kind = 'tree_date_palm' if (i + j) % 2 == 0 else 'tree_olive_zakynthos'
                     pts[kind].append(Vector((cx + qx * x, cy + qy * y, loc[2])))
     parts = {'ground': g, 'channels': ch, 'water': wa, 'trees': []}
@@ -906,7 +908,8 @@ def persian_garden(loc=(0, 0, 0), size=(80.0, 60.0), seed=0, name='paradeisos'):
             if c.name not in allv.children:
                 allv.children.link(c)
         sway = 0.012 if kind == 'tree_cypress' else 0.03
+        sc = {'tree_cypress': (0.75, 0.95), 'tree_date_palm': (0.6, 0.8)}.get(kind, (0.7, 0.9))
         parts['trees'].append(wind_scatter(None, allv, 0, seed=seed + len(parts['trees']), points=P, gust=sway,
                                            gust_size=18.0, gust_speed=2.5, flutter=sway * 0.5, flutter_hz=0.9,
-                                           scale=(0.9, 1.1), name=f'{name}_{kind}'))
+                                           scale=sc, name=f'{name}_{kind}'))
     return parts

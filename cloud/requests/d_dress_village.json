@@ -1,0 +1,12 @@
+{
+  "name": "d_dress_village",
+  "active": true,
+  "script": "blender/scenes/daily_life_test.py",
+  "args": [
+    "out/village_dressed.png",
+    "24",
+    "village",
+    "0",
+    "dress"
+  ]
+}

@@ -61,7 +61,7 @@ def wax_tablet(loc=(0, 0, 0), rot_z=0.0, open_deg=150.0, seed=0, name='wax_table
     hinged with cord, a bronze stylus (pointed end to write, flat end to smooth the wax) lying beside it."""
     root = _root(name, loc, rot_z)
     wood = _m('tablet_box', (0.3, 0.18, 0.08), 0.55, bump=0.3, bump_scale=60)
-    wax = _m('tablet_wax', (0.07, 0.045, 0.02), 0.3, bump=0.25, bump_scale=900)
+    wax = _m('tablet_wax', (0.045, 0.03, 0.014), 0.55, bump=0.35, bump_scale=900)     # dark, soft-sheen beeswax
     W, D, T = 0.16, 0.12, 0.012
     for k, ang in ((0, 0.0), (1, math.radians(180 - open_deg))):
         leaf = link(bpy.data.objects.new(f'{name}_leaf{k}', None)); leaf.parent = root
@@ -155,7 +155,7 @@ def astragaloi(loc=(0, 0, 0), n=5, seed=0, name='astragaloi'):
     return root
 
 
-def insert_set(target=(0, 0, 0), surface='wood', mood='warm', cam_dist=0.42, lens=100, fstop=2.8, height_deg=35.0,
+def insert_set(target=(0, 0, 0), surface='wood', mood='warm', cam_dist=0.55, lens=60, fstop=5.6, height_deg=32.0,
                azimuth_deg=-25.0, res=(1280, 544), samples=48):
     """The insert shot: a surface under the objects, a hard RAKING key (low, from the side: every scratch and grain
     casts a shadow), a soft cool rim from behind, darkness around (deep shadows, rule r10), and a macro camera
@@ -173,9 +173,16 @@ def insert_set(target=(0, 0, 0), surface='wood', mood='warm', cam_dist=0.42, len
         s.data.materials.append(_m('insert_' + surface, (0.25, 0.16, 0.09), 0.6))
     key_col = {'warm': (1.0, 0.72, 0.45), 'cold': (0.6, 0.72, 1.0), 'fire': (1.0, 0.55, 0.25)}[mood]
     a = math.radians(azimuth_deg + 100)
-    common.area_light('insert_key', 18 if mood != 'cold' else 8, key_col, t + Vector((math.cos(a) * 0.8, math.sin(a) * 0.8, 0.22)), t, 0.12)
-    common.area_light('insert_rim', 6, (0.55, 0.65, 1.0) if mood != 'cold' else (0.8, 0.85, 1.0),
-                      t + Vector((-math.cos(a) * 0.5, -math.sin(a) * 0.5 + 0.6, 0.4)), t, 0.3)
+    # KEY: a low, narrow SPOT raking across the surface - a pool of light on the objects, falling off to darkness
+    # around them (the insert look); small source = crisp texture shadows
+    bpy.ops.object.light_add(type='SPOT', location=t + Vector((math.cos(a) * 0.9, math.sin(a) * 0.9, 0.28)))
+    key = bpy.context.object; key.name = 'insert_key'
+    key.data.energy = 40 if mood != 'cold' else 18; key.data.color = key_col
+    key.data.spot_size = math.radians(28); key.data.spot_blend = 0.6; key.data.shadow_soft_size = 0.03
+    common.look_at(key, t)
+    # RIM: a faint cool edge from behind, so dark objects separate from the dark surface
+    common.area_light('insert_rim', 2.5, (0.55, 0.65, 1.0) if mood != 'cold' else (0.8, 0.85, 1.0),
+                      t + Vector((-math.cos(a) * 0.5, -math.sin(a) * 0.5 + 0.6, 0.35)), t, 0.25)
     w = bpy.context.scene.world or bpy.data.worlds.new('insert_world'); bpy.context.scene.world = w
     w.use_nodes = True; w.node_tree.nodes['Background'].inputs['Strength'].default_value = 0.02
     h, az = math.radians(height_deg), math.radians(azimuth_deg)

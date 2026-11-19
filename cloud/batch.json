@@ -1,7 +1,15 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "ws7-12",
+  "batch": "d-verify-3",
   "run": [
-    "ws7_debug_cloth"
+    "d_ins_tablet",
+    "d_ins_ostrakon",
+    "d_ins_coins",
+    "d_ins_scroll",
+    "d_ins_games",
+    "d_dress_market",
+    "d_dress_village",
+    "d_dress_beach",
+    "d_dress_workshops"
   ]
 }

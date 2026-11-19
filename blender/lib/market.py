@@ -209,9 +209,31 @@ def owl_coins(loc, n=12, parent=None, seed=0, name='owls'):
         z = (i * 0.0032 if stacked else 0.0)
         m = Matrix.Translation(Vector((x, y, z))) @ Matrix.Rotation(rnd.uniform(-0.08, 0.08), 4, 'X')
         _lathe(bm, [(0.001, 0), (0.0115, 0.0), (0.012, 0.0015), (0.011, 0.003), (0.001, 0.0032)], seg=20, matrix=m)
-    o = _obj(name, bm, _mat('silver_coin', (0.8, 0.8, 0.78), metal=1.0, rough=0.3, bump=0.2, bump_scale=900), parent)
+    o = _obj(name, bm, _coin_material(), parent)
     o.location = loc
     return o
+
+
+def _coin_material():
+    """Struck silver: a raised design in the middle (the owl / Athena's head, as worn relief noise inside the rim),
+    a darker toned field, bright worn high points, dark in the recesses."""
+    m = bpy.data.materials.get('silver_owl')
+    if m:
+        return m
+    m = bpy.data.materials.new('silver_owl'); m.use_fake_user = True
+    nt = m.node_tree; L = nt.links.new; b = nt.nodes['Principled BSDF']
+    b.inputs['Metallic'].default_value = 1.0
+    tc = nt.nodes.new('ShaderNodeTexCoord')
+    relief = nt.nodes.new('ShaderNodeTexNoise'); relief.inputs['Scale'].default_value = 320; relief.inputs['Detail'].default_value = 6
+    L(tc.outputs['Object'], relief.inputs['Vector'])
+    bp = nt.nodes.new('ShaderNodeBump'); bp.inputs['Strength'].default_value = 0.9; bp.inputs['Distance'].default_value = 0.0006
+    L(relief.outputs['Fac'], bp.inputs['Height']); L(bp.outputs['Normal'], b.inputs['Normal'])
+    ramp = nt.nodes.new('ShaderNodeValToRGB')                         # toning: dark in recesses, bright on high points
+    ramp.color_ramp.elements[0].color = (0.28, 0.27, 0.25, 1); ramp.color_ramp.elements[1].color = (0.85, 0.84, 0.8, 1)
+    L(relief.outputs['Fac'], ramp.inputs['Fac']); L(ramp.outputs['Color'], b.inputs['Base Color'])
+    rr = nt.nodes.new('ShaderNodeMapRange'); rr.inputs['To Min'].default_value = 0.45; rr.inputs['To Max'].default_value = 0.2
+    L(relief.outputs['Fac'], rr.inputs['Value']); L(rr.outputs['Result'], b.inputs['Roughness'])
+    return m
 
 
 def balance(loc, parent=None, heading_deg=0.0, name='balance'):
@@ -450,6 +472,32 @@ def fishing_beach(loc=(0, 0, 0), heading_deg=0.0, boats=3, seed=0, name='fishing
     return parts
 
 
+def _clean_camel_collection(col, height=2.0, keep_calf=False):
+    """The Sketchfab camel file holds a 20-vertex helper box ('Cube_Box_0', ~20 m) plus a mother AND a calf.
+    The generic loader sizes the whole collection by its bounding box, so the helper box set the scale and the
+    camels shrank inside it. Remove the box (and the calf, for a caravan of adults), then re-scale so the adult
+    stands `height` m, and re-centre the collection's origin on its feet. Done once per collection."""
+    if col.get('tc_clean'):
+        return col
+    for o in list(col.objects):
+        if o.type == 'MESH' and (o.name.startswith('Cube_Box') or (not keep_calf and o.name.split('.')[0] in ('Object_69', 'Object_70'))):
+            bpy.data.objects.remove(o)
+    bpy.context.view_layer.update()
+    meshes = [o for o in col.objects if o.type == 'MESH']
+    pts = [o.matrix_world @ Vector(c) for o in meshes for c in o.bound_box]
+    if not pts:
+        return col
+    zmin, zmax = min(p.z for p in pts), max(p.z for p in pts)
+    k = height / max(zmax - zmin, 1e-6)
+    for o in [o for o in col.objects if o.parent is None]:
+        o.scale = tuple(v * k for v in o.scale); o.location = o.location * k
+    bpy.context.view_layer.update()
+    pts = [o.matrix_world @ Vector(c) for o in meshes for c in o.bound_box]
+    col.instance_offset = (sum(p.x for p in pts) / len(pts), sum(p.y for p in pts) / len(pts), min(p.z for p in pts))
+    col['tc_clean'] = True
+    return col
+
+
 def caravan(loc=(0, 0, 0), heading_deg=0.0, n=5, spacing=3.4, back_h=1.95, seed=0, name='caravan'):
     """A trade caravan on the road: camels in single file (the main session's CC-BY camel scan,
     library/scans/animal_camels), each loaded with wool bales, grain sacks or amphorae slung on both flanks over a
@@ -460,7 +508,7 @@ def caravan(loc=(0, 0, 0), heading_deg=0.0, n=5, spacing=3.4, back_h=1.95, seed=
     rnd = random.Random(seed)
     root = _root(name, loc, heading_deg)
     try:
-        vs = scatter.load_scan('animal_camels')
+        vs = [_clean_camel_collection(c) for c in scatter.load_scan('animal_camels')]
     except Exception as e:
         print('caravan: camel scan missing -', e)
         vs = []

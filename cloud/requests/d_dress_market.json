@@ -1,0 +1,12 @@
+{
+  "name": "d_dress_market",
+  "active": true,
+  "script": "blender/scenes/daily_life_test.py",
+  "args": [
+    "out/market_dressed.png",
+    "24",
+    "market",
+    "3",
+    "dress"
+  ]
+}

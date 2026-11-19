@@ -1,0 +1,12 @@
+{
+  "name": "d_dress_workshops",
+  "active": true,
+  "script": "blender/scenes/daily_life_test.py",
+  "args": [
+    "out/workshops_dressed.png",
+    "24",
+    "workshops",
+    "2",
+    "dress"
+  ]
+}

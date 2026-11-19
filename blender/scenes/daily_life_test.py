@@ -1,5 +1,5 @@
 # DAILY LIFE TEST (WS16 + WS3): trading in the agora, a country village, a fishermen's beach, c. 480 BC.
-# Run: blender -b --python blender/scenes/daily_life_test.py -- <out.png> [samples] [view: market|village|beach|caravan|workshops|garden] [people]
+# Run: blender -b --python blender/scenes/daily_life_test.py -- <out.png> [samples] [view: market|village|beach|caravan|workshops|garden] [people] [dress]
 #   people (market view): how many dressed extras to put at the stalls (each is cloth-simulated: ~2-4 min each)
 import math, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -14,6 +14,7 @@ OUT = argv[0] if argv else 'daily_life.png'
 SAMPLES = int(argv[1]) if len(argv) > 1 else 24
 VIEW = argv[2] if len(argv) > 2 else 'market'
 PEOPLE = int(argv[3]) if len(argv) > 3 else 3
+DRESS = len(argv) > 4 and argv[4] == 'dress'          # 'dress' = fill what the camera sees (lib/dressing.py)
 
 common.reset_scene()
 
@@ -92,9 +93,9 @@ elif VIEW == 'garden':
     # a Persian royal garden (paradeisos, after Pasargadae): stone channels, basins, cypress walks, palms
     cs.persian_garden((0, 0, 0), seed=2)
     sets.land('garden_hills', (0, 700, -2), (1400, 300), 300, rough=26, noise=42, seed=11)
-    cam, tgt, lens = Vector((0.6, -36, 2.4)), Vector((0, 10, 1.5)), 28
-    common.hdri_sky('kloofendal_48d_partly_cloudy_puresky', background=0.85, lighting=0.3, rotate_deg=170)
-    common.sun_light('sun', 4.0, (1.0, 0.75, 0.5), 16, 230)
+    cam, tgt, lens = Vector((1.2, -36, 2.2)), Vector((0, 8, 1.6)), 28
+    common.hdri_sky('kloofendal_48d_partly_cloudy_puresky', background=0.9, lighting=0.45, rotate_deg=170)
+    common.sun_light('sun', 4.5, (1.0, 0.8, 0.58), 32, 200)              # light down the garden's long axis
     sets.haze(size=(3000, 3000, 400), density=0.00018, color=(1.0, 0.8, 0.62))
 else:                                                               # beach
     # the sea runs out to the horizon (-Y); the sand starts at the waterline (y = -1) and goes inland (+Y)
@@ -112,6 +113,14 @@ else:                                                               # beach
     sets.haze(size=(4000, 4000, 400), density=0.00012, color=(0.85, 0.9, 1.0))
 common.camera('cam', cam, tgt, lens=lens, fstop=8)
 bpy.context.scene.camera.data.clip_end = 6000
+if DRESS:
+    from lib import dressing
+    setting = {'market': 'market', 'village': 'village', 'beach': 'harbour', 'caravan': 'persian_camp',
+               'workshops': 'village', 'garden': 'countryside'}.get(VIEW, 'village')
+    keep = {'market': [(0, 0, 7.5), (0, -9, 5)], 'village': [(0, 0, 6)], 'beach': [(0, 3.5, 7)],
+            'caravan': [(0, -7, 4), (0, 0, 3)], 'workshops': [(0, 0, 3.5), (7, -1, 3)], 'garden': [(0, 0, 3)]}.get(VIEW, [])
+    ground = globals().get('g') or bpy.data.objects.get('paradeisos_ground')      # the view's own ground
+    dressing.dress_view(bpy.context.scene.camera, ground, setting, amount=160, keep_clear=keep, seed=7)
 common.render_settings(res=(960, 540), samples=SAMPLES, path=OUT)
 bpy.context.scene.view_settings.look = 'AgX - High Contrast'
 bpy.context.scene.view_settings.exposure = -0.4
