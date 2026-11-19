@@ -1,0 +1,13 @@
+{
+  "name": "amphora_stand",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.amphora_stand(loc, scan=None)",
+  "contents": "wooden ring stand holding a pointed amphora",
+  "design_source": "storerooms, symposion vases",
+  "licence": "our own code (scanned textures: Poly Haven CC0)",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": []
+}

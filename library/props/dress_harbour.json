@@ -1,0 +1,13 @@
+{
+  "name": "dress_harbour",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.dress_harbour(loc, heading_deg, length, ships)",
+  "contents": "rich harbour: stoa + sheds behind, amphora racks / sacks / bales / carts / stalls, bollards, ropes, anchors, nets, triremes moored stern-to with gangplanks, fishing boats, worker markers",
+  "design_source": "Piraeus emporion; Greek stern-first mooring",
+  "licence": "our own code (scanned textures: Poly Haven CC0)",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": []
+}

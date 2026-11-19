@@ -1,0 +1,13 @@
+{
+  "name": "bollard",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.bollard(loc)",
+  "contents": "stone mooring post with rope",
+  "design_source": "harbour finds",
+  "licence": "our own code (scanned textures: Poly Haven CC0)",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": []
+}

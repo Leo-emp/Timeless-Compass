@@ -1,0 +1,13 @@
+{
+  "name": "dress_andron",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.dress_andron(loc, heading_deg, lit=True, couches=3)",
+  "contents": "rich andron: painted room shell (red dado, black zone line, meander frieze, beams, raised couch platform, door curtain) + symposion kit + pegs with cups/wreaths/lyre/aulos case/baskets, shelves, hangings, mats, sandals, amphora ring stands, guest markers",
+  "design_source": "Olynthus + Athenian Agora houses; Attic vase interiors (objects hung on walls)",
+  "licence": "our own code (scanned textures: Poly Haven CC0)",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": []
+}

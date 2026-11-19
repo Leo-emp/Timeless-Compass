@@ -1,0 +1,13 @@
+{
+  "name": "bronze_mirror",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.bronze_mirror(loc)",
+  "contents": "polished bronze hand mirror",
+  "design_source": "Classical finds",
+  "licence": "our own code (scanned textures: Poly Haven CC0)",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": []
+}

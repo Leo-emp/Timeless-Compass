@@ -1,0 +1,13 @@
+{
+  "name": "populate",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.populate(kit_root, era, camera, built=8)",
+  "contents": "fills a kit's role markers with real crowd extras (lib/crowd.build_person, unique faces) + instances further back; people ride with moving ships",
+  "design_source": "WS2 crowd system",
+  "licence": "our own code (scanned textures: Poly Haven CC0)",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": []
+}

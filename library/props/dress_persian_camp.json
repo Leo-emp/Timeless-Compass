@@ -1,0 +1,13 @@
+{
+  "name": "dress_persian_camp",
+  "version": 1,
+  "era": "persia_480bc",
+  "kind": "code",
+  "builder": "props.dress_persian_camp(loc, heading_deg, size)",
+  "contents": "royal pavilion on carpet, standards, incense, rows of re-dressed tents, baggage, cauldron fires, spear stacks, camels (animals.py), horses with Persian tack, soldier markers",
+  "design_source": "Herodotus 7.86, 9.82",
+  "licence": "our own code (scanned textures: Poly Haven CC0)",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": []
+}

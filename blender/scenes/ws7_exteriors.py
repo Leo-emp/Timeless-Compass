@@ -48,10 +48,10 @@ if VARIANT == 'harbour':
 elif VARIANT == 'camp':
     common.sky_world(sun_elev_deg=10.0, sun_rot_deg=220.0, strength=0.3)
     common.sun_light('sun', 4.0, (1.0, 0.78, 0.55), 12, 220)
-    ground('ws7_camp_earth', 'brown_mud_dry', (0.62, 0.55, 0.46), size=300.0)
+    ground('ws7_camp_earth', 'brown_mud_dry', (0.34, 0.29, 0.23), size=300.0)                 # trodden earth, not white
     kit = props.dress_persian_camp((0, 0, 0), seed=4)
-    CAM = (14.0, -26.0, 4.5)
-    common.camera('cam', Vector(CAM), Vector((-1.0, 6.0, 1.2)), lens=30)
+    CAM = (3.5, -15.0, 2.2)                                                   # down the camp street, people mid-distance
+    common.camera('cam', Vector(CAM), Vector((-0.5, 6.0, 1.5)), lens=30)
     props.populate(kit, 'persia_480bc', camera=CAM, built=8, seed=4)
 else:
     dusk_sea()

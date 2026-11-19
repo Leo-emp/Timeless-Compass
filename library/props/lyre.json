@@ -1,0 +1,13 @@
+{
+  "name": "lyre",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.lyre(loc, heading_deg, hang=True)",
+  "contents": "tortoise-shell lyra, horn arms, yoke, 7 strings",
+  "design_source": "Attic vases; finds of tortoise-shell sound boxes",
+  "licence": "our own code (scanned textures: Poly Haven CC0)",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": []
+}

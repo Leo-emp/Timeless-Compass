@@ -1,0 +1,13 @@
+{
+  "name": "dress_beach_camp",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.dress_beach_camp(loc, heading_deg, ships)",
+  "contents": "triremes hauled up stern-first, ladders, sails + masts left ashore, oar racks, sailcloth shelters, fires, water jars, men markers",
+  "design_source": "Xenophon Hell. 6.2.27; Herodotus 8",
+  "licence": "our own code (scanned textures: Poly Haven CC0)",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": []
+}

@@ -3128,6 +3128,60 @@ def spear_stack(loc=(0, 0, 0), heading_deg=0.0, n=9, name='spear_stack'):
     return _place(root, loc, heading_deg)
 
 
+def persian_tent(loc=(0, 0, 0), heading_deg=0.0, r=2.2, h=2.8, colors=((0.34, 0.08, 0.06), (0.62, 0.5, 0.3)),
+                 band=(0.12, 0.1, 0.22), seed=0, name='persian_tent'):
+    """A rich Persian campaign TENT (Herodotus 9.82: Xerxes' tent, left to Mardonius, was hung with embroidered
+    cloth): a bell-shaped wool body sewn from VERTICAL panels in two colours, a painted valance band round the eaves,
+    a gilt finial, guy ropes pegged into the ground, and the door flap tied open. Not a plain cone."""
+    rnd = _random.Random(seed)
+    root = _root(name)
+    seg, rows = 32, 10
+    verts, faces = [], []
+    for j in range(rows + 1):
+        v = j / rows
+        z = h * v
+        rad = r * (1 - v) ** 0.75 + 0.06                  # bell curve: steep top, flaring skirt
+        for i in range(seg):
+            a = 2 * math.pi * i / seg
+            if j < 3 and abs(((a + 0.15) % (2 * math.pi)) - math.pi / 2) < 0.28:   # door gap facing +Y
+                rad_ = rad * 0.98
+            else:
+                rad_ = rad
+            verts.append((rad_ * math.cos(a), rad_ * math.sin(a), z))
+    for j in range(rows):
+        for i in range(seg):
+            a_ = i / seg * 2 * math.pi
+            if j < 3 and abs(((a_ + 0.15) % (2 * math.pi)) - math.pi / 2) < 0.22:
+                continue                                    # the open door
+            a, b = j * seg + i, j * seg + (i + 1) % seg
+            faces.append((a, b, b + seg, a + seg))
+    me = bpy.data.meshes.new(name); me.from_pydata(verts, [], faces); me.update()
+    m1 = wool(f'ptent_a_{colors[0]}', colors[0], tile=0.35); m2 = wool(f'ptent_b_{colors[1]}', colors[1], tile=0.35)
+    me.materials.append(m1); me.materials.append(m2)
+    for k, p_ in enumerate(me.polygons):
+        p_.material_index = (k % seg // 2) % 2           # alternating vertical panels (2 segments wide)
+        p_.use_smooth = True
+    body = bpy.data.objects.new(name + '_body', me); link(body); body.parent = root
+    body.modifiers.new('thick', 'SOLIDIFY').thickness = 0.01
+    vb = painted_band(f'ptent_band_{band}', 0.3, bg=tuple(band), fg=(0.7, 0.55, 0.2), repeat=0.3)
+    vz = h * 0.55
+    vr = r * (1 - 0.55) ** 0.75 + 0.07
+    bpy.ops.mesh.primitive_cylinder_add(vertices=seg, radius=vr, depth=0.3, location=(0, 0, vz), end_fill_type='NOTHING')
+    v_ = bpy.context.object; v_.name = f'{name}_valance'; v_.data.materials.append(vb); v_.parent = root
+    g = bpy.data.materials.get('royal_gold') or gold()
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=12, ring_count=8, radius=0.08, location=(0, 0, h + 0.12))
+    f_ = bpy.context.object; f_.name = f'{name}_finial'; f_.data.materials.append(g); f_.parent = root
+    _cyl(f'{name}_pole', (0, 0, (h + 0.1) / 2), 0.04, h + 0.1, old_wood('tent_pole', (0.25, 0.16, 0.09)), verts=8, parent=root)
+    rf = rope_fibre()
+    for k in range(6):                                    # guy ropes to pegs
+        a = 2 * math.pi * (k + 0.5) / 6
+        top = (r * 0.55 * math.cos(a), r * 0.55 * math.sin(a), h * 0.45)
+        peg = (r * 1.7 * math.cos(a), r * 1.7 * math.sin(a), 0.0)
+        _tube(f'{name}_guy', [top, peg], 0.008, rf, root, poly=True, res=1)
+        _cyl(f'{name}_peg', peg, 0.02, 0.25, old_wood('tent_peg', (0.3, 0.2, 0.11)), verts=6, parent=root)
+    return _place(root, loc, heading_deg)
+
+
 def _redress_tent(root, rnd):
     """Give a props.tent (another session's function, left unchanged) real material: woven goat-hair / wool / hide
     in earthy dyes, with a painted band at the hem - Persian tents were famous for their richness (Herodotus 9.82)."""
@@ -3159,9 +3213,11 @@ def dress_persian_camp(loc=(0, 0, 0), heading_deg=0.0, size=(40.0, 28.0), seed=0
         for i in range(6):
             for sgn in (-1, 1):
                 x = sgn * (5.5 + row * 5.0 + rnd.uniform(-0.6, 0.6)); y = D_ / 2 - 10 - i * 4.2 + rnd.uniform(-0.6, 0.6)
-                t_ = tent((0, 0, 0), r=rnd.uniform(1.8, 2.4), h=rnd.uniform(2.3, 2.9), color=rnd.choice(cols), name=f'{name}_tent{k}')
-                _redress_tent(t_, rnd)
-                _put(t_, root, (x, y, 0), rnd.uniform(0, 360))
+                pal = rnd.choice((((0.34, 0.08, 0.06), (0.62, 0.5, 0.3)), ((0.1, 0.12, 0.26), (0.6, 0.52, 0.36)),
+                                  ((0.45, 0.32, 0.12), (0.22, 0.12, 0.08)), ((0.5, 0.42, 0.3), (0.3, 0.07, 0.05))))
+                t_ = persian_tent((0, 0, 0), r=rnd.uniform(1.9, 2.5), h=rnd.uniform(2.6, 3.2), colors=pal, seed=seed + k,
+                                  name=f'{name}_tent{k}')
+                _put(t_, root, (x, y, 0), (90 if sgn < 0 else -90) + rnd.uniform(-15, 15))   # doors face the camp street
                 k += 1
                 if rnd.random() < 0.45:                  # baggage in front of the tents
                     j = rnd.random()

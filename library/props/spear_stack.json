@@ -1,0 +1,13 @@
+{
+  "name": "spear_stack",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.spear_stack(loc, n)",
+  "contents": "spears stood in a cone",
+  "design_source": "camp scenes",
+  "licence": "our own code (scanned textures: Poly Haven CC0)",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": []
+}

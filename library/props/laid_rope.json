@@ -1,0 +1,13 @@
+{
+  "name": "laid_rope",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props._bm_laid_rope(bm, pts, radius, mi)",
+  "contents": "3-strand laid rope geometry, used for the trireme kit rigging",
+  "design_source": "Herodotus 7.25/7.36 (flax/papyrus cables)",
+  "licence": "our own code (scanned textures: Poly Haven CC0)",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": []
+}
