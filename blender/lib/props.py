@@ -607,7 +607,7 @@ def flame_glow(name='lamp_flame', strength=30.0, temp=1800.0):
     return m
 
 
-def tongue_flame_material(name='flame_tongue3', strength=3.2):
+def tongue_flame_material(name='flame_tongue4', strength=3.2):
     """Flame like a real wood/oil flame: hottest (yellow-white, ~1900 K) at the root, cooling to red (~1200 K) toward
     the tip, and fading to nothing at the top and edges (a flame has no hard outline). Uses each tongue's own
     0..1 'Generated' height, so it works at any size."""
@@ -636,11 +636,16 @@ def tongue_flame_material(name='flame_tongue3', strength=3.2):
     fade = nt.nodes.new('ShaderNodeMapRange'); fade.inputs['From Min'].default_value = 0.35; fade.inputs['From Max'].default_value = 1.25
     fade.inputs['To Min'].default_value = 1.0; fade.inputs['To Max'].default_value = 0.0
     L(zt.outputs['Value'], fade.inputs['Value'])
+    root_f = nt.nodes.new('ShaderNodeMapRange'); root_f.inputs['From Min'].default_value = 0.0; root_f.inputs['From Max'].default_value = 0.22
+    L(sep.outputs['Z'], root_f.inputs['Value'])          # the root fades in too: tongues merge, no round 'drop' bottoms
+    both = nt.nodes.new('ShaderNodeMath'); both.operation = 'MULTIPLY'
+    L(fade.outputs['Result'], both.inputs[0]); L(root_f.outputs['Result'], both.inputs[1])
+    alpha = both.outputs[0]                                # how visible the flame is at each point
     em = nt.nodes.new('ShaderNodeEmission'); L(ramp.outputs['Color'], em.inputs['Color'])
     st = nt.nodes.new('ShaderNodeMath'); st.operation = 'MULTIPLY'; st.inputs[1].default_value = strength
-    L(fade.outputs['Result'], st.inputs[0]); L(st.outputs[0], em.inputs['Strength'])
+    L(alpha, st.inputs[0]); L(st.outputs[0], em.inputs['Strength'])
     tr = nt.nodes.new('ShaderNodeBsdfTransparent')
-    mix = nt.nodes.new('ShaderNodeMixShader'); L(fade.outputs['Result'], mix.inputs['Fac'])
+    mix = nt.nodes.new('ShaderNodeMixShader'); L(alpha, mix.inputs['Fac'])
     L(tr.outputs[0], mix.inputs[1]); L(em.outputs[0], mix.inputs[2])
     L(mix.outputs[0], nt.nodes['Material Output'].inputs['Surface'])
     return m
@@ -650,7 +655,7 @@ def flame_tongues(parent, loc, height=0.4, width=0.25, n=6, frames=(1, 240), see
     """A small fire as several teardrop 'tongues' of glowing gas that flicker and sway (keyframed scale + lean every
     2-3 frames). Light-weight and readable at any distance - no volume simulation. Returns the tongue objects."""
     rnd = _random.Random(seed)
-    mat = tongue_flame_material(f'flame_tongue3_{round(strength, 1)}', strength)   # shared per brightness
+    mat = tongue_flame_material(f'flame_tongue4_{round(strength, 1)}', strength)   # shared per brightness
     tex = bpy.data.textures.get('flame_ragged') or bpy.data.textures.new('flame_ragged', 'CLOUDS')
     tex.noise_scale = 0.12; tex.noise_depth = 3
     n = n * 2                                       # twice as many, thinner tongues: a fire, not a candle
@@ -2395,7 +2400,7 @@ def timber_barricade(loc=(0, 0, 0), heading_deg=0.0, length=12.0, height=2.2, bu
                 flame_tongues(root, (fx_, -0.18, z0), height=rnd.uniform(1.0, 2.2) * (1.3 if layer else 1.0),
                               width=rnd.uniform(0.6, 1.0), n=6, frames=frames, seed=seed + i * 7 + layer,
                               name=f'{name}_fire{i}_{layer}', strength=3.5)
-        ember = ember_glow('barricade_embers', strength=4.0)
+        ember = ember_glow('barricade_embers', strength=1.6, temp=1050.0)   # deep red glow in the cracks
         for o in root.children:                      # charred planks glow in their cracks
             if o.type == 'MESH' and o.data.materials and o.data.materials[0] == charred:
                 o.data.materials[0] = ember
