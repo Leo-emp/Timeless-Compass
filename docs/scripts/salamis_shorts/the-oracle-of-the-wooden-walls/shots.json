@@ -1,0 +1,442 @@
+{
+  "_note": "Session B 2026-11-20: author shot list with VISUAL_STANDARD s4 performance spec. Timings come later from tc align (dur=null). Check: python -m tc perf <id>",
+  "shots": [
+    {
+      "id": "s01",
+      "line": 0,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:athenian_envoy:3"
+      ],
+      "where": "delphi_sanctuary",
+      "action": "the envoys climb the mountain path to Apollo's temple at Delphi",
+      "expression": {},
+      "camera": {
+        "move": "crane_up",
+        "from": "below the path",
+        "framing": "extreme_wide",
+        "angle": "low",
+        "side": "centre",
+        "lens": 24,
+        "lens_short": 18,
+        "fstop": 8.0
+      },
+      "sfx": [
+        "mountain wind",
+        "goat bells"
+      ],
+      "era": "greece_480bc",
+      "card": {
+        "kind": "place_date",
+        "text": "Delphi, 481 BC"
+      },
+      "performance": {},
+      "story": "the journey to the god"
+    },
+    {
+      "id": "s02",
+      "line": 0,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "aristonice"
+      ],
+      "where": "delphi_adyton",
+      "action": "in darkness, a woman on a bronze tripod, smoke curling",
+      "expression": {
+        "aristonice": "awe"
+      },
+      "camera": {
+        "move": "push_in",
+        "from": "at the edge of the dark chamber",
+        "framing": "medium_close",
+        "angle": "eye",
+        "side": "right",
+        "lens": 65,
+        "lens_short": 49,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "low hum of the chamber"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "aristonice": {
+          "emotion": "awe",
+          "intensity": 2,
+          "brows": "smooth, unreadable",
+          "gaze": "through the smoke, at no one",
+          "lids": "heavy, half closed",
+          "mouth": "closed",
+          "lips": "still",
+          "jaw": "relaxed",
+          "head": "level",
+          "posture": "seated upright on the tripod",
+          "orientation": "facing camera",
+          "hands": "hands resting on her knees",
+          "gesture": "none",
+          "weight": "seated on the tripod",
+          "interaction": "speaks for the god"
+        }
+      },
+      "story": "who speaks"
+    },
+    {
+      "id": "s03",
+      "line": 1,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "aristonice",
+        "crowd:athenian_envoy:3"
+      ],
+      "where": "delphi_adyton",
+      "action": "she turns her face to the envoys",
+      "expression": {
+        "aristonice": "fear"
+      },
+      "camera": {
+        "move": "static",
+        "from": "low, from the envoys' side",
+        "framing": "close",
+        "angle": "low",
+        "side": "left",
+        "lens": 85,
+        "lens_short": 64,
+        "fstop": 2.0
+      },
+      "sfx": [],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "aristonice": {
+          "emotion": "fear",
+          "intensity": 3,
+          "brows": "raised and drawn together",
+          "gaze": "the envoys",
+          "lids": "wide",
+          "mouth": "open, warning",
+          "lips": "still",
+          "jaw": "relaxed",
+          "head": "level",
+          "posture": "leaning forward on the tripod",
+          "orientation": "three-quarter right",
+          "hands": "one hand raised, palm out",
+          "gesture": "pushes them away",
+          "weight": "forward",
+          "interaction": "tells them to flee"
+        }
+      },
+      "story": "the terrifying first answer"
+    },
+    {
+      "id": "s04",
+      "line": 2,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:athenian_envoy:3"
+      ],
+      "where": "delphi_temple_steps",
+      "action": "the envoys kneel on the steps with olive branches",
+      "expression": {},
+      "camera": {
+        "move": "tilt_down",
+        "from": "above the steps",
+        "framing": "medium",
+        "angle": "high",
+        "side": "centre",
+        "lens": 50,
+        "lens_short": 38,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "wind",
+        "a quiet prayer"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {},
+      "story": "they beg again"
+    },
+    {
+      "id": "s05",
+      "line": 3,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "aristonice"
+      ],
+      "where": "delphi_adyton",
+      "action": "the second answer, slow and certain",
+      "expression": {
+        "aristonice": "resolve"
+      },
+      "camera": {
+        "move": "push_in",
+        "from": "eye level through the smoke",
+        "framing": "close",
+        "angle": "eye",
+        "side": "right",
+        "lens": 85,
+        "lens_short": 64,
+        "fstop": 2.0
+      },
+      "sfx": [],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "aristonice": {
+          "emotion": "resolve",
+          "intensity": 2,
+          "brows": "smooth, unreadable",
+          "gaze": "past the camera, far away",
+          "lids": "heavy, half closed",
+          "mouth": "speaking slowly",
+          "lips": "still",
+          "jaw": "relaxed",
+          "head": "level",
+          "posture": "upright, very still",
+          "orientation": "facing camera, three-quarter right",
+          "hands": "both hands on the tripod rim",
+          "gesture": "none",
+          "weight": "seated on the tripod",
+          "interaction": "gives the riddle"
+        }
+      },
+      "story": "DIALOGUE close-up, real quote 1"
+    },
+    {
+      "id": "s06",
+      "line": 4,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "aristonice"
+      ],
+      "where": "delphi_adyton",
+      "action": "her eyes open fully as she says Salamis",
+      "expression": {
+        "aristonice": "awe"
+      },
+      "camera": {
+        "move": "static",
+        "from": "very close, below eye level",
+        "framing": "extreme_close",
+        "angle": "low",
+        "side": "left",
+        "lens": 100,
+        "lens_short": 75,
+        "fstop": 2.0
+      },
+      "sfx": [],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "aristonice": {
+          "emotion": "awe",
+          "intensity": 3,
+          "brows": "lifting",
+          "gaze": "upward",
+          "lids": "opening wide",
+          "mouth": "speaking, full voice",
+          "lips": "still",
+          "jaw": "relaxed",
+          "head": "level",
+          "posture": "leaning back",
+          "orientation": "three-quarter left",
+          "hands": "hands lifting from the rim",
+          "gesture": "a slow opening of the hands",
+          "weight": "back",
+          "interaction": "the prophecy"
+        }
+      },
+      "story": "DIALOGUE close-up, real quote 2 (new angle)"
+    },
+    {
+      "id": "s07",
+      "line": 5,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:athenian_elder:6"
+      ],
+      "where": "athens_assembly",
+      "action": "on the Pnyx, old men point up at the Acropolis and its thorn hedge",
+      "expression": {},
+      "camera": {
+        "move": "pan_left",
+        "from": "in the crowd",
+        "framing": "wide",
+        "angle": "eye",
+        "side": "right",
+        "lens": 28,
+        "lens_short": 21,
+        "fstop": 5.6
+      },
+      "sfx": [
+        "crowd murmur",
+        "arguing voices"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {},
+      "story": "the first reading"
+    },
+    {
+      "id": "s08",
+      "line": 6,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "themistocles",
+        "crowd:athenian_citizen:20"
+      ],
+      "where": "athens_assembly",
+      "action": "Themistocles answers them, one arm toward the harbour",
+      "expression": {
+        "themistocles": "cunning"
+      },
+      "camera": {
+        "move": "push_in",
+        "from": "below the speaker's platform",
+        "framing": "medium_close",
+        "angle": "low",
+        "side": "left",
+        "lens": 65,
+        "lens_short": 49,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "crowd falls silent"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "themistocles": {
+          "emotion": "cunning",
+          "intensity": 3,
+          "brows": "level, one lifted",
+          "gaze": "the crowd",
+          "lids": "bright, engaged",
+          "mouth": "speaking, almost a smile",
+          "lips": "firm",
+          "jaw": "relaxed",
+          "head": "tilted, persuading",
+          "posture": "standing on the speaker's stone",
+          "orientation": "three-quarter right",
+          "hands": "right arm stretched toward the harbour",
+          "gesture": "sweeps the arm toward the ships",
+          "weight": "forward, on the front foot",
+          "interaction": "wins the crowd"
+        }
+      },
+      "story": "the second reading: ships"
+    },
+    {
+      "id": "s09",
+      "line": 7,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:greek_rower:30",
+        "crowd:athenian_family:10"
+      ],
+      "where": "piraeus_harbour",
+      "action": "men run up the gangplanks; families board boats behind them",
+      "expression": {},
+      "camera": {
+        "move": "track",
+        "from": "along the quay",
+        "framing": "wide",
+        "angle": "high",
+        "side": "centre",
+        "lens": 28,
+        "lens_short": 21,
+        "fstop": 5.6
+      },
+      "sfx": [
+        "footsteps on planks",
+        "orders",
+        "oars"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {},
+      "story": "Athens chooses the ships"
+    },
+    {
+      "id": "s10",
+      "line": 8,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:persian_soldier:6"
+      ],
+      "where": "athens_acropolis",
+      "action": "the timber barricade burns, smoke over the rock",
+      "expression": {},
+      "camera": {
+        "move": "tilt_up",
+        "from": "at the foot of the barricade",
+        "framing": "medium",
+        "angle": "ground",
+        "side": "right",
+        "lens": 50,
+        "lens_short": 38,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "fire",
+        "distant screams"
+      ],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {},
+      "story": "the wrong wall"
+    },
+    {
+      "id": "s11",
+      "line": 9,
+      "at": null,
+      "dur": null,
+      "hold": true,
+      "who": [
+        "crowd:greek_rower:40"
+      ],
+      "where": "salamis_strait_dawn",
+      "action": "a line of Greek triremes rows out of the Salamis shadow into the light",
+      "expression": {},
+      "camera": {
+        "move": "crane_down",
+        "from": "on the water ahead of the fleet",
+        "framing": "extreme_wide",
+        "angle": "low",
+        "side": "left",
+        "lens": 24,
+        "lens_short": 18,
+        "fstop": 8.0
+      },
+      "sfx": [
+        "oars in unison",
+        "paean chant"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {},
+      "story": "the real wooden wall (r11 music moment)"
+    }
+  ]
+}

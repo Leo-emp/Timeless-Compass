@@ -1,0 +1,554 @@
+{
+  "_note": "Session B 2026-11-20: author shot list with VISUAL_STANDARD s4 performance spec. Timings come later from tc align (dur=null). Check: python -m tc perf <id>",
+  "shots": [
+    {
+      "id": "s01",
+      "line": 0,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "xerxes",
+        "crowd:scribe:3",
+        "crowd:immortal_guard:8"
+      ],
+      "where": "aigaleos_hill",
+      "action": "the golden throne on the hillside, scribes kneeling with tablets, the strait below",
+      "expression": {
+        "xerxes": "resolve"
+      },
+      "camera": {
+        "move": "crane_up",
+        "from": "below the hill",
+        "framing": "extreme_wide",
+        "angle": "low",
+        "side": "right",
+        "lens": 24,
+        "lens_short": 18,
+        "fstop": 8.0
+      },
+      "sfx": [
+        "wind on the hill",
+        "banners flapping"
+      ],
+      "era": "persia_480bc",
+      "card": {
+        "kind": "place_date",
+        "text": "Mount Aigaleos, 480 BC"
+      },
+      "performance": {
+        "xerxes": {
+          "emotion": "resolve",
+          "intensity": 1,
+          "brows": "heavy, level",
+          "gaze": "the strait",
+          "lids": "half lowered, regal",
+          "mouth": "closed",
+          "lips": "full, still",
+          "jaw": "set",
+          "head": "high, chin raised",
+          "posture": "seated upright, robes spread",
+          "orientation": "facing the sea",
+          "hands": "hands on the golden armrests",
+          "gesture": "none",
+          "weight": "back in the throne",
+          "interaction": "above everyone"
+        }
+      },
+      "story": "power: a king staging his own victory"
+    },
+    {
+      "id": "s02",
+      "line": 1,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "xerxes"
+      ],
+      "where": "aigaleos_hill",
+      "action": "the first smoke rises below; his eyes narrow",
+      "expression": {
+        "xerxes": "fear"
+      },
+      "camera": {
+        "move": "push_in",
+        "from": "in front of the throne",
+        "framing": "extreme_close",
+        "angle": "eye",
+        "side": "left",
+        "lens": 100,
+        "lens_short": 75,
+        "fstop": 2.0
+      },
+      "sfx": [],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {
+        "xerxes": {
+          "emotion": "fear",
+          "intensity": 1,
+          "brows": "a small pinch between them",
+          "gaze": "smoke on the water",
+          "lids": "narrowing",
+          "mouth": "closed",
+          "lips": "full, still",
+          "jaw": "set",
+          "head": "high, chin raised",
+          "posture": "seated upright",
+          "orientation": "three-quarter right",
+          "hands": "fingers tightening on the armrest",
+          "gesture": "none",
+          "weight": "back in the throne",
+          "interaction": "above everyone"
+        }
+      },
+      "story": "the hook's twist on one face"
+    },
+    {
+      "id": "s03",
+      "line": 2,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:persian_rower:40"
+      ],
+      "where": "salamis_strait_dawn",
+      "action": "hundreds of Persian ships crowd into the strait between Salamis and the mainland",
+      "expression": {},
+      "camera": {
+        "move": "pan_right",
+        "from": "on the Aigaleos slope",
+        "framing": "wide",
+        "angle": "high",
+        "side": "centre",
+        "lens": 28,
+        "lens_short": 21,
+        "fstop": 5.6
+      },
+      "sfx": [
+        "drums",
+        "thousands of oars"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {},
+      "story": "geography: why the narrows matter"
+    },
+    {
+      "id": "s04",
+      "line": 3,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "xerxes",
+        "crowd:scribe:2"
+      ],
+      "where": "aigaleos_hill",
+      "action": "Xerxes points; a scribe scratches a name into wax",
+      "expression": {
+        "xerxes": "resolve"
+      },
+      "camera": {
+        "move": "static",
+        "from": "beside the scribes",
+        "framing": "medium",
+        "angle": "eye",
+        "side": "right",
+        "lens": 50,
+        "lens_short": 38,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "stylus on wax"
+      ],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {
+        "xerxes": {
+          "emotion": "resolve",
+          "intensity": 2,
+          "brows": "heavy, level",
+          "gaze": "a ship in the strait",
+          "lids": "half lowered, regal",
+          "mouth": "closed",
+          "lips": "full, still",
+          "jaw": "set",
+          "head": "pushed forward",
+          "posture": "leaning forward in the throne",
+          "orientation": "profile left",
+          "hands": "right arm extended, pointing",
+          "gesture": "points at a ship",
+          "weight": "forward to the throne's edge",
+          "interaction": "commands the scribes"
+        }
+      },
+      "story": "the scribes' job, shown not told"
+    },
+    {
+      "id": "s05",
+      "line": 3,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:scribe:1"
+      ],
+      "where": "aigaleos_hill",
+      "action": "insert: the stylus cuts a name into the wax tablet",
+      "expression": {},
+      "camera": {
+        "move": "static",
+        "from": "above the tablet",
+        "framing": "insert",
+        "angle": "top",
+        "side": "centre",
+        "lens": 100,
+        "lens_short": 75,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "stylus scratch"
+      ],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {},
+      "story": "the record that will remember the disaster"
+    },
+    {
+      "id": "s06",
+      "line": 4,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "xerxes"
+      ],
+      "where": "aigaleos_hill",
+      "action": "Xerxes speaks without looking at the scribe",
+      "expression": {
+        "xerxes": "contempt"
+      },
+      "camera": {
+        "move": "push_in",
+        "from": "low beside the throne",
+        "framing": "close",
+        "angle": "low",
+        "side": "left",
+        "lens": 85,
+        "lens_short": 64,
+        "fstop": 2.0
+      },
+      "sfx": [],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {
+        "xerxes": {
+          "emotion": "contempt",
+          "intensity": 3,
+          "brows": "heavy, level",
+          "gaze": "the battle, never the scribe",
+          "lids": "half lowered, regal",
+          "mouth": "speaking, the upper lip curled",
+          "lips": "tight",
+          "jaw": "set",
+          "head": "high, chin raised",
+          "posture": "seated, turned toward the scribe",
+          "orientation": "three-quarter right",
+          "hands": "one hand lifted, palm down",
+          "gesture": "a slow downward wave",
+          "weight": "back in the throne",
+          "interaction": "threatens without looking"
+        }
+      },
+      "story": "DIALOGUE close-up"
+    },
+    {
+      "id": "s07",
+      "line": 5,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:persian_rower:20"
+      ],
+      "where": "salamis_strait_dawn",
+      "action": "two Persian ships collide; oars snap like sticks",
+      "expression": {},
+      "camera": {
+        "move": "handheld",
+        "from": "on the water between the hulls",
+        "framing": "medium",
+        "angle": "ground",
+        "side": "left",
+        "lens": 50,
+        "lens_short": 38,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "timber crash",
+        "oars snapping",
+        "men shouting"
+      ],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {},
+      "story": "chaos in the narrows"
+    },
+    {
+      "id": "s08",
+      "line": 6,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "artemisia",
+        "crowd:carian_rower:10"
+      ],
+      "where": "salamis_strait_dawn",
+      "action": "Artemisia at the stern of her ship, a hand raised, her ram bearing down on a ship of her own fleet",
+      "expression": {
+        "artemisia": "resolve"
+      },
+      "camera": {
+        "move": "track",
+        "from": "alongside her ship",
+        "framing": "medium_close",
+        "angle": "low",
+        "side": "right",
+        "lens": 65,
+        "lens_short": 49,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "ram impact",
+        "splintering hull"
+      ],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {
+        "artemisia": {
+          "emotion": "resolve",
+          "intensity": 3,
+          "brows": "lowered, hard",
+          "gaze": "the ship ahead",
+          "lids": "narrowed",
+          "mouth": "closed, jaw tight",
+          "lips": "pressed",
+          "jaw": "clenched",
+          "head": "level, straight ahead",
+          "posture": "standing braced at the stern",
+          "orientation": "three-quarter left",
+          "hands": "right hand raised to the helmsman",
+          "gesture": "drives the hand forward: ram it",
+          "weight": "braced against the rail",
+          "interaction": "orders her crew"
+        }
+      },
+      "story": "the twist: she rams her own side"
+    },
+    {
+      "id": "s09",
+      "line": 6,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "xerxes"
+      ],
+      "where": "aigaleos_hill",
+      "action": "Xerxes rises half out of the throne, astonished",
+      "expression": {
+        "xerxes": "awe"
+      },
+      "camera": {
+        "move": "tilt_up",
+        "from": "slightly above the throne",
+        "framing": "medium",
+        "angle": "high",
+        "side": "centre",
+        "lens": 50,
+        "lens_short": 38,
+        "fstop": 2.8
+      },
+      "sfx": [],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {
+        "xerxes": {
+          "emotion": "awe",
+          "intensity": 3,
+          "brows": "lifted",
+          "gaze": "Artemisia's ship",
+          "lids": "wide",
+          "mouth": "slightly open",
+          "lips": "full, still",
+          "jaw": "dropped a little",
+          "head": "high, chin raised",
+          "posture": "half risen from the throne",
+          "orientation": "facing camera",
+          "hands": "both hands pushing on the armrests",
+          "gesture": "rising",
+          "weight": "up onto the feet",
+          "interaction": "believes what he sees"
+        }
+      },
+      "story": "he misreads the moment"
+    },
+    {
+      "id": "s10",
+      "line": 7,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "xerxes",
+        "crowd:persian_noble:3"
+      ],
+      "where": "aigaleos_hill",
+      "action": "Xerxes says it to his nobles, bitter",
+      "expression": {
+        "xerxes": "contempt"
+      },
+      "camera": {
+        "move": "static",
+        "from": "eye level",
+        "framing": "close",
+        "angle": "eye",
+        "side": "right",
+        "lens": 85,
+        "lens_short": 64,
+        "fstop": 2.0
+      },
+      "sfx": [],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {
+        "xerxes": {
+          "emotion": "contempt",
+          "intensity": 4,
+          "brows": "heavy, level",
+          "gaze": "his nobles beside him",
+          "lids": "half lowered, regal",
+          "mouth": "speaking, corners pulled down",
+          "lips": "tight",
+          "jaw": "set",
+          "head": "turned to the nobles",
+          "posture": "standing in front of the throne",
+          "orientation": "three-quarter left",
+          "hands": "one hand flung toward the sea",
+          "gesture": "an open, disgusted gesture",
+          "weight": "forward",
+          "interaction": "shames his own men"
+        }
+      },
+      "story": "DIALOGUE close-up, real quote"
+    },
+    {
+      "id": "s11",
+      "line": 8,
+      "at": null,
+      "dur": null,
+      "hold": true,
+      "who": [
+        "xerxes"
+      ],
+      "where": "aigaleos_hill",
+      "action": "the king tears his robe, alone against the sky",
+      "expression": {
+        "xerxes": "grief"
+      },
+      "camera": {
+        "move": "crane_down",
+        "from": "below the hilltop",
+        "framing": "wide",
+        "angle": "low",
+        "side": "left",
+        "lens": 28,
+        "lens_short": 21,
+        "fstop": 5.6
+      },
+      "sfx": [
+        "cloth tearing",
+        "a cry carried by the wind"
+      ],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {
+        "xerxes": {
+          "emotion": "grief",
+          "intensity": 4,
+          "brows": "raised in the middle",
+          "gaze": "the burning fleet",
+          "lids": "squeezed",
+          "mouth": "open, crying out",
+          "lips": "full, still",
+          "jaw": "open",
+          "head": "thrown back",
+          "posture": "standing, bent at the waist",
+          "orientation": "profile right",
+          "hands": "both hands tearing the robe at the chest",
+          "gesture": "rips the fabric",
+          "weight": "staggering forward",
+          "interaction": "in full view of his army"
+        }
+      },
+      "story": "emotional beat (r11 music moment)"
+    },
+    {
+      "id": "s12",
+      "line": 9,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "xerxes",
+        "crowd:phoenician_captain:3",
+        "crowd:immortal_guard:4"
+      ],
+      "where": "aigaleos_hill",
+      "action": "Phoenician captains forced to their knees; Xerxes turns his back",
+      "expression": {
+        "xerxes": "rage"
+      },
+      "camera": {
+        "move": "pull_out",
+        "from": "behind the captains",
+        "framing": "medium_close",
+        "angle": "high",
+        "side": "right",
+        "lens": 65,
+        "lens_short": 49,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "guards' steps",
+        "a sword drawn"
+      ],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {
+        "xerxes": {
+          "emotion": "rage",
+          "intensity": 3,
+          "brows": "crushed down",
+          "gaze": "nothing - he will not look",
+          "lids": "half lowered, regal",
+          "mouth": "closed hard",
+          "lips": "full, still",
+          "jaw": "clenched",
+          "head": "high, chin raised",
+          "posture": "standing, turning away",
+          "orientation": "back three-quarter to camera",
+          "hands": "a hand cutting down through the air",
+          "gesture": "the order",
+          "weight": "back in the throne",
+          "interaction": "condemns the captains"
+        }
+      },
+      "story": "he blames others; the end"
+    }
+  ]
+}

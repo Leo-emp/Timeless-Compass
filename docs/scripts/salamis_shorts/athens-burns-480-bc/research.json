@@ -1,0 +1,162 @@
+{
+  "world": "salamis_480bc",
+  "topics": [
+    "athens_burns"
+  ],
+  "sources": {
+    "herodotus": {
+      "author": "Herodotus",
+      "work": "Histories",
+      "kind": "ancient",
+      "date": "c. 430 BC",
+      "note": "main narrative; wrote about 50 years after the battle, from Athenian and other informants"
+    },
+    "plutarch_them": {
+      "author": "Plutarch",
+      "work": "Life of Themistocles",
+      "kind": "ancient",
+      "date": "c. AD 100",
+      "note": "late; quotes older lost historians"
+    },
+    "strauss": {
+      "author": "Barry Strauss",
+      "work": "The Battle of Salamis",
+      "kind": "modern",
+      "date": "2004"
+    },
+    "green": {
+      "author": "Peter Green",
+      "work": "The Greco-Persian Wars",
+      "kind": "modern",
+      "date": "1996"
+    }
+  },
+  "facts": [
+    {
+      "id": "f-date",
+      "claim": "The battle of Salamis was fought in 480 BC, traditionally dated to late September.",
+      "cites": [
+        "strauss",
+        "green"
+      ],
+      "topics": [
+        "secret_message",
+        "throne",
+        "rams",
+        "athens_burns",
+        "oracle"
+      ]
+    },
+    {
+      "id": "f-oracle-second",
+      "claim": "The envoys returned as suppliants carrying olive branches and were given a second answer: Zeus grants that a wooden wall alone shall not be taken.",
+      "cites": [
+        "herodotus:7.141"
+      ],
+      "topics": [
+        "oracle",
+        "athens_burns"
+      ]
+    },
+    {
+      "id": "f-oracle-hedge",
+      "claim": "Some older Athenians believed the wooden wall meant the thorn hedge that once ringed the Acropolis.",
+      "cites": [
+        "herodotus:7.142"
+      ],
+      "topics": [
+        "oracle",
+        "athens_burns"
+      ]
+    },
+    {
+      "id": "f-evacuation",
+      "claim": "The Athenians evacuated their families and slaves to Troezen, Aegina and Salamis.",
+      "cites": [
+        "herodotus:8.41",
+        "plutarch_them:10"
+      ],
+      "topics": [
+        "athens_burns",
+        "oracle"
+      ]
+    },
+    {
+      "id": "f-defenders",
+      "claim": "A few Athenians, the temple stewards and poor men, stayed on the Acropolis behind a barricade of planks and timber, believing it was the wooden wall of the oracle.",
+      "cites": [
+        "herodotus:8.51"
+      ],
+      "topics": [
+        "athens_burns",
+        "oracle"
+      ]
+    },
+    {
+      "id": "f-climb",
+      "claim": "The Persians climbed the steep front of the Acropolis near the shrine of Aglauros, where no guard was posted.",
+      "cites": [
+        "herodotus:8.53"
+      ],
+      "topics": [
+        "athens_burns"
+      ]
+    },
+    {
+      "id": "f-burned",
+      "claim": "They killed the defenders, plundered the temple and set the whole Acropolis on fire.",
+      "cites": [
+        "herodotus:8.53"
+      ],
+      "topics": [
+        "athens_burns",
+        "oracle"
+      ]
+    },
+    {
+      "id": "f-susa",
+      "claim": "Xerxes sent a horseman to Susa to announce his success.",
+      "cites": [
+        "herodotus:8.54"
+      ],
+      "topics": [
+        "athens_burns",
+        "throne"
+      ]
+    },
+    {
+      "id": "f-olive",
+      "status": "disputed",
+      "note": "A story the Athenians told Herodotus; say 'Herodotus says' or 'the Athenians said'.",
+      "claim": "Herodotus says Athena's sacred olive tree burned with the temple, yet the next day a new shoot a cubit long had grown from the stump.",
+      "cites": [
+        "herodotus:8.55"
+      ],
+      "topics": [
+        "athens_burns"
+      ]
+    },
+    {
+      "id": "f-panic",
+      "claim": "When news reached the Greek fleet at Salamis that the Acropolis had fallen, some commanders panicked and voted to sail away to the Isthmus.",
+      "cites": [
+        "herodotus:8.56"
+      ],
+      "topics": [
+        "athens_burns",
+        "secret_message"
+      ]
+    },
+    {
+      "id": "f-athens-ships",
+      "claim": "Athens supplied the largest contingent of the Greek fleet: 180 ships.",
+      "cites": [
+        "herodotus:8.44"
+      ],
+      "topics": [
+        "athens_burns",
+        "rams"
+      ]
+    }
+  ]
+}

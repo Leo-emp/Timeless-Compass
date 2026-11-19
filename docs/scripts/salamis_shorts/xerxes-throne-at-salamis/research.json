@@ -1,0 +1,179 @@
+{
+  "world": "salamis_480bc",
+  "topics": [
+    "throne"
+  ],
+  "sources": {
+    "herodotus": {
+      "author": "Herodotus",
+      "work": "Histories",
+      "kind": "ancient",
+      "date": "c. 430 BC",
+      "note": "main narrative; wrote about 50 years after the battle, from Athenian and other informants"
+    },
+    "aeschylus": {
+      "author": "Aeschylus",
+      "work": "The Persians",
+      "kind": "ancient",
+      "date": "472 BC",
+      "note": "a play staged 8 years after the battle, for an audience of men who fought in it"
+    },
+    "plutarch_them": {
+      "author": "Plutarch",
+      "work": "Life of Themistocles",
+      "kind": "ancient",
+      "date": "c. AD 100",
+      "note": "late; quotes older lost historians"
+    },
+    "strauss": {
+      "author": "Barry Strauss",
+      "work": "The Battle of Salamis",
+      "kind": "modern",
+      "date": "2004"
+    },
+    "green": {
+      "author": "Peter Green",
+      "work": "The Greco-Persian Wars",
+      "kind": "modern",
+      "date": "1996"
+    }
+  },
+  "facts": [
+    {
+      "id": "f-date",
+      "claim": "The battle of Salamis was fought in 480 BC, traditionally dated to late September.",
+      "cites": [
+        "strauss",
+        "green"
+      ],
+      "topics": [
+        "secret_message",
+        "throne",
+        "rams",
+        "athens_burns",
+        "oracle"
+      ]
+    },
+    {
+      "id": "f-susa",
+      "claim": "Xerxes sent a horseman to Susa to announce his success.",
+      "cites": [
+        "herodotus:8.54"
+      ],
+      "topics": [
+        "athens_burns",
+        "throne"
+      ]
+    },
+    {
+      "id": "f-aeschylus-message",
+      "claim": "Aeschylus, eight years later, also tells of a Greek who came to Xerxes saying the Greeks would slip away under cover of night.",
+      "cites": [
+        "aeschylus:355-363"
+      ],
+      "topics": [
+        "secret_message",
+        "throne"
+      ]
+    },
+    {
+      "id": "f-throne-aigaleos",
+      "claim": "Xerxes watched the battle seated at the foot of Mount Aigaleos, on the mainland opposite Salamis.",
+      "cites": [
+        "herodotus:8.90"
+      ],
+      "topics": [
+        "throne"
+      ]
+    },
+    {
+      "id": "f-throne-scribes",
+      "claim": "Whenever he saw one of his captains do something notable, he asked who it was, and his scribes wrote down the captain's name, his father and his city.",
+      "cites": [
+        "herodotus:8.90"
+      ],
+      "topics": [
+        "throne"
+      ]
+    },
+    {
+      "id": "f-throne-golden",
+      "claim": "Plutarch says Xerxes sat on a golden throne, with many secretaries beside him to record the battle.",
+      "cites": [
+        "plutarch_them:13"
+      ],
+      "topics": [
+        "throne"
+      ]
+    },
+    {
+      "id": "f-artemisia",
+      "claim": "Artemisia, queen of Halicarnassus, chased by an Athenian ship, rammed and sank a ship from her own side.",
+      "cites": [
+        "herodotus:8.87"
+      ],
+      "topics": [
+        "throne",
+        "rams"
+      ]
+    },
+    {
+      "id": "f-men-women",
+      "claim": "Xerxes thought she had sunk a Greek ship and said: my men have become women, and my women men.",
+      "cites": [
+        "herodotus:8.88"
+      ],
+      "topics": [
+        "throne"
+      ]
+    },
+    {
+      "id": "f-phoenicians",
+      "claim": "When Phoenician captains blamed the Ionians for the defeat, Xerxes had them beheaded.",
+      "cites": [
+        "herodotus:8.90"
+      ],
+      "topics": [
+        "throne"
+      ]
+    },
+    {
+      "id": "f-robes",
+      "claim": "Aeschylus says that when Xerxes saw the depth of the disaster he tore his robes and cried out, for he had a seat in full view of the whole army, on a high hill near the sea.",
+      "cites": [
+        "aeschylus:465-470"
+      ],
+      "topics": [
+        "throne"
+      ]
+    },
+    {
+      "id": "f-narrows",
+      "claim": "In the narrow strait the crowded Persian ships could not use their numbers; they struck each other with their bronze rams and broke their oars.",
+      "cites": [
+        "aeschylus:412-420",
+        "herodotus:8.86"
+      ],
+      "topics": [
+        "rams",
+        "throne",
+        "secret_message",
+        "oracle"
+      ]
+    },
+    {
+      "id": "f-fleet-size",
+      "status": "disputed",
+      "note": "Herodotus gives 378 Greek ships; modern historians think the Persian fleet was far smaller than 1,207 by the day of battle. Say 'Aeschylus claims'.",
+      "claim": "Aeschylus puts the Greek fleet at about 310 ships and Xerxes' fleet at 1,207.",
+      "cites": [
+        "aeschylus:338-343",
+        "strauss"
+      ],
+      "topics": [
+        "rams",
+        "throne"
+      ]
+    }
+  ]
+}

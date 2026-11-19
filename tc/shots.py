@@ -37,6 +37,7 @@ class Shot:
     era: str = ""
     card: dict | None = None
     span: list | None = None          # [start, end] of the spoken line this shot belongs to (set by fill_timing)
+    performance: dict | None = None   # per-person acting spec (VISUAL_STANDARD section 4, checked by tc perf)
 
     @classmethod
     def from_dict(cls, d: dict) -> "Shot":

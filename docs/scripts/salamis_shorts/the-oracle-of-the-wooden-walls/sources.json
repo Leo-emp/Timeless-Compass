@@ -1,0 +1,100 @@
+{
+  "f-date": {
+    "claim": "The battle of Salamis was fought in 480 BC, traditionally dated to late September.",
+    "cites": [
+      "Barry Strauss, The Battle of Salamis (2004)",
+      "Peter Green, The Greco-Persian Wars (1996)"
+    ],
+    "status": "agreed"
+  },
+  "f-oracle-first": {
+    "claim": "Before the invasion, Athenian envoys at Delphi received a terrifying first answer from the priestess Aristonice: flee to the ends of the earth.",
+    "cites": [
+      "Herodotus, Histories 7.140"
+    ],
+    "status": "agreed"
+  },
+  "f-oracle-second": {
+    "claim": "The envoys returned as suppliants carrying olive branches and were given a second answer: Zeus grants that a wooden wall alone shall not be taken.",
+    "cites": [
+      "Herodotus, Histories 7.141"
+    ],
+    "status": "agreed"
+  },
+  "f-oracle-salamis": {
+    "claim": "The second answer also said: divine Salamis, you will destroy the children of women.",
+    "cites": [
+      "Herodotus, Histories 7.141"
+    ],
+    "status": "agreed"
+  },
+  "f-oracle-hedge": {
+    "claim": "Some older Athenians believed the wooden wall meant the thorn hedge that once ringed the Acropolis.",
+    "cites": [
+      "Herodotus, Histories 7.142"
+    ],
+    "status": "agreed"
+  },
+  "f-oracle-ships": {
+    "claim": "Others said the wooden wall meant the ships, and Themistocles argued the oracle would have said 'cruel Salamis', not 'divine', if Athenians were meant to die there.",
+    "cites": [
+      "Herodotus, Histories 7.142-143",
+      "Plutarch, Life of Themistocles 10"
+    ],
+    "status": "agreed"
+  },
+  "f-oracle-vote": {
+    "claim": "The Athenians decided to meet the invader at sea with their ships, together with the other Greeks who were willing.",
+    "cites": [
+      "Herodotus, Histories 7.144",
+      "Barry Strauss, The Battle of Salamis (2004)"
+    ],
+    "status": "agreed"
+  },
+  "f-laurium": {
+    "claim": "Years earlier Themistocles had persuaded Athens to spend a rich new silver strike from the Laurium mines on warships instead of sharing the money out.",
+    "cites": [
+      "Herodotus, Histories 7.144",
+      "Plutarch, Life of Themistocles 4"
+    ],
+    "status": "agreed"
+  },
+  "f-laurium-number": {
+    "claim": "Herodotus says the silver built 200 ships.",
+    "cites": [
+      "Herodotus, Histories 7.144",
+      "Plutarch, Life of Themistocles 4"
+    ],
+    "status": "disputed"
+  },
+  "f-evacuation": {
+    "claim": "The Athenians evacuated their families and slaves to Troezen, Aegina and Salamis.",
+    "cites": [
+      "Herodotus, Histories 8.41",
+      "Plutarch, Life of Themistocles 10"
+    ],
+    "status": "agreed"
+  },
+  "f-defenders": {
+    "claim": "A few Athenians, the temple stewards and poor men, stayed on the Acropolis behind a barricade of planks and timber, believing it was the wooden wall of the oracle.",
+    "cites": [
+      "Herodotus, Histories 8.51"
+    ],
+    "status": "agreed"
+  },
+  "f-burned": {
+    "claim": "They killed the defenders, plundered the temple and set the whole Acropolis on fire.",
+    "cites": [
+      "Herodotus, Histories 8.53"
+    ],
+    "status": "agreed"
+  },
+  "f-narrows": {
+    "claim": "In the narrow strait the crowded Persian ships could not use their numbers; they struck each other with their bronze rams and broke their oars.",
+    "cites": [
+      "Aeschylus, The Persians 412-420",
+      "Herodotus, Histories 8.86"
+    ],
+    "status": "agreed"
+  }
+}

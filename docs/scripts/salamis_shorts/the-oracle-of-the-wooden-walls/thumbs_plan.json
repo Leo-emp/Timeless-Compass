@@ -1,0 +1,117 @@
+{
+  "variants": [
+    {
+      "id": "A",
+      "face": "ARISTONICE",
+      "emotion": "awe",
+      "era_detail": "Delphi tripod and smoke",
+      "set": "salamis_strait_dusk",
+      "palette": "ember",
+      "face_side": "left",
+      "face_frac": 0.45,
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "words": ""
+    },
+    {
+      "id": "B",
+      "face": "ARISTONICE",
+      "emotion": "fear",
+      "era_detail": "olive branches",
+      "set": "salamis_strait_dusk",
+      "palette": "gold",
+      "face_side": "right",
+      "face_frac": 0.6,
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "words": ""
+    },
+    {
+      "id": "C",
+      "face": "ARISTONICE",
+      "emotion": "resolve",
+      "era_detail": "wooden ships on the sea",
+      "set": "salamis_strait_dusk",
+      "palette": "steel",
+      "face_side": "left",
+      "face_frac": 0.45,
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "words": ""
+    }
+  ],
+  "render_requests": [
+    {
+      "job": "20261119-1824-the-oracle-of-the-wooden-walls",
+      "variant": "A",
+      "cast": "aristonice",
+      "expression": "awe",
+      "set": "salamis_strait_dusk",
+      "era_detail": "Delphi tripod and smoke",
+      "light": "fire_lit",
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "face_frac": 0.45,
+      "face_side": "left",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "output": "C:\\Users\\User\\timeless-compass\\jobs\\20261119-1824-the-oracle-of-the-wooden-walls\\thumbs\\render_A.png"
+    },
+    {
+      "job": "20261119-1824-the-oracle-of-the-wooden-walls",
+      "variant": "B",
+      "cast": "aristonice",
+      "expression": "fear",
+      "set": "salamis_strait_dusk",
+      "era_detail": "olive branches",
+      "light": "dusk",
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "face_frac": 0.6,
+      "face_side": "right",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "output": "C:\\Users\\User\\timeless-compass\\jobs\\20261119-1824-the-oracle-of-the-wooden-walls\\thumbs\\render_B.png"
+    },
+    {
+      "job": "20261119-1824-the-oracle-of-the-wooden-walls",
+      "variant": "C",
+      "cast": "aristonice",
+      "expression": "resolve",
+      "set": "salamis_strait_dusk",
+      "era_detail": "wooden ships on the sea",
+      "light": "night",
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "face_frac": 0.45,
+      "face_side": "left",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "output": "C:\\Users\\User\\timeless-compass\\jobs\\20261119-1824-the-oracle-of-the-wooden-walls\\thumbs\\render_C.png"
+    }
+  ]
+}

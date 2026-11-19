@@ -1,0 +1,81 @@
+{
+  "f-date": {
+    "claim": "The battle of Salamis was fought in 480 BC, traditionally dated to late September.",
+    "cites": [
+      "Barry Strauss, The Battle of Salamis (2004)",
+      "Peter Green, The Greco-Persian Wars (1996)"
+    ],
+    "status": "agreed"
+  },
+  "f-oracle-second": {
+    "claim": "The envoys returned as suppliants carrying olive branches and were given a second answer: Zeus grants that a wooden wall alone shall not be taken.",
+    "cites": [
+      "Herodotus, Histories 7.141"
+    ],
+    "status": "agreed"
+  },
+  "f-oracle-hedge": {
+    "claim": "Some older Athenians believed the wooden wall meant the thorn hedge that once ringed the Acropolis.",
+    "cites": [
+      "Herodotus, Histories 7.142"
+    ],
+    "status": "agreed"
+  },
+  "f-evacuation": {
+    "claim": "The Athenians evacuated their families and slaves to Troezen, Aegina and Salamis.",
+    "cites": [
+      "Herodotus, Histories 8.41",
+      "Plutarch, Life of Themistocles 10"
+    ],
+    "status": "agreed"
+  },
+  "f-defenders": {
+    "claim": "A few Athenians, the temple stewards and poor men, stayed on the Acropolis behind a barricade of planks and timber, believing it was the wooden wall of the oracle.",
+    "cites": [
+      "Herodotus, Histories 8.51"
+    ],
+    "status": "agreed"
+  },
+  "f-climb": {
+    "claim": "The Persians climbed the steep front of the Acropolis near the shrine of Aglauros, where no guard was posted.",
+    "cites": [
+      "Herodotus, Histories 8.53"
+    ],
+    "status": "agreed"
+  },
+  "f-burned": {
+    "claim": "They killed the defenders, plundered the temple and set the whole Acropolis on fire.",
+    "cites": [
+      "Herodotus, Histories 8.53"
+    ],
+    "status": "agreed"
+  },
+  "f-susa": {
+    "claim": "Xerxes sent a horseman to Susa to announce his success.",
+    "cites": [
+      "Herodotus, Histories 8.54"
+    ],
+    "status": "agreed"
+  },
+  "f-olive": {
+    "claim": "Herodotus says Athena's sacred olive tree burned with the temple, yet the next day a new shoot a cubit long had grown from the stump.",
+    "cites": [
+      "Herodotus, Histories 8.55"
+    ],
+    "status": "disputed"
+  },
+  "f-panic": {
+    "claim": "When news reached the Greek fleet at Salamis that the Acropolis had fallen, some commanders panicked and voted to sail away to the Isthmus.",
+    "cites": [
+      "Herodotus, Histories 8.56"
+    ],
+    "status": "agreed"
+  },
+  "f-athens-ships": {
+    "claim": "Athens supplied the largest contingent of the Greek fleet: 180 ships.",
+    "cites": [
+      "Herodotus, Histories 8.44"
+    ],
+    "status": "agreed"
+  }
+}

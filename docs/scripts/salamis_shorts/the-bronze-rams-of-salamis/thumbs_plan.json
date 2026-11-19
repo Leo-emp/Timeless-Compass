@@ -1,0 +1,117 @@
+{
+  "variants": [
+    {
+      "id": "A",
+      "face": "AMEINIAS",
+      "emotion": "rage",
+      "era_detail": "bronze ram tearing a hull",
+      "set": "salamis_strait_dusk",
+      "palette": "ember",
+      "face_side": "left",
+      "face_frac": 0.45,
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "words": ""
+    },
+    {
+      "id": "B",
+      "face": "AMEINIAS",
+      "emotion": "fear",
+      "era_detail": "rowers at the oars",
+      "set": "salamis_strait_dusk",
+      "palette": "gold",
+      "face_side": "right",
+      "face_frac": 0.6,
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "words": ""
+    },
+    {
+      "id": "C",
+      "face": "AMEINIAS",
+      "emotion": "resolve",
+      "era_detail": "splintered Persian oars",
+      "set": "salamis_strait_dusk",
+      "palette": "steel",
+      "face_side": "left",
+      "face_frac": 0.45,
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "words": ""
+    }
+  ],
+  "render_requests": [
+    {
+      "job": "20261119-1824-the-bronze-rams-of-salamis",
+      "variant": "A",
+      "cast": "ameinias",
+      "expression": "rage",
+      "set": "salamis_strait_dusk",
+      "era_detail": "bronze ram tearing a hull",
+      "light": "fire_lit",
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "face_frac": 0.45,
+      "face_side": "left",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "output": "C:\\Users\\User\\timeless-compass\\jobs\\20261119-1824-the-bronze-rams-of-salamis\\thumbs\\render_A.png"
+    },
+    {
+      "job": "20261119-1824-the-bronze-rams-of-salamis",
+      "variant": "B",
+      "cast": "ameinias",
+      "expression": "fear",
+      "set": "salamis_strait_dusk",
+      "era_detail": "rowers at the oars",
+      "light": "dusk",
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "face_frac": 0.6,
+      "face_side": "right",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "output": "C:\\Users\\User\\timeless-compass\\jobs\\20261119-1824-the-bronze-rams-of-salamis\\thumbs\\render_B.png"
+    },
+    {
+      "job": "20261119-1824-the-bronze-rams-of-salamis",
+      "variant": "C",
+      "cast": "ameinias",
+      "expression": "resolve",
+      "set": "salamis_strait_dusk",
+      "era_detail": "splintered Persian oars",
+      "light": "night",
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "face_frac": 0.45,
+      "face_side": "left",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "output": "C:\\Users\\User\\timeless-compass\\jobs\\20261119-1824-the-bronze-rams-of-salamis\\thumbs\\render_C.png"
+    }
+  ]
+}

@@ -1,0 +1,608 @@
+{
+  "_note": "Session B 2026-11-20: author shot list with VISUAL_STANDARD s4 performance spec. Timings come later from tc align (dur=null). Check: python -m tc perf <id>",
+  "shots": [
+    {
+      "id": "s01",
+      "line": 0,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "themistocles",
+        "crowd:greek_sentry:2"
+      ],
+      "where": "salamis_shore_night",
+      "action": "a lone figure walks the dark beach past the beached triremes",
+      "expression": {
+        "themistocles": "resolve"
+      },
+      "camera": {
+        "move": "crane_down",
+        "from": "above the beached fleet",
+        "framing": "extreme_wide",
+        "angle": "high",
+        "side": "right",
+        "lens": 24,
+        "lens_short": 18,
+        "fstop": 8.0
+      },
+      "sfx": [
+        "night surf",
+        "distant fire crackle",
+        "rigging creak"
+      ],
+      "era": "greece_480bc",
+      "card": {
+        "kind": "place_date",
+        "text": "Salamis, 480 BC"
+      },
+      "performance": {
+        "themistocles": {
+          "emotion": "resolve",
+          "intensity": 1,
+          "brows": "level, inner corners slightly drawn",
+          "gaze": "the dark strait",
+          "lids": "lowered, calculating",
+          "mouth": "closed, one corner pulled in",
+          "lips": "thin, pressed",
+          "jaw": "relaxed but set",
+          "head": "tilted a little down",
+          "posture": "walking, cloak drawn tight",
+          "orientation": "away from camera, toward the water",
+          "hands": "one hand holding the cloak shut",
+          "gesture": "none",
+          "weight": "steady, unhurried steps",
+          "interaction": "alone with his thoughts"
+        }
+      },
+      "story": "place + secrecy: one man moving while the camp sleeps"
+    },
+    {
+      "id": "s02",
+      "line": 1,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "themistocles"
+      ],
+      "where": "salamis_shore_night",
+      "action": "he stops at the waterline and looks across at the enemy lights",
+      "expression": {
+        "themistocles": "cunning"
+      },
+      "camera": {
+        "move": "push_in",
+        "from": "low, beside him",
+        "framing": "close",
+        "angle": "low",
+        "side": "left",
+        "lens": 85,
+        "lens_short": 64,
+        "fstop": 2.0
+      },
+      "sfx": [],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "themistocles": {
+          "emotion": "cunning",
+          "intensity": 2,
+          "brows": "level, inner corners slightly drawn",
+          "gaze": "the Persian camp fires across the water",
+          "lids": "lowered, calculating",
+          "mouth": "closed, one corner pulled in",
+          "lips": "thin, pressed",
+          "jaw": "relaxed but set",
+          "head": "tilted a little down",
+          "posture": "standing still at the waterline",
+          "orientation": "profile right, facing the Persian lights",
+          "hands": "hands hidden in the cloak",
+          "gesture": "none",
+          "weight": "on the back foot",
+          "interaction": "alone with his thoughts"
+        }
+      },
+      "story": "the face of a man about to do something dangerous"
+    },
+    {
+      "id": "s03",
+      "line": 2,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "eurybiades",
+        "crowd:greek_captain:6"
+      ],
+      "where": "greek_council_tent",
+      "action": "captains shout across a lamp-lit table; one bangs his fist",
+      "expression": {
+        "eurybiades": "anger"
+      },
+      "camera": {
+        "move": "handheld",
+        "from": "among the captains",
+        "framing": "medium",
+        "angle": "eye",
+        "side": "centre",
+        "lens": 50,
+        "lens_short": 38,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "raised voices",
+        "fist on table",
+        "oil lamp hiss"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "eurybiades": {
+          "emotion": "anger",
+          "intensity": 3,
+          "brows": "drawn down hard",
+          "gaze": "a captain across the table",
+          "lids": "narrowed",
+          "mouth": "open mid-shout",
+          "lips": "tense",
+          "jaw": "dropped, forceful",
+          "head": "pushed forward",
+          "posture": "leaning over the table on both fists",
+          "orientation": "facing camera, three-quarter left",
+          "hands": "fists on the table",
+          "gesture": "a fist comes down",
+          "weight": "forward onto the hands",
+          "interaction": "argues with the captains"
+        }
+      },
+      "story": "the Greek alliance breaking apart"
+    },
+    {
+      "id": "s04",
+      "line": 3,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "themistocles",
+        "eurybiades"
+      ],
+      "where": "greek_council_tent",
+      "action": "Themistocles, ignored, steps back from the table and slips out through the tent flap",
+      "expression": {
+        "themistocles": "cunning",
+        "eurybiades": "anger"
+      },
+      "camera": {
+        "move": "pan_right",
+        "from": "behind the table",
+        "framing": "medium_close",
+        "angle": "high",
+        "side": "right",
+        "lens": 65,
+        "lens_short": 49,
+        "fstop": 2.8
+      },
+      "sfx": [],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "themistocles": {
+          "emotion": "cunning",
+          "intensity": 2,
+          "brows": "level, inner corners slightly drawn",
+          "gaze": "the tent flap",
+          "lids": "lowered, calculating",
+          "mouth": "closed, one corner pulled in",
+          "lips": "thin, pressed",
+          "jaw": "relaxed but set",
+          "head": "tilted a little down",
+          "posture": "stepping back from the table",
+          "orientation": "three-quarter right, turning to the exit",
+          "hands": "one hand lifting the tent flap",
+          "gesture": "small backward step",
+          "weight": "shifting to the back foot, leaving",
+          "interaction": "no one notices him go"
+        },
+        "eurybiades": {
+          "emotion": "anger",
+          "intensity": 2,
+          "brows": "lowered",
+          "gaze": "the captains, not Themistocles",
+          "lids": "narrowed",
+          "mouth": "closed, breathing hard",
+          "lips": "pressed",
+          "jaw": "clenched",
+          "head": "turned away",
+          "posture": "upright, arms crossed",
+          "orientation": "profile left",
+          "hands": "arms crossed",
+          "gesture": "none",
+          "weight": "planted",
+          "interaction": "turns his back on Themistocles"
+        }
+      },
+      "story": "losing the vote, he acts alone"
+    },
+    {
+      "id": "s05",
+      "line": 4,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "themistocles",
+        "sicinnus"
+      ],
+      "where": "themistocles_tent",
+      "action": "by one oil lamp Themistocles grips Sicinnus by the shoulder",
+      "expression": {
+        "themistocles": "resolve",
+        "sicinnus": "fear"
+      },
+      "camera": {
+        "move": "static",
+        "from": "over Sicinnus' shoulder",
+        "framing": "over_shoulder",
+        "angle": "eye",
+        "side": "left",
+        "lens": 50,
+        "lens_short": 38,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "oil lamp flicker",
+        "whispers"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "themistocles": {
+          "emotion": "resolve",
+          "intensity": 2,
+          "brows": "level, inner corners slightly drawn",
+          "gaze": "Sicinnus' eyes",
+          "lids": "lowered, calculating",
+          "mouth": "closed, one corner pulled in",
+          "lips": "thin, pressed",
+          "jaw": "relaxed but set",
+          "head": "tilted a little down",
+          "posture": "leaning in close",
+          "orientation": "facing Sicinnus, three-quarter to camera",
+          "hands": "right hand gripping Sicinnus' shoulder",
+          "gesture": "a slow nod",
+          "weight": "on the back foot",
+          "interaction": "choosing the one man he trusts"
+        },
+        "sicinnus": {
+          "emotion": "fear",
+          "intensity": 2,
+          "brows": "inner corners raised",
+          "gaze": "Themistocles' face",
+          "lids": "wide",
+          "mouth": "slightly open",
+          "lips": "dry, parted",
+          "jaw": "loose",
+          "head": "drawn back a little",
+          "posture": "standing stiffly",
+          "orientation": "back three-quarter to camera",
+          "hands": "hands at his sides, fingers curled",
+          "gesture": "none",
+          "weight": "on the heels",
+          "interaction": "listens, afraid"
+        }
+      },
+      "story": "the messenger is chosen"
+    },
+    {
+      "id": "s06",
+      "line": 5,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "themistocles",
+        "sicinnus"
+      ],
+      "where": "themistocles_tent",
+      "action": "Themistocles whispers the message",
+      "expression": {
+        "themistocles": "cunning",
+        "sicinnus": "fear"
+      },
+      "camera": {
+        "move": "push_in",
+        "from": "close on Themistocles",
+        "framing": "close",
+        "angle": "low",
+        "side": "right",
+        "lens": 85,
+        "lens_short": 64,
+        "fstop": 2.0
+      },
+      "sfx": [],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "themistocles": {
+          "emotion": "cunning",
+          "intensity": 3,
+          "brows": "level, inner corners slightly drawn",
+          "gaze": "past Sicinnus, at nothing",
+          "lids": "lowered, calculating",
+          "mouth": "speaking low, barely moving",
+          "lips": "soft, controlled",
+          "jaw": "relaxed but set",
+          "head": "tilted a little down",
+          "posture": "bent toward Sicinnus' ear",
+          "orientation": "three-quarter right",
+          "hands": "both hands holding Sicinnus' arms",
+          "gesture": "lips close to the ear",
+          "weight": "on the back foot",
+          "interaction": "whispers the lie"
+        },
+        "sicinnus": {
+          "emotion": "fear",
+          "intensity": 3,
+          "brows": "raised",
+          "gaze": "the floor",
+          "lids": "wide, unblinking",
+          "mouth": "closed tight",
+          "lips": "pressed",
+          "jaw": "clenched",
+          "head": "still, ear turned toward Themistocles",
+          "posture": "rigid, shoulders up",
+          "orientation": "profile left, soft focus",
+          "hands": "fists closed",
+          "gesture": "a tiny swallow",
+          "weight": "frozen",
+          "interaction": "memorises every word"
+        }
+      },
+      "story": "DIALOGUE close-up: the speaker's face fills the frame"
+    },
+    {
+      "id": "s07",
+      "line": 6,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "sicinnus"
+      ],
+      "where": "salamis_strait_night",
+      "action": "a small boat crosses black water toward the lights of the Persian fleet",
+      "expression": {
+        "sicinnus": "fear"
+      },
+      "camera": {
+        "move": "track",
+        "from": "at water level beside the boat",
+        "framing": "wide",
+        "angle": "ground",
+        "side": "centre",
+        "lens": 28,
+        "lens_short": 21,
+        "fstop": 5.6
+      },
+      "sfx": [
+        "oar dip and pull",
+        "lapping water",
+        "distant Persian voices"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "sicinnus": {
+          "emotion": "fear",
+          "intensity": 2,
+          "brows": "raised and tight",
+          "gaze": "the Persian lights ahead",
+          "lids": "wide",
+          "mouth": "closed, breathing through the nose",
+          "lips": "pressed",
+          "jaw": "set",
+          "head": "low between the shoulders",
+          "posture": "rowing, hunched",
+          "orientation": "back to camera, facing the lights",
+          "hands": "both hands on the oars",
+          "gesture": "long quiet strokes",
+          "weight": "pulling back with each stroke",
+          "interaction": "alone on the water"
+        }
+      },
+      "story": "the crossing: tiny boat, huge enemy"
+    },
+    {
+      "id": "s08",
+      "line": 7,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:persian_officer:4"
+      ],
+      "where": "persian_flagship",
+      "action": "Persian officers listen, then one turns and shouts orders; ships' lanterns start to move",
+      "expression": {},
+      "camera": {
+        "move": "orbit",
+        "from": "around the officers",
+        "framing": "medium",
+        "angle": "low",
+        "side": "left",
+        "lens": 50,
+        "lens_short": 38,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "shouted orders in Persian",
+        "drum beat",
+        "oars running out"
+      ],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {},
+      "story": "the enemy takes the bait"
+    },
+    {
+      "id": "s09",
+      "line": 7,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:persian_rower:30"
+      ],
+      "where": "salamis_strait_night",
+      "action": "a line of Persian ships glides across the mouth of the strait in the dark",
+      "expression": {},
+      "camera": {
+        "move": "crane_up",
+        "from": "high above the strait",
+        "framing": "extreme_wide",
+        "angle": "top",
+        "side": "centre",
+        "lens": 24,
+        "lens_short": 18,
+        "fstop": 8.0
+      },
+      "sfx": [],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {},
+      "story": "the trap closing, seen from above"
+    },
+    {
+      "id": "s10",
+      "line": 8,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "themistocles"
+      ],
+      "where": "themistocles_tent",
+      "action": "Themistocles alone, a slow breath, the lamp burning low",
+      "expression": {
+        "themistocles": "cunning"
+      },
+      "camera": {
+        "move": "static",
+        "from": "eye level, very close",
+        "framing": "extreme_close",
+        "angle": "eye",
+        "side": "left",
+        "lens": 100,
+        "lens_short": 75,
+        "fstop": 2.0
+      },
+      "sfx": [],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "themistocles": {
+          "emotion": "cunning",
+          "intensity": 2,
+          "brows": "level, inner corners slightly drawn",
+          "gaze": "the lamp flame",
+          "lids": "lowered, calculating",
+          "mouth": "the faintest pull at one corner",
+          "lips": "thin, pressed",
+          "jaw": "relaxed but set",
+          "head": "tilted a little down",
+          "posture": "sitting on a stool",
+          "orientation": "facing camera, three-quarter left",
+          "hands": "fingers steepled at his lips",
+          "gesture": "none",
+          "weight": "still, settled",
+          "interaction": "alone, waiting for dawn"
+        }
+      },
+      "story": "the twist lands on his face: it was bait"
+    },
+    {
+      "id": "s11",
+      "line": 9,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:persian_rower:40"
+      ],
+      "where": "salamis_strait_dawn",
+      "action": "dawn: the Persian fleet packed into the narrows, oars almost touching",
+      "expression": {},
+      "camera": {
+        "move": "pan_left",
+        "from": "on the Salamis headland",
+        "framing": "wide",
+        "angle": "high",
+        "side": "right",
+        "lens": 28,
+        "lens_short": 21,
+        "fstop": 5.6
+      },
+      "sfx": [
+        "sea wind",
+        "thousands of oars"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {},
+      "story": "the numbers that will count for nothing"
+    },
+    {
+      "id": "s12",
+      "line": 10,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "sicinnus"
+      ],
+      "where": "thespiae_house",
+      "action": "later: Sicinnus, dressed as a free man, in the doorway of his own house",
+      "expression": {
+        "sicinnus": "resolve"
+      },
+      "camera": {
+        "move": "pull_out",
+        "from": "in the courtyard",
+        "framing": "medium",
+        "angle": "eye",
+        "side": "centre",
+        "lens": 50,
+        "lens_short": 38,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "birdsong",
+        "distant town"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "sicinnus": {
+          "emotion": "resolve",
+          "intensity": 1,
+          "brows": "relaxed",
+          "gaze": "the street",
+          "lids": "soft, open",
+          "mouth": "closed, at ease",
+          "lips": "relaxed",
+          "jaw": "relaxed",
+          "head": "level, chin a little up",
+          "posture": "standing tall in the doorway",
+          "orientation": "facing camera",
+          "hands": "one hand on the door frame",
+          "gesture": "none",
+          "weight": "even on both feet",
+          "interaction": "a free man in his own house"
+        }
+      },
+      "story": "the payoff for the slave"
+    }
+  ]
+}

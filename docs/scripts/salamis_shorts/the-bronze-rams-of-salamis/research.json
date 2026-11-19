@@ -1,0 +1,202 @@
+{
+  "world": "salamis_480bc",
+  "topics": [
+    "rams"
+  ],
+  "sources": {
+    "herodotus": {
+      "author": "Herodotus",
+      "work": "Histories",
+      "kind": "ancient",
+      "date": "c. 430 BC",
+      "note": "main narrative; wrote about 50 years after the battle, from Athenian and other informants"
+    },
+    "aeschylus": {
+      "author": "Aeschylus",
+      "work": "The Persians",
+      "kind": "ancient",
+      "date": "472 BC",
+      "note": "a play staged 8 years after the battle, for an audience of men who fought in it"
+    },
+    "plutarch_them": {
+      "author": "Plutarch",
+      "work": "Life of Themistocles",
+      "kind": "ancient",
+      "date": "c. AD 100",
+      "note": "late; quotes older lost historians"
+    },
+    "strauss": {
+      "author": "Barry Strauss",
+      "work": "The Battle of Salamis",
+      "kind": "modern",
+      "date": "2004"
+    },
+    "green": {
+      "author": "Peter Green",
+      "work": "The Greco-Persian Wars",
+      "kind": "modern",
+      "date": "1996"
+    },
+    "holland": {
+      "author": "Tom Holland",
+      "work": "Persian Fire",
+      "kind": "modern",
+      "date": "2005"
+    },
+    "morrison": {
+      "author": "J. S. Morrison, J. F. Coates and N. B. Rankov",
+      "work": "The Athenian Trireme (2nd ed.)",
+      "kind": "modern",
+      "date": "2000"
+    },
+    "athlit": {
+      "author": "L. Casson and J. R. Steffy (eds.)",
+      "work": "The Athlit Ram",
+      "kind": "archaeology",
+      "date": "1991"
+    }
+  },
+  "facts": [
+    {
+      "id": "f-date",
+      "claim": "The battle of Salamis was fought in 480 BC, traditionally dated to late September.",
+      "cites": [
+        "strauss",
+        "green"
+      ],
+      "topics": [
+        "secret_message",
+        "throne",
+        "rams",
+        "athens_burns",
+        "oracle"
+      ]
+    },
+    {
+      "id": "f-laurium",
+      "claim": "Years earlier Themistocles had persuaded Athens to spend a rich new silver strike from the Laurium mines on warships instead of sharing the money out.",
+      "cites": [
+        "herodotus:7.144",
+        "plutarch_them:4"
+      ],
+      "topics": [
+        "oracle",
+        "rams"
+      ]
+    },
+    {
+      "id": "f-athens-ships",
+      "claim": "Athens supplied the largest contingent of the Greek fleet: 180 ships.",
+      "cites": [
+        "herodotus:8.44"
+      ],
+      "topics": [
+        "athens_burns",
+        "rams"
+      ]
+    },
+    {
+      "id": "f-trap",
+      "claim": "Modern historians read the message as a deliberate trap to force the battle into the narrow strait.",
+      "cites": [
+        "strauss",
+        "green",
+        "holland"
+      ],
+      "topics": [
+        "secret_message",
+        "rams"
+      ]
+    },
+    {
+      "id": "f-artemisia",
+      "claim": "Artemisia, queen of Halicarnassus, chased by an Athenian ship, rammed and sank a ship from her own side.",
+      "cites": [
+        "herodotus:8.87"
+      ],
+      "topics": [
+        "throne",
+        "rams"
+      ]
+    },
+    {
+      "id": "f-ram-weapon",
+      "claim": "A trireme's main weapon was a bronze ram fixed at the waterline of its bow.",
+      "cites": [
+        "morrison"
+      ],
+      "topics": [
+        "rams"
+      ]
+    },
+    {
+      "id": "f-rowers",
+      "claim": "A trireme carried about 170 rowers on three levels and about 200 men in all.",
+      "cites": [
+        "morrison",
+        "herodotus:7.184"
+      ],
+      "topics": [
+        "rams"
+      ]
+    },
+    {
+      "id": "f-first-ram",
+      "claim": "Herodotus says the Athenian Ameinias of Pallene was the first to ram an enemy ship; when the ships locked together, others came to help and the battle began.",
+      "cites": [
+        "herodotus:8.84"
+      ],
+      "topics": [
+        "rams"
+      ]
+    },
+    {
+      "id": "f-aeschylus-ram",
+      "claim": "Aeschylus says a Greek ship began the ramming and smashed off the curved stern of a Phoenician ship.",
+      "cites": [
+        "aeschylus:408-411"
+      ],
+      "topics": [
+        "rams"
+      ]
+    },
+    {
+      "id": "f-narrows",
+      "claim": "In the narrow strait the crowded Persian ships could not use their numbers; they struck each other with their bronze rams and broke their oars.",
+      "cites": [
+        "aeschylus:412-420",
+        "herodotus:8.86"
+      ],
+      "topics": [
+        "rams",
+        "throne",
+        "secret_message",
+        "oracle"
+      ]
+    },
+    {
+      "id": "f-fleet-size",
+      "status": "disputed",
+      "note": "Herodotus gives 378 Greek ships; modern historians think the Persian fleet was far smaller than 1,207 by the day of battle. Say 'Aeschylus claims'.",
+      "claim": "Aeschylus puts the Greek fleet at about 310 ships and Xerxes' fleet at 1,207.",
+      "cites": [
+        "aeschylus:338-343",
+        "strauss"
+      ],
+      "topics": [
+        "rams",
+        "throne"
+      ]
+    },
+    {
+      "id": "f-athlit",
+      "claim": "The largest ancient warship ram ever found, the Athlit ram, was discovered off Israel in 1980: one piece of cast bronze, about 2.26 metres long and 465 kilograms. It comes from a later warship, not from Salamis.",
+      "cites": [
+        "athlit"
+      ],
+      "topics": [
+        "rams"
+      ]
+    }
+  ]
+}

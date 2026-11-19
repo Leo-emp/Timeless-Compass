@@ -1,0 +1,389 @@
+{
+  "_note": "Session B 2026-11-20: author shot list with VISUAL_STANDARD s4 performance spec. Timings come later from tc align (dur=null). Check: python -m tc perf <id>",
+  "shots": [
+    {
+      "id": "s01",
+      "line": 0,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:greek_rower:30"
+      ],
+      "where": "salamis_strait_dawn",
+      "action": "a trireme surges straight at camera, bronze ram cutting the water",
+      "expression": {},
+      "camera": {
+        "move": "pull_out",
+        "from": "at water level ahead of the bow",
+        "framing": "wide",
+        "angle": "ground",
+        "side": "centre",
+        "lens": 28,
+        "lens_short": 21,
+        "fstop": 5.6
+      },
+      "sfx": [
+        "bow wave",
+        "rhythm of oars",
+        "flute keeping time"
+      ],
+      "era": "greece_480bc",
+      "card": {
+        "kind": "place_date",
+        "text": "Salamis, 480 BC"
+      },
+      "performance": {},
+      "story": "hook: the ship IS the weapon"
+    },
+    {
+      "id": "s02",
+      "line": 1,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "prop:bronze_ram"
+      ],
+      "where": "salamis_strait_dawn",
+      "action": "insert: the bronze ram at the waterline, water breaking over it",
+      "expression": {},
+      "camera": {
+        "move": "track",
+        "from": "beside the bow at the waterline",
+        "framing": "insert",
+        "angle": "low",
+        "side": "left",
+        "lens": 100,
+        "lens_short": 75,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "water over bronze"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {},
+      "story": "the weapon itself"
+    },
+    {
+      "id": "s03",
+      "line": 2,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:greek_rower:24"
+      ],
+      "where": "trireme_rowing_hold",
+      "action": "inside the hull: three tiers of rowers pulling in unison, sweat and dust in shafts of light",
+      "expression": {},
+      "camera": {
+        "move": "track",
+        "from": "down the gangway",
+        "framing": "medium",
+        "angle": "eye",
+        "side": "centre",
+        "lens": 50,
+        "lens_short": 38,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "oars in unison",
+        "grunts",
+        "creaking timber"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {},
+      "story": "the engine: 170 men"
+    },
+    {
+      "id": "s04",
+      "line": 3,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "ameinias",
+        "crowd:greek_rower:10"
+      ],
+      "where": "trireme_deck",
+      "action": "Ameinias at the stern, eyes on an enemy hull",
+      "expression": {
+        "ameinias": "resolve"
+      },
+      "camera": {
+        "move": "push_in",
+        "from": "low on the deck",
+        "framing": "medium_close",
+        "angle": "low",
+        "side": "right",
+        "lens": 65,
+        "lens_short": 49,
+        "fstop": 2.8
+      },
+      "sfx": [],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "ameinias": {
+          "emotion": "resolve",
+          "intensity": 2,
+          "brows": "lowered",
+          "gaze": "the enemy hull ahead",
+          "lids": "narrowed against spray",
+          "mouth": "closed",
+          "lips": "salt-dry, pressed",
+          "jaw": "set",
+          "head": "forward",
+          "posture": "standing at the stern",
+          "orientation": "three-quarter left",
+          "hands": "one hand on the stern post",
+          "gesture": "none",
+          "weight": "braced on wide feet",
+          "interaction": "commands the crew"
+        }
+      },
+      "story": "the plan, in one man's face"
+    },
+    {
+      "id": "s05",
+      "line": 4,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:greek_rower:30",
+        "crowd:persian_rower:30"
+      ],
+      "where": "salamis_strait_dawn",
+      "action": "the ram hits; the enemy hull caves in and the ships lock together",
+      "expression": {},
+      "camera": {
+        "move": "handheld",
+        "from": "from a nearby ship",
+        "framing": "wide",
+        "angle": "high",
+        "side": "left",
+        "lens": 28,
+        "lens_short": 21,
+        "fstop": 5.6
+      },
+      "sfx": [
+        "ram impact",
+        "timber splitting",
+        "screams"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {},
+      "story": "the first strike"
+    },
+    {
+      "id": "s06",
+      "line": 5,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "ameinias"
+      ],
+      "where": "trireme_deck",
+      "action": "Ameinias screams the order down to the rowers",
+      "expression": {
+        "ameinias": "rage"
+      },
+      "camera": {
+        "move": "handheld",
+        "from": "close on Ameinias",
+        "framing": "close",
+        "angle": "eye",
+        "side": "left",
+        "lens": 85,
+        "lens_short": 64,
+        "fstop": 2.0
+      },
+      "sfx": [],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "ameinias": {
+          "emotion": "rage",
+          "intensity": 4,
+          "brows": "crushed down",
+          "gaze": "down into the hold",
+          "lids": "narrowed against spray",
+          "mouth": "open, shouting",
+          "lips": "salt-dry, pressed",
+          "jaw": "wide",
+          "head": "thrust down",
+          "posture": "leaning down over the hatch",
+          "orientation": "facing camera",
+          "hands": "both hands gripping the hatch rim",
+          "gesture": "throws his whole body into the shout",
+          "weight": "forward onto the hands",
+          "interaction": "drives his rowers"
+        }
+      },
+      "story": "DIALOGUE close-up"
+    },
+    {
+      "id": "s07",
+      "line": 6,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:persian_rower:30"
+      ],
+      "where": "salamis_strait_dawn",
+      "action": "Persian ships jammed together, unable to turn",
+      "expression": {},
+      "camera": {
+        "move": "crane_up",
+        "from": "high above the strait",
+        "framing": "extreme_wide",
+        "angle": "top",
+        "side": "centre",
+        "lens": 24,
+        "lens_short": 18,
+        "fstop": 8.0
+      },
+      "sfx": [
+        "chaos of shouting",
+        "hull grinding hull"
+      ],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {},
+      "story": "no room to turn"
+    },
+    {
+      "id": "s08",
+      "line": 7,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:persian_rower:12"
+      ],
+      "where": "salamis_strait_dawn",
+      "action": "a Persian ram punches into another Persian ship; its oars snap",
+      "expression": {},
+      "camera": {
+        "move": "static",
+        "from": "at water level",
+        "framing": "medium",
+        "angle": "ground",
+        "side": "right",
+        "lens": 50,
+        "lens_short": 38,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "oars snapping",
+        "ram impact"
+      ],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {},
+      "story": "the fleet destroys itself"
+    },
+    {
+      "id": "s09",
+      "line": 8,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:diver:1"
+      ],
+      "where": "athlit_seabed_1980",
+      "action": "a diver's lamp finds a green bronze shape on the sea floor",
+      "expression": {},
+      "camera": {
+        "move": "push_in",
+        "from": "on the sea floor",
+        "framing": "wide",
+        "angle": "low",
+        "side": "left",
+        "lens": 28,
+        "lens_short": 21,
+        "fstop": 5.6
+      },
+      "sfx": [
+        "underwater rumble",
+        "regulator bubbles"
+      ],
+      "era": "israel_1980",
+      "card": {
+        "kind": "place_date",
+        "text": "Off Athlit, Israel, 1980"
+      },
+      "performance": {},
+      "story": "the jump to the real object"
+    },
+    {
+      "id": "s10",
+      "line": 9,
+      "at": null,
+      "dur": null,
+      "hold": true,
+      "who": [
+        "prop:athlit_ram"
+      ],
+      "where": "athlit_ram_display",
+      "action": "the Athlit ram in a dark gallery, a slow light raking its bronze",
+      "expression": {},
+      "camera": {
+        "move": "orbit",
+        "from": "around the ram",
+        "framing": "insert",
+        "angle": "eye",
+        "side": "centre",
+        "lens": 100,
+        "lens_short": 75,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "room tone"
+      ],
+      "era": "israel_1980",
+      "card": null,
+      "performance": {},
+      "story": "465 kilograms you can feel"
+    },
+    {
+      "id": "s11",
+      "line": 10,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:greek_rower:30"
+      ],
+      "where": "salamis_strait_dawn",
+      "action": "back in 480 BC: a trireme ram drives into a hull, and freezes",
+      "expression": {},
+      "camera": {
+        "move": "push_in",
+        "from": "beside the ram",
+        "framing": "close",
+        "angle": "low",
+        "side": "right",
+        "lens": 85,
+        "lens_short": 64,
+        "fstop": 2.0
+      },
+      "sfx": [
+        "impact",
+        "silence"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {},
+      "story": "same job: the circle closes"
+    }
+  ]
+}

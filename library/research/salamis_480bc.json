@@ -32,6 +32,7 @@
     {"id": "f-panic", "claim": "When news reached the Greek fleet at Salamis that the Acropolis had fallen, some commanders panicked and voted to sail away to the Isthmus.", "cites": ["herodotus:8.56"], "topics": ["athens_burns", "secret_message"]},
     {"id": "f-athens-ships", "claim": "Athens supplied the largest contingent of the Greek fleet: 180 ships.", "cites": ["herodotus:8.44"], "topics": ["athens_burns", "rams"]},
 
+    {"id": "f-trap-why", "claim": "Themistocles sent the message when he was losing the council debate to the Peloponnesian commanders, who wanted to leave Salamis and fight at the Isthmus.", "cites": ["herodotus:8.74-75", "plutarch_them:12"], "topics": ["secret_message"]},
     {"id": "f-sicinnus-who", "claim": "Sicinnus was a slave of Themistocles' household and the tutor of his children.", "cites": ["herodotus:8.75", "plutarch_them:12"], "topics": ["secret_message"]},
     {"id": "f-sicinnus-message", "claim": "Themistocles sent him by boat to the Persian commanders with a message: Themistocles was on the king's side, and the Greeks were terrified and planning to flee.", "cites": ["herodotus:8.75", "plutarch_them:12"], "topics": ["secret_message"]},
     {"id": "f-sicinnus-bait", "claim": "The message said that if the Persians stopped the Greeks escaping, they would see them fighting among themselves.", "cites": ["herodotus:8.75"], "topics": ["secret_message"]},

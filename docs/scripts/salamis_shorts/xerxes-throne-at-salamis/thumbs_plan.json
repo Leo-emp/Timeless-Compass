@@ -1,0 +1,117 @@
+{
+  "variants": [
+    {
+      "id": "A",
+      "face": "XERXES",
+      "emotion": "rage",
+      "era_detail": "golden throne",
+      "set": "salamis_strait_dusk",
+      "palette": "ember",
+      "face_side": "left",
+      "face_frac": 0.45,
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "words": ""
+    },
+    {
+      "id": "B",
+      "face": "XERXES",
+      "emotion": "awe",
+      "era_detail": "his ships burning below",
+      "set": "salamis_strait_dusk",
+      "palette": "gold",
+      "face_side": "right",
+      "face_frac": 0.6,
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "words": ""
+    },
+    {
+      "id": "C",
+      "face": "XERXES",
+      "emotion": "contempt",
+      "era_detail": "scribe with a wax tablet",
+      "set": "salamis_strait_dusk",
+      "palette": "steel",
+      "face_side": "left",
+      "face_frac": 0.45,
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "words": ""
+    }
+  ],
+  "render_requests": [
+    {
+      "job": "20261119-1824-xerxes-throne-at-salamis",
+      "variant": "A",
+      "cast": "xerxes",
+      "expression": "rage",
+      "set": "salamis_strait_dusk",
+      "era_detail": "golden throne",
+      "light": "fire_lit",
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "face_frac": 0.45,
+      "face_side": "left",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "output": "C:\\Users\\User\\timeless-compass\\jobs\\20261119-1824-xerxes-throne-at-salamis\\thumbs\\render_A.png"
+    },
+    {
+      "job": "20261119-1824-xerxes-throne-at-salamis",
+      "variant": "B",
+      "cast": "xerxes",
+      "expression": "awe",
+      "set": "salamis_strait_dusk",
+      "era_detail": "his ships burning below",
+      "light": "dusk",
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "face_frac": 0.6,
+      "face_side": "right",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "output": "C:\\Users\\User\\timeless-compass\\jobs\\20261119-1824-xerxes-throne-at-salamis\\thumbs\\render_B.png"
+    },
+    {
+      "job": "20261119-1824-xerxes-throne-at-salamis",
+      "variant": "C",
+      "cast": "xerxes",
+      "expression": "contempt",
+      "set": "salamis_strait_dusk",
+      "era_detail": "scribe with a wax tablet",
+      "light": "night",
+      "camera": {
+        "lens_mm": 85,
+        "f_stop": 2.0,
+        "shot": "close_up"
+      },
+      "face_frac": 0.45,
+      "face_side": "left",
+      "resolution": [
+        1920,
+        1080
+      ],
+      "output": "C:\\Users\\User\\timeless-compass\\jobs\\20261119-1824-xerxes-throne-at-salamis\\thumbs\\render_C.png"
+    }
+  ]
+}

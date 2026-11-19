@@ -1,0 +1,431 @@
+{
+  "_note": "Session B 2026-11-20: author shot list with VISUAL_STANDARD s4 performance spec. Timings come later from tc align (dur=null). Check: python -m tc perf <id>",
+  "shots": [
+    {
+      "id": "s01",
+      "line": 0,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:athenian_family:12"
+      ],
+      "where": "athens_streets",
+      "action": "an empty Athens street; families with bundles and old men leaving toward the sea",
+      "expression": {},
+      "camera": {
+        "move": "crane_down",
+        "from": "above the rooftops",
+        "framing": "extreme_wide",
+        "angle": "high",
+        "side": "centre",
+        "lens": 24,
+        "lens_short": 18,
+        "fstop": 8.0
+      },
+      "sfx": [
+        "footsteps",
+        "a cart wheel",
+        "a child crying"
+      ],
+      "era": "greece_480bc",
+      "card": {
+        "kind": "place_date",
+        "text": "Athens, 480 BC"
+      },
+      "performance": {},
+      "story": "a city given away"
+    },
+    {
+      "id": "s02",
+      "line": 1,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:temple_steward:5"
+      ],
+      "where": "athens_acropolis",
+      "action": "on the rock, a handful of men watch the city empty",
+      "expression": {},
+      "camera": {
+        "move": "static",
+        "from": "below the rock",
+        "framing": "wide",
+        "angle": "low",
+        "side": "right",
+        "lens": 28,
+        "lens_short": 21,
+        "fstop": 5.6
+      },
+      "sfx": [
+        "wind",
+        "silence"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {},
+      "story": "who stays"
+    },
+    {
+      "id": "s03",
+      "line": 2,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:athenian_family:20",
+        "crowd:greek_rower:8"
+      ],
+      "where": "phaleron_shore",
+      "action": "boats loaded with families pull away from the shore toward Salamis",
+      "expression": {},
+      "camera": {
+        "move": "pan_left",
+        "from": "on the beach",
+        "framing": "medium",
+        "angle": "eye",
+        "side": "left",
+        "lens": 50,
+        "lens_short": 38,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "oars",
+        "water",
+        "voices"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {},
+      "story": "evacuation"
+    },
+    {
+      "id": "s04",
+      "line": 3,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:temple_steward:5"
+      ],
+      "where": "athens_acropolis",
+      "action": "the men lash planks and timber into a barricade at the gate",
+      "expression": {},
+      "camera": {
+        "move": "handheld",
+        "from": "among the workers",
+        "framing": "medium_close",
+        "angle": "high",
+        "side": "centre",
+        "lens": 65,
+        "lens_short": 49,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "hammering",
+        "rope creak"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {},
+      "story": "their wooden wall"
+    },
+    {
+      "id": "s05",
+      "line": 4,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "old_steward"
+      ],
+      "where": "athens_acropolis",
+      "action": "an old steward lays his hand on the timber, certain the gods will hold it",
+      "expression": {
+        "old_steward": "resolve"
+      },
+      "camera": {
+        "move": "push_in",
+        "from": "close on the old man's hand and face",
+        "framing": "close",
+        "angle": "eye",
+        "side": "right",
+        "lens": 85,
+        "lens_short": 64,
+        "fstop": 2.0
+      },
+      "sfx": [
+        "wind"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "old_steward": {
+          "emotion": "resolve",
+          "intensity": 2,
+          "brows": "softly raised, trusting",
+          "gaze": "the barricade",
+          "lids": "calm, a little wet",
+          "mouth": "closed, a faint peace",
+          "lips": "relaxed",
+          "jaw": "loose",
+          "head": "bowed slightly toward the wood",
+          "posture": "standing close to the barricade",
+          "orientation": "three-quarter left",
+          "hands": "right palm flat on the timber",
+          "gesture": "none",
+          "weight": "leaning gently onto the hand",
+          "interaction": "trusts the god's promise"
+        }
+      },
+      "story": "faith in a misread oracle (dramatic irony)"
+    },
+    {
+      "id": "s06",
+      "line": 5,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:persian_soldier:10"
+      ],
+      "where": "acropolis_north_cliff",
+      "action": "Persian soldiers climb the sheer cliff by the shrine of Aglauros, no one above them",
+      "expression": {},
+      "camera": {
+        "move": "tilt_up",
+        "from": "at the foot of the cliff",
+        "framing": "wide",
+        "angle": "ground",
+        "side": "left",
+        "lens": 28,
+        "lens_short": 21,
+        "fstop": 5.6
+      },
+      "sfx": [
+        "scrabbling stones",
+        "heavy breathing"
+      ],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {},
+      "story": "the unguarded way up"
+    },
+    {
+      "id": "s07",
+      "line": 6,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "xerxes",
+        "crowd:immortal_guard:6"
+      ],
+      "where": "athens_acropolis",
+      "action": "Xerxes at the temple steps as torches are lit",
+      "expression": {
+        "xerxes": "contempt"
+      },
+      "camera": {
+        "move": "static",
+        "from": "low on the steps",
+        "framing": "close",
+        "angle": "low",
+        "side": "centre",
+        "lens": 85,
+        "lens_short": 64,
+        "fstop": 2.0
+      },
+      "sfx": [
+        "torches flaring"
+      ],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {
+        "xerxes": {
+          "emotion": "contempt",
+          "intensity": 3,
+          "brows": "heavy, level",
+          "gaze": "toward Salamis on the horizon",
+          "lids": "half lowered",
+          "mouth": "speaking, slow and cold",
+          "lips": "curled at one corner",
+          "jaw": "set",
+          "head": "turned toward the sea",
+          "posture": "standing tall on the top step",
+          "orientation": "three-quarter left",
+          "hands": "one hand resting on a sword hilt",
+          "gesture": "a small lift of the chin toward the sea",
+          "weight": "even, unhurried",
+          "interaction": "gives the order to his torch bearers"
+        }
+      },
+      "story": "DIALOGUE close-up: the order"
+    },
+    {
+      "id": "s08",
+      "line": 7,
+      "at": null,
+      "dur": null,
+      "hold": true,
+      "who": [
+        "crowd:persian_soldier:8"
+      ],
+      "where": "athens_acropolis",
+      "action": "the temple roof catches; flames climb the painted columns",
+      "expression": {},
+      "camera": {
+        "move": "crane_up",
+        "from": "in the sanctuary",
+        "framing": "wide",
+        "angle": "low",
+        "side": "right",
+        "lens": 28,
+        "lens_short": 21,
+        "fstop": 5.6
+      },
+      "sfx": [
+        "roaring fire",
+        "timber collapse"
+      ],
+      "era": "persia_480bc",
+      "card": null,
+      "performance": {},
+      "story": "the burning (r11 music moment)"
+    },
+    {
+      "id": "s09",
+      "line": 8,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "themistocles",
+        "eurybiades",
+        "crowd:greek_captain:5"
+      ],
+      "where": "salamis_shore_day",
+      "action": "on Salamis a messenger brings the captains the news that the Acropolis has fallen",
+      "expression": {
+        "themistocles": "grief",
+        "eurybiades": "fear"
+      },
+      "camera": {
+        "move": "pan_right",
+        "from": "behind the captains on the beach",
+        "framing": "medium",
+        "angle": "eye",
+        "side": "left",
+        "lens": 50,
+        "lens_short": 38,
+        "fstop": 2.8
+      },
+      "sfx": [
+        "distant fire",
+        "anxious voices"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {
+        "themistocles": {
+          "emotion": "grief",
+          "intensity": 2,
+          "brows": "raised in the middle",
+          "gaze": "the smoke over Athens",
+          "lids": "heavy",
+          "mouth": "closed",
+          "lips": "pressed",
+          "jaw": "tight",
+          "head": "very still",
+          "posture": "standing at the waterline",
+          "orientation": "back three-quarter to camera",
+          "hands": "hands at his sides, open",
+          "gesture": "none",
+          "weight": "planted",
+          "interaction": "silent while others argue"
+        },
+        "eurybiades": {
+          "emotion": "fear",
+          "intensity": 2,
+          "brows": "raised",
+          "gaze": "the other captains",
+          "lids": "wide",
+          "mouth": "slightly open",
+          "lips": "dry",
+          "jaw": "loose",
+          "head": "turning to the others",
+          "posture": "half turned away from the sea",
+          "orientation": "profile right",
+          "hands": "one hand pointing toward the ships",
+          "gesture": "a jab toward the ships",
+          "weight": "on the back foot",
+          "interaction": "urges retreat"
+        }
+      },
+      "story": "the news hits the fleet"
+    },
+    {
+      "id": "s10",
+      "line": 9,
+      "at": null,
+      "dur": null,
+      "hold": true,
+      "who": [
+        "prop:olive_stump"
+      ],
+      "where": "athens_acropolis",
+      "action": "dawn on the burned rock: from a blackened olive stump, a green shoot",
+      "expression": {},
+      "camera": {
+        "move": "push_in",
+        "from": "at ground level by the stump",
+        "framing": "extreme_close",
+        "angle": "low",
+        "side": "centre",
+        "lens": 100,
+        "lens_short": 75,
+        "fstop": 2.0
+      },
+      "sfx": [
+        "morning birds",
+        "embers ticking"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {},
+      "story": "the legend, told as legend"
+    },
+    {
+      "id": "s11",
+      "line": 10,
+      "at": null,
+      "dur": null,
+      "hold": false,
+      "who": [
+        "crowd:greek_rower:40"
+      ],
+      "where": "salamis_strait_day",
+      "action": "the Athenian triremes beached in a long line on Salamis, untouched",
+      "expression": {},
+      "camera": {
+        "move": "pull_out",
+        "from": "above the beach",
+        "framing": "extreme_wide",
+        "angle": "high",
+        "side": "right",
+        "lens": 24,
+        "lens_short": 18,
+        "fstop": 8.0
+      },
+      "sfx": [
+        "sea",
+        "a single drum beat"
+      ],
+      "era": "greece_480bc",
+      "card": null,
+      "performance": {},
+      "story": "the payoff: the real wall"
+    }
+  ]
+}
