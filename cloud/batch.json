@@ -1,17 +1,16 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "d-verify-8",
+  "batch": "b6-people-places",
   "run": [
-    "d_olive",
-    "d_country_terr",
-    "d_country_wide",
-    "d_country_floor",
-    "d_dress_village",
-    "d_garden",
-    "d_woman_pins",
-    "d_woman_ionic",
-    "d_traveller",
-    "d_crowd_villager",
-    "d_servant"
+    "card_xerxes",
+    "card_leonidas",
+    "card_eurybiades",
+    "card_themistocles",
+    "card_ameinias",
+    "card_aristonice",
+    "card_old_steward",
+    "card_artemisia",
+    "places",
+    "aigaleos"
   ]
 }

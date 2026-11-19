@@ -28,6 +28,10 @@ def load_scan(asset_id, lod=1):
     d = os.path.join(SCANS, asset_id)
     blend = next((f for f in os.listdir(d) if f.endswith('.blend')), None)
     if blend is None:                                          # Sketchfab scan (.glb): one variant, scaled to real size
+        import glob as _g
+        if not (os.path.exists(os.path.join(d, 'model.glb')) or _g.glob(os.path.join(d, '**', '*.gl*'), recursive=True)):
+            raise ValueError(f'scan {asset_id!r} is not a 3D model (no .blend / .glb) - probably a TEXTURE scan: '
+                             f'use scatter.scan_material({asset_id!r}) for surfaces, or a model scan such as boulder_01')
         return [_load_glb_variant(asset_id, d, key)]
     with bpy.data.libraries.load(os.path.join(d, blend), link=False) as (src, dst):
         dst.objects = list(src.objects)
@@ -72,6 +76,11 @@ REAL_HEIGHT = {'tree_olive_zakynthos': 6.0, 'tree_cypress': 13.0, 'tree_date_pal
                'animal_dog': 0.55, 'animal_seagull': 0.3, 'animal_raven_cc0': 0.35}
 
 
+# scans whose files are stored upside down - VERIFIED by measuring them (never guessed: a cypress is naturally
+# wide at the bottom). tree_olive_zakynthos: 74 % of its points in the lower half, crown 3x wider than the 'top'.
+UPSIDE_DOWN = {'tree_olive_zakynthos'}
+
+
 def _load_glb_variant(asset_id, d, key):
     """Import a .glb into a hidden collection, scaled so it stands REAL_HEIGHT[asset_id] metres tall."""
     import glob
@@ -106,6 +115,21 @@ def _load_glb_variant(asset_id, d, key):
                 print(f'scan {asset_id}: helper mesh {o.name} removed')
                 meshes.remove(o); new.remove(o)
                 bpy.data.objects.remove(o, do_unlink=True)
+    if asset_id in UPSIDE_DOWN:
+        # UPSIDE-DOWN photogrammetry (tree_olive_zakynthos, reported by Session G): a tree's crown is wide and its
+        # trunk narrow - if the bottom 15 % of the points spread much wider than the top 15 %, it was scanned upside
+        # down: turn it over (180 deg about X) before measuring.
+        import numpy as _np
+        V = _np.vstack([_np.array([o.matrix_world @ v.co for v in o.data.vertices]) for o in meshes if len(o.data.vertices)])
+        z = V[:, 2]; lo_, hi_ = z.min(), z.max(); hh = max(hi_ - lo_, 1e-6)
+        spread = lambda q: float(_np.ptp(q[:, 0]) + _np.ptp(q[:, 1])) if len(q) else 0.0
+        if spread(V[z < lo_ + 0.15 * hh]) > 1.5 * spread(V[z > hi_ - 0.15 * hh]):     # still upside down in this file
+            from mathutils import Matrix
+            R = Matrix.Rotation(math.pi, 4, 'X')
+            for o in [o for o in new if o.parent is None]:
+                o.matrix_world = R @ o.matrix_world
+            bpy.context.view_layer.update()
+            print(f'scan {asset_id}: was upside down - turned upright')
     pts = [o.matrix_world @ Vector(c) for o in meshes for c in o.bound_box]
     zmin, zmax = min(p.z for p in pts), max(p.z for p in pts)
     k = REAL_HEIGHT.get(asset_id, 1.0) / max(zmax - zmin, 1e-6)

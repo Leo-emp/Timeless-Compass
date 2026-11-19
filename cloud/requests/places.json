@@ -1,0 +1,10 @@
+{
+  "name": "places",
+  "active": true,
+  "script": "blender/scenes/places_test.py",
+  "args": [
+    "out/places",
+    "24",
+    "all"
+  ]
+}

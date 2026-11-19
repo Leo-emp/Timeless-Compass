@@ -450,9 +450,31 @@ def xerxes_throne_aigaleos(density=1.0):
     slope.data.update()
     slope.data.materials.append(scatter.scan_material('aigaleos_ground', 'coast_land_rocks_01', tint=(0.92, 0.86, 0.76), tiles=3.0))
     z0 = 0.18 * 34 + 0.5                                               # ground height at y = -40
-    bpy.ops.mesh.primitive_cube_add(size=1, location=(0, -40, z0 + 0.2)); plat = bpy.context.object
-    plat.scale = (8, 7, 0.4)
-    plat.data.materials.append(scatter.scan_material('platform_stone', 'old_sandstone_02', tint=(0.9, 0.85, 0.78), tiles=1.5))
+    # TERRACED STONE PODIUM (Persepolis-style ashlar terrace), sunk into the slope - a flat slab on an 18 % hill
+    # floated ~0.6 m at its downhill edge with its underside showing (Session E's review). Its body reaches 2 m down
+    # into the hill; a flight of steps descends toward the strait (+Y), each step meeting the ground.
+    ground_z = lambda y: 0.18 * (-y - 6) + 0.5                        # the slope formula above
+    ashlar = scatter.scan_material('platform_stone', 'old_sandstone_02', tint=(0.9, 0.85, 0.78), tiles=0.8)
+    bpy.ops.mesh.primitive_cube_add(size=1, location=(0, -40, z0 - 0.8)); plat = bpy.context.object
+    plat.name = 'throne_podium'; plat.scale = (8, 7, 2.4)
+    bv = plat.modifiers.new('arris', 'BEVEL'); bv.width = 0.03; bv.segments = 2
+    plat.data.materials.append(ashlar)
+    y_edge, step_d = -36.5, 0.45
+    top = z0 + 0.4
+    k = 0
+    while True:                                                       # steps down until they reach the ground
+        y_c = y_edge + step_d * (k + 0.5)
+        z_top = top - 0.32 * (k + 1)
+        if z_top < ground_z(y_c) - 0.05:
+            break
+        h = z_top - (ground_z(y_c) - 0.5)                             # each step sits 0.5 m into the hill
+        bpy.ops.mesh.primitive_cube_add(size=1, location=(0, y_c, z_top - h / 2))
+        st = bpy.context.object; st.name = f'podium_step_{k}'; st.scale = (3.2, step_d, h)
+        st.data.materials.append(ashlar); st.modifiers.new('arris', 'BEVEL').width = 0.02
+        k += 1
+    for sgn in (-1, 1):                                               # low parapet on the downhill corners
+        bpy.ops.mesh.primitive_cube_add(size=1, location=(sgn * 3.0, -36.75, top + 0.25))
+        pp = bpy.context.object; pp.scale = (2.0, 0.4, 0.5); pp.data.materials.append(ashlar)
     pav = P.pavilion((0, -40, z0 + 0.4), heading_deg=0)
     thr = P.throne((0, -40.6, z0 + 0.4), heading_deg=180)
     P.royal_dress_up(thr, pav)                                         # folded valances, lion-paw feet, carpet
