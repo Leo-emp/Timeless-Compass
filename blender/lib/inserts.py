@@ -71,16 +71,13 @@ def wax_tablet(loc=(0, 0, 0), rot_z=0.0, open_deg=150.0, seed=0, name='wax_table
         _box(f'{name}_wax{k}', (x0, 0, T / 2 + 0.0005), (W - 0.022, D - 0.022, 0.0015), wax, leaf, bevel=0)
         if k:
             leaf.rotation_euler = (0, -ang * 0.0, 0)                  # (kept flat-open: reads best in an insert)
-    # scratched lines of writing on one leaf (lighter where the stylus cut through the wax)
-    scratch = _m('wax_scratch', (0.35, 0.26, 0.14), 0.5)
-    rnd = random.Random(seed)
-    for row in range(5):
-        y = 0.035 - row * 0.016
-        x = -W + 0.02
-        while x < -0.02:
-            ln = rnd.uniform(0.004, 0.014)
-            _box(f'{name}_mark{row}_{x:.3f}', (x + ln / 2, y, T + 0.0016), (ln, 0.0012, 0.0004), scratch, root, bevel=0)
-            x += ln + rnd.uniform(0.002, 0.005)
+    # WRITING scratched through the dark wax (pale where the stylus cut): real Greek letters, Archaic-Classical
+    # capitals, in lines (a dramatised warning - the text is an evocation, not a quotation)
+    scratch = _m('wax_scratch', (0.42, 0.32, 0.18), 0.6)
+    lines = ['ΛΑΚΕΔΑΙΜΟΝΙΟΙΣ', 'ΞΕΡΞΗΣ ΕΠΙ ΤΗΝ', 'ΕΛΛΑΔΑ ΣΤΡΑΤΕΥ', 'ΕΙ ΦΥΛΑΣΣΕΣΘΕ']
+    for row, txt in enumerate(lines):
+        _text(f'{name}_line{row}', txt, 0.0105, scratch, root, (-W / 2, 0.033 - row * 0.02, T + 0.0016),
+              (0, 0, random.Random(seed + row).uniform(-0.03, 0.03)), depth=0.00015)
     bpy.ops.mesh.primitive_cylinder_add(vertices=12, radius=0.003, depth=0.13, location=(0.05, -0.085, 0.004), rotation=(0, math.pi / 2, 0.3))
     st = bpy.context.object; st.name = name + '_stylus'; st.data.materials.append(_m('stylus_bronze', (0.5, 0.33, 0.14), 0.3, metal=1.0)); st.parent = root
     return root

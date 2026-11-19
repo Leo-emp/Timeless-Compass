@@ -10,6 +10,8 @@
 #      anchors, tents, broken spears, fallen shields - each built ONCE and placed as cheap instances
 #   3. LIFE: background people (low-poly stand-ins, only far enough away to read as people, never in close-up),
 #      birds overhead, and ATMOSPHERE: smoke from ovens/fires, haze
+#   4. GROUND COVER: thousands of grass tufts / shrubs / rocks over all visible ground (no bare 'CG plane')
+#   5. SKYLINE: a band of houses / tents / trees 35-90 m out, so every frame ends in a world, not a flat horizon
 # Everything is seeded: the same shot dresses the same way every render (and every shard of a cloud render).
 import math
 import random
@@ -174,21 +176,24 @@ def _builders():
 
 
 KITS = {   # setting -> [(piece, weight, min distance m)]   (people/birds/smoke are added separately)
-    'village': [('amphora', 3, 1.5), ('basket', 3, 1.5), ('sack', 2, 1.5), ('firewood', 3, 2), ('stone_pile', 2, 2),
-                ('hydria', 1, 1.5), ('shrub', 3, 3), ('grass', 6, 1.5), ('mastic', 2, 4), ('cart', 0.4, 6)],
-    'market': [('amphora', 5, 1.5), ('basket', 5, 1.5), ('sack', 4, 1.5), ('wool_bale', 2, 2), ('hydria', 2, 1.5),
-               ('fish_basket', 2, 1.5), ('cart', 0.5, 6), ('grass', 1, 2)],
-    'harbour': [('rope_coil', 3, 1.5), ('anchor', 2, 2), ('amphora', 4, 1.5), ('fish_basket', 3, 1.5), ('basket', 2, 1.5),
-                ('sack', 2, 2), ('rocks', 2, 3), ('grass', 2, 2)],
-    'countryside': [('grass', 8, 1.2), ('shrub', 4, 3), ('shrub2', 3, 3), ('mastic', 3, 4), ('rocks', 2, 3), ('boulder', 1, 5),
-                    ('branches', 2, 2), ('stone_pile', 1, 4), ('basket', 0.5, 2)],
-    'persian_camp': [('tent', 1.5, 8), ('sack', 4, 1.5), ('amphora', 3, 1.5), ('firewood', 3, 2), ('basket', 2, 1.5),
-                     ('cart', 0.6, 6), ('grass', 3, 1.5), ('rocks', 1, 3)],
-    'battlefield': [('broken_spear', 6, 1.2), ('fallen_shield', 3, 1.5), ('rocks', 3, 2), ('grass', 3, 1.5), ('branches', 2, 2)],
+    # min distance >= 3.5 m for clutter: closer than that a jar fills the frame and shows its facets - the near
+    # foreground is the job of framing.py's deliberate out-of-focus framers, not of scattered props
+    'village': [('amphora', 3, 3.5), ('basket', 3, 3.5), ('sack', 2, 3.5), ('firewood', 3, 3.5), ('stone_pile', 2, 3.5),
+                ('hydria', 1, 3.5), ('shrub', 3, 3.5), ('grass', 6, 2), ('mastic', 2, 4), ('cart', 0.4, 6)],
+    'market': [('amphora', 5, 3.5), ('basket', 5, 3.5), ('sack', 4, 3.5), ('wool_bale', 2, 3.5), ('hydria', 2, 3.5),
+               ('fish_basket', 2, 3.5), ('cart', 0.5, 6), ('grass', 1, 2)],
+    'harbour': [('rope_coil', 3, 3.5), ('anchor', 2, 3.5), ('amphora', 4, 3.5), ('fish_basket', 3, 3.5), ('basket', 2, 3.5),
+                ('sack', 2, 3.5), ('rocks', 2, 3.5), ('grass', 2, 2)],
+    'countryside': [('grass', 8, 2), ('shrub', 4, 3.5), ('shrub2', 3, 3.5), ('mastic', 3, 4), ('rocks', 2, 3.5), ('boulder', 1, 5),
+                    ('branches', 2, 3.5), ('stone_pile', 1, 4), ('basket', 0.5, 3.5)],
+    'persian_camp': [('tent', 1.5, 8), ('sack', 4, 3.5), ('amphora', 3, 3.5), ('firewood', 3, 3.5), ('basket', 2, 3.5),
+                     ('cart', 0.6, 6), ('grass', 3, 2), ('rocks', 1, 3.5)],
+    'garden': [('grass', 12, 2), ('shrub', 3, 3.5), ('shrub2', 3, 3.5), ('mastic', 2, 4), ('basket', 0.3, 3.5), ('hydria', 0.3, 3.5)],
+    'battlefield': [('broken_spear', 6, 3.5), ('fallen_shield', 3, 3.5), ('rocks', 3, 3.5), ('grass', 3, 2), ('branches', 2, 3.5)],
 }
 LIFE = {    # setting -> (people per 100 points, birds, smoke columns)
     'village': (6, 10, 2), 'market': (14, 6, 1), 'harbour': (6, 18, 0), 'countryside': (2, 14, 0),
-    'persian_camp': (10, 8, 3), 'battlefield': (0, 20, 4),
+    'persian_camp': (10, 8, 3), 'battlefield': (0, 20, 4), 'garden': (3, 14, 0),
 }
 
 
@@ -224,6 +229,95 @@ def _people(points, rnd, out):
         o = bpy.data.objects.new(f'dress_person_{i}', props._proxy_mesh(rnd.choice(['cloth', 'cloth', 'archer']), mats))
         out.objects.link(o)
         k = rnd.uniform(0.92, 1.05); o.location = p; o.scale = (k, k, k); o.rotation_euler.z = rnd.uniform(0, 2 * math.pi)
+
+
+# ------------------------------------------------------------------ the two layers that kill 'empty'
+COVER = {   # setting -> ground cover scans (Poly Haven CC0, cloud-safe) and relative weights
+    'village': [('grass_medium_01', 4), ('shrub_01', 1), ('searsia_lucida', 1), ('coast_land_rocks_02', 0.4)],
+    'market': [('grass_medium_01', 2), ('coast_land_rocks_02', 0.3)],
+    'harbour': [('grass_medium_01', 2), ('coast_rocks_01', 1), ('coast_land_rocks_02', 1)],
+    'countryside': [('grass_medium_01', 5), ('shrub_01', 2), ('shrub_03', 2), ('searsia_lucida', 2), ('coast_land_rocks_02', 0.6),
+                    ('boulder_01', 0.2)],
+    'persian_camp': [('grass_medium_01', 2), ('dry_branches_medium_01', 1), ('coast_land_rocks_02', 0.5)],
+    'battlefield': [('grass_medium_01', 2), ('dry_branches_medium_01', 1.5), ('coast_land_rocks_02', 1)],
+    'garden': [('grass_medium_01', 8), ('shrub_01', 2), ('shrub_03', 2), ('searsia_lucida', 1)],
+}
+SKYLINE = {  # setting -> what lines the distance (built once, instanced along a band 35-90 m into the view)
+    'village': 'houses', 'market': 'houses', 'harbour': 'houses', 'persian_camp': 'tents', 'countryside': 'trees',
+    'garden': None, 'battlefield': None,
+}
+
+
+def _view_area(cam, ground, far, keep_clear, seed):
+    """x/y bounds of the ground the camera sees (from a quick sample), for the area-based scatter."""
+    pts = visible_points(cam, ground, 120, near=1.0, far=far, keep_clear=(), seed=seed + 9, near_bias=far)
+    if not pts:
+        return None
+    xs = [p.x for p, _ in pts]; ys = [p.y for p, _ in pts]
+    return (min(xs), max(xs), min(ys), max(ys))
+
+
+def ground_cover(cam, ground, setting, count, keep_clear=(), seed=0, far=120.0):
+    """Thousands of grass tufts, shrubs and rocks over the visible ground (scatter.scatter: clustered, slope-aware,
+    denser near the camera, shared instances) - the single biggest cure for a bare 'CG plane'."""
+    from lib import scatter
+    area = _view_area(cam, ground, far, keep_clear, seed)
+    if area is None:
+        return None
+    cam_xy = (cam.matrix_world.translation.x, cam.matrix_world.translation.y)
+    return scatter.scatter(ground, COVER.get(setting, COVER['village']), count, area, seed=seed, size=(0.7, 1.4),
+                           min_z=-5.0, clusters=max(20, count // 60), cluster_r=5.0, keep_clear=list(keep_clear),
+                           near=cam_xy, collection_name=f'cover_{setting}')
+
+
+def skyline(cam, ground, setting, seed=0, band=(35.0, 90.0), count=14):
+    """A band of houses / tents / trees across the far part of the view, so the frame always ends in a world, not
+    a horizon line. Pieces come from the libraries (architecture.house, props.tent, the scanned trees) and are
+    built once then instanced."""
+    kind = SKYLINE.get(setting)
+    if not kind:
+        return None
+    rnd = random.Random(seed)
+    out = bpy.data.collections.get(f'skyline_{setting}') or bpy.data.collections.new(f'skyline_{setting}')
+    if out.name not in bpy.context.scene.collection.children:
+        bpy.context.scene.collection.children.link(out)
+    cache = {}
+    from lib import architecture, props
+    def make(v):
+        if kind == 'houses':
+            return lambda loc, seed, name: architecture.house(loc, w=rnd.uniform(6, 10), d=rnd.uniform(7, 11),
+                                                              h=rnd.uniform(2.9, 3.6), seed=seed, name=name)
+        if kind == 'tents':
+            return lambda loc, seed, name: props.tent(loc, r=rnd.uniform(1.8, 2.8), h=rnd.uniform(2.2, 3.0), name=name)
+        def tree(loc, seed, name):
+            from lib import scatter
+            for sid in ('tree_cypress', 'tree_olive_zakynthos', 'island_tree_02'):
+                try:
+                    vs = scatter.load_scan(sid)
+                    inst = link(bpy.data.objects.new(name, None)); inst.instance_type = 'COLLECTION'
+                    inst.instance_collection = vs[seed % len(vs)]; inst.location = loc
+                    return inst
+                except Exception:
+                    continue
+            raise RuntimeError('no tree scan available')
+        return tree
+    pts = visible_points(cam, ground, count * 4, near=band[0], far=band[1], seed=seed + 21, near_bias=band[1], margin=0.05)
+    placed = []
+    for i, (p, d) in enumerate(pts):
+        if len(placed) >= count:
+            break
+        if any((p - q).length < (9.0 if kind != 'trees' else 5.0) for q in placed):
+            continue
+        col = _prototype(f'sky_{kind}', make(i % 3), i % 3, cache)
+        if col is None:
+            break
+        inst = bpy.data.objects.new(f'skyline_{kind}_{i}', None); inst.instance_type = 'COLLECTION'
+        inst.instance_collection = col; inst.location = p
+        # face the camera, roughly (houses show their street side, not a corner, most of the time)
+        to_cam = cam.matrix_world.translation - p
+        inst.rotation_euler.z = math.atan2(to_cam.y, to_cam.x) + math.pi / 2 + rnd.uniform(-0.4, 0.4)
+        out.objects.link(inst); placed.append(p)
+    return out
 
 
 def dress_view(cam, ground, setting='village', amount=120, keep_clear=(), seed=0, people=True, birds=True, smoke=True,
@@ -277,4 +371,12 @@ def dress_view(cam, ground, setting='village', amount=120, keep_clear=(), seed=0
                                     color=(0.35, 0.33, 0.3), name=f'dress_smoke_{k}')
                 except Exception as e:
                     print('dressing: smoke skipped -', e)
+    try:
+        ground_cover(cam, ground, setting, count=amount * 12, keep_clear=keep_clear, seed=seed + 3)
+    except Exception as e:
+        print('dressing: ground cover skipped -', e)
+    try:
+        skyline(cam, ground, setting, seed=seed + 4)
+    except Exception as e:
+        print('dressing: skyline skipped -', e)
     return out

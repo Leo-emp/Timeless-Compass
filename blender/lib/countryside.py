@@ -301,11 +301,11 @@ def olive_grove(ground, area, spacing=9.0, jitter=1.6, seed=0, size=(0.75, 1.15)
 
 
 # ------------------------------------------------------------------ stones, walls, terraces
-def _stone_bm(bm, center, size, rnd, rot=0.0):
+def _stone_bm(bm, center, size, rnd, rot=0.0, subdiv=2):
     """One irregular fieldstone: a low-poly sphere squashed to `size`, its corners pushed in/out at random
     (no two alike), flattened top and bottom like a stone picked from a field and laid in a wall."""
     m = Matrix.Translation(center) @ Matrix.Rotation(rot, 4, 'Z')
-    res = bmesh.ops.create_icosphere(bm, subdivisions=2, radius=0.5, matrix=Matrix.Identity(4))
+    res = bmesh.ops.create_icosphere(bm, subdivisions=subdiv, radius=0.5, matrix=Matrix.Identity(4))
     for v in res['verts']:
         p = v.co.copy()
         k = 1.0 + rnd.uniform(-0.18, 0.18)
@@ -316,10 +316,12 @@ def _stone_bm(bm, center, size, rnd, rot=0.0):
 
 
 def dry_stone_wall(points, height=1.1, width=0.55, seed=0, name='field_wall', material=None, ground=None,
-                   ruined=0.0):
+                   ruined=0.0, faces=2, stone_scale=1.0, subdiv=2):
     """A dry-stone field wall along a polyline (list of (x, y) or (x, y, z)): courses of unmortared fieldstones,
     bigger stones low, smaller on top, a few capstones; the two faces lean in a little (battered). If `ground` is
-    given, the wall sits on it (ray cast). ruined 0..1 = gaps and tumbled stones at the foot (old boundary walls)."""
+    given, the wall sits on it (ray cast). ruined 0..1 = gaps and tumbled stones at the foot (old boundary walls).
+    faces=1: only the -side face is built (a TERRACE retaining wall: its back is buried in soil); stone_scale > 1
+    = bigger stones (fewer of them: long terrace walls stay fast); subdiv 1 = simpler stones for distant walls."""
     rnd = random.Random(seed)
     tree = None
     if ground is not None:
@@ -344,13 +346,13 @@ def dry_stone_wall(points, height=1.1, width=0.55, seed=0, name='field_wall', ma
             z = gz
             course = 0
             while z < gz + h_here - 0.05:
-                big = 1.0 - 0.45 * (z - gz) / height                   # bigger stones low in the wall
+                big = (1.0 - 0.45 * (z - gz) / height) * stone_scale    # bigger stones low in the wall
                 ln = rnd.uniform(0.25, 0.5) * big; hh = rnd.uniform(0.13, 0.24) * big
-                for face in (-1, 1):                                    # two faces, rubble core between
+                for face in ((-1, 1) if faces == 2 else (-1,)):           # two faces, rubble core between
                     batter = (z - gz) / height * 0.08
                     c = base + d * (ln / 2 + rnd.uniform(-0.03, 0.03)) + side * face * (width / 2 - 0.12 - batter) \
                         + Vector((0, 0, z - base.z + hh / 2))
-                    _stone_bm(bm, c, (ln, rnd.uniform(0.2, 0.3), hh), rnd, heading + rnd.uniform(-0.15, 0.15))
+                    _stone_bm(bm, c, (ln, rnd.uniform(0.2, 0.3) * stone_scale ** 0.5, hh), rnd, heading + rnd.uniform(-0.15, 0.15), subdiv)
                 z += hh * 0.92; course += 1
             if rnd.random() < 0.35:                                     # capstone across the top
                 c = base + d * 0.2 + Vector((0, 0, z - base.z + 0.06))
@@ -358,7 +360,7 @@ def dry_stone_wall(points, height=1.1, width=0.55, seed=0, name='field_wall', ma
             if ruined and rnd.random() < ruined * 0.4:                  # a tumbled stone at the foot
                 c = base + side * rnd.choice((-1, 1)) * (width * 0.9 + rnd.uniform(0, 0.4)) + Vector((0, 0, gz - base.z + 0.08))
                 _stone_bm(bm, c, (0.3, 0.22, 0.16), rnd, rnd.uniform(0, 3))
-            s += rnd.uniform(0.28, 0.45)
+            s += rnd.uniform(0.28, 0.45) * stone_scale
     me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
     o = link(bpy.data.objects.new(name, me))
     for p in o.data.polygons:
@@ -397,7 +399,7 @@ def terraced_hill(name='terraces', loc=(0, 0, 0), size=(60.0, 40.0), rise=18.0, 
             y = s * strip - w - 0.04 * strip
             line.append((x + loc[0], y + loc[1], loc[2] + (s - 1) * rise / steps))
         walls.append(dry_stone_wall(line, height=rise / steps + 0.25, width=0.6, seed=seed + s, name=f'{name}_wall{s}',
-                                    ruined=0.05 * rnd.random()))
+                                    ruined=0.05 * rnd.random(), faces=1, stone_scale=1.7, subdiv=1))
     return g, walls
 
 
@@ -843,8 +845,9 @@ def persian_garden(loc=(0, 0, 0), size=(80.0, 60.0), seed=0, name='paradeisos'):
     bpy.ops.mesh.primitive_plane_add(size=1, location=(loc[0], loc[1], loc[2]))
     g = bpy.context.object; g.name = name + '_ground'; g.scale = (W + 20, D + 20, 1)
     bpy.ops.object.transform_apply(scale=True)
-    g.data.materials.append(soil_material('garden_soil', scan='brown_mud_dry', tint=(0.8, 0.85, 0.7), tiles=1.5))
-    lime = stone_material('channel_limestone', scan='old_sandstone_02', tint=(1.15, 1.1, 1.0), tiles=1.2)
+    # irrigated, green ground (the whole point of a paradeisos) and PALE cut limestone kerbs
+    g.data.materials.append(soil_material('garden_turf', scan='coast_sand_rocks_02', tint=(0.42, 0.55, 0.24), tiles=1.2))
+    lime = stone_material('channel_limestone', scan='marble_01', tint=(0.92, 0.9, 0.84), tiles=0.8)
     water = sets.water_material()
     bm = bmesh.new()
     wbm = bmesh.new()

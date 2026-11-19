@@ -1093,17 +1093,19 @@ def persian_cap(human, rig, felt, band=None, kind='royal', height=None, lift=0.0
     base = _head_ring(human, rig, zb, lift, ppos=ppos)
     c = base.mean(axis=0)
     if kind in ('royal', 'fluted'):          # Persepolis reliefs: the tiara sits CLOSE to the head (hair is pressed
-        base = c + (base - c) * 0.86         # under it), not as wide as a bushy hairstyle - otherwise it reads as a drum
+        base = c + (base - c) * 0.8          # under it), not as wide as a bushy hairstyle - otherwise it reads as a drum
     th = np.arctan2(base[:, 1] - c[1], base[:, 0] - c[0])
     parts = []
     if kind in ('royal', 'fluted'):
-        H = height or (0.2 if kind == 'royal' else 0.13)
+        H = height or (0.155 if kind == 'royal' else 0.13)   # Persepolis: about the height of the face, not taller
         flare = 0.1 if kind == 'royal' else 0.18           # royal: gently flaring toward the top
         rings = []
         for t in np.linspace(0, 1, 14):
             k = np.full(len(base), 1 + flare * t)
             if kind == 'fluted':
                 k = k * (1 + 0.025 * np.cos(th * 18))                   # vertical ribs
+            elif kind == 'royal':                                       # fine vertical fluting (Persepolis reliefs)
+                k = k * (1 + 0.012 * np.cos(th * 28))
             ring = c + (base - c) * k[:, None]
             ring[:, 2] = zb - 0.008 + H * t
             rings.append(ring)
@@ -2112,9 +2114,13 @@ def dress(human, rig, pos, person, pose_name=None, tools=True):
         if seed % 2 == 0:
             ppos = posed_surface(human)
             head = bone_pos(rig, 'head')
-            near = np.linalg.norm(ppos - head, axis=1) < 0.25
-            top = float(ppos[near][:, 2].max())
-            h = _market.hydria((float(head[0]), float(head[1]) + 0.01, top + 0.035), height=0.4, seed=seed, name=f'{tag}_hydria')
+            near = (np.linalg.norm(ppos[:, :2] - head[:2], axis=1) < 0.06) & (ppos[:, 2] > head[2])   # the crown only
+            top = float(ppos[near][:, 2].max()) if near.any() else float(head[2]) + 0.2
+            h = _market.hydria((float(head[0]), float(head[1]) + 0.01, top + 0.012), height=0.4, seed=seed, name=f'{tag}_hydria')
+            # the ring pad of rolled cloth women set under a jar carried on the head
+            bpy.ops.mesh.primitive_torus_add(major_radius=0.045, minor_radius=0.014, location=(float(head[0]), float(head[1]) + 0.01, top + 0.008))
+            pad = bpy.context.object; pad.name = f'{tag}_headpad'; pad.data.materials.append(main)
+            _cast.parent_to_bone(pad, rig, 'head')
             _cast.parent_to_bone(h, rig, 'head')
         else:
             _tools.hold(_market.spindle(f'{tag}_spindle'), rig, 'R')

@@ -489,8 +489,16 @@ def _clean_camel_collection(col, height=2.0, keep_calf=False):
         return col
     zmin, zmax = min(p.z for p in pts), max(p.z for p in pts)
     k = height / max(zmax - zmin, 1e-6)
-    for o in [o for o in col.objects if o.parent is None]:
-        o.scale = tuple(v * k for v in o.scale); o.location = o.location * k
+    # scale the TOP of each mesh's parent chain (the file's root empty may live outside this collection, so
+    # 'objects without a parent in the collection' can be an empty list - that was why the camel stayed 0.1 m)
+    tops = set()
+    for o in meshes:
+        t = o
+        while t.parent is not None:
+            t = t.parent
+        tops.add(t)
+    for t in tops:
+        t.scale = tuple(v * k for v in t.scale); t.location = t.location * k
     bpy.context.view_layer.update()
     pts = [o.matrix_world @ Vector(c) for o in meshes for c in o.bound_box]
     col.instance_offset = (sum(p.x for p in pts) / len(pts), sum(p.y for p in pts) / len(pts), min(p.z for p in pts))

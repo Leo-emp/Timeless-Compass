@@ -39,7 +39,7 @@ if VIEW == 'market':
     bpy.ops.mesh.primitive_plane_add(size=200); g = bpy.context.object
     g.data.materials.append(cs.soil_material('agora_ground', scan='brown_mud_dry', tint=(1.05, 1.0, 0.92), tiles=1.5))
     market.market((0, 0, 0), rows=2, per_row=3, seed=4)
-    market.stoa((0, -9.0, 0), columns=12)                              # the agora's colonnaded hall behind
+    market.stoa((0, -9.0, 0), heading_deg=180, columns=12)             # colonnade facing the market
     from lib import architecture
     for i, x in enumerate((-24, -12, 12, 24)):                     # houses + shops along the far side
         architecture.house((x, 16, 0), w=8, d=8, heading_deg=180, seed=40 + i, name=f'agora_house{i}')
@@ -116,9 +116,9 @@ bpy.context.scene.camera.data.clip_end = 6000
 if DRESS:
     from lib import dressing
     setting = {'market': 'market', 'village': 'village', 'beach': 'harbour', 'caravan': 'persian_camp',
-               'workshops': 'village', 'garden': 'countryside'}.get(VIEW, 'village')
+               'workshops': 'village', 'garden': 'garden'}.get(VIEW, 'village')
     keep = {'market': [(0, 0, 7.5), (0, -9, 5)], 'village': [(0, 0, 6)], 'beach': [(0, 3.5, 7)],
-            'caravan': [(0, -7, 4), (0, 0, 3)], 'workshops': [(0, 0, 3.5), (7, -1, 3)], 'garden': [(0, 0, 3)]}.get(VIEW, [])
+            'caravan': [(0, -7, 4), (0, 0, 3)], 'workshops': [(0, 0, 3.5), (7, -1, 3)], 'garden': [(0, 0, 1.6)]}.get(VIEW, [])
     ground = globals().get('g') or bpy.data.objects.get('paradeisos_ground')      # the view's own ground
     dressing.dress_view(bpy.context.scene.camera, ground, setting, amount=160, keep_clear=keep, seed=7)
 common.render_settings(res=(960, 540), samples=SAMPLES, path=OUT)
