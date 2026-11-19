@@ -1,7 +1,7 @@
 # COUNTRYSIDE TEST (WS16): an Attic farm landscape, early summer 480 BC, late golden afternoon.
 #   foreground: ripe emmer wheat field (with a stone wall along it); middle: olive grove in rows over stubble,
 #   threshing floor with sheaves, beehives; back: terraced hillside, mountains (sets.land), real photographed sky.
-# Run: blender -b --python blender/scenes/countryside_test.py -- <out.png> [samples] [view: wide|field|floor|terraces] [frames]
+# Run: blender -b --python blender/scenes/countryside_test.py -- <out.png> [samples] [view: wide|field|floor|terraces|olive] [frames]
 #   frames > 1 = a WIND TEST CLIP: renders frames 1..N (24 fps, 640x360) as <out>_####.png to check the gusts
 import math, os, sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
@@ -35,9 +35,11 @@ cs.dry_stone_wall([(-23, -7.4), (0, -7.6), (23, -7.2)], height=1.0, seed=6, ruin
 cs.dry_stone_wall([(-23.5, 19.5), (-23.5, 28.5), (30, 28.5)], height=1.1, seed=7, ruined=0.05, name='wall_back')
 cs.threshing_floor((-40, 48, 0.0), radius=6.0, seed=8)
 cs.beehives((-30, 30, 0.0), heading_deg=10, seed=9)
-cs.terraced_hill('terraces', loc=(10, 70, 0), size=(90.0, 50.0), rise=20.0, steps=7, seed=10)
-sets.land('hymettos', (60, 420, -2), (900, 260), 260, rough=26, noise=40, seed=1)
-sets.land('far_hills', (-380, 520, -2), (700, 300), 180, rough=20, noise=34, seed=2)
+cs.terraced_hill('terraces', loc=(10, 70, 0), size=(90.0, 50.0), rise=20.0, steps=9, seed=10)
+# ridged limestone mountains with rock faces + scrub (countryside.mountain; the soft sets.land hills read as sand)
+cs.mountain('hymettos', (60, 470, -2), (1100.0, 420.0), 300.0, seed=1, peaks=2)
+cs.mountain('far_hills', (-480, 700, -2), (900.0, 400.0), 220.0, seed=2, scrub=False,
+            rock_tint=(0.85, 0.88, 0.95), scrub_tint=(0.8, 0.82, 0.86))       # further = bluer (air between)
 
 # --- light: low warm sun from the left-front, a real sky with clouds, gentle haze for depth
 common.hdri_sky('kloofendal_48d_partly_cloudy_puresky', background=0.9, lighting=0.45, rotate_deg=200)
@@ -51,6 +53,7 @@ views = {   # camera, target, lens
     'field': (Vector((3, -10.5, 1.15)), Vector((0, 12, 1.0)), 50),
     'floor': (Vector((-30, 34, 3.5)), Vector((-40, 48, 0.4)), 40),
     'terraces': (Vector((0, 20, 4.0)), Vector((10, 80, 10)), 40),
+    'olive': (Vector((2.5, 26.0, 1.7)), Vector((4.0, 38.0, 3.2)), 32),    # under the code-built olive trees
 }
 cam, tgt, lens = views[VIEW]
 common.camera('cam', cam, tgt, lens=lens, fstop=8)

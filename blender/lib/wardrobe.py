@@ -691,7 +691,7 @@ def peplos(human, rig, pos, material, overfold=None, belt_over=True, frames=45, 
     cm.settings.quality = 10; cm.collision_settings.distance_min = 0.006; cm.collision_settings.collision_quality = 4
     cm.settings.air_damping = 0.8
     _finish(over, 0.003)
-    _sim_freeze([over], frames, shell=0.006)
+    _sim_freeze([over], max(frames, 90), shell=0.006)               # time to fall soft (45 frames left it boxy)
     return main, over
 
 
@@ -2099,7 +2099,9 @@ def dress(human, rig, pos, person, pose_name=None, tools=True):
                 earrings(human, rig, gold)
             if wealthy:
                 necklace(human, rig, gold)
-            if seed % 3 != 1:                                         # most women outdoors draw the mantle over the head
+            carries_jar = tools and role in ('villager', 'servant', 'citizen') and seed % 2 == 0   # (see below)
+            if seed % 3 != 1 and not carries_jar:                     # most women outdoors draw the mantle over the head;
+                # a woman with a water jar on her head goes bareheaded on a ring pad (hydriaphoroi on Attic vases)
                 veil(human, rig, crowd_cloth(tag + '_veil', {**dye, "main": (0.5, 0.46, 0.38)}, wool=True, seed=seed + 2))
         elif w == 'greek_servant_480bc' and role in ('fisherman', 'rower') and seed % 2 == 0:
             # at the oars or the nets: just a loincloth, a felt pilos against the sun for the fishermen

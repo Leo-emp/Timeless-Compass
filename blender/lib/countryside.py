@@ -258,16 +258,159 @@ def _straw_scatter(name, ripe, seed, hair_axis=True):
 
 
 # ------------------------------------------------------------------ olive groves
+
+def _olive_leaf_material(name='olive_leaf'):
+    """Olive leaves are two-coloured: dark grey-green on top, SILVER underneath (fine scales) - when the wind
+    turns them the whole tree flashes silver. Backfacing picks the underside colour; a noise breaks it into
+    patches so no two leaves match; light shines through a little (translucent)."""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = bpy.data.materials.new(name); m.use_fake_user = True
+    nt = m.node_tree; L = nt.links.new; b = nt.nodes['Principled BSDF']
+    geo = nt.nodes.new('ShaderNodeNewGeometry')
+    noi = nt.nodes.new('ShaderNodeTexNoise'); noi.inputs['Scale'].default_value = 9.0
+    top = nt.nodes.new('ShaderNodeValToRGB')                          # top side: grey-green, varied
+    top.color_ramp.elements[0].color = (0.05, 0.075, 0.035, 1); top.color_ramp.elements[1].color = (0.13, 0.16, 0.08, 1)
+    L(noi.outputs['Fac'], top.inputs['Fac'])
+    mix = nt.nodes.new('ShaderNodeMix'); mix.data_type = 'RGBA'
+    mix.inputs[7].default_value = (0.36, 0.39, 0.31, 1)              # underside: silver-sage
+    L(geo.outputs['Backfacing'], mix.inputs['Factor']); L(top.outputs['Color'], mix.inputs[6])
+    L(mix.outputs[2], b.inputs['Base Color']); b.inputs['Roughness'].default_value = 0.55
+    tr = nt.nodes.new('ShaderNodeBsdfTranslucent'); L(mix.outputs[2], tr.inputs['Color'])
+    ms = nt.nodes.new('ShaderNodeMixShader'); ms.inputs['Fac'].default_value = 0.2
+    out = next(n for n in nt.nodes if n.type == 'OUTPUT_MATERIAL')
+    L(b.outputs[0], ms.inputs[1]); L(tr.outputs[0], ms.inputs[2]); L(ms.outputs[0], out.inputs['Surface'])
+    return m
+
+
+def _olive_bark_material(name='olive_bark'):
+    """Old olive bark: grey, deeply fissured and twisted - a stretched noise for the vertical fissures, strong bump."""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = bpy.data.materials.new(name); m.use_fake_user = True
+    nt = m.node_tree; L = nt.links.new; b = nt.nodes['Principled BSDF']
+    tc = nt.nodes.new('ShaderNodeTexCoord')
+    mp = nt.nodes.new('ShaderNodeMapping'); mp.inputs['Scale'].default_value = (9.0, 9.0, 2.2)   # fissures run along the trunk
+    L(tc.outputs['Object'], mp.inputs['Vector'])
+    noi = nt.nodes.new('ShaderNodeTexNoise'); noi.inputs['Scale'].default_value = 3.0; noi.inputs['Detail'].default_value = 8
+    L(mp.outputs['Vector'], noi.inputs['Vector'])
+    ramp = nt.nodes.new('ShaderNodeValToRGB')
+    ramp.color_ramp.elements[0].color = (0.05, 0.045, 0.04, 1); ramp.color_ramp.elements[1].color = (0.3, 0.28, 0.25, 1)
+    L(noi.outputs['Fac'], ramp.inputs['Fac']); L(ramp.outputs['Color'], b.inputs['Base Color'])
+    b.inputs['Roughness'].default_value = 0.9
+    bu = nt.nodes.new('ShaderNodeBump'); bu.inputs['Strength'].default_value = 0.9; bu.inputs['Distance'].default_value = 0.03
+    L(noi.outputs['Fac'], bu.inputs['Height']); L(bu.outputs['Normal'], b.inputs['Normal'])
+    return m
+
+
+def olive_tree(name='olive', seed=0, height=5.5, age=1.0):
+    """One OLD OLIVE TREE built from code (the photogrammetry scan baked the sky into its crown and rendered as a
+    stump): a short, thick, twisting trunk that splits low into 2-3 leaning leaders (olives are cut back and
+    re-sprout for centuries, so the trunk looks like several fused, hollowed stems), spreading branches, and a
+    broad, rounded, open crown of narrow leaves in clusters - grey-green above, silver below.
+    age 0..1: young (one slim trunk) .. ancient (fat, split, gnarled). Returns a hidden collection (wood + leaves)
+    with the origin at the trunk foot, ready for instancing."""
+    from mathutils import noise
+    rnd = random.Random(seed)
+    col = _hidden_collection(f'{name}_{seed}')
+    if col.objects:
+        return col
+    bm = bmesh.new()
+
+    def limb(pts, r0, r1):
+        cu = bpy.data.curves.new(name + '_limb', 'CURVE'); cu.dimensions = '3D'
+        sp = cu.splines.new('BEZIER'); sp.bezier_points.add(len(pts) - 1)
+        for i, q in enumerate(pts):
+            bp = sp.bezier_points[i]; bp.co = q; bp.handle_left_type = bp.handle_right_type = 'AUTO'
+            bp.radius = r0 + (r1 - r0) * (i / (len(pts) - 1)) ** 0.8
+        cu.bevel_depth = 1.0; cu.bevel_resolution = 3; cu.resolution_u = 5
+        o = link(bpy.data.objects.new(name + '_limb', cu))
+        dg = bpy.context.evaluated_depsgraph_get(); dg.update()
+        me = bpy.data.meshes.new_from_object(o.evaluated_get(dg)); bpy.data.objects.remove(o)
+        bm.from_mesh(me); bpy.data.meshes.remove(me)
+
+    H = height
+    r_trunk = 0.16 + 0.34 * age                                       # old olives: fat, fluted trunks
+    crown_c = Vector((0, 0, H * 0.66)); crown_r = Vector((H * 0.5, H * 0.46, H * 0.3))
+    tips = []
+    n_lead = 1 if age < 0.3 else rnd.randint(2, 3)
+    split_z = H * rnd.uniform(0.22, 0.32)
+    for li in range(n_lead):
+        a = 2 * math.pi * li / n_lead + rnd.uniform(-0.5, 0.5)
+        lean = Vector((math.cos(a), math.sin(a), 0)) * (0.0 if n_lead == 1 else 0.18)
+        # the leader: from the foot (fused with the others) up through the split, leaning out, twisting
+        pts = []
+        for k, t in enumerate(np.linspace(0, 1, 6)):
+            z = t * H * 0.55
+            off = lean * max(0.0, z - split_z * 0.5) * 1.4
+            wob = Vector((0.12 * math.sin(t * 5 + seed + li), 0.12 * math.cos(t * 4 + seed * 2 + li), 0)) * age
+            pts.append(Vector((0, 0, z)) + off + wob)
+        limb(pts, r_trunk / math.sqrt(n_lead) * 1.15, r_trunk * 0.22)
+        top = pts[-1]
+        # branches: from the upper leader out and up into the crown
+        for b in range(rnd.randint(4, 6)):
+            ba = a + rnd.uniform(-1.4, 1.4)
+            d = Vector((math.cos(ba), math.sin(ba), rnd.uniform(0.3, 0.9))).normalized()
+            start = pts[rnd.randint(3, 5)]
+            ln = rnd.uniform(0.8, 1.4) * H * 0.33
+            bp = [start + d * ln * t + Vector((0, 0, -0.25 * ln * t * t * rnd.uniform(0.2, 1.0))) +
+                  Vector((rnd.gauss(0, 0.05), rnd.gauss(0, 0.05), rnd.gauss(0, 0.05))) * (t > 0) for t in np.linspace(0, 1, 4)]
+            limb(bp, r_trunk * 0.2, 0.012)
+            tips.append(bp[-1]); tips.append(bp[2])
+        tips.append(top)
+    # gnarl: push the wood surface in and out with noise (bulges, hollows, burrs) - stronger low on old trees
+    for v in bm.verts:
+        k = (1.0 - min(1.0, v.co.z / (H * 0.45))) * age
+        n = noise.noise(v.co * 2.2 + Vector((seed, 0, 0)))
+        v.co += Vector((v.co.x, v.co.y, 0)).normalized() * (0.14 * k * n) if (v.co.x or v.co.y) else Vector()
+    me_wood = bpy.data.meshes.new(name + '_wood'); bm.to_mesh(me_wood); bm.free()
+    wood = bpy.data.objects.new(f'{name}_{seed}_wood', me_wood); wood.data.materials.append(_olive_bark_material())
+    for pg in wood.data.polygons:
+        pg.use_smooth = True
+    col.objects.link(wood)
+    # the crown: leaf CLUSTERS spread through a broad, flattened dome (denser at the shell, open inside so light
+    # comes through in patches), each cluster a spray of narrow lanceolate leaves on a short twig
+    lb = bmesh.new(); tw = bmesh.new()
+    leaf = [(0.0, 0.0), (0.009, 0.015), (0.012, 0.04), (0.008, 0.062), (0.0, 0.078), (-0.008, 0.062), (-0.012, 0.04), (-0.009, 0.015)]
+    n_cl = int(260 + 200 * age)                                        # dense: an olive crown is a mass of leaves
+    for c in range(n_cl):
+        u = Vector((rnd.gauss(0, 1), rnd.gauss(0, 1), rnd.gauss(0, 1))).normalized()
+        if u.z < -0.45:
+            u.z = -u.z * 0.5                                             # few clusters on the very underside
+        rr = rnd.uniform(0.72, 1.0) ** 0.5
+        cp = crown_c + Vector((u.x * crown_r.x, u.y * crown_r.y, u.z * crown_r.z)) * rr
+        near = min(tips, key=lambda t: (t - cp).length)
+        # a twig from the nearest branch tip to the cluster (thin, a few cm)
+        dv = cp - near
+        if dv.length > 0.05:
+            side = dv.cross(Vector((0, 0, 1))).normalized() * 0.006 if dv.cross(Vector((0, 0, 1))).length > 1e-4 else Vector((0.006, 0, 0))
+            tw.faces.new([tw.verts.new(near - side), tw.verts.new(near + side), tw.verts.new(cp + side * 0.3), tw.verts.new(cp - side * 0.3)])
+        s_cl = rnd.uniform(0.9, 1.5)
+        for _ in range(rnd.randint(38, 56)):
+            q = cp + Vector((rnd.gauss(0, 0.16), rnd.gauss(0, 0.16), rnd.gauss(0, 0.1))) * s_cl
+            rot = (Matrix.Rotation(rnd.uniform(0, 2 * math.pi), 3, 'Z') @ Matrix.Rotation(rnd.uniform(0.6, 2.2), 3, 'X'))
+            sc = rnd.uniform(0.9, 1.4)
+            vs = [lb.verts.new(q + rot @ Vector((x * sc, y * sc, 0.006 * math.sin(y * 30)))) for x, y in leaf]
+            lb.faces.new(vs)
+    me_leaf = bpy.data.meshes.new(name + '_leaves'); lb.to_mesh(me_leaf); lb.free()
+    lv = bpy.data.objects.new(f'{name}_{seed}_leaves', me_leaf); lv.data.materials.append(_olive_leaf_material())
+    col.objects.link(lv)
+    me_tw = bpy.data.meshes.new(name + '_twigs'); tw.to_mesh(me_tw); tw.free()
+    tg = bpy.data.objects.new(f'{name}_{seed}_twigs', me_tw); tg.data.materials.append(_olive_bark_material())
+    col.objects.link(tg)
+    return col
+
+
 def olive_grove(ground, area, spacing=9.0, jitter=1.6, seed=0, size=(0.75, 1.15), skip=0.08, name='olive_grove'):
     """Olive trees planted in wide, slightly irregular rows (Attic groves were spaced widely, grain or vines grew
     between them). Uses the CC0 scanned olive tree (library/scans/tree_olive_zakynthos, via scatter.load_scan),
     placed ON `ground` by ray cast. area = (xmin, xmax, ymin, ymax). Some gaps (`skip`) where old trees died."""
-    from lib import scatter
-    try:
-        vs = scatter.load_scan('tree_olive_zakynthos')
-    except Exception as e:                                             # e.g. a cloud runner without Sketchfab scans
-        print('olive_grove: olive scan not available here -', e)
-        return None
+    # 4 code-built old olives (olive_tree): the Zakynthos photogrammetry scan baked the sky into its crown and
+    # rendered as grey stumps, so it is no longer used. Code-built trees also render on the cloud runners.
+    vs = [olive_tree('olive', seed=seed * 10 + k, height=random.Random(seed + k).uniform(4.6, 6.2),
+                     age=0.65 + 0.35 * (k % 2)) for k in range(4)]
     rnd = random.Random(seed)
     dg = bpy.context.evaluated_depsgraph_get()
     from mathutils.bvhtree import BVHTree
@@ -382,7 +525,7 @@ def dry_stone_wall(points, height=1.1, width=0.55, seed=0, name='field_wall', ma
     return o
 
 
-def terraced_hill(name='terraces', loc=(0, 0, 0), size=(60.0, 40.0), rise=18.0, steps=7, seed=0, wall_h=1.2):
+def terraced_hill(name='terraces', loc=(0, 0, 0), size=(60.0, 40.0), rise=18.0, steps=7, seed=0, wall_h=1.2, plant=True):
     """A hillside cut into level TERRACES held up by dry-stone walls (how Greeks farmed steep land for vines,
     olives and grain). The slope rises along +Y by `rise` m over `size[1]`; each step = a flat strip + a wall.
     Returns (ground, [walls]). Plant the strips with grain_field / olive_grove afterwards."""
@@ -413,6 +556,32 @@ def terraced_hill(name='terraces', loc=(0, 0, 0), size=(60.0, 40.0), rise=18.0, 
             line.append((x + loc[0], y + loc[1], loc[2] + (s - 1) * rise / steps))
         walls.append(dry_stone_wall(line, height=rise / steps + 0.25, width=0.6, seed=seed + s, name=f'{name}_wall{s}',
                                     ruined=0.05 * rnd.random(), faces=1, stone_scale=1.7, subdiv=1))
+    if plant:
+        # a terrace is FARMED: a row of olives along each bench (back from the wall edge), and wild grass + weeds
+        # spilling over every wall top - from below, the trees and the green lines are what tell terraces from a wall
+        pts, tufts = [], []
+        for s in range(steps):
+            z = loc[2] + s * rise / steps
+            for x in np.arange(-size[0] / 2 + 4, size[0] / 2 - 3, 7.5):
+                x += rnd.uniform(-1.5, 1.5)
+                w = 1.2 * math.sin(x * 0.08 + seed) + 0.6 * math.sin(x * 0.21 + 2 * seed)
+                if rnd.random() < 0.85:
+                    pts.append(Vector((x + loc[0], s * strip + strip * 0.45 - w + loc[1], z - 0.05)))
+            if s:
+                for x in np.arange(-size[0] / 2 + 0.6, size[0] / 2 - 0.6, 0.55):
+                    w = 1.2 * math.sin(x * 0.08 + seed) + 0.6 * math.sin(x * 0.21 + 2 * seed)
+                    tufts.append(Vector((x + rnd.uniform(-0.2, 0.2) + loc[0], s * strip - w + 0.05 * strip + rnd.uniform(-0.3, 0.4) + loc[1], z)))
+        trees = _hidden_collection(f'{name}_olives')
+        for k in range(3):
+            c = olive_tree('olive', seed=seed * 7 + 50 + k, height=4.2 + 0.6 * k, age=0.55 + 0.2 * k)
+            if c.name not in trees.children:
+                trees.children.link(c)
+        wind_scatter(None, trees, 0, seed=seed, points=pts, gust=0.025, gust_size=20.0, flutter=0.01, scale=(0.8, 1.1),
+                     name=f'{name}_olivewind')
+        grass = _hidden_collection(f'{name}_weeds')
+        for v in range(3):
+            grass.objects.link(grain_clump(f'{name}_weed{v}', 'barley', height=0.45, stalks=14, ripe=0.35, seed=seed * 3 + v, hair_axis=False))
+        wind_scatter(None, grass, 0, seed=seed + 1, points=tufts, gust=0.2, flutter=0.05, scale=(0.6, 1.4), name=f'{name}_weedwind')
     return g, walls
 
 
@@ -798,6 +967,75 @@ def vineyard(ground, area, row=1.9, spacing=1.4, seed=0, staked=0.5, grapes='bla
 
 
 # ------------------------------------------------------------------ herds
+# ------------------------------------------------------------------ mountains (Session D's own: sets.land is shared)
+def mountain(name='mountain', loc=(0, 0, 0), size=(900.0, 500.0), height=260.0, seed=0, res=300, scrub=True,
+             peaks=1, rock_tint=(1.0, 0.96, 0.9), scrub_tint=(0.95, 0.9, 0.78)):
+    """A GREEK LIMESTONE MOUNTAIN (Hymettos, Parnes, Aigaleos): sharp ridges with gullies cut between them (ridged
+    noise, domain-warped so ridges bend like real spurs), grey rock on the steep faces, dry phrygana / maquis
+    scrub (scanned shrubs) on the gentle slopes and in the gullies, scree aprons at the foot. A low, smooth
+    mountain made of soft noise reads as a pile of sand at film resolution - ridges and slope-based colour are
+    what make it read as rock. peaks = how many summits along the long axis. Returns the mesh object."""
+    from mathutils import noise
+    rnd = random.Random(seed)
+    W, D = size
+    bpy.ops.mesh.primitive_grid_add(x_subdivisions=res, y_subdivisions=int(res * D / W), size=1, location=loc)
+    o = bpy.context.object; o.name = name; o.scale = (W, D, 1)
+    bpy.ops.object.transform_apply(scale=True)
+    off = Vector((seed * 13.1, seed * 7.7, 0))
+    summits = [(rnd.uniform(-0.25, 0.25) + (k - (peaks - 1) / 2) * 0.6 / max(1, peaks - 1) * (peaks > 1),
+                rnd.uniform(-0.08, 0.08), rnd.uniform(0.75, 1.0)) for k in range(peaks)]
+    for v in o.data.vertices:
+        u, w = v.co.x / W, v.co.y / D                                  # -0.5 .. 0.5
+        env = 0.0                                                      # the mass of the mountain: one bump per summit
+        for sx, sy, sh in summits:
+            d = math.sqrt(((u - sx) / 0.42) ** 2 + ((w - sy) / 0.38) ** 2)
+            env = max(env, sh * max(0.0, 1.0 - d) ** 1.35)
+        q = Vector((u * 6.0, w * 6.0 * D / W, 0)) + off
+        warp = Vector((noise.noise(q * 0.7 + Vector((5, 0, 0))), noise.noise(q * 0.7 + Vector((0, 9, 0))), 0)) * 0.6
+        ridge = noise.ridged_multi_fractal(q + warp, 1.0, 2.05, 6, 1.0, 2.0)          # sharp ridges, ~0..2
+        fine = noise.fractal(q * 4.0, 0.8, 2.0, 4)                                       # rock-scale breakup
+        h = env * (0.55 + 0.32 * ridge) + 0.03 * fine * env
+        v.co.z = h * height
+    me = o.data
+    for pg in me.polygons:
+        pg.use_smooth = True
+    # slope-based look: steep = grey rock (cliff scan), gentle = dry scrubby soil (coast_land_rocks scan);
+    # the 'density' group (gentle, low-to-mid slopes) is where the scrub grows
+    rock = soil_material(f'{name}_rock', scan='cliff_side', tint=rock_tint, tiles=0.05)
+    soil = soil_material(f'{name}_scrubsoil', scan='coast_land_rocks_01', tint=scrub_tint, tiles=0.12)
+    me.materials.append(soil); me.materials.append(rock)
+    me.calc_loop_triangles() if hasattr(me, 'calc_loop_triangles') else None
+    vg = o.vertex_groups.new(name='density')
+    flat = {}
+    for pg in me.polygons:
+        steep = pg.normal.z < 0.78 + 0.08 * noise.noise(Vector(pg.center) * 0.02)
+        pg.material_index = 1 if steep else 0
+        for vi in pg.vertices:
+            flat[vi] = flat.get(vi, 0.0) + (0.0 if steep else 1.0)
+    cnt = {}
+    for pg in me.polygons:
+        for vi in pg.vertices:
+            cnt[vi] = cnt.get(vi, 0) + 1
+    for vi, f in flat.items():
+        z = me.vertices[vi].co.z / max(1.0, height)
+        dens = (f / cnt[vi]) * max(0.0, 1.0 - z * 1.1)                 # scrub thins out towards the summit
+        if dens > 0.02:
+            vg.add([vi], dens, 'REPLACE')
+    if scrub:
+        try:
+            from lib import scatter
+            col = _hidden_collection(f'{name}_scrub')
+            for sc_id in ('shrub_01', 'shrub_03'):
+                for c in scatter.load_scan(sc_id):
+                    if c.name not in col.children:
+                        col.children.link(c)
+            # scrub patches: ~1 bush per 60 m2 where it grows (dots from afar, a texture of the mountain)
+            wind_scatter(o, col, 0.016, seed=seed, gust=0.0, flutter=0.0, scale=(1.4, 3.2), name=f'{name}_scrubwind')
+        except Exception as e:
+            print('mountain: no scrub scans here -', e)
+    return o
+
+
 def ground_z_fn(ground):
     """A function (x, y) -> ground height under that point (ray cast; 0 if missing): what animals.py wants as z_fn."""
     from mathutils.bvhtree import BVHTree

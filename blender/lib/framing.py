@@ -32,6 +32,7 @@ def _m(name, color, rough=0.6, metal=0.0, bump=0.1, bump_scale=120, sss=0.0):
 
 def _cam_frame(cam):
     """Camera position, forward, right and up unit vectors (world) at the current frame."""
+    bpy.context.view_layer.update()                  # a fresh / constrained camera's matrix is stale until updated
     mw = cam.matrix_world
     pos = mw.translation.copy()
     fwd = (mw.to_3x3() @ Vector((0, 0, -1))).normalized()

@@ -382,12 +382,17 @@ def dress_view(cam, ground, setting='village', amount=120, keep_clear=(), seed=0
     """Dress what `cam` sees with about `amount` pieces of the setting's kit, plus background people, birds and
     smoke. keep_clear = [(x, y, r)] around actors and their paths. Returns the collection holding the instances."""
     rnd = random.Random(seed)
+    # the camera's matrix_world is only valid after a depsgraph update (a fresh camera with a Track To constraint
+    # still sits at the origin looking down until then - every prop landed in the middle of the set, hidden)
+    bpy.context.view_layer.update()
     kit = KITS.get(setting, KITS['village'])
     B = _builders()
     out = bpy.data.collections.get(f'dressing_{setting}') or bpy.data.collections.new(f'dressing_{setting}')
     if out.name not in bpy.context.scene.collection.children:
         bpy.context.scene.collection.children.link(out)
     pts = visible_points(cam, ground, amount, far=far, keep_clear=keep_clear, seed=seed)
+    print(f'dressing[{setting}]: camera at {tuple(round(c, 1) for c in cam.matrix_world.translation)}, '
+          f'{len(pts)} visible ground points', flush=True)
     cache = {}
     total = sum(w for _, w, _ in kit)
     for i, (p, d) in enumerate(pts):

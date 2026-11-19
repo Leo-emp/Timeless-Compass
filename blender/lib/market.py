@@ -399,25 +399,164 @@ def village(loc=(0, 0, 0), n=9, seed=0, spread=34.0, name='village'):
         tries += 1
         a = rnd.uniform(0, 2 * math.pi); r = rnd.uniform(7.0, spread)
         x, y = loc[0] + r * math.cos(a), loc[1] + r * math.sin(a)
-        if any(math.hypot(x - px, y - py) < 13.0 for px, py in placed):
+        if any(math.hypot(x - px, y - py) < 16.0 for px, py in placed):
             continue
         w, d = rnd.uniform(6.5, 10.0), rnd.uniform(7.5, 12.0)
         heading = math.degrees(math.atan2(loc[1] - y, loc[0] - x)) + rnd.uniform(-25, 25) + 90   # face the square
-        h = architecture.house((x, y, loc[2]), w=w, d=d, h=rnd.uniform(2.9, 3.4), heading_deg=heading, seed=seed + len(placed),
-                               name=f'{name}_house{len(placed)}')
-        parts['houses'].append(h); placed.append((x, y))
-        # a walled yard behind the house
+        # a farmhouse whose walled courtyard + gate face the square (farmhouse(): tiles, rafters, door, yard life);
+        # its front line sits `court` m behind the yard gate, so the yard lies between the house and the square
+        court = rnd.uniform(5.5, 7.5)
         hr = math.radians(heading)
-        bx, by = x - math.sin(hr) * (d / 2 + 4), y + math.cos(hr) * (d / 2 + 4)
-        c = [(bx + dx * math.cos(hr) - dy * math.sin(hr), by + dx * math.sin(hr) + dy * math.cos(hr))
-             for dx, dy in ((-w / 2, -4), (-w / 2, 3.5), (w / 2, 3.5), (w / 2, -4))]
-        parts['walls'].append(countryside.dry_stone_wall(c, height=1.3, seed=seed + 100 + len(placed), name=f'{name}_yard{len(placed)}', ruined=0.1))
+        fx, fy = x - math.sin(hr) * court, y + math.cos(hr) * court         # house front = gate + court along local +y
+        h = farmhouse((fx, fy, loc[2]), heading_deg=heading, w=w, d=rnd.uniform(5.0, 6.5), h=rnd.uniform(2.7, 3.2),
+                      court=court, seed=seed + len(placed), name=f'{name}_house{len(placed)}')
+        parts['houses'].append(h); placed.append((x, y))
     parts['well'] = well((loc[0] + 1.5, loc[1] - 1.0, loc[2]), name=name + '_well')
     parts['oven'] = bread_oven((loc[0] - 4.0, loc[1] + 3.0, loc[2]), heading_deg=rnd.uniform(0, 360), name=name + '_oven')
     a = rnd.uniform(0, 2 * math.pi)
     parts['threshing_floor'] = countryside.threshing_floor((loc[0] + (spread + 10) * math.cos(a), loc[1] + (spread + 10) * math.sin(a), loc[2]),
                                                            seed=seed + 7, name=name + '_halos')
     return parts
+
+
+# ------------------------------------------------------------------ the Attic farmhouse (Session D: a rich village house)
+def _tile_rows(bm, w, d, z_eave, z_ridge, rnd, over=0.45):
+    """REAL roof tiles as geometry, Corinthian/Laconian style of Attica c. 480 BC: flat-ish PAN tiles (pan = a wide
+    shallow trough, 0.5 m long) in overlapping courses down each slope, a round COVER tile over every joint, a row of
+    RIDGE tiles along the top. A few tiles sit slightly askew (old roofs never lie perfect). Ridge along x."""
+    def tile(m, width, length, curve, seg=5):
+        vs = []
+        for j in (0, 1):
+            row = []
+            for i in range(seg + 1):
+                t = i / seg - 0.5
+                row.append(bm.verts.new(m @ Vector((t * width, (j - 0.5) * length, curve * (1 - 4 * t * t)))))
+            vs.append(row)
+        for i in range(seg):
+            bm.faces.new((vs[0][i], vs[0][i + 1], vs[1][i + 1], vs[1][i]))
+    half = d / 2 + over
+    slope_len = math.hypot(half, z_ridge - z_eave)
+    ang = math.atan2(z_ridge - z_eave, half)
+    pitch, course = 0.33, 0.42
+    nx = int((w + 2 * over) / pitch)
+    for sgn in (-1, 1):
+        nrow = int(slope_len / course) + 1
+        for r in range(nrow):
+            s_ = min(slope_len, r * course + course / 2)                   # distance down from the ridge
+            y = sgn * s_ * math.cos(ang); z = z_ridge - s_ * math.sin(ang) + 0.01 * r
+            for i in range(nx):
+                x = -w / 2 - over + (i + 0.5) * pitch
+                jit = Matrix.Rotation(rnd.gauss(0, 0.02) if rnd.random() < 0.15 else 0.0, 4, 'Z')
+                tilt = Matrix.Rotation(-sgn * ang, 4, 'X')
+                m = Matrix.Translation(Vector((x, y, z))) @ tilt @ jit
+                tile(m, pitch * 0.98, course * 1.18, -0.025)                  # pan: concave (trough)
+                if i < nx - 1:
+                    mc = Matrix.Translation(Vector((x + pitch / 2, y, z + 0.035))) @ tilt @ jit
+                    tile(mc, 0.13, course * 1.15, 0.045, seg=4)              # cover: convex over the joint
+    for i in range(int((w + 2 * over) / 0.45) + 1):                         # ridge tiles
+        x = -w / 2 - over + i * 0.45
+        m = Matrix.Translation(Vector((x, 0, z_ridge + 0.05))) @ Matrix.Rotation(math.pi / 2, 4, 'Z')
+        tile(m, 0.26, 0.5, 0.09, seg=6)
+
+
+def farmhouse(loc=(0, 0, 0), heading_deg=0.0, w=9.0, d=6.0, h=3.0, court=6.5, seed=0, parent=None, name='farmhouse'):
+    """An Attic FARMHOUSE of c. 480 BC (after excavated country houses such as the Dema and Vari houses, and the
+    Olynthos plans): a range of rooms under a tiled gable roof, facing south onto a walled COURTYARD; the street
+    sees the yard wall with its gate, the roof behind. Mud-brick walls, lime-plastered, on a rubble-stone socle; a
+    darker splash band at the foot where rain eats the plaster; rafter ends under the eaves; a plank door (one
+    leaf ajar, dark room behind), two small high windows with wooden shutters; in the yard a half-buried pithos,
+    a stone bench, a ladder up to the roof, a stack of firewood, a hydria by the door.
+    Origin = the middle of the house front at ground level; the courtyard lies in front of it (-y local)."""
+    from lib import props, countryside
+    rnd = random.Random(seed)
+    root = _root(name, loc, heading_deg)
+    if parent:
+        root.parent = parent
+    tint = (rnd.uniform(0.92, 1.05), rnd.uniform(0.84, 0.95), rnd.uniform(0.7, 0.82))
+    plaster = _scan(f'farm_plaster_{seed % 3}', 'clay_plaster', tint, 1.2) or _mat(f'farm_plaster_{seed % 3}', (0.62, 0.52, 0.4), rough=0.92)
+    mud = _scan('farm_splash', 'brown_mud_dry', (0.8, 0.7, 0.58), 1.0) or _mat('farm_splash', (0.32, 0.25, 0.18), rough=0.95)
+    stone = countryside.stone_material()
+    wood = bpy.data.materials.get('old_wood') or props.old_wood()
+    dark = _mat('room_dark', (0.012, 0.01, 0.008), rough=1.0)
+    cy = d / 2                                                          # house centre: behind the front line
+    props._box(name + '_socle', (0, cy, 0.28), (w + 0.12, d + 0.12, 0.56), stone, bevel=0.03, parent=root)
+    props._box(name + '_walls', (0, cy, 0.56 + h / 2), (w, d, h), plaster, bevel=0.04, parent=root)
+    props._box(name + '_splash', (0, cy, 0.56 + 0.22), (w + 0.03, d + 0.03, 0.44), mud, bevel=0.02, parent=root)
+    zt = 0.56 + h
+    rise = (d / 2) * math.tan(math.radians(17))                        # low Greek pitch
+    for sgn in (-1, 1):                                                  # plastered gables
+        bm = bmesh.new()
+        v = [bm.verts.new(Vector(q)) for q in ((sgn * w / 2, cy - d / 2, zt), (sgn * w / 2, cy + d / 2, zt), (sgn * w / 2, cy, zt + rise))]
+        bm.faces.new(v)
+        g = _obj(f'{name}_gable{sgn}', bm, plaster, root, smooth=False)
+        g.modifiers.new('t', 'SOLIDIFY').thickness = 0.3
+    # roof boards under the tiles (a dark underside seen from below the eaves) + the real tiles on top
+    for sgn in (-1, 1):
+        bm = bmesh.new()
+        v = [bm.verts.new(Vector(q)) for q in ((-w / 2 - 0.45, cy, zt + rise), (w / 2 + 0.45, cy, zt + rise),
+                                               (w / 2 + 0.45, cy + sgn * (d / 2 + 0.45), zt - 0.14), (-w / 2 - 0.45, cy + sgn * (d / 2 + 0.45), zt - 0.14))]
+        bm.faces.new(v)
+        bd = _obj(f'{name}_boards{sgn}', bm, wood, root, smooth=False)
+        bd.modifiers.new('t', 'SOLIDIFY').thickness = 0.05
+    bm = bmesh.new()
+    _tile_rows(bm, w, d, zt - 0.1, zt + rise + 0.04, rnd)
+    tl = _obj(name + '_tiles', bm, roof_tiles(f'roof_tiles_{seed % 2}'), root, smooth=True)
+    tl.location.y = cy
+    tl.modifiers.new('t', 'SOLIDIFY').thickness = 0.018
+    for sgn in (-1, 1):                                                  # rafter ends under both eaves
+        for k in range(int(w / 0.62)):
+            x = -w / 2 + 0.3 + k * 0.62
+            props._box(f'{name}_rafter{sgn}_{k}', (x, cy + sgn * (d / 2 + 0.2), zt - 0.08), (0.11, 0.42, 0.12), wood, bevel=0.01, parent=root)
+    # the door: frame, one plank leaf swung open into the room, the dark room behind
+    dx = rnd.uniform(-w / 5, w / 5)
+    props._box(name + '_doorway', (dx, -0.005, 0.56 + 1.05), (1.15, 0.02, 2.1), dark, bevel=0.0, parent=root)
+    for sx in (-1, 1):
+        props._box(f'{name}_jamb{sx}', (dx + sx * 0.64, -0.05, 0.56 + 1.1), (0.14, 0.14, 2.2), wood, parent=root)
+    props._box(name + '_lintel', (dx, -0.06, 0.56 + 2.25), (1.6, 0.18, 0.2), wood, parent=root)
+    props._box(name + '_threshold', (dx, -0.12, 0.6), (1.4, 0.35, 0.1), stone, bevel=0.02, parent=root)
+    leaf = props._box(name + '_leaf', (0.52, 0, 1.03), (1.04, 0.06, 2.05), wood, parent=root)
+    leaf.location = (dx - 0.57 + 0.52 * math.cos(math.radians(55)), 0.52 * math.sin(math.radians(55)), 0.56 + 1.03)
+    leaf.rotation_euler.z = math.radians(55)
+    for k, wx in enumerate((dx - w / 3.2, dx + w / 3.2)):              # small high windows with shutters
+        if abs(wx) > w / 2 - 0.6:
+            continue
+        props._box(f'{name}_win{k}', (wx, -0.005, 0.56 + h - 0.75), (0.55, 0.02, 0.45), dark, bevel=0.0, parent=root)
+        props._box(f'{name}_winframe{k}', (wx, -0.03, 0.56 + h - 0.5), (0.75, 0.08, 0.08), wood, parent=root)
+        sh = props._box(f'{name}_shutter{k}', (wx - 0.55, -0.12, 0.56 + h - 0.75), (0.3, 0.04, 0.48), wood, parent=root)
+        sh.rotation_euler.z = math.radians(rnd.uniform(60, 100))
+    # the courtyard: a rubble wall round it, a gateway with posts and a plank gate, things of the farm inside
+    hw = w / 2 + 0.2
+    gate_x = rnd.uniform(-w / 4, w / 4)
+    pts_l = [(-hw, 0.0), (-hw, -court), (gate_x - 0.9, -court)]
+    pts_r = [(gate_x + 0.9, -court), (hw, -court), (hw, 0.0)]
+    hr = math.radians(heading_deg); ca, sa = math.cos(hr), math.sin(hr)
+    def W(pt):
+        return (loc[0] + pt[0] * ca - pt[1] * sa, loc[1] + pt[0] * sa + pt[1] * ca, loc[2])
+    countryside.dry_stone_wall([W(q) for q in pts_l], height=1.5, width=0.5, seed=seed + 1, name=name + '_courtL', ruined=0.03)
+    countryside.dry_stone_wall([W(q) for q in pts_r], height=1.5, width=0.5, seed=seed + 2, name=name + '_courtR', ruined=0.03)
+    for sx in (-1, 1):
+        props._box(f'{name}_gatepost{sx}', (gate_x + sx * 0.85, -court, 0.95), (0.22, 0.22, 1.9), wood, parent=root)
+    gt = props._box(name + '_gate', (0, 0, 0.8), (1.5, 0.05, 1.4), wood, parent=root)
+    gt.location = (gate_x - 0.8 + 0.75 * math.cos(math.radians(-70)), -court + 0.75 * math.sin(math.radians(-70)), 0.85)
+    gt.rotation_euler.z = math.radians(-70)
+    # yard things
+    py = props._cyl(name + '_pithos', (w / 2 - 1.3, -court + 1.4, 0.35), 0.45, 0.8, _mat('pithos_clay', (0.5, 0.3, 0.18), rough=0.85, bump=0.3), parent=root, r2=0.3)
+    props._box(name + '_bench', (-w / 2 + 1.6, -0.55, 0.42), (1.8, 0.42, 0.1), stone, bevel=0.02, parent=root)
+    for sx in (-1, 1):
+        props._box(f'{name}_benchleg{sx}', (-w / 2 + 1.6 + sx * 0.7, -0.55, 0.19), (0.18, 0.36, 0.38), stone, parent=root)
+    lad = _root(name + '_ladder', (w / 2 - 0.8, -0.45, 0.0)); lad.parent = root; lad.rotation_euler.x = math.radians(-14)
+    for sx in (-1, 1):
+        props._box(f'{name}_rail{sx}', (sx * 0.22, 0, 1.75), (0.06, 0.06, 3.5), wood, parent=lad)
+    for k in range(9):
+        props._box(f'{name}_rung{k}', (0, 0, 0.3 + k * 0.36), (0.44, 0.04, 0.04), wood, parent=lad)
+    try:
+        from lib import dressing
+        fw = dressing.firewood((0, 0, 0), seed=seed, name=name + '_wood')
+        fw.parent = root; fw.location = (-w / 2 + 0.8, -court + 1.0, 0)
+        hy = hydria((0, 0, 0), seed=seed, name=name + '_hydria'); hy.parent = root; hy.location = (dx + 1.0, -0.4, 0)
+    except Exception as e:
+        print('farmhouse: yard props skipped -', e)
+    return root
 
 
 def net(loc, size=(3.0, 1.6), heading_deg=0.0, sag=0.35, mesh=0.04, name='net'):

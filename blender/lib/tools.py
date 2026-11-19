@@ -247,29 +247,21 @@ def cart(loc=(0, 0, 0), heading_deg=0.0, load='amphorae', seed=0, name='cart'):
         for i in range(5):
             market.grain_sack(Vector(((i % 3 - 1) * 0.38, (i // 3 - 0.5) * 0.6, 0.83)), parent=r, seed=seed + i, name=f'{name}_sack{i}')
     elif load == 'hay':
-        # a loose, lumpy LOAD OF STRAW: a soft mound (subdivided, displaced by noise so it is never a smooth egg),
-        # spilling over the sides, with loose straws sticking out of it
-        bm = bmesh.new(); bmesh.ops.create_icosphere(bm, subdivisions=4, radius=1.0)
+        # the harvest load: BOUND SHEAVES of wheat stacked on the bed, ears outward, in three courses narrowing to
+        # the top (how a sheaf cart is loaded so it rides without spilling) - real stalks and ears, not a mound
+        from lib import countryside
+        countryside.sheaf_heap((0, 0, -50), n=0, seed=seed, name=f'{name}_sheaf')   # builds the sheaf prototype only
+        col = bpy.data.collections[f'{name}_sheaf_src']
         rnd = random.Random(seed)
-        for v in bm.verts:
-            p = v.co
-            n = 1 + 0.12 * math.sin(p.x * 7 + 1.3) * math.sin(p.y * 6) + 0.08 * math.sin(p.z * 9 + p.x * 4)
-            v.co = Vector((p.x * 0.7 * n, p.y * 1.05 * n, max(-0.05, p.z) * 0.62 * n + 0.1))
-        me = bpy.data.meshes.new(name + '_hay'); bm.to_mesh(me); bm.free()
-        h = link(bpy.data.objects.new(name + '_hay', me)); h.parent = r; h.location = (0, 0, 0.85)
-        h.data.materials.append(_m('hay_straw', (0.58, 0.45, 0.2), 0.95, bump=1.5, bump_scale=600))
-        h.modifiers.new('soft', 'SUBSURF').levels = 1
-        for pg in h.data.polygons:
-            pg.use_smooth = True
-        sb = bmesh.new()                                                 # loose straws poking out of the load
-        for k in range(160):
-            a = rnd.uniform(0, 2 * math.pi); e = rnd.uniform(-0.2, 1.2)
-            base = Vector((math.cos(a) * 0.62 * math.cos(e), math.sin(a) * 0.95 * math.cos(e), 0.1 + 0.6 * max(0.0, math.sin(e))))
-            tip = base + Vector((math.cos(a), math.sin(a), rnd.uniform(-0.3, 0.6))).normalized() * rnd.uniform(0.08, 0.22)
-            sb.faces.new([sb.verts.new(base), sb.verts.new(base + Vector((0, 0, 0.004))), sb.verts.new(tip)])
-        me2 = bpy.data.meshes.new(name + '_straws'); sb.to_mesh(me2); sb.free()
-        st = link(bpy.data.objects.new(name + '_straws', me2)); st.parent = r; st.location = (0, 0, 0.85)
-        st.data.materials.append(_m('hay_straw', (0.58, 0.45, 0.2), 0.95))
+        k = 0
+        for layer, (xs, z) in enumerate((((-0.42, 0.0, 0.42), 0.95), ((-0.24, 0.24), 1.16), ((0.0,), 1.36))):
+            for x in xs:
+                for sy in (-1, 1):
+                    inst = bpy.data.objects.new(f'{name}_sheaf{k}', None); link(inst); k += 1
+                    inst.instance_type = 'COLLECTION'; inst.instance_collection = col; inst.parent = r
+                    # lying along the cart, butts in the middle, ears out over front and back
+                    inst.location = (x + rnd.uniform(-0.04, 0.04), sy * 0.08 + rnd.uniform(-0.05, 0.05), z + rnd.uniform(-0.02, 0.03))
+                    inst.rotation_euler = (math.radians(-90 * sy + rnd.uniform(-8, 8)), math.radians(rnd.uniform(-6, 6)), rnd.uniform(-0.1, 0.1))   # ears point out (+-y)
     return r
 
 
