@@ -1,0 +1,8 @@
+{
+  "name": "ws7_debug_cloth",
+  "active": true,
+  "script": "blender/scenes/ws7_debug_cloth.py",
+  "args": [
+    "out/ws7_debug_cloth.png"
+  ]
+}
