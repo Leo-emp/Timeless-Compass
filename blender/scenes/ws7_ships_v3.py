@@ -45,8 +45,9 @@ elif VARIANT in ('hero', 'hero_sail'):    # the majestic angle: low at the water
     # ~6 m off the starboard bow, 0.6 m above the water, looking UP at the stolos + eye; the hull recedes diagonally
     common.camera('cam', Vector((7.5, 19.0, 0.6)), Vector((-1.5, 36.0, 4.2)), lens=22)
 elif VARIANT == 'deck':                    # hero close-up ON deck: laid-rope rigging, rail, side-screen rolls, crew
-    props.trireme_v3((0, 30, 0), heading_deg=0, oars='row', crew='markers', bob=False, name='deckship')   # no toy proxies up close
+    ship = props.trireme_v3((0, 30, 0), heading_deg=0, oars='row', crew='markers', bob=False, name='deckship')
     common.camera('cam', Vector((19.6, 31.0, 3.3)), Vector((32.0, 30.0, 3.0)), lens=28, fstop=2.8, focus=(21.5, 30.4, 3.6))
+    props.populate(ship, 'greece_480bc', camera=(19.6, 31.0, 3.3), built=6, seed=7)   # real marines + deck crew
 elif VARIANT == 'quay':                    # dressed harbour quay: amphorae, ropes, anchors, baskets, moored boats
     sets.stone_wall(-14.0, 14.0, 22.0, 1.0, depth=6.0)        # quay: wall face at y = 19, top at z = 1
     props.dress_quay((0, 20.0, 1.0), length=24.0, boats=2, seed=2)   # props on top, boats moored off the face

@@ -85,14 +85,18 @@ elif VARIANT == 'aigaleos':               # the REAL setting (Herodotus 8.90, Pl
     props.rhyton((-3.15, -39.8, z0 + 0.5), heading_deg=200)
     for i, (x, y) in enumerate(((2.8, -38.0), (3.6, -39.2))):   # the secretaries sit on the platform edge writing
         props.scribe_kit((x, y, z0), heading_deg=150 + i * 20, persian=True, name=f'secretary_kit{i}')
+    court = bpy.data.objects.new('court', None); bpy.context.scene.collection.objects.link(court)
     for i, (x, y, role) in enumerate(((2.9, -37.6, 'scribe'), (3.7, -38.8, 'scribe'), (-1.6, -41.5, 'guard'),
                                       (1.6, -41.5, 'guard'), (-4.5, -37.2, 'courtier'))):
         m = bpy.data.objects.new(f'court_{role}{i}', None); bpy.context.scene.collection.objects.link(m)
         m.location = (x, y, z0); m['role'] = role
+        m.rotation_euler.z = math.radians(180)                  # facing the strait like the king
+        m.parent = court
     sc.frame_set(FRAME)
     common.camera('cam', Vector((4.5, -27.0, z0 + 1.0)), Vector((-0.5, -40.0, z0 + 1.6)), lens=32)
+    props.populate(court, 'persia_480bc', camera=(4.5, -27.0, z0 + 1.0), built=5, seed=8)
     common.render_settings(res=(960, 540), samples=SAMPLES, path=OUT)
-    sc.view_settings.look = 'AgX - High Contrast'; sc.view_settings.exposure = -1.6   # the set's sun is strong
+    sc.view_settings.look = 'AgX - High Contrast'; sc.view_settings.exposure = -3.5   # the set's sun is very strong (mean 168 at -1.6)
     common.render()
 elif VARIANT == 'scribes':
     W.room(w=8.0, d=6.0, floor='old_sandstone_02', wall='plastered_wall_02', floor_tint=(0.5, 0.48, 0.45), wall_tint=(0.55, 0.52, 0.48))

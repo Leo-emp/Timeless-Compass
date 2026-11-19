@@ -3239,6 +3239,71 @@ def dress_beach_camp(loc=(0, 0, 0), heading_deg=0.0, ships=4, seed=0, frames=(1,
     return _place(root, loc, heading_deg)
 
 
+# ------------------------------------------------------------------ PEOPLE IN THE KITS (rich scenes are never empty)
+# Every kit leaves empty markers with a 'role'. populate() turns the nearest ones into REAL extras from the crowd
+# system (WS2: lib/crowd.build_person = MakeHuman body + face + era clothes + idle motion, unique faces from
+# tc/crowd) and fills farther markers with cheap instances of those people. Seated / reclining roles are skipped until
+# the motion library has sitting + reclining clips (WS5).
+_ROLE_MAP = {
+    'greece_480bc': {'porter': 'servant', 'fisherman': 'fisherman', 'sailor': 'rower', 'merchant': 'trader', 'boy': 'child',
+                     'rower': 'rower', 'hoplite': 'hoplite', 'marine': 'hoplite', 'archer': 'archer', 'cook': 'servant',
+                     'helmsman': 'rower', 'rowing_master': 'citizen', 'bow_officer': 'citizen', 'piper': 'citizen',
+                     'deckhand': 'rower'},
+    'persia_480bc': {'immortal': 'immortal', 'archer': 'archer', 'cook': 'servant', 'groom': 'servant', 'servant': 'servant',
+                     'scribe': 'courtier', 'guard': 'immortal', 'courtier': 'courtier', 'soldier': 'soldier'},
+}
+_SKIP_ROLES = ('symposion_guest', 'rider_seat')       # reclining / riding: needs WS5 clips
+
+
+def populate(root, era='greece_480bc', camera=None, built=8, far=120.0, frames=48, seed=0):
+    """Fill the role markers under `root` with people. The `built` markers nearest the camera get unique built
+    extras; the rest (within `far` metres) get instances of a built person of the same role. Returns the built roots."""
+    import sys as _sys, os as _os
+    _sys.path.insert(0, _os.path.abspath(_os.path.join(_os.path.dirname(__file__), '..', '..')))   # repo root: tc package
+    from lib import crowd as C
+    from tc import crowd as tcc
+    cam = Vector(camera) if camera is not None else Vector((0, 0, 0))
+    roles = _ROLE_MAP.get(era, {})
+    marks = [o for o in root.children_recursive if o.type == 'EMPTY' and o.get('role') and o['role'] not in _SKIP_ROLES
+             and not str(o['role']).startswith('rower_') and o['role'] in roles]
+    bpy.context.view_layer.update()
+    marks.sort(key=lambda o: (o.matrix_world.translation - cam).length)
+    marks = [m for m in marks if (m.matrix_world.translation - cam).length < far]
+    by_role, built_roots = {}, []
+    used = set()
+    for i, m in enumerate(marks[:built]):                  # unique people, nearest first
+        crole = roles[m['role']]
+        p = tcc.cast(1, crole, era, seed=seed * 1000 + i, used_seeds=used)[0]
+        used.add(p['seed'])
+        w = m.matrix_world
+        r = C.build_person(p, tuple(w.translation), math.degrees(w.to_euler().z), frames=frames)
+        built_roots.append(r); by_role.setdefault(crole, []).append(r)
+        if m.parent is not None:                           # on a ship: ride with it (bob, travel)
+            bpy.context.view_layer.update(); mw = r.matrix_world.copy(); r.parent = m.parent; r.matrix_world = mw
+    for j, m in enumerate(marks[built:]):                  # farther markers: instances (share all meshes)
+        crole = roles[m['role']]
+        src = by_role.get(crole) or built_roots
+        if not src:
+            break
+        s_ = src[j % len(src)]
+        col = bpy.data.collections.get(s_.name + '_inst')
+        if col is None:
+            col = bpy.data.collections.new(s_.name + '_inst')
+            def add(o):
+                col.objects.link(o)
+                for c in o.children:
+                    add(c)
+            add(s_)
+            col.instance_offset = s_.matrix_world.translation
+        inst = bpy.data.objects.new(f'{m.name}_person', None); link(inst)
+        inst.instance_type = 'COLLECTION'; inst.instance_collection = col
+        w = m.matrix_world
+        inst.location = w.translation; inst.rotation_euler.z = w.to_euler().z + _random.Random(j).uniform(-0.6, 0.6)
+        if m.parent is not None:
+            bpy.context.view_layer.update(); mw = inst.matrix_world.copy(); inst.parent = m.parent; inst.matrix_world = mw
+    return built_roots
+
+
 # ------------------------------------------------------------------ HORSE TACK (480 BC: cloth + bridle, NO saddle, NO stirrups)
 # How it stays on a moving horse: every strap and the cloth is built in the horse's REST pose by shooting rays at
 # its body (so it lies on the skin), then each vertex copies the skin weights of the nearest horse vertex and gets

@@ -1,6 +1,6 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "ws7-18",
+  "batch": "ws7-19",
   "run": [
     "ws7_harbour",
     "ws7_camp",
