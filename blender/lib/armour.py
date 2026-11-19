@@ -490,3 +490,41 @@ def toxon(rig, wood, leather, side='L'):
         cast.parent_to_bone(o, rig, bone)
     cast.parent_to_bone(q, rig, 'spine05' if 'spine05' in rig.pose.bones else 'root')
     return bow, st, q
+
+
+def tuck_hair_under(helm, hair_objects, margin=0.004):
+    """Hair under a closed helmet: every strand point that would stick OUT through the bronze shell (above its
+    open bottom edge) is collapsed to zero radius, so the strand ends inside the helmet. Hair that falls below the
+    rim (a Spartan's long hair down the back) stays. Uses a BVH of the helmet shell + the inside/outside test from
+    the closest surface normal."""
+    from mathutils.bvhtree import BVHTree
+    dg = bpy.context.evaluated_depsgraph_get()
+    bvh = BVHTree.FromObject(helm, dg)
+    zs = [(helm.matrix_world @ v.co).z for v in helm.data.vertices]
+    rim = min(zs)
+    inv = helm.matrix_world.inverted()
+    for h in hair_objects:
+        if h.type != 'CURVES':
+            continue
+        c = h.data
+        pos = c.attributes['position'].data
+        rad = c.attributes.get('radius')
+        if rad is None:
+            continue
+        hidden = 0
+        for ci, curve in enumerate(c.curves):
+            start, n = curve.first_point_index, curve.points_length
+            cut = None
+            for k in range(n):
+                pw = h.matrix_world @ Vector(pos[start + k].vector)
+                if pw.z < rim:
+                    break                                  # below the helmet: free hair
+                loc, nrm, _, dist = bvh.find_nearest(inv @ pw)
+                if loc is not None and (inv @ pw - loc).dot(nrm) > -margin:   # on / outside the shell
+                    cut = k
+                    break
+            if cut is not None:
+                for k in range(cut, n):
+                    rad.data[start + k].value = 0.0
+                hidden += 1
+        print(f'tuck_hair_under: {hidden} strands of {h.name} end inside the helmet')

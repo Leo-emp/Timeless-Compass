@@ -139,6 +139,55 @@ def muzzle_point(cannon):
     return b.matrix_world @ Vector((cannon['muzzle_len'] + 0.05, 0, 0)), (b.matrix_world.to_3x3() @ Vector((1, 0, 0))).normalized()
 
 
+
+def _puff_material(name, density=1.3, color=(0.9, 0.88, 0.85)):     # bright, high-albedo: powder smoke is white-grey
+    """Soft billowing powder smoke inside a sphere: density = noise x (1 - r/R)^1.5 - dense core, wispy edge."""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = bpy.data.materials.new(name)
+    nt = m.node_tree
+    nt.nodes.remove(nt.nodes['Principled BSDF'])
+    L = nt.links.new
+    v = nt.nodes.new('ShaderNodeVolumePrincipled')
+    v.inputs['Color'].default_value = (*color, 1)
+    v.inputs['Anisotropy'].default_value = 0.3
+    tc = nt.nodes.new('ShaderNodeTexCoord')
+    ln = nt.nodes.new('ShaderNodeVectorMath'); ln.operation = 'LENGTH'; L(tc.outputs['Object'], ln.inputs[0])
+    fall = nt.nodes.new('ShaderNodeMapRange'); fall.inputs['From Min'].default_value = 1.0; fall.inputs['From Max'].default_value = 0.2
+    L(ln.outputs['Value'], fall.inputs['Value'])
+    nz = nt.nodes.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 2.2; nz.inputs['Detail'].default_value = 8
+    nz.inputs['Roughness'].default_value = 0.65; L(tc.outputs['Object'], nz.inputs['Vector'])
+    cr = nt.nodes.new('ShaderNodeMapRange'); cr.inputs['From Min'].default_value = 0.35; cr.inputs['From Max'].default_value = 0.75
+    L(nz.outputs['Fac'], cr.inputs['Value'])
+    mul = nt.nodes.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; L(fall.outputs['Result'], mul.inputs[0]); L(cr.outputs['Result'], mul.inputs[1])
+    d = nt.nodes.new('ShaderNodeMath'); d.operation = 'MULTIPLY'; d.inputs[1].default_value = density; L(mul.outputs[0], d.inputs[0])
+    L(d.outputs[0], v.inputs['Density'])
+    L(v.outputs[0], nt.nodes['Material Output'].inputs['Volume'])
+    return m
+
+
+def powder_smoke(tip, fwd, frame, n=7, seed=0, name='powder'):
+    """The black-powder cloud: puffs blasted out of the muzzle along the barrel line, each one growing, slowing and
+    drifting up; the cloud then hangs over the gun (period accounts: gun lines vanished in their own smoke)."""
+    rnd = random.Random(seed)
+    mat = _puff_material('powder_smoke')
+    cy = bpy.context.scene.cycles                  # light must scatter INSIDE the cloud, or dense smoke renders black
+    cy.volume_bounces = max(cy.volume_bounces, 3)
+    out = []
+    for i in range(n):
+        dist = 0.6 + i * rnd.uniform(0.9, 1.4)
+        r_end = 0.9 + i * 0.35 + rnd.uniform(-0.2, 0.3)
+        bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2, radius=1.0, location=tip)
+        p = bpy.context.object; p.name = f'{name}_{i}'; p.data.materials.append(mat)
+        side = Vector((rnd.gauss(0, 0.25), rnd.gauss(0, 0.25), rnd.uniform(0.0, 0.3)))
+        for f, k, s in ((frame - 1, 0.0, 0.01), (frame + 1 + i // 2, 0.55, 0.45), (frame + 8 + i, 0.9, 0.85), (frame + 90, 1.0, 1.25)):
+            p.location = tip + (fwd * dist + side * dist) * k + Vector((0, 0, 0.6 * max(0, f - frame) / 90))
+            p.scale = (r_end * s,) * 3
+            p.keyframe_insert('location', frame=f); p.keyframe_insert('scale', frame=f)
+        out.append(p)
+    return out
+
 def fire(cannon, frame, target=None, shell=False, seed=0):
     """Fire at `frame`: flash + flame tongue + recoil + powder smoke + flying ball (+ a shell burst at the target)."""
     from lib import fx
@@ -148,17 +197,15 @@ def fire(cannon, frame, target=None, shell=False, seed=0):
     # 1) FLASH: a light spike for 2-3 frames (lights the crew and the smoke from inside)
     bpy.ops.object.light_add(type='POINT', location=tip + fwd * 0.4)
     fl = bpy.context.object; fl.name = cannon.name + '_flash'; fl.data.color = (1.0, 0.72, 0.4); fl.data.shadow_soft_size = 0.6
-    for f, e in ((frame - 1, 0), (frame, 250000), (frame + 1, 120000), (frame + 3, 15000), (frame + 6, 0)):
+    for f, e in ((frame - 1, 0), (frame, 12000), (frame + 1, 6000), (frame + 3, 1200), (frame + 6, 0)):
         fl.data.energy = e; fl.data.keyframe_insert('energy', frame=f)
-    # 2) FLAME: an emissive cone shooting out of the muzzle, gone in 4 frames
-    m = bpy.data.materials.new(cannon.name + '_flame'); nt = m.node_tree
-    em = nt.nodes.new('ShaderNodeEmission'); em.inputs['Color'].default_value = (1.0, 0.6, 0.2, 1); em.inputs['Strength'].default_value = 60
-    nt.links.new(em.outputs[0], nt.nodes['Material Output'].inputs['Surface'])
-    bpy.ops.mesh.primitive_cone_add(vertices=24, radius1=0.25, depth=1.6, location=tip + fwd * 0.8)
-    flame = bpy.context.object; flame.data.materials.append(m)
-    flame.rotation_mode = 'QUATERNION'; flame.rotation_quaternion = Vector((0, 0, -1)).rotation_difference(fwd)
-    for f, s in ((frame - 1, 0.01), (frame, 1.0), (frame + 2, 1.4), (frame + 4, 0.01)):
-        flame.scale = (s, s, s); flame.keyframe_insert('scale', frame=f)
+    # 2) FLAME: a hot glowing VOLUME (blackbody fire) bursting from the muzzle for 4 frames - not a solid shape
+    fire = fx.flames(tuple(tip + fwd * 0.6 - Vector((0, 0, 0.35))), height=0.7, width=0.7, intensity=60.0, temp=2300.0,
+                     frames=(frame, frame + 6), name=cannon.name + '_flame')
+    fire.rotation_mode = 'QUATERNION'; fire.rotation_quaternion = Vector((0, 0, 1)).rotation_difference(fwd)
+    base = fire.scale.copy()
+    for f, k in ((frame - 1, 0.01), (frame, 1.0), (frame + 2, 1.6), (frame + 4, 0.01)):
+        fire.scale = base * k; fire.keyframe_insert('scale', frame=f)
     # 3) RECOIL: the whole gun kicks back (field guns roll ~1.5 m, ship guns ~2.5 m until the breeching rope stops them)
     back = {'field': 1.4, 'naval': 2.2, 'bombard': 0.25}[kind]
     start = cannon.location.copy()
@@ -171,13 +218,8 @@ def fire(cannon, frame, target=None, shell=False, seed=0):
         for w in [c for c in cannon.children if 'wheel' in c.name]:
             w.keyframe_insert('rotation_euler', frame=frame)
             w.rotation_euler.y = -back / 0.72; w.keyframe_insert('rotation_euler', frame=frame + 14)
-    # 4) POWDER SMOKE: a big white-grey cloud bursting forward, then hanging and drifting
-    sm = fx.smoke_column(tuple(tip + fwd * 1.5), height=4.0, width=3.0, density=0.9, color=(0.62, 0.6, 0.57),
-                         frames=(frame, frame + 300), name=cannon.name + '_smoke', wind=0.12)
-    sm.scale = (0.05, 0.05, 0.05); sm.keyframe_insert('scale', frame=frame)
-    sm.location = tip + fwd * 3.0; sm.keyframe_insert('location', frame=frame + 8)
-    sm.scale = (1.0, 1.0, 1.0); sm.keyframe_insert('scale', frame=frame + 12)
-    sm.scale = (1.6, 1.6, 1.4); sm.keyframe_insert('scale', frame=frame + 120)
+    # 4) POWDER SMOKE: soft rolling puffs blasted along the barrel line, then hanging over the gun
+    powder_smoke(tip, fwd, frame, seed=seed, name=cannon.name + '_smoke')
     # 5) THE BALL on a ballistic arc to the target (with motion blur it reads as a dark streak)
     if target is not None:
         p1 = Vector(target)

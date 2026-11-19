@@ -1,7 +1,13 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "ws7-15",
+  "batch": "b4-people",
   "run": [
-    "ws7_andron"
+    "card_xerxes",
+    "card_leonidas",
+    "card_themistocles",
+    "card_sicinnus",
+    "card_aristides",
+    "card_eurybiades",
+    "card_artemisia"
   ]
 }

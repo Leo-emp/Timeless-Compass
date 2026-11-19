@@ -14,13 +14,13 @@ BLEND = 4          # frames between two clips: Blender's curve eases one clip in
 
 CLIPS = {
     # attacks
-    "sword_and_shield_slash":           {"kind": "attack", "weapon": "sword", "length": 40, "impact": 18},
+    "sword_and_shield_slash":           {"kind": "attack", "weapon": "sword", "length": 40, "impact": 25},
     "sword_and_shield_attack":          {"kind": "attack", "weapon": "sword", "length": 44, "impact": 20},
     "standing_melee_attack_downward":   {"kind": "attack", "weapon": "sword", "length": 50, "impact": 24},
     "standing_melee_attack_horizontal": {"kind": "attack", "weapon": "sword", "length": 44, "impact": 20},
     "great_sword_slash":                {"kind": "attack", "weapon": "sword", "length": 52, "impact": 24},
     "stabbing":                         {"kind": "attack", "weapon": "spear", "length": 46, "impact": 22},
-    "sword_and_shield_kick":            {"kind": "attack", "weapon": "any",   "length": 40, "impact": 16},
+    "sword_and_shield_kick":            {"kind": "attack", "weapon": "any",   "length": 40, "impact": 5},
     # guards (lead = frames from the clip start until the guard is up)
     "sword_and_shield_block":           {"kind": "block", "weapon": "any", "length": 34, "lead": 8},
     "great_sword_blocking":             {"kind": "block", "weapon": "sword", "length": 36, "lead": 8},

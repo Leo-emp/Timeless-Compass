@@ -88,6 +88,24 @@ def _load_glb_variant(asset_id, d, key):
         col.objects.link(o)
     bpy.context.view_layer.update()
     meshes = [o for o in new if o.type == 'MESH']
+    # HELPER MESHES: some Sketchfab files carry a bounding / collision box (e.g. animal_camels 'Cube_Box_0': 20 verts,
+    # ~20 m wide - reported by Session D). Sized by the whole bounding box, the real model shrank to nothing and the
+    # box rendered as a white block. Drop meshes named like helpers, or with very few verts and bounds far bigger
+    # than the real model parts.
+    def _diag(o):
+        bb = [o.matrix_world @ Vector(c) for c in o.bound_box]
+        return (max(bb, key=lambda v: v.x).x - min(bb, key=lambda v: v.x).x) ** 2 +                (max(bb, key=lambda v: v.y).y - min(bb, key=lambda v: v.y).y) ** 2 +                (max(bb, key=lambda v: v.z).z - min(bb, key=lambda v: v.z).z) ** 2
+    if len(meshes) > 1:
+        diags = sorted(_diag(o) for o in meshes)
+        median = diags[len(diags) // 2] or 1e-9
+        HELPER_NAMES = ('cube_box', 'collider', 'collision', 'bounds', 'bbox', 'helper', 'proxy_box', 'shadow_plane')
+        helpers = [o for o in meshes if any(h in o.name.lower() for h in HELPER_NAMES)
+                   or (len(o.data.vertices) <= 64 and _diag(o) > 9.0 * median)]       # diag^2: 3x the size
+        if helpers and len(helpers) < len(meshes):
+            for o in helpers:
+                print(f'scan {asset_id}: helper mesh {o.name} removed')
+                meshes.remove(o); new.remove(o)
+                bpy.data.objects.remove(o, do_unlink=True)
     pts = [o.matrix_world @ Vector(c) for o in meshes for c in o.bound_box]
     zmin, zmax = min(p.z for p in pts), max(p.z for p in pts)
     k = REAL_HEIGHT.get(asset_id, 1.0) / max(zmax - zmin, 1e-6)
