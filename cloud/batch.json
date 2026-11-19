@@ -1,7 +1,12 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "ws7-26",
+  "batch": "d-verify-11",
   "run": [
-    "ws7_place_flagship"
+    "d_country_wide",
+    "d_country_terr",
+    "d_dress_village",
+    "d_crowd_villager",
+    "d_traveller",
+    "d_woman_ionic"
   ]
 }

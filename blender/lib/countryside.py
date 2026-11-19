@@ -992,7 +992,7 @@ def vineyard(ground, area, row=1.9, spacing=1.4, seed=0, staked=0.5, grapes='bla
 # ------------------------------------------------------------------ herds
 # ------------------------------------------------------------------ mountains (Session D's own: sets.land is shared)
 def mountain(name='mountain', loc=(0, 0, 0), size=(900.0, 500.0), height=260.0, seed=0, res=300, scrub=True,
-             peaks=1, rock_tint=(1.0, 0.96, 0.9), scrub_tint=(0.95, 0.9, 0.78)):
+             peaks=1, rock_tint=(0.84, 0.82, 0.77), scrub_tint=(0.95, 0.9, 0.78)):
     """A GREEK LIMESTONE MOUNTAIN (Hymettos, Parnes, Aigaleos): sharp ridges with gullies cut between them (ridged
     noise, domain-warped so ridges bend like real spurs), grey rock on the steep faces, dry phrygana / maquis
     scrub (scanned shrubs) on the gentle slopes and in the gullies, scree aprons at the foot. A low, smooth
@@ -1054,16 +1054,33 @@ def mountain(name='mountain', loc=(0, 0, 0), size=(900.0, 500.0), height=260.0, 
     add = nt.nodes.new('ShaderNodeMath'); add.operation = 'MULTIPLY_ADD'; add.inputs[1].default_value = 0.6
     Ln(nz.outputs['Fac'], add.inputs[0]); add.inputs[2].default_value = -0.3
     sm = nt.nodes.new('ShaderNodeMath'); sm.operation = 'ADD'; Ln(at.outputs['Fac'], sm.inputs[0]); Ln(add.outputs[0], sm.inputs[1])
-    mr = nt.nodes.new('ShaderNodeMapRange'); mr.inputs['From Min'].default_value = 0.45; mr.inputs['From Max'].default_value = 0.75
+    mr = nt.nodes.new('ShaderNodeMapRange'); mr.inputs['From Min'].default_value = 0.3; mr.inputs['From Max'].default_value = 0.6
     Ln(sm.outputs[0], mr.inputs['Value'])
     mix = nt.nodes.new('ShaderNodeMix'); mix.data_type = 'RGBA'
     Ln(mr.outputs['Result'], mix.inputs['Factor']); Ln(rock_col, mix.inputs['A']); Ln(stint.outputs['Result'], mix.inputs['B'])
-    Ln(mix.outputs['Result'], bsdf.inputs['Base Color'])
+    # BUSHES: on the scrub ground, dark clumps of kermes oak / mastic / thyme (a fine noise, ~3 m blobs) - from afar
+    # this dark stipple is what makes a Greek hillside read as maquis and not as bare sand
+    bn = nt.nodes.new('ShaderNodeTexNoise'); bn.inputs['Scale'].default_value = 0.35; bn.inputs['Detail'].default_value = 3
+    Ln(tcn.outputs['Object'], bn.inputs['Vector'])
+    bmr = nt.nodes.new('ShaderNodeMapRange'); bmr.inputs['From Min'].default_value = 0.52; bmr.inputs['From Max'].default_value = 0.62
+    Ln(bn.outputs['Fac'], bmr.inputs['Value'])
+    bm_ = nt.nodes.new('ShaderNodeMath'); bm_.operation = 'MULTIPLY'; Ln(bmr.outputs['Result'], bm_.inputs[0]); Ln(mr.outputs['Result'], bm_.inputs[1])
+    bush = nt.nodes.new('ShaderNodeMix'); bush.data_type = 'RGBA'; bush.inputs['B'].default_value = (0.045, 0.05, 0.025, 1)
+    Ln(bm_.outputs[0], bush.inputs['Factor']); Ln(mix.outputs['Result'], bush.inputs['A'])
+    # BROAD VARIATION: whole hillsides a little lighter / darker (old burns, bare scree, deeper soil) - 200 m patches
+    vn = nt.nodes.new('ShaderNodeTexNoise'); vn.inputs['Scale'].default_value = 0.005; vn.inputs['Detail'].default_value = 2
+    Ln(tcn.outputs['Object'], vn.inputs['Vector'])
+    vmr = nt.nodes.new('ShaderNodeMapRange'); vmr.inputs['To Min'].default_value = 0.68; vmr.inputs['To Max'].default_value = 1.08
+    Ln(vn.outputs['Fac'], vmr.inputs['Value'])
+    vmul = nt.nodes.new('ShaderNodeMix'); vmul.data_type = 'RGBA'; vmul.blend_type = 'MULTIPLY'; vmul.inputs['Factor'].default_value = 1.0
+    cmb = nt.nodes.new('ShaderNodeCombineXYZ'); Ln(vmr.outputs['Result'], cmb.inputs[0]); Ln(vmr.outputs['Result'], cmb.inputs[1]); Ln(vmr.outputs['Result'], cmb.inputs[2])
+    Ln(bush.outputs['Result'], vmul.inputs['A']); Ln(cmb.outputs[0], vmul.inputs['B'])
+    Ln(vmul.outputs['Result'], bsdf.inputs['Base Color'])
     me.materials.append(mat)
     vg = o.vertex_groups.new(name='density')
     flat, cnt = {}, {}
     for pg in me.polygons:
-        g_ = max(0.0, min(1.0, (pg.normal.z - 0.68) / 0.22))           # 0 = cliff, 1 = gentle slope
+        g_ = max(0.0, min(1.0, (pg.normal.z - 0.6) / 0.25))           # 0 = cliff, 1 = gentle slope
         for vi in pg.vertices:
             flat[vi] = flat.get(vi, 0.0) + g_; cnt[vi] = cnt.get(vi, 0) + 1
     gentle = me.attributes.new('gentle', 'FLOAT', 'POINT')

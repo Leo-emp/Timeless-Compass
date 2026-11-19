@@ -647,7 +647,10 @@ def peplos(human, rig, pos, material, overfold=None, belt_over=True, frames=45, 
     pinned = lambda x: any(a <= abs(x) < b for a, b in zones)
     top_z = M['shoulder_z'] + 0.02
     armpit_z = M['shoulder_z'] - 0.17
-    rx, ry = max(s + 0.14, 0.32), 0.22                              # wide: wool falls in deep folds
+    # body scale: the adult minimum widths below are for a ~1.38 m shoulder height; a girl or a small woman gets
+    # them scaled down (adult floors on a child's body made a stiff box twice her width - crowd villager 22)
+    k = max(0.6, min(1.15, M['shoulder_z'] / 1.38))
+    rx, ry = max(s + 0.14, 0.32 * k), 0.22 * k                      # wide: wool falls in deep folds
     wrx, wry = M['waist_rx'] + 0.012, M['waist_ry'] + 0.012
     hand_z = M['hip_z'] - 0.12
     # never narrower than the body (hips + thighs) at hand height: a skirt narrower than that let the hanging hands
@@ -655,7 +658,7 @@ def peplos(human, rig, pos, material, overfold=None, belt_over=True, frames=45, 
     sel = (np.abs(pos[:, 2] - hand_z) < 0.02) & (np.abs(pos[:, 0]) < 0.3)
     body_rx = float(np.abs(pos[sel][:, 0]).max()) if sel.any() else 0.18
     body_ry = float(np.abs(pos[sel][:, 1] - cy).max()) if sel.any() else 0.14
-    skirt_hx, skirt_hy = max(0.215, body_rx + 0.035), max(0.17, body_ry + 0.04)
+    skirt_hx, skirt_hy = max(0.215 * k, body_rx + 0.035), max(0.17 * k, body_ry + 0.04)
     def belt(pad):
         return lambda a: ((M['waist_rx'] + pad) * math.cos(a), cy + (M['waist_ry'] + pad) * math.sin(a))
     def ring(X, Y):
