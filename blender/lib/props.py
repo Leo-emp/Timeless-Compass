@@ -2026,7 +2026,7 @@ def trireme_sail_mesh(name='tri4_sail', W=10.2, Ht=7.0, belly=1.45, folds=10):
     return me
 
 
-def trireme_sail_cloth(name='tri5_sail_cloth', W=10.2, Ht=7.0, frames=60, wind=300.0, res=(44, 32)):
+def trireme_sail_cloth(name='tri6_sail_cloth', W=10.2, Ht=7.0, frames=60, wind=300.0, res=(44, 32)):
     # wind 300 / 60 frames -> ~1.4 m belly on a 10 m sail (~14 %, a real square sail); 9 gave only 0.3 m (tested on CI)
     """The SET SAIL as REAL CLOTH: a Blender cloth simulation, run once and frozen (cached per Blender session).
       - pinned along the whole top edge (laced to the yard) and at the two bottom corners (the sheets);
@@ -2080,6 +2080,18 @@ def trireme_sail_cloth(name='tri5_sail_cloth', W=10.2, Ht=7.0, frames=60, wind=3
     dg = bpy.context.evaluated_depsgraph_get()
     me = bpy.data.meshes.new_from_object(ob.evaluated_get(dg))   # freeze the settled shape
     me.name = name
+    # PANEL PUFF: each linen panel between the sewn strips (8 rows) and the brails (11 columns) bulges toward the wind
+    # side, deepest in its middle (wind pressure on a sail with reinforcing strips). Added after the solver so the
+    # simulation stays stable; ~12 cm at the centre of a ~0.9 m panel.
+    cu, cv = nu // 11, nv // 8
+    me.calc_normals_split() if hasattr(me, 'calc_normals_split') else None
+    for v in me.vertices:
+        i, j = divmod(v.index, nv + 1)
+        fu, fv = (i % cu) / cu, (j % cv) / cv
+        puff = 0.12 * math.sin(math.pi * fu) * math.sin(math.pi * fv)
+        n = v.normal if v.normal.x >= 0 else -v.normal               # always push forward (downwind side)
+        v.co += n * puff
+    me.update()
     for p_ in me.polygons:
         p_.use_smooth = True
     uv = me.uv_layers.new(name='UVMap')
