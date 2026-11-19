@@ -1,0 +1,10 @@
+{
+  "name": "d_olive",
+  "active": true,
+  "script": "blender/scenes/countryside_test.py",
+  "args": [
+    "out/country_olive.png",
+    "24",
+    "olive"
+  ]
+}

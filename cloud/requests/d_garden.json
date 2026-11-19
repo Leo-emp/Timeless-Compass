@@ -1,0 +1,12 @@
+{
+  "name": "d_garden",
+  "active": true,
+  "script": "blender/scenes/daily_life_test.py",
+  "args": [
+    "out/garden_dressed.png",
+    "24",
+    "garden",
+    "0",
+    "dress"
+  ]
+}
