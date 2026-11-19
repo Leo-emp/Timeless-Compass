@@ -1,0 +1,10 @@
+{
+  "name": "d_cam_lens",
+  "active": true,
+  "script": "blender/scenes/camera_grammar_test.py",
+  "args": [
+    "out/cam",
+    "lens_sheet",
+    "16"
+  ]
+}

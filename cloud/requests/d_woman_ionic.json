@@ -1,0 +1,11 @@
+{
+  "name": "d_woman_ionic",
+  "active": true,
+  "script": "blender/scenes/ws3_wardrobe.py",
+  "args": [
+    "out/woman_ionic.png",
+    "24",
+    "woman_ionic",
+    "full"
+  ]
+}

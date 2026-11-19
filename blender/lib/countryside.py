@@ -263,7 +263,11 @@ def olive_grove(ground, area, spacing=9.0, jitter=1.6, seed=0, size=(0.75, 1.15)
     between them). Uses the CC0 scanned olive tree (library/scans/tree_olive_zakynthos, via scatter.load_scan),
     placed ON `ground` by ray cast. area = (xmin, xmax, ymin, ymax). Some gaps (`skip`) where old trees died."""
     from lib import scatter
-    vs = scatter.load_scan('tree_olive_zakynthos')
+    try:
+        vs = scatter.load_scan('tree_olive_zakynthos')
+    except Exception as e:                                             # e.g. a cloud runner without Sketchfab scans
+        print('olive_grove: olive scan not available here -', e)
+        return None
     rnd = random.Random(seed)
     dg = bpy.context.evaluated_depsgraph_get()
     from mathutils.bvhtree import BVHTree
@@ -508,6 +512,20 @@ def farmstead(loc=(0, 0, 0), heading_deg=0.0, seed=0, name='farmstead'):
     return {'house': house, 'threshing_floor': floor, 'beehives': hives, 'yard_wall': yard}
 
 
+def _sock(sockets, name):
+    """The ENABLED socket called `name` (Blender 5.x shows only the sockets of a node's current data type; older
+    versions keep hidden duplicates with the same name, one per type)."""
+    for sk in sockets:
+        if sk.name == name and getattr(sk, 'enabled', True):
+            return sk
+    raise KeyError(name)
+
+
+def _out(node):
+    """The node's first enabled output."""
+    return next(o for o in node.outputs if getattr(o, 'enabled', True))
+
+
 # ------------------------------------------------------------------ WIND: fields that move like in the movies
 def wind_scatter(ground, collection, density, seed=0, density_attr='density', wind_deg=30.0, gust=0.32,
                  gust_size=9.0, gust_speed=3.2, flutter=0.06, flutter_hz=1.6, scale=(0.75, 1.25), name='wind_scatter',
@@ -553,17 +571,18 @@ def wind_scatter(ground, collection, density, seed=0, density_attr='density', wi
     n_items = len(collection.children) or len(collection.objects)
     iop.inputs['Pick Instance'].default_value = True
     ridx = N.new('FunctionNodeRandomValue'); ridx.data_type = 'INT'
-    ridx.inputs[4].default_value = 0; ridx.inputs[5].default_value = max(0, n_items - 1)   # INT min/max sockets
-    # (sockets are found by INDEX: several inputs share the names 'Min'/'Max', one pair per data type)
-    ridx.inputs['Seed'].default_value = seed + 1
-    L(ridx.outputs[2], iop.inputs['Instance Index'])
+    _sock(ridx.inputs, 'Min').default_value = 0; _sock(ridx.inputs, 'Max').default_value = max(0, n_items - 1)
+    _sock(ridx.inputs, 'Seed').default_value = seed + 1
+    L(_out(ridx), iop.inputs['Instance Index'])
     rz = N.new('FunctionNodeRandomValue'); rz.data_type = 'FLOAT'
-    rz.inputs[2].default_value = 0.0; rz.inputs[3].default_value = 2 * math.pi; rz.inputs['Seed'].default_value = seed + 2
-    comb = N.new('ShaderNodeCombineXYZ'); L(rz.outputs[1], comb.inputs['Z'])
+    _sock(rz.inputs, 'Min').default_value = 0.0; _sock(rz.inputs, 'Max').default_value = 2 * math.pi
+    _sock(rz.inputs, 'Seed').default_value = seed + 2
+    comb = N.new('ShaderNodeCombineXYZ'); L(_out(rz), comb.inputs['Z'])
     L(comb.outputs[0], iop.inputs['Rotation'])
     rs = N.new('FunctionNodeRandomValue'); rs.data_type = 'FLOAT'
-    rs.inputs[2].default_value = scale[0]; rs.inputs[3].default_value = scale[1]; rs.inputs['Seed'].default_value = seed + 3
-    L(rs.outputs[1], iop.inputs['Scale'])
+    _sock(rs.inputs, 'Min').default_value = scale[0]; _sock(rs.inputs, 'Max').default_value = scale[1]
+    _sock(rs.inputs, 'Seed').default_value = seed + 3
+    L(_out(rs), iop.inputs['Scale'])
     # --- wind: gust waves sliding along the wind, + flutter
     t = N.new('GeometryNodeInputSceneTime')
     pos = N.new('GeometryNodeInputPosition')

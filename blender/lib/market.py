@@ -155,12 +155,18 @@ def grain_sack(loc, h=0.55, parent=None, seed=0, open_top=False, name='sack'):
     """A full sack (grain, beans, salt): plump body, gathered neck tied with cord, or rolled open to show grain."""
     rnd = random.Random(seed)
     bm = bmesh.new()
-    r = h * 0.38
-    prof = [(0.001, 0.0), (r * 0.85, 0.0), (r, h * 0.2), (r * 1.02, h * 0.55), (r * 0.8, h * 0.8)]
-    prof += [(r * 0.85, h * 0.86), (r * 0.9, h * 0.88)] if open_top else [(r * 0.3, h * 0.95), (r * 0.25, h * 1.05), (r * 0.4, h * 1.12)]
+    r = h * 0.36
+    # a full sack SLUMPS: widest low down, flattened where it sits, the top gathered into a tied neck that flops
+    prof = [(0.001, 0.0), (r * 1.05, 0.0), (r * 1.18, h * 0.12), (r * 1.1, h * 0.35), (r * 0.95, h * 0.62), (r * 0.7, h * 0.8)]
+    prof += [(r * 0.78, h * 0.84), (r * 0.82, h * 0.86)] if open_top else [(r * 0.22, h * 0.9), (r * 0.18, h * 0.98), (r * 0.32, h * 1.08)]
     _lathe(bm, prof, seg=28)
-    for v in bm.verts:                                                  # cloth sags and wrinkles
+    for v in bm.verts:                                                  # lumpy grain inside, cloth creases
+        a = math.atan2(v.co.y, v.co.x)
+        k = 1 + 0.06 * math.sin(3 * a + seed) + 0.03 * math.sin(7 * a + v.co.z * 20 + seed)
+        v.co.x *= k; v.co.y *= k * 0.88
         v.co.x += 0.006 * math.sin(v.co.z * 40 + seed); v.co.y += 0.006 * math.cos(v.co.z * 33 + seed)
+        if v.co.z > h * 0.9:                                            # the neck flops to one side
+            v.co.x += (v.co.z - h * 0.9) * 0.8
     from lib import wardrobe
     mat = bpy.data.materials.get('sack_hessian') or wardrobe.scan_cloth('sack_hessian', 'hessian_230', (0.42, 0.34, 0.22),
                                                                        tiles=(5, 3), grime=0.2, sheen=0.05)
@@ -268,17 +274,22 @@ def stall(loc=(0, 0, 0), heading_deg=0.0, trade='fish', seed=0, awning=None, nam
     aw.modifiers.new('thick', 'SOLIDIFY').thickness = 0.003
     top = H + 0.025
     if trade == 'fish':
-        for k in range(rnd.randint(9, 14)):
-            fish(Vector((rnd.uniform(-0.8, 0.8), rnd.uniform(-0.25, 0.25), top + 0.03)), length=rnd.uniform(0.2, 0.42),
+        for k in range(rnd.randint(16, 22)):                           # a full slab: big and small fish, overlapping
+            fish(Vector((rnd.uniform(-0.85, 0.85), rnd.uniform(-0.28, 0.28), top + 0.03 + 0.02 * (k % 3))), length=rnd.uniform(0.28, 0.55),
                  kind=rnd.choice(['silver', 'silver', 'red']), heading_deg=rnd.uniform(-20, 20), parent=root, seed=seed + k, name=f'{name}_fish{k}')
         props.basket((0.9, 0.9, 0.0), kind='carry', fill=(0.45, 0.48, 0.5), name=f'{name}_fishbasket')
     elif trade == 'bread':
-        for k in range(rnd.randint(10, 16)):
-            loaf(Vector((rnd.uniform(-0.85, 0.85), rnd.uniform(-0.28, 0.28), top)), r=rnd.uniform(0.07, 0.11), parent=root, seed=seed + k, name=f'{name}_loaf{k}')
+        for k in range(rnd.randint(22, 30)):                           # loaves piled two deep
+            loaf(Vector((rnd.uniform(-0.88, 0.88), rnd.uniform(-0.3, 0.3), top + (0.08 if k > 16 else 0.0))), r=rnd.uniform(0.09, 0.13),
+                 parent=root, seed=seed + k, name=f'{name}_loaf{k}')
+        props.basket((-0.9, -0.8, 0.0), kind='flat', fill=(0.42, 0.22, 0.08), name=f'{name}_breadtray')
     elif trade == 'produce':
         for k, kind in enumerate(['figs', 'olives', 'garlic', 'onions', 'figs']):
-            heap(Vector((-0.8 + k * 0.4, rnd.uniform(-0.1, 0.1), top)), kind, radius=0.15, n=60 if kind != 'olives' else 200,
+            heap(Vector((-0.8 + k * 0.4, rnd.uniform(-0.1, 0.1), top)), kind, radius=0.2, n=140 if kind != 'olives' else 500,
                  parent=root, seed=seed + k, name=f'{name}_{kind}{k}')
+        for k in range(3):                                              # more in baskets on the ground
+            props.basket((-0.7 + k * 0.7, -0.8, 0.0), kind='carry', fill=[(0.18, 0.06, 0.1), (0.05, 0.06, 0.02), (0.45, 0.22, 0.08)][k],
+                         name=f'{name}_prodbasket{k}')
     elif trade == 'pottery':
         for k in range(7):
             props.amphora((rnd.uniform(-0.8, 0.8), rnd.uniform(-0.2, 0.2), top), height=rnd.uniform(0.25, 0.4), seed=seed + k,
@@ -546,6 +557,31 @@ def workshop_shed(loc=(0, 0, 0), heading_deg=0.0, w=7.0, d=4.0, h=3.0, parent=No
     bm.faces.new(v)
     roof = _obj(name + '_roof', bm, roof_tiles(), root, smooth=False)
     roof.modifiers.new('thick', 'SOLIDIFY').thickness = 0.08
+    return root
+
+
+def stoa(loc=(0, 0, 0), heading_deg=0.0, columns=12, spacing=3.2, depth=7.0, height=5.5, name='stoa'):
+    """A STOA: the long colonnaded hall that framed a Greek agora - a row of Doric columns (architecture.column)
+    in front, a plastered back wall, a tiled single-pitch roof (the Royal Stoa / Stoa Basileios in the Athenian
+    agora, c. 500 BC; the Painted Stoa, c. 460 BC). Shopkeepers, officials and talkers gathered in its shade."""
+    from lib import architecture, props
+    root = _root(name, loc, heading_deg)
+    marble = architecture.stone()
+    L = (columns - 1) * spacing
+    props._box(name + '_steps', (0, 0, 0.18), (L + 2.4, depth + 1.6, 0.36), marble, parent=root)
+    plaster = _scan('stoa_plaster', 'plastered_wall_02', (1.0, 0.95, 0.88), 1.5) or marble
+    props._box(name + '_back', (0, depth / 2, 0.36 + height / 2), (L + 1.2, 0.6, height), plaster, parent=root)
+    for sx in (-1, 1):
+        props._box(f'{name}_end{sx}', (sx * (L / 2 + 0.6), 0.5, 0.36 + height / 2), (0.6, depth - 0.4, height), plaster, parent=root)
+    for i in range(columns):
+        c = architecture.column((0, 0, 0), D=0.75, H=height - 0.7, name=f'{name}_col{i}')
+        c.parent = root; c.location = (-L / 2 + i * spacing, -depth / 2 + 0.6, 0.36)
+    props._box(name + '_entablature', (0, -depth / 2 + 0.6, 0.36 + height - 0.35), (L + 1.4, 1.0, 0.7), marble, parent=root)
+    bm = bmesh.new()
+    v = [bm.verts.new(Vector(p)) for p in ((-L / 2 - 0.9, -depth / 2 - 0.2, height + 0.36), (L / 2 + 0.9, -depth / 2 - 0.2, height + 0.36),
+                                           (L / 2 + 0.9, depth / 2 + 0.4, height + 1.6), (-L / 2 - 0.9, depth / 2 + 0.4, height + 1.6))]
+    bm.faces.new(v)
+    roof = _obj(name + '_roof', bm, roof_tiles(), root, smooth=False); roof.modifiers.new('thick', 'SOLIDIFY').thickness = 0.12
     return root
 
 

@@ -1,0 +1,10 @@
+{
+  "name": "d_cam_rack",
+  "active": true,
+  "script": "blender/scenes/camera_grammar_test.py",
+  "args": [
+    "out/cam",
+    "rack_focus",
+    "12"
+  ]
+}

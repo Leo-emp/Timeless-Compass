@@ -1,0 +1,11 @@
+{
+  "name": "d_beach",
+  "active": true,
+  "script": "blender/scenes/daily_life_test.py",
+  "args": [
+    "out/beach.png",
+    "24",
+    "beach",
+    "0"
+  ]
+}

@@ -38,6 +38,10 @@ if VIEW == 'market':
     bpy.ops.mesh.primitive_plane_add(size=200); g = bpy.context.object
     g.data.materials.append(cs.soil_material('agora_ground', scan='brown_mud_dry', tint=(1.05, 1.0, 0.92), tiles=1.5))
     market.market((0, 0, 0), rows=2, per_row=3, seed=4)
+    market.stoa((0, -9.0, 0), columns=12)                              # the agora's colonnaded hall behind
+    from lib import architecture
+    for i, x in enumerate((-24, -12, 12, 24)):                     # houses + shops along the far side
+        architecture.house((x, 16, 0), w=8, d=8, heading_deg=180, seed=40 + i, name=f'agora_house{i}')
     from tc import crowd
     cast = [('trader', 11, (1.0, 2.4), 200), ('villager', 21, (-1.6, 2.6), 160), ('fisherman', 31, (3.8, 2.2), 230),
             ('citizen', 41, (-4.0, 2.0), 140)][:PEOPLE]

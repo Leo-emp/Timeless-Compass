@@ -1,0 +1,11 @@
+{
+  "name": "d_crowd_fisher",
+  "active": true,
+  "script": "blender/scenes/ws3_wardrobe.py",
+  "args": [
+    "out/crowd_fisherman.png",
+    "24",
+    "crowd:fisherman:31",
+    "full"
+  ]
+}

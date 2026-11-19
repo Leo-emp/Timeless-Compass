@@ -1,0 +1,11 @@
+{
+  "name": "d_windclip",
+  "active": true,
+  "script": "blender/scenes/countryside_test.py",
+  "args": [
+    "out/windclip.png",
+    "10",
+    "field",
+    "48"
+  ]
+}

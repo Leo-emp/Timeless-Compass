@@ -1,0 +1,11 @@
+{
+  "name": "d_servant",
+  "active": true,
+  "script": "blender/scenes/ws3_wardrobe.py",
+  "args": [
+    "out/servant.png",
+    "24",
+    "servant",
+    "full"
+  ]
+}

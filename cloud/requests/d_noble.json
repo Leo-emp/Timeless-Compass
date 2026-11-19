@@ -1,0 +1,11 @@
+{
+  "name": "d_noble",
+  "active": true,
+  "script": "blender/scenes/xerxes_v2.py",
+  "args": [
+    "out/noble.png",
+    "24",
+    "noble",
+    "full"
+  ]
+}

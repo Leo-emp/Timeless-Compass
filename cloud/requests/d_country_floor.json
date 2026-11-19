@@ -1,0 +1,10 @@
+{
+  "name": "d_country_floor",
+  "active": true,
+  "script": "blender/scenes/countryside_test.py",
+  "args": [
+    "out/country_floor.png",
+    "24",
+    "floor"
+  ]
+}

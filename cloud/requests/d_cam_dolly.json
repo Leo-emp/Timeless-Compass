@@ -1,0 +1,10 @@
+{
+  "name": "d_cam_dolly",
+  "active": true,
+  "script": "blender/scenes/camera_grammar_test.py",
+  "args": [
+    "out/cam",
+    "dolly_zoom",
+    "12"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "d_country_terr",
+  "active": true,
+  "script": "blender/scenes/countryside_test.py",
+  "args": [
+    "out/country_terraces.png",
+    "24",
+    "terraces"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "d_crowd_villager",
+  "active": true,
+  "script": "blender/scenes/ws3_wardrobe.py",
+  "args": [
+    "out/crowd_villager.png",
+    "24",
+    "crowd:villager:22",
+    "full"
+  ]
+}
