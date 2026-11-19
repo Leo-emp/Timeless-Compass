@@ -505,19 +505,19 @@ def panniers(back_point, girth_z, side_x, name='panniers', parent=None, load='pr
         for sx in (-1, 1):
             _tube(f'{name}_buck{sx}{int(y * 100)}', [(sx * side_x * 0.85, y, -0.16), (0, y, 0.12)], 0.022, wood, root, seg=6)
     _tube(name + '_ridge', [(0, -length * 0.45, 0.1), (0, length * 0.45, 0.1)], 0.02, wood, root, seg=6)
-    depth = max(0.25, -girth_z * 0.7)
+    depth = max(0.22, -girth_z * 0.55)                 # baskets reach about half way down the ribs
     for sx in (-1, 1):
-        cx = sx * (side_x + 0.13)
+        cx = sx * (side_x + 0.11)
         # basket: an open-topped tapered wicker tub, hanging from the frame on ropes
         bm = bmesh.new()
-        r = bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=20, radius1=0.15, radius2=0.2, depth=depth)
+        r = bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=20, radius1=0.12, radius2=0.16, depth=depth)
         top_face = max(bm.faces, key=lambda f: f.calc_center_median().z)
         bmesh.ops.delete(bm, geom=[top_face], context='FACES_ONLY')
         for v in bm.verts:
             v.co.y *= length / 0.36
         me = bpy.data.meshes.new(f'{name}_basket{sx}'); bm.to_mesh(me); bm.free()
         b = link(bpy.data.objects.new(f'{name}_basket{sx}', me)); b.data.materials.append(wick); b.parent = root
-        b.location = (cx, 0, -0.12 - depth / 2)
+        b.location = (cx, 0, -0.06 - depth / 2)
         b.rotation_euler.y = math.radians(-sx * 6)                     # hangs slightly in against the belly
         b.modifiers.new('t', 'SOLIDIFY').thickness = 0.012
         for y in (-0.15, 0.15):
@@ -525,14 +525,26 @@ def panniers(back_point, girth_z, side_x, name='panniers', parent=None, load='pr
                   0.008, rope, root, seg=6)
         # the load inside: domed heap of produce / stacked sticks / a jar neck
         if load == 'produce':
-            bm = bmesh.new(); bmesh.ops.create_icosphere(bm, subdivisions=3, radius=1.0)
-            for v in bm.verts:
-                v.co = Vector((v.co.x * 0.17, v.co.y * 0.19 * length / 0.36, max(v.co.z, -0.2) * 0.1))
-            me = bpy.data.meshes.new(f'{name}_load{sx}'); bm.to_mesh(me); bm.free()
-            ld = link(bpy.data.objects.new(f'{name}_load{sx}', me))
-            ld.data.materials.append(principled(f'{name}_veg{sx}', rnd.choice([(0.25, 0.32, 0.08), (0.5, 0.3, 0.07),
-                                                                              (0.35, 0.12, 0.08)]), rough=0.7, bump=0.6, bump_scale=60))
-            ld.parent = root; ld.location = (cx, 0, -0.12)
+            # a heap of separate vegetables (onions, cabbages, gourds, leeks) - never one smooth blob
+            kinds = [((0.55, 0.32, 0.12), 0.035, 1.0), ((0.28, 0.4, 0.12), 0.06, 0.85), ((0.62, 0.48, 0.18), 0.05, 1.25),
+                     ((0.42, 0.12, 0.14), 0.03, 1.0)]
+            mats = [principled(f'{name}_veg{k}', c, rough=0.55, bump=0.35, bump_scale=90) for k, (c, _, _) in enumerate(kinds)]
+            wy = 0.16 * length / 0.36
+            for k in range(26):
+                ci = rnd.randrange(len(kinds)); col, rad, elong = kinds[ci]
+                rad *= rnd.uniform(0.8, 1.2)
+                bm = bmesh.new(); bmesh.ops.create_icosphere(bm, subdivisions=2, radius=rad)
+                for v in bm.verts:
+                    v.co.z *= elong; v.co += v.co.normalized() * rnd.uniform(-0.12, 0.12) * rad * 0.5
+                me = bpy.data.meshes.new(f'{name}_veg{sx}_{k}'); bm.to_mesh(me); bm.free()
+                ob = link(bpy.data.objects.new(f'{name}_veg{sx}_{k}', me)); ob.data.materials.append(mats[ci])
+                for pl in ob.data.polygons:
+                    pl.use_smooth = True
+                rr = 0.13 * math.sqrt(rnd.random()); aa = rnd.uniform(0, 2 * math.pi)
+                hx, hy = math.cos(aa) * rr, math.sin(aa) * rr * wy / 0.13
+                dome = 0.06 * (1 - (rr / 0.14) ** 2)
+                ob.parent = root; ob.location = (cx + hx, hy, -0.07 + dome + rad * 0.4)
+                ob.rotation_euler = (rnd.uniform(-1, 1), rnd.uniform(-1, 1), rnd.uniform(0, 6.3))
         elif load == 'firewood':
             for k in range(7):
                 y0 = rnd.uniform(-0.1, 0.1)
@@ -549,7 +561,8 @@ def panniers(back_point, girth_z, side_x, name='panniers', parent=None, load='pr
     _tube(name + '_girth', [(-side_x * 0.85, 0, -0.15), (-side_x * 0.95, 0, girth_z * 0.6), (0, 0, girth_z),
                             (side_x * 0.95, 0, girth_z * 0.6), (side_x * 0.85, 0, -0.15)], 0.01, rope, root, seg=6)
     if parent is not None:
-        w = root.matrix_world.copy(); root.parent = parent; root.matrix_world = w
+        bpy.context.view_layer.update()                  # matrix_world is only recomputed on update
+        w = Matrix.Translation(Vector(back_point)); root.parent = parent; root.matrix_world = w
     return root
 
 

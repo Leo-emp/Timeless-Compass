@@ -308,7 +308,7 @@ def squadron(era='greece_480bc', n=8, formation='line', center=(0, 0), heading_d
     return movers
 
 
-def march(movers, distance_or_path, speed, start=1, gait_speed=None):
+def march(movers, distance_or_path, speed, start=1, gait_speed=None, units=None, gait='trot'):
     """Move every mover straight ahead (its own heading) by `distance` metres at `speed` m/s - or along offsets of
     a path [(x, y)...] relative to each mover. Clips were set in squadron(); gait_speed = the clip's own ground
     speed (measured on the first unique unit) - used to warn if the clip would slide."""
@@ -324,6 +324,10 @@ def march(movers, distance_or_path, speed, start=1, gait_speed=None):
             pts = [tuple(p0 + (Vector(q) - o)) for q in distance_or_path]
         m['kind'] = m.get('kind', 'horse')
         out_end = animals.walk_path(m, pts, speed, start=start, play_clip=False)
+    # the horse scan has no walk clip: a procedural four-beat walk on the unique units (instances copy them)
+    if gait == 'walk':
+        for i, u in enumerate(units or []):
+            animals.gait(u, start - 10, out_end, speed=speed, kind='walk', phase_s=0.37 * i)
     return out_end
 
 

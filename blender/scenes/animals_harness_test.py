@@ -80,7 +80,8 @@ common.render_settings(res=(1280, 720), samples=SAMPLES)
 os.makedirs(OUT, exist_ok=True)
 # tracking 3/4 front camera that travels with the team (parented) + a fixed side view
 cam = common.camera('cam_track', Vector((5.5, -7.5, 1.6)), Vector((0, -1.0, 0.9)), lens=35)
-w = cam.matrix_world.copy(); cam.parent = team; cam.matrix_world = w
+bpy.context.view_layer.update(); sc.frame_set(1)
+cam.parent = team; cam.matrix_parent_inverse = team.matrix_world.inverted()
 sc.camera = cam
 for f in (1, 40, 80):
     sc.frame_set(f)

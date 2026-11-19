@@ -122,7 +122,12 @@ CATALOGUE = {
         # cavalry.horse() so props.horse_tack works on it; listed here so play() / clip_speed() / walk_path() work.
         'scan': 'horse_akhalteke', 'size': ('withers', 1.42, 'DEF-scapula.L'), 'head': 'DEF-head',
         'clips': {'idle': 'Chewing', 'trot': 'Trot', 'gallop': 'Run_Gallop'}, 'foot': 'AUTO',
-        'speeds': {'trot': 3.6, 'gallop': 11.0}, 'era': 'all'},
+        'speeds': {'trot': 3.6, 'gallop': 11.0}, 'era': 'all',
+        # the scan has no WALK clip: gait(root, kind='walk') swings these (real equine anatomy in this rig:
+        # humerus -> radius -> metacarpus (cannon) -> pastern -> hoof; femur -> tibia -> metatarsus (hock down))
+        'legs': {'FL': ('DEF-humerus.L', 'DEF-metacarpus.L'), 'FR': ('DEF-humerus.R', 'DEF-metacarpus.R'),
+                 'BL': ('DEF-femur.L', 'DEF-metatarsus.L'), 'BR': ('DEF-femur.R', 'DEF-metatarsus.R')},
+        'leg_len': 1.15},
     'raven': {
         'scan': 'animal_raven_cc0', 'size': ('height', 0.28), 'head': None, 'front': '-Y', 'clips': {},
         'era': 'battlefields, all eras'},
@@ -301,6 +306,8 @@ def load(kind, loc=(0, 0, 0), heading_deg=0.0, name=None):
             rig.animation_data.action = None
     root.location = loc; root.rotation_euler.z = math.radians(heading_deg)
     root['fix'] = fix.name
+    root['fix_base'] = [v for row in fix.matrix_basis for v in row]  # the standing-pose correction (clip_yaw base)
+    root['head_bone'] = hb.name if hb is not None else ''
     root['rig'] = rig.name if rig else ''
     root['slot'] = slot_id
     root['actions'] = own_actions                     # ONLY these clips belong to this animal (not another import's)
@@ -375,6 +382,45 @@ def _target(root):
     return None, None
 
 
+def _clip_yaw(root, act):
+    """Some scans' clips turn the whole skeleton (the zebu's walk is 180 deg from its idle): pose the clip's first
+    frame, see which way the head points in the animal's own frame, and return the turn (deg) that makes it -Y."""
+    rig = rig_of(root); hb = root.get('head_bone')
+    if rig is None or not hb or hb not in rig.pose.bones:
+        return 0.0
+    fix = bpy.data.objects.get(root.get('fix', ''))
+    if fix is None:
+        return 0.0
+    sc = bpy.context.scene; keep = sc.frame_current
+    ad = rig.animation_data_create()
+    old_act = ad.action
+    mutes = [(tr, tr.mute) for tr in ad.nla_tracks]
+    for tr, _ in mutes:
+        tr.mute = True
+    ad.action = act
+    sl = _slot_for(act, 'OBJECT', root.get('slot', ''))
+    if sl is not None:
+        try:
+            ad.action_slot = sl
+        except Exception:
+            pass
+    fix.matrix_basis = Matrix([root['fix_base'][i * 4:i * 4 + 4] for i in range(4)])
+    sc.frame_set(int(act.frame_range[0]))
+    meshes = [bpy.data.objects[n] for n in root.get('mesh_names', []) if n in bpy.data.objects]
+    lo, hi = _mesh_bbox(meshes)
+    head = rig.matrix_world @ rig.pose.bones[hb].head
+    inv = root.matrix_world.inverted()
+    d = (inv @ head) - (inv @ ((lo + hi) / 2))
+    ad.action = old_act
+    for tr, m in mutes:
+        tr.mute = m
+    sc.frame_set(keep)
+    if abs(d.x) < 1e-6 and abs(d.y) < 1e-6:
+        return 0.0
+    ang = math.degrees(math.atan2(d.x, -d.y))
+    return round(ang / 90.0) * 90.0
+
+
 def play(root, clip, start=1, end=None, phase_s=0.0, speed=1.0, track=None, blend=0, influence=None):
     """Loop clip `clip` (catalogue name, e.g. 'walk', or the scan's action name) from frame `start` to `end`.
     phase_s shifts it in time (seconds) so neighbours are out of step; speed = playback rate. `track` = name of a
@@ -386,6 +432,12 @@ def play(root, clip, start=1, end=None, phase_s=0.0, speed=1.0, track=None, blen
         return None
     sc = bpy.context.scene
     end = end or sc.frame_end
+    if track is None and idtype == 'OBJECT' and root.get('fix_base'):
+        yaw = _clip_yaw(root, act)                        # turn the scan back if this clip spins the skeleton
+        fix = bpy.data.objects[root['fix']]
+        fix.matrix_basis = Matrix.Rotation(math.radians(-yaw), 4, 'Z') @             Matrix([root['fix_base'][i * 4:i * 4 + 4] for i in range(4)])
+        if yaw:
+            print(f'animals: {root.name} clip {clip!r} faces {yaw:+.0f} deg - corrected')
     ad = tgt.animation_data or tgt.animation_data_create()
     ad.action = None
     if track is None:
@@ -698,11 +750,12 @@ def gait(root, start, end, speed=2.6, kind='trot', period_s=None, bob=0.025, pha
     if rig is None or not legs:
         return
     L = s.get('leg_len', 0.45)
-    p = period_s or (0.34 if kind == 'trot' else 0.9)
-    th = math.asin(max(-0.95, min(0.95, speed * p / (4 * L))))
+    p = period_s or (0.34 if kind == 'trot' else 0.65) * math.sqrt(L / 0.42)   # bigger animals step slower (Froude)
+    duty = 0.5 if kind == 'trot' else 0.62                 # fraction of the cycle each foot is on the ground
+    # while a foot is planted the body moves speed * period * duty, and the foot sweeps 2 * leg * sin(angle)
+    th = math.asin(max(-0.95, min(0.95, speed * p * duty / (2 * L))))
     phases = {'trot': {'FL': 0.0, 'BR': 0.0, 'FR': 0.5, 'BL': 0.5},
               'walk': {'BL': 0.0, 'FL': 0.25, 'BR': 0.5, 'FR': 0.75}}[kind]
-    duty = 0.5 if kind == 'trot' else 0.65                 # fraction of the cycle each foot is on the ground
     ad = rig.animation_data_create(); ad.action = None
     for tr in list(ad.nla_tracks):
         ad.nla_tracks.remove(tr)
