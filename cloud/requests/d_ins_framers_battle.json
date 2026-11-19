@@ -1,0 +1,10 @@
+{
+  "name": "d_ins_framers_battle",
+  "active": true,
+  "script": "blender/scenes/inserts_test.py",
+  "args": [
+    "out/framers_battle.png",
+    "framers_battle",
+    "48"
+  ]
+}

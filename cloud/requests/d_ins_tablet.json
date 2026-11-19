@@ -1,0 +1,10 @@
+{
+  "name": "d_ins_tablet",
+  "active": true,
+  "script": "blender/scenes/inserts_test.py",
+  "args": [
+    "out/tablet.png",
+    "tablet",
+    "48"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "d_ins_coins",
+  "active": true,
+  "script": "blender/scenes/inserts_test.py",
+  "args": [
+    "out/coins.png",
+    "coins",
+    "48"
+  ]
+}
