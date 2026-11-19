@@ -1,16 +1,9 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "b6-people-places",
+  "batch": "ws7-21",
   "run": [
-    "card_xerxes",
-    "card_leonidas",
-    "card_eurybiades",
-    "card_themistocles",
-    "card_ameinias",
-    "card_aristonice",
-    "card_old_steward",
-    "card_artemisia",
-    "places",
-    "aigaleos"
+    "ws7_place_hold",
+    "ws7_place_deck",
+    "ws7_place_flagship"
   ]
 }

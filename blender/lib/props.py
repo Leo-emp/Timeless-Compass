@@ -3360,6 +3360,196 @@ def populate(root, era='greece_480bc', camera=None, built=8, far=120.0, frames=4
     return built_roots
 
 
+# ------------------------------------------------------------------ SHIP PLACES for the shot lists (marks for people + cameras)
+# Session B's Salamis shot lists name three ship locations: 'trireme_rowing_hold', 'trireme_deck', 'persian_flagship'.
+# Each place builds its set and returns a dict of WORLD-space marks (like lib/places.py): where people stand / sit,
+# where the camera goes, what it looks at. tc assemble / shot.py put the cast on these marks.
+_ROW_POSE = {   # seated rowing, in the character's own frame (faces -Y, up +Z): legs braced on the foot-stretcher
+    'legs': {'upperleg01': (0, -1.0, -0.18), 'upperleg02': (0, -1.0, -0.2), 'lowerleg01': (0, -0.35, -1.0),
+             'lowerleg02': (0, -0.3, -1.0), 'foot': (0, -1.0, -0.35)},
+    'catch': {'spine01': (0, -0.45, 1), 'spine02': (0, -0.55, 1), 'spine03': (0, -0.6, 1), 'spine04': (0, -0.6, 1),
+              'spine05': (0, -0.55, 1), 'neck01': (0, -0.35, 1), 'head': (0, -0.2, 1),
+              'upperarm01': (0, -1.0, -0.15), 'upperarm02': (0, -1.0, -0.15), 'lowerarm01': (0, -1.0, -0.05),
+              'lowerarm02': (0, -1.0, -0.05)},                          # reaching forward toward the stern
+    'finish': {'spine01': (0, 0.3, 1), 'spine02': (0, 0.35, 1), 'spine03': (0, 0.35, 1), 'spine04': (0, 0.3, 1),
+               'spine05': (0, 0.25, 1), 'neck01': (0, 0.05, 1), 'head': (0, -0.1, 1),
+               'upperarm01': (0, 0.45, -1.0), 'upperarm02': (0, 0.45, -1.0), 'lowerarm01': (0, -1.0, 0.15),
+               'lowerarm02': (0, -1.0, 0.15)},                          # lying back, handle pulled to the chest
+}
+
+
+def row_seated(person_root, stroke_frames=34, frame_start=1, frames=(1, 240)):
+    """Put a crowd person (lib/crowd.build_person root) on a rowing bench and make him ROW: legs braced, the torso
+    swings from the catch (reaching toward the stern) to the finish (lying back, hands at the chest), looping on the
+    same 34-frame stroke as the oars (~42 strokes a minute, the Olympias battle rate)."""
+    from lib import pose as P
+    rig = next((o for o in person_root.children_recursive if o.type == 'ARMATURE'), None)
+    if rig is None:
+        return None
+    rig.animation_data_clear()                                     # drop the standing idle + life layer
+    for pb in rig.pose.bones:
+        pb.rotation_mode = 'QUATERNION'; pb.rotation_quaternion = (1, 0, 0, 0); pb.location = (0, 0, 0)
+
+    def put(phase):
+        for side in ('L', 'R'):
+            for b, d in _ROW_POSE['legs'].items():
+                dx = 0.12 if side == 'L' else -0.12               # knees a little apart
+                if rig.pose.bones.get(f'{b}.{side}'):
+                    P.aim(rig, f'{b}.{side}', (d[0] + dx, d[1], d[2]))
+            for b, d in _ROW_POSE[phase].items():
+                if b.startswith(('upperarm', 'lowerarm')):
+                    sx = 0.18 if side == 'L' else -0.18           # hands on the handle, shoulder-width
+                    if rig.pose.bones.get(f'{b}.{side}'):
+                        P.aim(rig, f'{b}.{side}', (d[0] + sx * (1 if b.startswith('upper') else -0.4), d[1], d[2]))
+        for b, d in _ROW_POSE[phase].items():
+            if not b.startswith(('upperarm', 'lowerarm')) and rig.pose.bones.get(b):
+                P.aim(rig, b, d)
+    T = stroke_frames
+    for ph, phase in ((0.0, 'catch'), (0.45, 'finish'), (0.93, 'catch')):
+        put(phase)
+        P.keyframe_pose(rig, frame_start + ph * T)
+    put('catch'); P.keyframe_pose(rig, frame_start + T)
+    _loop(rig)
+    P.curl_fingers(rig, 'L', 0.9); P.curl_fingers(rig, 'R', 0.9)  # gripping the loom
+    return rig
+
+
+def place_trireme_rowing_hold(loc=(0, 0, 0), heading_deg=0.0, rowers=24, built=8, frames=(1, 240), seed=0, name='hold'):
+    """'trireme_rowing_hold': INSIDE the hull of a trireme - the dim, packed world of the rowers. A central gangway
+    under the deck, thalamite + zygite benches stepping up the hull sides, every oar loom running in through its
+    port, thin shafts of daylight through the oar ports and the deck seams (haze makes them visible), REAL rowers
+    rowing in unison (crowd extras on the benches, row_seated). Camera 'down the gangway' (s03 of the rams Short)."""
+    from lib import crowd as C
+    import sys as _sys, os as _os
+    _sys.path.insert(0, _os.path.abspath(_os.path.join(_os.path.dirname(__file__), '..', '..')))
+    from tc import crowd as tcc
+    rnd = _random.Random(seed)
+    L = _TRI_L
+    ship = trireme_v3(loc, heading_deg, oars='row', crew=None, bob=False, seed=seed, name=f'{name}_ship')
+    wood = old_wood('hold_wood', (0.22, 0.15, 0.09))
+    # gangway + benches (thwarts) for the two lower banks; frames (ribs) along the hull inside
+    _box(f'{name}_gangway', (L * 0.52, 0, 0.9), (L * 0.62, 0.7, 0.06), wood, parent=ship)
+    for bank, count, ly, lz, ln in _TRI_BANKS[1:]:
+        for k in range(count):
+            x = L * 0.22 + (L * 0.6) * k / (count - 1) + 0.45
+            for sgn in (-1, 1):
+                _box(f'{name}_bench_{bank}', (x, sgn * (ly - 0.95), lz - 0.3), (0.3, 0.65, 0.05), wood, parent=ship)
+    for k in range(18):
+        x = L * 0.2 + (L * 0.64) * k / 17
+        for sgn in (-1, 1):
+            p_, _ = _tri_hull_pt(x / L, 0.9, sgn)
+            _tube(f'{name}_rib', [(x, sgn * 0.3, 0.0), (x, p_.y * 0.92, 0.9), (x, sgn * 2.0, 2.3)], 0.05, wood, ship, poly=True)
+    # light: shafts through the ports (spot lights just outside each port, aimed in) + seams in the deck, in haze
+    for k in range(10):
+        x = L * 0.25 + (L * 0.55) * k / 9
+        for sgn in (-1, 1):
+            sp = bpy.data.lights.new(f'{name}_port_light', 'SPOT'); sp.energy = 120.0; sp.spot_size = math.radians(14)
+            sp.color = (1.0, 0.9, 0.75); sp.shadow_soft_size = 0.05
+            o = link(bpy.data.objects.new(f'{name}_port_light', sp)); o.parent = ship
+            o.location = (x, sgn * 2.4, 1.6); o.rotation_euler = (math.radians(-sgn * 65), 0, 0)
+    for k in range(8):
+        x = L * 0.28 + (L * 0.5) * k / 7
+        sp = bpy.data.lights.new(f'{name}_seam_light', 'SPOT'); sp.energy = 80.0; sp.spot_size = math.radians(6)
+        sp.color = (1.0, 0.92, 0.8)
+        o = link(bpy.data.objects.new(f'{name}_seam_light', sp)); o.parent = ship
+        o.location = (x, rnd.uniform(-0.4, 0.4), 2.36); o.rotation_euler = (math.radians(rnd.uniform(-8, 8)), math.radians(rnd.uniform(-10, 10)), 0)
+    bpy.ops.mesh.primitive_cube_add(size=1, location=(L * 0.52, 0, 1.2))
+    hz = bpy.context.object; hz.name = f'{name}_haze'; hz.scale = (L * 0.62, 4.0, 2.4); hz.parent = ship
+    hm = bpy.data.materials.new(f'{name}_dust'); hm.use_fake_user = True
+    nt = hm.node_tree; nt.nodes.remove(nt.nodes['Principled BSDF'])
+    v = nt.nodes.new('ShaderNodeVolumePrincipled'); v.inputs['Density'].default_value = 0.06
+    v.inputs['Color'].default_value = (0.9, 0.82, 0.7, 1)
+    nt.links.new(v.outputs[0], nt.nodes['Material Output'].inputs['Volume']); hz.data.materials.append(hm)
+    # rowers: built extras on the benches nearest the camera, instances further down the hull
+    cam = Vector((L * 0.86, 0.0, 1.55))
+    seats = []
+    for bank, count, ly, lz, ln in _TRI_BANKS[1:]:
+        for k in range(count):
+            x = L * 0.22 + (L * 0.6) * k / (count - 1) + 0.5
+            for sgn in (-1, 1):
+                seats.append(Vector((x, sgn * (ly - 0.95), lz - 0.27)))
+    seats.sort(key=lambda q: (q - cam).length)
+    seats = seats[:rowers]
+    built_roots, used = [], set()
+    bpy.context.view_layer.update()
+    for i, seat in enumerate(seats):
+        w = ship.matrix_world @ seat
+        if i < built:
+            pp = tcc.cast(1, 'rower', 'greece_480bc', seed=seed * 1000 + i, used_seeds=used)[0]; used.add(pp['seed'])
+            r = C.build_person(pp, (w.x, w.y, w.z - 0.95), heading_deg - 90.0, frames=48)   # faces the stern (-X of the ship)
+            row_seated(r, frame_start=frames[0] + rnd.randint(0, 1), frames=frames)
+            built_roots.append(r)
+        else:
+            src = built_roots[i % len(built_roots)]
+            col = bpy.data.collections.get(src.name + '_inst')
+            if col is None:
+                col = bpy.data.collections.new(src.name + '_inst')
+                def add(o):
+                    col.objects.link(o)
+                    for c in o.children:
+                        add(c)
+                add(src); col.instance_offset = src.location
+            inst = bpy.data.objects.new(f'{name}_rower{i:02d}', None); link(inst)
+            inst.instance_type = 'COLLECTION'; inst.instance_collection = col
+            inst.location = (w.x, w.y, w.z - 0.95); inst.rotation_euler.z = math.radians(heading_deg - 90.0)
+    M = ship.matrix_world
+    return {'root': ship, 'seats': [M @ q for q in seats], 'gangway_start': M @ Vector((L * 0.86, 0, 0.95)),
+            'gangway_end': M @ Vector((L * 0.2, 0, 0.95)), 'cam_gangway': M @ cam,
+            'cam_target': M @ Vector((L * 0.35, 0.0, 1.25)), 'rowers_built': built_roots}
+
+
+def place_trireme_deck(loc=(0, 0, 0), heading_deg=0.0, frames=(1, 240), seed=0, name='deck', phoenician=False):
+    """'trireme_deck': the fighting deck of a trireme under way - marines, archers, the helmsman at the steering oars,
+    the rowing master; marks for a commander at the stern ('commander', where Ameinias stands in s04/s06), the hatch
+    down to the rowers ('hatch'), and cameras: 'cam_low_deck' (low push-in, looking aft and up at the stern) and
+    'cam_close' (handheld close on the commander)."""
+    L = _TRI_L
+    ship = trireme_v3(loc, heading_deg, oars='row', crew='markers', speed_mps=3.5, bob=True, phoenician=phoenician,
+                      seed=seed, frame_start=frames[0], frame_end=frames[1], name=f'{name}_ship')
+    dz = 2.99 if phoenician else 2.42
+    _box(f'{name}_hatch', (L * 0.42, 0.0, dz + 0.01), (1.2, 0.8, 0.02),
+         principled('hatch_dark', (0.02, 0.016, 0.012), rough=0.9), bevel=0.0, parent=ship)   # the dark opening below
+    bpy.context.view_layer.update()
+    M = ship.matrix_world
+    return {'root': ship, 'commander': M @ Vector((L * 0.16, 0.45, dz)), 'helmsman': M @ Vector((L * 0.11, 0, dz)),
+            'hatch': M @ Vector((L * 0.42, 0, dz)), 'marines': [M @ Vector((L * 0.62 + k * 0.9, (-0.7 if k % 2 else 0.7), dz)) for k in range(8)],
+            'cam_low_deck': M @ Vector((L * 0.3, -0.7, dz + 0.45)), 'cam_low_target': M @ Vector((L * 0.16, 0.45, dz + 1.7)),
+            'cam_close': M @ Vector((L * 0.19, -0.3, dz + 1.6)), 'cam_close_target': M @ Vector((L * 0.16, 0.45, dz + 1.62))}
+
+
+def place_persian_flagship(loc=(0, 0, 0), heading_deg=0.0, frames=(1, 240), seed=0, name='flagship', fleet_lights=40):
+    """'persian_flagship' (s08 of the secret-message Short): NIGHT on the high deck of a Phoenician flagship of
+    Xerxes' fleet. Officers gather at the stern under the standard; oil lanterns on the stylis, the mast and the rail
+    light their faces; around them in the dark the lanterns of the other ships ride on the water (and start to move
+    when the orders go out). Marks: 'officers' (4, in a loose ring), 'speaker', 'cam_orbit_centre' + radius."""
+    rnd = _random.Random(seed)
+    L = _TRI_L
+    ship = trireme_v3(loc, heading_deg, oars='rest', crew='markers', phoenician=True, bob=True, seed=seed,
+                      frame_start=frames[0], frame_end=frames[1], name=f'{name}_ship')
+    dz = 2.99
+    for k, pos in enumerate(((L * 0.06, 0.0, 5.0), (L * 0.55, 0.0, 6.0), (L * 0.2, 1.6, dz + 1.0), (L * 0.2, -1.6, dz + 1.0),
+                             (L * 0.75, 1.6, dz + 1.0))):
+        lamp = oil_lamp((0, 0, 0), 0, lit=True, power=60.0, frames=frames, seed=seed + k, name=f'{name}_lantern{k}')
+        lamp.parent = ship; lamp.location = pos
+    for i in range(fleet_lights):                       # the rest of the fleet: lanterns on dark hulls around
+        a = rnd.uniform(0, 2 * math.pi); r = rnd.uniform(60, 400)
+        p_ = Vector(loc) + Vector((r * math.cos(a), r * math.sin(a), 0))
+        if i % 5 == 0:                                   # every fifth light hangs on a visible dark hull
+            trireme_v3(tuple(p_), rnd.uniform(0, 360), oars=None, crew=None, phoenician=True, bob=False,
+                             seed=seed + 50 + i, name=f'{name}_fleet{i}')
+        l = bpy.data.lights.new(f'{name}_far_lantern', 'POINT'); l.energy = rnd.uniform(150, 400)
+        l.color = (1.0, 0.62, 0.3); l.shadow_soft_size = 0.2
+        o = link(bpy.data.objects.new(f'{name}_far_lantern', l)); o.location = (p_.x, p_.y, rnd.uniform(3.0, 6.0))
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=8, ring_count=6, radius=0.12, location=o.location)
+        bpy.context.object.data.materials.append(flame_glow('far_lantern_glow', strength=40.0))
+    bpy.context.view_layer.update()
+    M = ship.matrix_world
+    c = Vector((L * 0.2, 0.0, dz))
+    officers = [M @ (c + Vector((1.1 * math.cos(a), 1.1 * math.sin(a), 0))) for a in (0.4, 1.9, 3.4, 4.9)]
+    return {'root': ship, 'officers': officers, 'speaker': officers[0], 'cam_orbit_centre': M @ (c + Vector((0, 0, 1.6))),
+            'cam_orbit_radius': 3.2, 'standard': M @ Vector((L * 0.06, 0, dz))}
+
+
 # ------------------------------------------------------------------ HORSE TACK (480 BC: cloth + bridle, NO saddle, NO stirrups)
 # How it stays on a moving horse: every strap and the cloth is built in the horse's REST pose by shooting rays at
 # its body (so it lies on the skin), then each vertex copies the skin weights of the nearest horse vertex and gets
