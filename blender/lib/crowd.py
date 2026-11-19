@@ -41,7 +41,9 @@ def arm_hoplite(p, human, rig, chiton):
     wood = bpy.data.materials.get('spear_ash') or common.principled('spear_ash', (0.35, 0.24, 0.13), rough=0.7)
     helm = p.get('helmet') or {'crest': 'red'}
     seed = p.get('seed', abs(hash(p.get('name', 'hoplite'))) % 1000)
-    if helm.get('crest', 'none') != 'none':
+    if helm.get('worn') == 'off':                      # helmet carried / set aside (character cards, rest scenes)
+        pass
+    elif helm.get('crest', 'none') != 'none':
         shell, _crest = armour.corinthian_helmet(human, rig, bronze, crest_color=CREST.get(helm['crest'], CREST['red']))
         if helm.get('worn') == 'up':                   # pushed up on the crown (vase paintings): the face shows
             armour.helmet_up(rig, [shell, _crest])

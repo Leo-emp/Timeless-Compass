@@ -16,7 +16,7 @@ SAMPLES = int(argv[2]) if len(argv) > 2 else 24
 common.reset_scene()
 spec = build.manifest('cast', NAME)
 if (spec.get('wardrobe') or '').endswith('hoplite_480bc'):        # the card must show the FACE: helmet pushed up
-    spec['helmet'] = dict(spec.get('helmet') or {'crest': 'red'}, worn='up')
+    spec['helmet'] = dict(spec.get('helmet') or {'crest': 'red'}, worn='off')    # the card shows the face + hair
 wardrobe = spec.get('wardrobe')
 # every wardrobe now has a costume (live chiton/himation or a WS3 outfit via lib/costume.py)
 rig, human, root, first, last = build.character(NAME, wardrobe, {'pose': 'stand_relaxed'}, frames=24, spec=spec)
