@@ -687,8 +687,9 @@ def peplos(human, rig, pos, material, overfold=None, belt_over=True, frames=45, 
                                                           seam_lo=0.42 * s, lift=0.01),
                         M['waist_z'], lambda a: top_z - ofl, ring(R2, Y2), over_skirt,
                         belt(0.03) if belt_over else None, ring_h, material, slit_z=armpit_z)
-    cm = _cloth(over, 'pin', mass=0.25, tension=14, bending=0.15)
+    cm = _cloth(over, 'pin', mass=0.32, tension=14, bending=0.08)    # heavier, softer: droops beside the arms
     cm.settings.quality = 10; cm.collision_settings.distance_min = 0.006; cm.collision_settings.collision_quality = 4
+    cm.settings.air_damping = 0.8
     _finish(over, 0.003)
     _sim_freeze([over], frames, shell=0.006)
     return main, over
@@ -1810,7 +1811,7 @@ def ornament_for(rank, seed, wardrobe=''):
 
 
 # ------------------------------------------------------------------ more Greek garments + hats
-def chlamys(human, rig, material, length=0.85, frames=55, seg=112, ring_h=0.016, sim=True):
+def chlamys(human, rig, material, length=0.85, frames=90, seg=112, ring_h=0.016, sim=True):
     """The CHLAMYS: a short wool cloak, a rectangle fastened with a brooch on the RIGHT shoulder, covering the left
     arm and the back and hanging open down the right side (travellers, riders, hunters, heralds, ephebes; Hermes
     and the Parthenon frieze horsemen, Attic vases). Built as a cape around the shoulders whose top edge lies on
@@ -1822,13 +1823,13 @@ def chlamys(human, rig, material, length=0.85, frames=55, seg=112, ring_h=0.016,
     cy = M['cy']
     sz = M['shoulder_z']
     crx, cry = _chest(ppos, M, sz - 0.05)
-    R, Ry = crx + 0.07, cry + 0.07
+    R, Ry = crx + 0.04, cry + 0.05                                    # hugs the shoulders (a wide start = a poncho)
     pin_a = math.pi                                                   # the RIGHT side (-x) is where it opens
     rows = int(length / ring_h) + 1
     verts, pins = [], []
     for r in range(rows):
         z = sz + 0.03 - r * ring_h
-        grow = 1 + 0.18 * (r / (rows - 1))                            # the cloak widens a little as it falls
+        grow = 1 + 0.1 * (r / (rows - 1))                             # the cloak widens a little as it falls
         for k in range(seg):
             a = pin_a + 2 * math.pi * (k + 0.5) / seg                 # start and end at the right shoulder
             x, y = R * grow * math.cos(a), cy + Ry * grow * math.sin(a)
@@ -1860,7 +1861,8 @@ def chlamys(human, rig, material, length=0.85, frames=55, seg=112, ring_h=0.016,
     for i, w in enumerate(pins):
         if w:
             vg.add([i], w, 'REPLACE')
-    cm = _cloth(o, 'pin', mass=0.22, tension=14, bending=0.1)        # soft wool: falls in folds, not a tent
+    cm = _cloth(o, 'pin', mass=0.32, tension=14, bending=0.06)       # heavy soft wool: hangs and folds, never tents
+    cm.settings.air_damping = 0.6
     cm.settings.quality = 10; cm.collision_settings.distance_min = 0.008; cm.collision_settings.collision_quality = 4
     _finish(o, 0.0035, offset=1.0)
     if sim:

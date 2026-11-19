@@ -522,9 +522,21 @@ def caravan(loc=(0, 0, 0), heading_deg=0.0, n=5, spacing=3.4, back_h=1.95, seed=
         vs = []
     cloth = wardrobe.patterned_cloth(name + '_saddlecloth', 'caban', (0.3, 0.06, 0.04), band=(0.5, 0.34, 0.1),
                                      border='zigzag', border_color=(0.04, 0.03, 0.025), tiles=(3, 3), width=0.12, grime=0.3)
+    try:
+        from lib import animals                                          # Session G: real 1.9 m dromedary
+        use_animals = True
+    except Exception:
+        use_animals = False
     for i in range(n):
         y = -i * spacing
-        if vs:
+        if use_animals:
+            try:
+                cam_ = animals.load('camel', (rnd.uniform(-0.15, 0.15), y, 0), heading_deg=180 + rnd.uniform(-5, 5),
+                                    name=f'{name}_camel{i}')
+                w = cam_.matrix_world.copy(); cam_.parent = root; cam_.matrix_world = root.matrix_world @ w
+            except Exception as e:
+                print('caravan: camel via animals.py failed -', e); use_animals = False
+        if not use_animals and vs:
             inst = bpy.data.objects.new(f'{name}_camel{i}', None); link(inst)
             inst.instance_type = 'COLLECTION'; inst.instance_collection = vs[i % len(vs)]
             inst.location = (rnd.uniform(-0.15, 0.15), y, 0); inst.rotation_euler = (0, 0, rnd.uniform(-0.08, 0.08))

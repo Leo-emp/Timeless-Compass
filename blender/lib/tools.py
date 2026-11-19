@@ -201,14 +201,21 @@ def ox_team(loc=(0, 0, 0), heading_deg=0.0, seed=0, name='ox_team'):
     from lib import scatter
     r = _root(name); r.location = loc; r.rotation_euler = (0, 0, math.radians(heading_deg))
     ard = ard_plough(name=name + '_ard'); ard.parent = r
-    try:
-        vs = scatter.load_scan('animal_cow')
+    try:                                                                # Session G's animals.py: real-size ox
+        from lib import animals
         for i, sx in enumerate((-1, 1)):
-            inst = bpy.data.objects.new(f'{name}_ox{i}', None); link(inst)
-            inst.instance_type = 'COLLECTION'; inst.instance_collection = vs[0]
-            inst.location = (sx * 0.55, -3.6, 0); inst.rotation_euler = (0, 0, math.pi); inst.parent = r
-    except Exception as e:                                              # scan not downloaded on this machine
-        print('ox_team: no cow scan here -', e)
+            ox = animals.load('ox', (sx * 0.55, -3.6, 0), heading_deg=0.0, name=f'{name}_ox{i}')   # heading 0 = -Y
+            w = ox.matrix_world.copy(); ox.parent = r; ox.matrix_world = r.matrix_world @ w
+    except Exception as e:
+        print('ox_team: animals.py unavailable, trying the raw cow scan -', e)
+        try:
+            vs = scatter.load_scan('animal_cow')
+            for i, sx in enumerate((-1, 1)):
+                inst = bpy.data.objects.new(f'{name}_ox{i}', None); link(inst)
+                inst.instance_type = 'COLLECTION'; inst.instance_collection = vs[0]
+                inst.location = (sx * 0.55, -3.6, 0); inst.rotation_euler = (0, 0, math.pi); inst.parent = r
+        except Exception as e2:                                         # scan not downloaded on this machine
+            print('ox_team: no cow scan here -', e2)
     return r
 
 

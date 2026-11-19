@@ -188,7 +188,7 @@ KITS = {   # setting -> [(piece, weight, min distance m)]   (people/birds/smoke 
                     ('branches', 2, 3.5), ('stone_pile', 1, 4), ('basket', 0.5, 3.5)],
     'persian_camp': [('tent', 1.5, 8), ('sack', 4, 3.5), ('amphora', 3, 3.5), ('firewood', 3, 3.5), ('basket', 2, 3.5),
                      ('cart', 0.6, 6), ('grass', 3, 2), ('rocks', 1, 3.5)],
-    'garden': [('grass', 12, 2), ('shrub', 3, 3.5), ('shrub2', 3, 3.5), ('mastic', 2, 4), ('basket', 0.3, 3.5), ('hydria', 0.3, 3.5)],
+    'garden': [('shrub', 1, 3.5), ('shrub2', 1, 3.5), ('basket', 0.3, 3.5), ('hydria', 0.3, 3.5)],
     'battlefield': [('broken_spear', 6, 3.5), ('fallen_shield', 3, 3.5), ('rocks', 3, 3.5), ('grass', 3, 2), ('branches', 2, 3.5)],
 }
 LIFE = {    # setting -> (people per 100 points, birds, smoke columns)
@@ -240,7 +240,7 @@ COVER = {   # setting -> ground cover scans (Poly Haven CC0, cloud-safe) and wei
     'countryside': [('grass_medium_01', 5), ('shrub_01', 2), ('shrub_03', 2), ('searsia_lucida', 2)],
     'persian_camp': [('grass_medium_01', 2), ('dry_branches_medium_01', 1)],
     'battlefield': [('grass_medium_01', 2), ('dry_branches_medium_01', 1.5)],
-    'garden': [('grass_medium_01', 8), ('shrub_01', 2), ('shrub_03', 2), ('searsia_lucida', 1)],
+    'garden': [('shrub_01', 1), ('shrub_03', 1)],                    # the garden has its own short lawn (countryside)
 }
 ROCKS = {    # setting -> share of the cover count given to small scattered rocks (0 = none)
     'countryside': 0.12, 'harbour': 0.25, 'battlefield': 0.2, 'persian_camp': 0.08,
@@ -329,6 +329,54 @@ def skyline(cam, ground, setting, seed=0, band=(35.0, 90.0), count=14):
     return out
 
 
+ANIMAL_LIFE = {   # setting -> [(kind, how many, 'herd' | 'single' | 'poultry')]   (Session G's animals.py)
+    'village': [('chicken', 8, 'poultry'), ('dog', 1, 'single'), ('donkey', 1, 'single'), ('goat', 4, 'herd')],
+    'market': [('donkey', 2, 'single'), ('dog', 1, 'single'), ('chicken', 5, 'poultry')],
+    'harbour': [('dog', 1, 'single'), ('donkey', 1, 'single')],
+    'countryside': [('goat', 8, 'herd'), ('sheep', 10, 'herd'), ('donkey', 1, 'single')],
+    'persian_camp': [('camel', 3, 'single'), ('donkey', 2, 'single'), ('mule', 2, 'single')],
+    'garden': [('pigeon', 6, 'poultry')],
+    'battlefield': [('raven', 4, 'single')],
+}
+
+
+def animal_life(cam, ground, setting, keep_clear=(), seed=0):
+    """Animals going about their day where the camera sees them (6-40 m out): hens pecking in the yard, a donkey
+    tethered at the market, goats on the slope - each from animals.py at its real size, playing its own clip."""
+    try:
+        from lib import animals, countryside
+    except Exception as e:
+        print('dressing: no animals.py -', e)
+        return []
+    rnd = random.Random(seed)
+    zf = countryside.ground_z_fn(ground)
+    out = []
+    for kind, n, how in ANIMAL_LIFE.get(setting, []):
+        pts = visible_points(cam, ground, 3, near=6.0, far=40.0, keep_clear=keep_clear, seed=seed + sum(map(ord, kind)),
+                             near_bias=20.0)
+        if not pts:
+            continue
+        p = pts[0][0]
+        try:
+            if how == 'herd':
+                out += animals.herd(kind, p, count=n, radius=4.0 + n * 0.4, heading_deg=rnd.uniform(0, 360), seed=seed, z_fn=zf)
+            elif how == 'poultry':
+                out.append(animals.poultry(kind, p, count=n, radius=2.5, seed=seed, z_fn=zf))
+            else:
+                for k in range(n):
+                    q = pts[min(k, len(pts) - 1)][0]
+                    clip = rnd.choice(['idle', 'eat']) if kind not in ('raven',) else 'idle'
+                    a = animals.load(kind, (q.x + k * 1.6, q.y, zf(q.x + k * 1.6, q.y)), heading_deg=rnd.uniform(0, 360))
+                    try:
+                        animals.play(a, clip, phase_s=rnd.uniform(0, 3))
+                    except Exception:
+                        pass
+                    out.append(a)
+        except Exception as e:
+            print(f'dressing: {kind} skipped -', e)
+    return out
+
+
 def dress_view(cam, ground, setting='village', amount=120, keep_clear=(), seed=0, people=True, birds=True, smoke=True,
                far=90.0):
     """Dress what `cam` sees with about `amount` pieces of the setting's kit, plus background people, birds and
@@ -380,6 +428,10 @@ def dress_view(cam, ground, setting='village', amount=120, keep_clear=(), seed=0
                                     color=(0.35, 0.33, 0.3), name=f'dress_smoke_{k}')
                 except Exception as e:
                     print('dressing: smoke skipped -', e)
+    try:
+        animal_life(cam, ground, setting, keep_clear=keep_clear, seed=seed + 5)
+    except Exception as e:
+        print('dressing: animals skipped -', e)
     try:
         ground_cover(cam, ground, setting, count=amount * 12, keep_clear=keep_clear, seed=seed + 3)
     except Exception as e:

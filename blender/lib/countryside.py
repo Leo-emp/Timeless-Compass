@@ -798,6 +798,18 @@ def vineyard(ground, area, row=1.9, spacing=1.4, seed=0, staked=0.5, grapes='bla
 
 
 # ------------------------------------------------------------------ herds
+def ground_z_fn(ground):
+    """A function (x, y) -> ground height under that point (ray cast; 0 if missing): what animals.py wants as z_fn."""
+    from mathutils.bvhtree import BVHTree
+    dg = bpy.context.evaluated_depsgraph_get(); tree = BVHTree.FromObject(ground, dg)
+    gm, gi = ground.matrix_world, ground.matrix_world.inverted()
+    d = (gi.to_3x3() @ Vector((0, 0, -1))).normalized()
+    def z(x, y):
+        hit = tree.ray_cast(gi @ Vector((x, y, 1000.0)), d)
+        return float((gm @ hit[0]).z) if hit[0] is not None else 0.0
+    return z
+
+
 def flock(ground, center, n=24, kind='sheep', radius=9.0, seed=0, dog=True, name=None):
     """A grazing flock: sheep or goats (the main session's CC-BY scans, library/scans/animal_sheep|animal_goat) in a
     loose group that thins toward its edge, most heads down grazing (random turn), a few strays further out, and
@@ -807,6 +819,17 @@ def flock(ground, center, n=24, kind='sheep', radius=9.0, seed=0, dog=True, name
     from mathutils.bvhtree import BVHTree
     name = name or f'flock_{kind}_{seed}'
     rnd = random.Random(seed)
+    try:                                                              # Session G's animals.py: real size, own clips
+        from lib import animals
+        zf = ground_z_fn(ground)
+        insts = animals.herd(kind, Vector((center[0], center[1], zf(center[0], center[1]))), count=n, radius=radius,
+                             heading_deg=rnd.uniform(0, 360), seed=seed, z_fn=zf, name=name)
+        if dog:
+            dx, dy = center[0] + radius * 1.3, center[1] + radius * 0.4
+            animals.load('dog', (dx, dy, zf(dx, dy)), heading_deg=rnd.uniform(0, 360), name=name + '_dog')
+        return insts
+    except Exception as e:
+        print('flock: animals.py unavailable, using raw scans -', e)
     try:
         vs = scatter.load_scan(f'animal_{kind}')
     except Exception as e:
@@ -855,9 +878,14 @@ def persian_garden(loc=(0, 0, 0), size=(80.0, 60.0), seed=0, name='paradeisos'):
     rnd = random.Random(seed)
     W, D = size
     x0, y0 = loc[0] - W / 2, loc[1] - D / 2
-    bpy.ops.mesh.primitive_plane_add(size=1, location=(loc[0], loc[1], loc[2]))
+    # the ground: a grid carrying a 'density' map for the lawn - 0 on the walks beside the channels, 1 in the beds
+    bpy.ops.mesh.primitive_grid_add(x_subdivisions=120, y_subdivisions=100, size=1, location=(loc[0], loc[1], loc[2]))
     g = bpy.context.object; g.name = name + '_ground'; g.scale = (W + 20, D + 20, 1)
     bpy.ops.object.transform_apply(scale=True)
+    vg = g.vertex_groups.new(name='density')
+    for v in g.data.vertices:
+        off = min(abs(v.co.x), abs(v.co.y))                          # distance to the nearest channel axis
+        vg.add([v.index], float(np.clip((off - 1.2) / 0.8, 0.0, 1.0)), 'REPLACE')
     # irrigated, green ground (the whole point of a paradeisos) and PALE cut limestone kerbs
     g.data.materials.append(soil_material('garden_turf', scan='coast_sand_rocks_02', tint=(0.42, 0.55, 0.24), tiles=1.2))
     lime = stone_material('channel_limestone', scan='marble_01', tint=(0.92, 0.9, 0.84), tiles=0.8)
@@ -865,13 +893,18 @@ def persian_garden(loc=(0, 0, 0), size=(80.0, 60.0), seed=0, name='paradeisos'):
     bm = bmesh.new()
     wbm = bmesh.new()
     def channel(a, b, w=0.5, d=0.25):
-        """Stone channel from a to b: two kerbs and a floor; water fills it to just below the rim."""
+        """Stone channel from a to b: two kerbs of CUT LIMESTONE BLOCKS (1.2 m long, fine joints between them, each
+        block a hair different in height - the Pasargadae channels are dressed blocks), a floor, water to the rim."""
         d_ = (Vector(b) - Vector(a)); L = d_.length; u = d_.normalized(); side = Vector((-u.y, u.x, 0))
         mid = (Vector(a) + Vector(b)) / 2
+        rot = Matrix.Rotation(math.atan2(u.y, u.x), 4, 'Z')
+        n_blocks = max(1, int(L / 1.2))
+        bl = L / n_blocks
         for sgn in (-1, 1):
-            c = mid + side * sgn * (w / 2 + 0.12) + Vector((0, 0, 0.08))
-            m = Matrix.Translation(c) @ Matrix.Rotation(math.atan2(u.y, u.x), 4, 'Z') @ Matrix.Diagonal((L, 0.24, 0.24, 1))
-            bmesh.ops.create_cube(bm, size=1.0, matrix=m)
+            for k in range(n_blocks):
+                c = Vector(a) + u * (bl * (k + 0.5)) + side * sgn * (w / 2 + 0.12) + Vector((0, 0, 0.08 + rnd.uniform(-0.006, 0.006)))
+                m = Matrix.Translation(c) @ rot @ Matrix.Diagonal((bl - 0.012, 0.24, 0.24, 1))
+                bmesh.ops.create_cube(bm, size=1.0, matrix=m)
         m = Matrix.Translation(mid + Vector((0, 0, -d))) @ Matrix.Rotation(math.atan2(u.y, u.x), 4, 'Z') @ Matrix.Diagonal((L, w + 0.48, 0.1, 1))
         bmesh.ops.create_cube(bm, size=1.0, matrix=m)
         m = Matrix.Translation(mid + Vector((0, 0, 0.12))) @ Matrix.Rotation(math.atan2(u.y, u.x), 4, 'Z') @ Matrix.Diagonal((L, w, 1, 1))
@@ -912,6 +945,13 @@ def persian_garden(loc=(0, 0, 0), size=(80.0, 60.0), seed=0, name='paradeisos'):
                     kind = 'tree_date_palm' if (i + j) % 2 == 0 else 'tree_olive_zakynthos'
                     pts[kind].append(Vector((cx + qx * x, cy + qy * y, loc[2])))
     parts = {'ground': g, 'channels': ch, 'water': wa, 'trees': []}
+    # a LAWN of low green growth over the beds (irrigated: the paradeisos was green when the land around was brown),
+    # moving in the breeze like the fields - short tufts, dense, a few flowering heads
+    col = _hidden_collection(f'{name}_lawn')
+    for v in range(4):
+        col.objects.link(grain_clump(f'{name}_tuft{v}', 'barley', height=0.08, stalks=10, ripe=0.05, seed=seed * 10 + v,
+                                     hair_axis=False, cut=False))
+    wind_scatter(g, col, 14.0, seed=seed, gust=0.1, gust_size=7.0, flutter=0.03, scale=(0.7, 1.2), name=f'{name}_lawnwind')
     for kind, P in pts.items():
         if not P:
             continue
