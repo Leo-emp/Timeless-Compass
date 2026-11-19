@@ -1,18 +1,9 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "b2-faces-hair",
+  "batch": "ws7-5",
   "run": [
-    "card_themistocles",
-    "card_xerxes",
-    "card_artemisia",
-    "card_sicinnus",
-    "card_leonidas",
-    "card_aristides",
-    "card_eurybiades",
-    "cannon",
-    "battle",
-    "phalanx",
-    "courtyard",
-    "thebes"
+    "ws7_story_wall",
+    "ws7_furniture",
+    "ws7_story_oracle"
   ]
 }

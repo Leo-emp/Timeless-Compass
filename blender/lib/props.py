@@ -607,7 +607,7 @@ def flame_glow(name='lamp_flame', strength=30.0, temp=1800.0):
     return m
 
 
-def tongue_flame_material(name='flame_tongue', strength=9.0):
+def tongue_flame_material(name='flame_tongue2', strength=3.2):
     """Flame like a real wood/oil flame: hottest (yellow-white, ~1900 K) at the root, cooling to red (~1200 K) toward
     the tip, and fading to nothing at the top and edges (a flame has no hard outline). Uses each tongue's own
     0..1 'Generated' height, so it works at any size."""
@@ -639,15 +639,18 @@ def tongue_flame_material(name='flame_tongue', strength=9.0):
     return m
 
 
-def flame_tongues(parent, loc, height=0.4, width=0.25, n=6, frames=(1, 240), seed=0, name='flame', strength=9.0):
+def flame_tongues(parent, loc, height=0.4, width=0.25, n=6, frames=(1, 240), seed=0, name='flame', strength=3.2):
     """A small fire as several teardrop 'tongues' of glowing gas that flicker and sway (keyframed scale + lean every
     2-3 frames). Light-weight and readable at any distance - no volume simulation. Returns the tongue objects."""
     rnd = _random.Random(seed)
-    mat = tongue_flame_material(f'{name}_mat', strength)
+    mat = tongue_flame_material(f'flame_tongue2_{round(strength, 1)}', strength)   # shared per brightness
+    tex = bpy.data.textures.get('flame_ragged') or bpy.data.textures.new('flame_ragged', 'CLOUDS')
+    tex.noise_scale = 0.12; tex.noise_depth = 3
+    n = n * 2                                       # twice as many, thinner tongues: a fire, not a candle
     out = []
     for i in range(n):
-        w = width * (0.35 + 0.4 * rnd.random()) if i else width * 0.6
-        h = height * (0.5 + 0.5 * rnd.random()) if i else height
+        w = width * (0.18 + 0.3 * rnd.random()) if i else width * 0.4
+        h = height * (0.35 + 0.65 * rnd.random()) if i else height
         bpy.ops.mesh.primitive_uv_sphere_add(segments=14, ring_count=10, radius=0.5)
         o = bpy.context.object; o.name = f'{name}_tongue'
         for v in o.data.vertices:                      # teardrop: round bottom, pointed top
@@ -658,6 +661,9 @@ def flame_tongues(parent, loc, height=0.4, width=0.25, n=6, frames=(1, 240), see
         for p_ in o.data.polygons:
             p_.use_smooth = True
         o.data.materials.append(mat)
+        sub = o.modifiers.new('sub', 'SUBSURF'); sub.levels = 1
+        dsp = o.modifiers.new('ragged', 'DISPLACE'); dsp.texture = tex; dsp.strength = w * 0.6   # torn, licking edges
+        dsp.texture_coords = 'GLOBAL'
         o.visible_shadow = False                      # glowing gas casts no shadow
         o.parent = parent
         r = width * 0.3 * math.sqrt(rnd.random()); a = rnd.uniform(0, 2 * math.pi)
@@ -859,7 +865,7 @@ def oil_lamp(loc=(0, 0, 0), heading_deg=0.0, lit=True, power=6.0, frames=(1, 240
     _tube(f'{name}_handle', [(-0.035, -0.012, 0.022), (-0.055, 0, 0.026), (-0.035, 0.012, 0.022)], 0.004, bg, root)
     if lit:
         flame_tongues(root, (0.079, 0, 0.024), height=0.032, width=0.011, n=1, frames=frames, seed=seed,
-                      name=f'{name}_flame', strength=6.0)
+                      name=f'{name}_flame', strength=2.5)
         _flicker_light((0.079, 0, 0.075), power, root, f'{name}_light', frames, seed, radius=0.012)   # above the flame: lights the room, not just the lamp
     return _place(root, loc, heading_deg)
 
@@ -2378,7 +2384,7 @@ def timber_barricade(loc=(0, 0, 0), heading_deg=0.0, length=12.0, height=2.2, bu
         for i in range(int(length / 1.5)):
             fx_ = -length / 2 + (i + rnd.random()) * 1.5
             flame_tongues(root, (fx_, -0.2, rnd.uniform(0.2, height * 0.8)), height=rnd.uniform(0.8, 1.8), width=rnd.uniform(0.4, 0.8),
-                          n=5, frames=frames, seed=seed + i, name=f'{name}_fire{i}', strength=12.0)
+                          n=5, frames=frames, seed=seed + i, name=f'{name}_fire{i}', strength=3.5)
         _flicker_light((0, -1.5, height * 0.6), 2500.0, root, f'{name}_firelight', frames, seed, radius=2.5, color=(1.0, 0.6, 0.32))
     return _place(root, loc, heading_deg)
 
