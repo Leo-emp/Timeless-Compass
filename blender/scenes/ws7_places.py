@@ -49,7 +49,7 @@ elif VARIANT == 'deck':
     exposure = 0.3
 else:
     W.dark_world(0.006, color=(0.1, 0.13, 0.25))
-    common.area_light('moon', 2500.0, (0.55, 0.65, 1.0), (-60.0, -40.0, 80.0), (0, 30, 0), size=30.0)   # moonlight on deck + sea
+    common.area_light('moon', 9000.0, (0.55, 0.65, 1.0), (-60.0, -40.0, 80.0), (0, 30, 0), size=40.0)   # moonlight on deck + sea
     sets.ocean(size=600.0) if hasattr(sets, 'ocean') else None
     m = props.place_persian_flagship((0, 30, 0), 0, seed=4)
     for i, mk in enumerate(m['officers']):
@@ -57,7 +57,7 @@ else:
     c = m['cam_orbit_centre']; r = m['cam_orbit_radius']
     # a little above eye level looking slightly DOWN: the officers + the dark sea dotted with the fleet's lanterns behind
     common.camera('cam', c + Vector((r * 0.85, -r * 0.6, 0.35)), c + Vector((-6.0, 4.0, -1.4)), lens=34, fstop=2.8, focus=c)
-    exposure = 1.6
+    exposure = 2.4
 
 sc.frame_set(FRAME)
 common.render_settings(res=(960, 540), samples=SAMPLES, path=OUT)
