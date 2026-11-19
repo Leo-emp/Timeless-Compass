@@ -266,6 +266,13 @@ def load_glb(asset_id, height_m=None, width_m=None, loc=(0, 0, 0), rot_z_deg=0.0
     Static scans -> ONE mesh object (origin = bottom centre). The first load is the hidden master; with copy=True
     (default) you get a copy that shares the mesh (cheap). Rigged scans (horse) -> the root EMPTY of the rig
     (not copied: every horse gets its own rig so it can run its own animation)."""
+    if not os.path.exists(os.path.join(SCANS, asset_id, 'model.glb')):
+        # cloud machines don't get the Sketchfab scans (their download needs the owner's token): keep the scene
+        # working with an empty placeholder at the same spot, and say so loudly in the log
+        print(f'WARNING scans_glb: {asset_id} not on this machine - placeholder empty used')
+        ph = bpy.data.objects.new(f'missing_{asset_id}', None); bpy.context.scene.collection.objects.link(ph)
+        ph.location = loc; ph.rotation_euler.z = math.radians(rot_z_deg)
+        return ph
     m = _master(asset_id, height_m, width_m, rot)
     if m.type == 'EMPTY':                            # rigged: hand out the master itself the first time
         if m.get('_handed_out'):

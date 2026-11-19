@@ -1,0 +1,13 @@
+{
+  "name": "dress_storeroom",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.dress_storeroom(loc, heading_deg, rows, per_row)",
+  "contents": "rows of museum amphorae, chests, baskets, rope",
+  "design_source": "excavated Classical house storerooms (Olynthus, Athenian Agora)",
+  "licence": "our own code (scanned textures: Poly Haven CC0)",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": []
+}

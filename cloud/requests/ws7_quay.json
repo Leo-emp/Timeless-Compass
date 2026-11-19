@@ -1,0 +1,11 @@
+{
+  "name": "ws7_quay",
+  "active": true,
+  "script": "blender/scenes/ws7_ships_v3.py",
+  "args": [
+    "out/ws7_quay.png",
+    "24",
+    "quay",
+    "6"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "painted_band",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.painted_band(name, height, bg, fg) / meander_image()",
+  "contents": "code-drawn running meander (Greek key) band material, used on chests and kline rails",
+  "design_source": "Attic vase and textile ornament",
+  "licence": "our own code (scanned textures: Poly Haven CC0)",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": []
+}

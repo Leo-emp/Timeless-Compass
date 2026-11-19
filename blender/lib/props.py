@@ -408,7 +408,30 @@ def _scan_files(scan):
     return pick('_diff_', '_albedo_'), pick('_rough_'), pick('_nor_gl_')
 
 
-def scan_surface(name, scan, color, tile=0.6, rough=(0.5, 0.9), normal=1.0, keep_hue=False, metal=0.0):
+def _age(m, src_socket, edge=0.25, grime=0.4, radius=0.03):
+    """AGE a material like a used object: worn, paler, polished EDGES (AO 'inside' finds convex corners) and dark
+    GRIME in corners and crevices (normal AO). Returns the new colour socket to feed into Base Color."""
+    nt = m.node_tree; L = nt.links.new
+    ao_e = nt.nodes.new('ShaderNodeAmbientOcclusion'); ao_e.inside = True; ao_e.only_local = True
+    ao_e.inputs['Distance'].default_value = radius
+    wear = nt.nodes.new('ShaderNodeMapRange'); wear.inputs['From Min'].default_value = 0.75; wear.inputs['From Max'].default_value = 0.98
+    wear.inputs['To Min'].default_value = edge; wear.inputs['To Max'].default_value = 0.0      # low AO inside = edge
+    L(ao_e.outputs['AO'], wear.inputs['Value'])
+    lighter = nt.nodes.new('ShaderNodeMix'); lighter.data_type = 'RGBA'; lighter.blend_type = 'SCREEN'
+    L(wear.outputs['Result'], lighter.inputs['Factor']); L(src_socket, lighter.inputs['A'])
+    lighter.inputs['B'].default_value = (0.55, 0.5, 0.42, 1)
+    ao_g = nt.nodes.new('ShaderNodeAmbientOcclusion'); ao_g.only_local = True; ao_g.inputs['Distance'].default_value = radius * 3
+    dirt = nt.nodes.new('ShaderNodeMapRange'); dirt.inputs['From Min'].default_value = 0.4; dirt.inputs['From Max'].default_value = 1.0
+    dirt.inputs['To Min'].default_value = grime; dirt.inputs['To Max'].default_value = 0.0
+    L(ao_g.outputs['AO'], dirt.inputs['Value'])
+    dark = nt.nodes.new('ShaderNodeMix'); dark.data_type = 'RGBA'; dark.blend_type = 'MULTIPLY'
+    L(dirt.outputs['Result'], dark.inputs['Factor']); L(lighter.outputs['Result'], dark.inputs['A'])
+    dark.inputs['B'].default_value = (0.25, 0.2, 0.15, 1)
+    return dark.outputs['Result']
+
+
+def scan_surface(name, scan, color, tile=0.6, rough=(0.5, 0.9), normal=1.0, keep_hue=False, metal=0.0, age=None):
+    """age=(edge, grime) adds worn edges + crevice dirt (see _age); None = new/clean."""
     """Material from a scanned texture set: colour = `color` x the scan's brightness detail (keep_hue=True keeps the
     scan's own colour variation, rescaled to `color`). Falls back to a plain material if the scan is missing."""
     m = bpy.data.materials.get(name)
@@ -443,7 +466,7 @@ def scan_surface(name, scan, color, tile=0.6, rough=(0.5, 0.9), normal=1.0, keep
         bw = nt.nodes.new('ShaderNodeRGBToBW'); L(td.outputs['Color'], bw.inputs['Color'])
         dv = nt.nodes.new('ShaderNodeMath'); dv.operation = 'DIVIDE'; dv.inputs[1].default_value = lum
         L(bw.outputs['Val'], dv.inputs[0]); L(dv.outputs[0], mix.inputs['A'])
-    L(mix.outputs['Result'], b.inputs['Base Color'])
+    L(_age(m, mix.outputs['Result'], *age) if age else mix.outputs['Result'], b.inputs['Base Color'])
     if rgh:
         mr = nt.nodes.new('ShaderNodeMapRange'); mr.inputs['To Min'].default_value = rough[0]; mr.inputs['To Max'].default_value = rough[1]
         L(tex(rgh, True).outputs['Color'], mr.inputs['Value']); L(mr.outputs['Result'], b.inputs['Roughness'])
@@ -454,10 +477,68 @@ def scan_surface(name, scan, color, tile=0.6, rough=(0.5, 0.9), normal=1.0, keep
     return m
 
 
+def meander_image(name='meander_key', px=8):
+    """The running MEANDER (Greek key), drawn in code into an image: a baseline + a square spiral per repeat, with
+    a top border line - the ornament on furniture, textiles and vase rims of the period. One repeat = 5 x 6 units."""
+    import numpy as np
+    im = bpy.data.images.get(name)
+    if im:
+        return im
+    W, H = 5 * px, 6 * px
+    a = np.zeros((H, W), dtype=np.float32)
+
+    def line(x0, y0, x1, y1):
+        for x in range(min(x0, x1) * px, max(x0, x1) * px + px):
+            for y in range(min(y0, y1) * px, max(y0, y1) * px + px):
+                a[min(y, H - 1), min(x, W - 1)] = 1.0
+    path = [(0, 0), (4, 0)]                              # baseline (continues into the next repeat)
+    spiral = [(0, 0), (0, 4), (3, 4), (3, 1), (1, 1), (1, 3), (2, 3), (2, 2)]
+    for (x0, y0), (x1, y1) in zip(path, path[1:]):
+        line(x0, y0, x1, y1)
+    for (x0, y0), (x1, y1) in zip(spiral, spiral[1:]):
+        line(x0, y0, x1, y1)
+    line(0, 5, 4, 5)                                     # top border
+    rgba = np.stack([a, a, a, np.ones_like(a)], axis=-1)
+    im = bpy.data.images.new(name, W, H, alpha=False)
+    im.pixels.foreach_set(rgba.ravel()); im.update(); im.pack()
+    im.colorspace_settings.name = 'Non-Color'
+    return im
+
+
+def painted_band(name, height, bg=(0.40, 0.09, 0.05), fg=(0.02, 0.018, 0.015), repeat=None):
+    """Mineral paint band with a black meander on red (or any pair): mapped by object coordinates, so put it on a
+    band object whose origin is its centre and whose height (m) is `height`. repeat = metres per key (default ~h)."""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    rep = repeat or height * 0.85
+    m = principled(name, bg, rough=0.75, bump=0.08, bump_scale=300)
+    nt = m.node_tree; L = nt.links.new; b = nt.nodes['Principled BSDF']
+    tc = nt.nodes.new('ShaderNodeTexCoord')
+    mp = nt.nodes.new('ShaderNodeMapping')
+    mp.inputs['Scale'].default_value = (1 / rep, 1 / rep, 1 / height)
+    mp.inputs['Location'].default_value = (0.0, 0.0, 0.5)
+    L(tc.outputs['Object'], mp.inputs['Vector'])
+    sw = nt.nodes.new('ShaderNodeSeparateXYZ'); L(mp.outputs['Vector'], sw.inputs['Vector'])
+    cm = nt.nodes.new('ShaderNodeCombineXYZ')
+    ad = nt.nodes.new('ShaderNodeMath'); ad.operation = 'ADD'           # x and y both run along the band
+    L(sw.outputs['X'], ad.inputs[0]); L(sw.outputs['Y'], ad.inputs[1]); L(ad.outputs[0], cm.inputs['X'])
+    zz = nt.nodes.new('ShaderNodeMath'); zz.operation = 'ADD'; zz.inputs[1].default_value = 0.0
+    L(sw.outputs['Z'], zz.inputs[0]); L(zz.outputs[0], cm.inputs['Y'])
+    t = nt.nodes.new('ShaderNodeTexImage'); t.image = meander_image(); t.interpolation = 'Closest'
+    L(cm.outputs['Vector'], t.inputs['Vector'])
+    mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'
+    mx.inputs['A'].default_value = (*bg, 1); mx.inputs['B'].default_value = (*fg, 1)
+    L(t.outputs['Color'], mx.inputs['Factor']); L(mx.outputs['Result'], b.inputs['Base Color'])
+    return m
+
+
 def old_wood(name='old_wood', color=(0.26, 0.15, 0.08), grain=1.0):
     """Hand-worked wood (olive, maple, boxwood; imported ebony for the rich): the scanned plank texture gives real
     grain, knots and wear; satin from years of handling. Grain repeats every ~0.5 m (grain=2 -> finer)."""
-    return scan_surface(name, 'brown_planks_04', color, tile=0.55 / grain, rough=(0.45, 0.8), normal=0.6, keep_hue=True)
+    # tile 2.4 m: one board of the scan is ~0.45 m wide, so a leg or a table top shows grain, not plank seams
+    return scan_surface(name, 'brown_planks_04', color, tile=2.4 / grain, rough=(0.45, 0.8), normal=0.6, keep_hue=True,
+                        age=(0.22, 0.45))
 
 
 def wool(name, color, tile=0.25):
@@ -467,7 +548,7 @@ def wool(name, color, tile=0.25):
 
 def leather(name='tack_leather', color=(0.10, 0.055, 0.03)):
     """Oiled leather straps (bridles, girths, sandals): scanned leather grain."""
-    return scan_surface(name, 'fabric_leather_02', color, tile=0.15, rough=(0.4, 0.7), normal=0.7)
+    return scan_surface(name, 'fabric_leather_02', color, tile=0.15, rough=(0.4, 0.7), normal=0.7, age=(0.15, 0.3))
 
 
 def black_gloss(name='black_gloss'):
@@ -482,7 +563,7 @@ def black_gloss(name='black_gloss'):
 
 def wicker(name='wicker', color=(0.42, 0.30, 0.16)):
     """Woven reed / willow: the scanned wicker basket weave."""
-    return scan_surface(name, 'wicker_basket_01', color, tile=0.18, rough=(0.6, 0.9), normal=1.0)
+    return scan_surface(name, 'wicker_basket_01', color, tile=0.18, rough=(0.6, 0.9), normal=1.0, age=(0.1, 0.4))
 
 
 def rope_fibre(name='rope_fibre', color=(0.45, 0.36, 0.22)):
@@ -637,7 +718,7 @@ def klismos(loc=(0, 0, 0), heading_deg=0.0, wood=None, cushion=(0.45, 0.12, 0.08
     return _place(root, loc, heading_deg)
 
 
-def kline(loc=(0, 0, 0), heading_deg=0.0, wood=None, mattress=(0.36, 0.10, 0.07), blanket=(0.30, 0.20, 0.10),
+def kline(loc=(0, 0, 0), heading_deg=0.0, wood=None, mattress=(0.36, 0.10, 0.07), blanket=(0.16, 0.035, 0.03),
           name='kline'):
     """KLINE (dining couch of the symposion, c. 500-450 BC): a high rectangular frame on four flat legs whose tops are
     cut into VOLUTES and a palmette (the 'Ionic' leg of Attic vases), a raised HEAD-END for the elbow, a thick
@@ -659,6 +740,9 @@ def kline(loc=(0, 0, 0), heading_deg=0.0, wood=None, mattress=(0.36, 0.10, 0.07)
     for (c, s) in [((0, -W / 2 + 0.04, H - 0.03), (L, 0.05, 0.08)), ((0, W / 2 - 0.04, H - 0.03), (L, 0.05, 0.08)),
                    ((-L / 2 + 0.05, 0, H - 0.03), (0.06, W, 0.08)), ((L / 2 - 0.05, 0, H - 0.03), (0.06, W, 0.08))]:
         _box(f'{name}_frame', c, s, w, parent=root)
+    kb = painted_band(f'{name}_meander', 0.05, bg=(0.36, 0.08, 0.04))
+    for sy in (-1, 1):            # painted meander along the outside of the long rails (Attic symposion vases)
+        _box(f'{name}_band', (0, sy * (W / 2 - 0.012), H - 0.03), (L - 0.12, 0.004, 0.05), kb, bevel=0.0, parent=root)
     # raised head-end at +X: two curved side bars + a board
     for sy in (-1, 1):
         _tube(f'{name}_headrest', [(L / 2 - 0.06, sy * (W / 2 - 0.05), H + 0.02), (L / 2 - 0.03, sy * (W / 2 - 0.05), H + 0.2),
@@ -741,8 +825,9 @@ def chest(loc=(0, 0, 0), heading_deg=0.0, size=(0.9, 0.5, 0.48), paint=(0.42, 0.
     _box(f'{name}_end1', (-L / 2 + 0.03, 0, foot + H / 2), (0.02, D - 0.08, H - 0.02), w, parent=root)
     _box(f'{name}_end2', (L / 2 - 0.03, 0, foot + H / 2), (0.02, D - 0.08, H - 0.02), w, parent=root)
     _box(f'{name}_bottom', (0, 0, foot + 0.01), (L - 0.06, D - 0.06, 0.02), w, parent=root)
-    for sy in (-1, 1):            # painted band along the top of the front and back
-        _box(f'{name}_band', (0, sy * (D / 2 - 0.018), foot + H - 0.06), (L - 0.09, 0.006, 0.07), pm, bevel=0.001, parent=root)
+    band = painted_band(f'{name}_meander', 0.07, bg=tuple(paint))
+    for sy in (-1, 1):            # painted meander band along the top of the front and back (vase-painting chests)
+        _box(f'{name}_band', (0, sy * (D / 2 - 0.018), foot + H - 0.06), (L - 0.09, 0.006, 0.07), band, bevel=0.001, parent=root)
     _box(f'{name}_lid', (0, 0, foot + H + 0.02), (L + 0.03, D + 0.03, 0.04), w, parent=root)
     if lid == 'gable':            # some chests on vases have a low pitched lid
         for sy in (-1, 1):
@@ -926,6 +1011,98 @@ def stone_anchor(loc=(0, 0, 0), heading_deg=0.0, name='anchor_stone'):
     b = s.modifiers.new('bevel', 'BEVEL'); b.width = 0.03; b.segments = 3
     bpy.ops.mesh.primitive_torus_add(major_radius=0.04, minor_radius=0.012, location=(0.11, 0, 0.095))   # rope through the hole
     r = bpy.context.object; r.name = f'{name}_rope'; r.data.materials.append(rope_fibre()); r.parent = root
+    return _place(root, loc, heading_deg)
+
+
+# ------------------------------------------------------------------ DRESSING KITS: fill a set with one call
+# Real places are full of objects (the reference films' interiors are dense). Each kit lays out era-correct props by
+# simple rules (around the walls, along a quay edge), with random turns so nothing repeats. loc = the kit's centre on
+# the floor, heading_deg turns the whole layout. Museum scans come from scans_glb (credits in library/props/*.json).
+def _kit_root(name, loc, heading_deg):
+    r = _root(name)
+    return r
+
+
+def _put(child, root, local, turn_deg=0.0):
+    child.parent = root; child.location = local; child.rotation_euler.z = math.radians(turn_deg)
+    return child
+
+
+def dress_symposion(loc=(0, 0, 0), heading_deg=0.0, couches=3, lit=True, seed=0, frames=(1, 240), name='symposion'):
+    """An andron set for a symposion (c. 480 BC): `couches` klinai along three walls of a ~5 x 5 m room, a trapeza
+    in front of each with a kylix and a lamp, the wine jars by the door, a brazier and lamp stands for light,
+    a wool basket. A big neck-amphora of wine stands in the middle (our only krater scan is Lucanian 430-410 BC,
+    too late - see library/props/krater_bell_met.json)."""
+    from lib import scans_glb
+    rnd = _random.Random(seed)
+    root = _kit_root(name, loc, heading_deg)
+    # (x, y), turn: a kline faces its local -Y, so the back-wall couch turns 0, the left wall +90, the right -90
+    spots = [((0.0, 2.0), 0), ((-2.0, 0.2), 90), ((2.0, 0.2), -90), ((-1.0, 2.0), 0), ((1.0, 2.0), 0)][:couches]
+    for i, ((x, y), turn) in enumerate(spots):
+        k = _put(kline((0, 0, 0), 0, name=f'{name}_kline{i}'), root, (x, y, 0), turn)
+        h = math.radians(turn)
+        tx, ty = x + 0.75 * math.sin(h), y - 0.75 * math.cos(h)          # the table stands in front of the couch
+        _put(trapeza((0, 0, 0), 0, name=f'{name}_table{i}'), root, (tx, ty, 0), turn)
+        cup = scans_glb.load_glb('kylix_cleveland'); _put(cup, root, (tx + rnd.uniform(-0.15, 0.1), ty, 0.5), rnd.uniform(0, 360))
+        _put(oil_lamp((0, 0, 0), 0, lit=lit, frames=frames, seed=seed + i, name=f'{name}_lamp{i}'), root,
+             (tx + 0.22, ty + rnd.uniform(-0.1, 0.1), 0.5), rnd.uniform(0, 360))
+    krater = scans_glb.load_glb('amphora_neck_cleveland'); _put(krater, root, (0.0, 0.0, 0.0), rnd.uniform(0, 360))
+    for j in range(3):                                   # wine and water jars by the door
+        a = scans_glb.load_glb(('amphora_terracotta_met', 'amphora_blackfigure_cleveland')[j % 2])
+        _put(a, root, (-1.8 + j * 0.45, -2.1, 0), rnd.uniform(0, 360))
+    _put(brazier((0, 0, 0), 0, kind='bronze', lit=lit, frames=frames, seed=seed + 7, name=f'{name}_brazier'), root, (1.7, -1.6, 0))
+    for j, (x, y) in enumerate(((-2.2, 2.2), (2.2, 2.2))):
+        _put(lamp_stand((0, 0, 0), 0, lit=lit, frames=frames, seed=seed + 20 + j, name=f'{name}_stand{j}'), root, (x, y, 0))
+    _put(basket((0, 0, 0), 0, kind='kalathos', fill=(0.82, 0.78, 0.7), name=f'{name}_wool'), root, (-2.3, -1.5, 0))
+    return _place(root, loc, heading_deg)
+
+
+def dress_storeroom(loc=(0, 0, 0), heading_deg=0.0, rows=2, per_row=6, seed=0, name='storeroom'):
+    """A household storeroom: rows of amphorae (museum scans, leaning on each other as in excavated storerooms),
+    two chests, baskets, a coiled rope."""
+    from lib import scans_glb
+    rnd = _random.Random(seed)
+    root = _kit_root(name, loc, heading_deg)
+    jars = ['amphora_terracotta_met', 'amphora_blackfigure_cleveland', 'amphora_neck_cleveland']
+    for r in range(rows):
+        for c in range(per_row):
+            a = scans_glb.load_glb(rnd.choice(jars))
+            a.rotation_euler.x = rnd.uniform(-0.05, 0.05)
+            _put(a, root, (c * 0.42 - per_row * 0.21 + rnd.uniform(-0.03, 0.03), 1.5 - r * 0.5, 0), rnd.uniform(0, 360))
+    _put(chest((0, 0, 0), 0, lid='gable', name=f'{name}_chest0'), root, (-1.8, 0.1, 0), 90)
+    _put(chest((0, 0, 0), 0, size=(0.7, 0.45, 0.42), paint=(0.15, 0.12, 0.1), name=f'{name}_chest1'), root, (-1.8, -0.8, 0), 80)
+    _put(basket((0, 0, 0), 0, kind='carry', fill=(0.55, 0.45, 0.25), name=f'{name}_grain'), root, (1.6, -0.4, 0))
+    _put(basket((0, 0, 0), 0, kind='flat', name=f'{name}_tray'), root, (1.2, -0.9, 0))
+    _put(rope_coil((0, 0, 0), 0, radius=0.25, strands=False, name=f'{name}_rope'), root, (0.6, -0.9, 0))
+    return _place(root, loc, heading_deg)
+
+
+def dress_quay(loc=(0, 0, 0), heading_deg=0.0, length=20.0, boats=2, seed=0, name='quay'):
+    """A harbour quay (the Piraeus / Salamis shore): stacks of amphorae, rope coils, stone anchors, baskets of
+    catch, nets, and fishing boats drawn up or moored along the edge (the water is on the -Y side)."""
+    from lib import scans_glb
+    rnd = _random.Random(seed)
+    root = _kit_root(name, loc, heading_deg)
+    x = -length / 2
+    while x < length / 2:
+        kind = rnd.random()
+        if kind < 0.35:                                   # a cluster of transport amphorae
+            for j in range(rnd.randint(3, 7)):
+                a = scans_glb.load_glb('amphora_terracotta_met')
+                a.rotation_euler.x = rnd.uniform(-0.08, 0.08)
+                _put(a, root, (x + rnd.uniform(-0.6, 0.6), rnd.uniform(0.6, 1.8), 0), rnd.uniform(0, 360))
+        elif kind < 0.55:
+            _put(rope_coil((0, 0, 0), 0, radius=rnd.uniform(0.2, 0.35), name=f'{name}_rope'), root, (x, rnd.uniform(-0.2, 0.6), 0), rnd.uniform(0, 360))
+        elif kind < 0.7:
+            _put(stone_anchor((0, 0, 0), 0, name=f'{name}_anchor'), root, (x, rnd.uniform(-0.1, 0.5), 0), rnd.uniform(0, 360))
+        else:
+            _put(basket((0, 0, 0), 0, kind='carry', fill=(0.55, 0.58, 0.6) if rnd.random() < 0.6 else None,
+                        name=f'{name}_basket'), root, (x, rnd.uniform(0.2, 1.4), 0), rnd.uniform(0, 360))
+        x += rnd.uniform(1.0, 2.6)
+    for b in range(boats):
+        bx = -length / 2 + (b + 0.5) * length / max(boats, 1)
+        _put(fishing_boat((0, 0, 0), 0, oars='in', seed=seed + b, name=f'{name}_boat{b}'), root, (bx - 3.3, -2.6, -1.0),
+             rnd.uniform(-8, 8))                         # moored: the water is ~1 m below the quay top
     return _place(root, loc, heading_deg)
 
 
@@ -1211,6 +1388,35 @@ def _proxy_mesh(role, mats):
     return me
 
 
+def _rower_mesh(mats):
+    """Seated rower stand-in (shared mesh): hips on the bench at z = 0, torso, head, both arms reaching forward
+    (+X) to the oar handle. The object pivots at the hips, so rotating it about Y = leaning into the stroke."""
+    import bmesh
+    me = bpy.data.meshes.get('crew_proxy_rower')
+    if me:
+        return me
+    bm = bmesh.new()
+
+    def part(kind, mi, mat4, **kw):
+        if kind == 'cone':
+            r = bmesh.ops.create_cone(bm, cap_ends=True, segments=8, radius1=kw['r1'], radius2=kw['r2'], depth=kw['d'], matrix=mat4)
+        else:
+            r = bmesh.ops.create_uvsphere(bm, u_segments=10, v_segments=7, radius=kw['r'], matrix=mat4)
+        for f in {f for v in r['verts'] for f in v.link_faces}:
+            f.material_index = mi
+    T = Matrix.Translation; R = lambda deg, ax: Matrix.Rotation(math.radians(deg), 4, ax)
+    part('cone', 0, T((0, 0, 0.3)), r1=0.17, r2=0.2, d=0.6)                   # torso (bare or in an exomis)
+    part('sphere', 1, T((0.02, 0, 0.7)), r=0.1)                              # head
+    for sy in (-1, 1):
+        part('cone', 1, T((0.25, sy * 0.17, 0.45)) @ R(90, 'Y'), r1=0.04, r2=0.045, d=0.5)   # arms to the handle
+        part('cone', 1, T((0.25, sy * 0.1, -0.05)) @ R(80, 'Y'), r1=0.05, r2=0.07, d=0.5)    # thighs
+    me = bpy.data.meshes.new('crew_proxy_rower'); bm.to_mesh(me); bm.free()
+    me.materials.append(mats['cloth']); me.materials.append(mats['skin'])
+    for p_ in me.polygons:
+        p_.use_smooth = True
+    return me
+
+
 def _person_proxy(name, role, parent, loc, face_deg, mats, rnd):
     """Place one stand-in person (a cheap object sharing its role's mesh), a little bigger or smaller each time."""
     o = bpy.data.objects.new(name, _proxy_mesh(role, mats)); link(o)
@@ -1229,29 +1435,59 @@ def _crew_mats():
             'wood': bpy.data.materials.get('oar_wood_old') or old_wood('oar_wood_old', (0.40, 0.29, 0.17))}
 
 
-def trireme_v2(loc=(0, 0, 0), heading_deg=0.0, oars='row', stroke_frames=34, frame_start=1, frame_end=240,
-               sail=None, crew='markers', marines=14, speed_mps=0.0, bob=True, phoenician=False, seed=0, name='trireme2'):
-    """TRIREME v2: the Athenian ship (or phoenician=True) with
-      oars:  'row'  - all 170 oars ROWING in unison, a looping stroke (catch -> drive -> finish -> recovery);
-                      stroke_frames=34 at 24 fps = ~42 strokes/min, the Olympias' battle rate
-             'rest' - oars held level, blades just above the water (drifting, waiting, before a battle)
-             None   - no oars (shipped inside: under sail or beached)
-      sail:  'set'  - the square linen sail set on its yard, bellied by the wind, brail lines sewn on (cruising;
-                      before a battle the main sail was left on shore, Xenophon Hell. 6.2.27)
-             'furled' or None - the old furled yard / bare mast (trireme() default)
-      crew:  'markers' - named empties where people stand/sit (role in a custom property): helmsman, rowing master,
-                         bow officer, piper, marines, archers, deckhands, and every rower seat (for close shots)
-             'proxies' - markers + low-poly stand-in people on deck (wide shots only)
-      speed_mps: ship moves forward along its heading (battle speed ~4.5 m/s, cruising ~3 m/s); bob: gentle
-                 heave / pitch / roll on the swell. Two steering oars at the stern quarters, as on every trireme."""
-    root = trireme_phoenician((0, 0, 0), 0.0, True, name=name, seed=seed) if phoenician else trireme((0, 0, 0), 0.0, True, name=name)
-    L = _TRI_L
-    rnd = _random.Random(seed)
-    _remove(_children_using(root, 'oar_wood'))                  # the old static oars of trireme()
-    if sail == 'set':
-        _remove(_children_using(root, 'furled_sail'))
-    oarm = bpy.data.materials.get('oar_wood_v2') or principled('oar_wood_v2', (0.38, 0.27, 0.16), rough=0.7, bump=0.15, bump_scale=60)
-    # ---- oars: one pivot per oar, mirrored for the port side by a parent with scale y = -1
+def foam_material(name='sea_foam', density=0.55, scale=6.0, fade=False):
+    """White water: bright, slightly translucent foam broken into patches by noise (alpha), so it never looks like
+    a solid white plastic shape. Object coordinates, so it moves with the ship. fade=True also fades it out along
+    the mesh's own X (0 -> 1), for a wake that dies away behind the ship."""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = bpy.data.materials.new(name); m.use_fake_user = True
+    nt = m.node_tree; b = nt.nodes['Principled BSDF']; L = nt.links.new
+    b.inputs['Base Color'].default_value = (0.82, 0.86, 0.88, 1); b.inputs['Roughness'].default_value = 0.45
+    if 'Subsurface Weight' in b.inputs:
+        b.inputs['Subsurface Weight'].default_value = 0.3
+    tc = nt.nodes.new('ShaderNodeTexCoord')
+    n = nt.nodes.new('ShaderNodeTexNoise'); n.inputs['Scale'].default_value = scale; n.inputs['Detail'].default_value = 8
+    L(tc.outputs['Object'], n.inputs['Vector'])
+    mr = nt.nodes.new('ShaderNodeMapRange'); mr.inputs['From Min'].default_value = 1 - density
+    mr.inputs['From Max'].default_value = 1 - density + 0.12
+    L(n.outputs['Fac'], mr.inputs['Value'])
+    alpha = mr.outputs['Result']
+    if fade:
+        sep = nt.nodes.new('ShaderNodeSeparateXYZ'); L(tc.outputs['Generated'], sep.inputs['Vector'])
+        inv = nt.nodes.new('ShaderNodeMath'); inv.operation = 'SUBTRACT'; inv.inputs[0].default_value = 1.0
+        L(sep.outputs['X'], inv.inputs[1])
+        mul = nt.nodes.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; L(alpha, mul.inputs[0]); L(inv.outputs[0], mul.inputs[1])
+        alpha = mul.outputs[0]
+    L(alpha, b.inputs['Alpha'])
+    return m
+
+
+def _splash_mesh(name='oar_splash'):
+    """A splash = a small cluster of foam blobs (~0.5 m across), shared by every oar."""
+    import bmesh
+    me = bpy.data.meshes.get(name)
+    if me:
+        return me
+    rnd = _random.Random(7)
+    bm = bmesh.new()
+    for i in range(7):
+        r = rnd.uniform(0.06, 0.16)
+        c = Vector((rnd.uniform(-0.2, 0.2), rnd.uniform(-0.12, 0.12), rnd.uniform(0.0, 0.12)))
+        bmesh.ops.create_icosphere(bm, subdivisions=2, radius=r, matrix=Matrix.Translation(c) @ Matrix.Diagonal((1.4, 1, 0.7, 1)))
+    me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
+    me.materials.append(foam_material('splash_foam', density=0.75, scale=14.0))
+    for p_ in me.polygons:
+        p_.use_smooth = True
+    return me
+
+
+def _ship_oars(root, name, oars, oarm, rnd, stroke_frames=34, frame_start=1, L=_TRI_L, splash=False, rowers=False):
+    """All 170 trireme oars as pivoting objects (shared meshes) under two side empties; 'row' = looping stroke,
+    'rest' = held level just above the water. splash=True: a burst of white water where each blade bites in (the
+    catch), timed to that oar's own stroke. Used by trireme_v2 and trireme_v3."""
+    # one pivot per oar, mirrored for the port side by a parent with scale y = -1
     if oars:
         for sgn in (1, -1):
             side = bpy.data.objects.new(f'{name}_oars_{"stbd" if sgn > 0 else "port"}', None); link(side)
@@ -1281,6 +1517,111 @@ def trireme_v2(loc=(0, 0, 0), heading_deg=0.0, oars='row', stroke_frames=34, fra
                         o.keyframe_insert('rotation_euler', index=0, frame=f0 + ph * T)
                         o.keyframe_insert('rotation_euler', index=2, frame=f0 + ph * T)
                     _loop(o)
+                    if splash:                     # white water where the blade enters, only around the catch
+                        R = Matrix.Rotation(math.radians(-24), 3, 'Z') @ Matrix.Rotation(-dip_in, 3, 'X')
+                        tip = Vector((x, ly, lz)) + R @ Vector((0, reach, 0))
+                        sp = bpy.data.objects.new(o.name + '_splash', _splash_mesh()); link(sp)
+                        sp.parent = side; sp.location = (tip.x, tip.y, 0.0)
+                        sp.rotation_euler.z = rnd.uniform(0, 6.28)
+                        for ph, k in ((0.0, 0.05), (0.06, 1.0), (0.3, 0.55), (0.5, 0.0), (1.0, 0.05)):
+                            sp.scale = (k, k, k * 0.8)
+                            sp.keyframe_insert('scale', frame=f0 + ph * T)
+                        _loop(sp)
+                    if rowers and bank == 'thranite':   # the top-bank rower, seen through the open outrigger
+                        rw = bpy.data.objects.new(o.name + '_rower', _rower_mesh(_crew_mats())); link(rw)
+                        # rowers face the STERN: he sits on the bow side of his oar handle (handle ~0.3*length inboard)
+                        rw.parent = side; rw.location = (x + 0.55, ly - inb, lz - 0.45)
+                        rw.rotation_euler.z = math.pi
+                        for ph, lean in ((0.0, 22), (0.45, -18), (0.56, -16), (0.93, 20), (1.0, 22)):
+                            rw.rotation_euler.y = math.radians(lean)  # reach forward at the catch, lie back at the finish
+                            rw.keyframe_insert('rotation_euler', index=1, frame=f0 + ph * T)
+                        _loop(rw)
+
+
+def _ship_crew(root, name, crew, rnd, L=_TRI_L, deck_z=2.42, phoenician=False, marines=14):
+    """Crew markers (role in a custom property) + optional low-poly stand-ins, and all 170 rower seats."""
+    if crew:
+        spots = [('helmsman', (L * 0.13, 0, deck_z), 0), ('rowing_master', (L * 0.5, 0, deck_z), 180),
+                 ('bow_officer', (L * 0.86, 0, deck_z), 0), ('piper', (L * 0.47, 0.6, deck_z), 180)]
+        n_mar = 30 if phoenician and marines == 14 else marines          # Hdt 7.184: 30 marines on Xerxes' ships
+        n_arch = 4
+        for i in range(n_mar):
+            x = L * 0.62 + (i // 2) * 0.9 if i < 20 else L * 0.25 + ((i - 20) // 2) * 0.9
+            spots.append(('marine', (x, (-0.7 if i % 2 else 0.7), deck_z), 0))
+        for i in range(n_arch):
+            spots.append(('archer', (L * 0.3 + i * 0.8, (1.0 if i % 2 else -1.0), deck_z), 0))
+        for i in range(6):
+            spots.append(('deckhand', (L * 0.2 + i * 3.5, (1.3 if i % 2 else -1.3), deck_z), 90))
+        mats = _crew_mats() if crew == 'proxies' else None
+        for k, (role, p, face) in enumerate(spots):
+            mk = bpy.data.objects.new(f'{name}_crew_{role}_{k:02d}', None); link(mk)
+            mk.parent = root; mk.location = p; mk.rotation_euler.z = math.radians(face)
+            mk['role'] = role; mk.empty_display_size = 0.3
+            if crew == 'proxies':
+                _person_proxy(f'{name}_p{k:02d}', role, root, p, face + rnd.uniform(-25, 25), mats, rnd)
+        for bank, count, ly, lz, ln in _TRI_BANKS:          # every rower's seat (inside the hull, for close shots)
+            for sgn in (-1, 1):
+                for k in range(count):
+                    x = L * 0.22 + (L * 0.6) * k / (count - 1)
+                    mk = bpy.data.objects.new(f'{name}_seat_{bank}_{"s" if sgn > 0 else "p"}{k:02d}', None); link(mk)
+                    mk.parent = root; mk.location = (x - 0.4, sgn * (ly - 1.0), lz - 0.25)
+                    mk.rotation_euler.z = math.radians(180)          # rowers face the stern
+                    mk['role'] = f'rower_{bank}'; mk.empty_display_size = 0.15
+
+
+def _ship_motion(root, loc, heading_deg, speed_mps, bob, frame_start, frame_end):
+    """Place the ship, then keyframe forward travel along the heading and a looping swell (heave/pitch/roll)."""
+    _place(root, loc, heading_deg)
+    if speed_mps or bob:
+        fps = bpy.context.scene.render.fps or 24
+        h = math.radians(heading_deg)
+        if speed_mps:
+            dist = speed_mps * (frame_end - frame_start) / fps
+            for f, d in ((frame_start, 0.0), (frame_end, dist)):
+                root.location = (loc[0] + d * math.cos(h), loc[1] + d * math.sin(h), loc[2])
+                root.keyframe_insert('location', index=0, frame=f); root.keyframe_insert('location', index=1, frame=f)
+            for fc in _fcurves(root):
+                for kp in fc.keyframe_points:
+                    kp.interpolation = 'LINEAR'
+                fc.extrapolation = 'LINEAR'
+        if bob:                                   # heave 6 cm / pitch 0.5 deg / roll 0.7 deg over a ~4 s swell
+            P = 4.0 * fps
+            for i in range(5):
+                f = frame_start + i * P / 4
+                root.location.z = loc[2] + 0.06 * math.sin(i * math.pi / 2)
+                root.rotation_euler = (math.radians(0.7) * math.sin(i * math.pi / 2 + 1.0),
+                                       math.radians(0.5) * math.cos(i * math.pi / 2), h)
+                root.keyframe_insert('location', index=2, frame=f)
+                root.keyframe_insert('rotation_euler', index=0, frame=f); root.keyframe_insert('rotation_euler', index=1, frame=f)
+            for fc in _fcurves(root):
+                if (fc.data_path == 'location' and fc.array_index == 2) or (fc.data_path == 'rotation_euler' and fc.array_index in (0, 1)):
+                    if not any(m.type == 'CYCLES' for m in fc.modifiers):
+                        fc.modifiers.new('CYCLES')
+
+
+def trireme_v2(loc=(0, 0, 0), heading_deg=0.0, oars='row', stroke_frames=34, frame_start=1, frame_end=240,
+               sail=None, crew='markers', marines=14, speed_mps=0.0, bob=True, phoenician=False, seed=0, name='trireme2'):
+    """TRIREME v2: the Athenian ship (or phoenician=True) with
+      oars:  'row'  - all 170 oars ROWING in unison, a looping stroke (catch -> drive -> finish -> recovery);
+                      stroke_frames=34 at 24 fps = ~42 strokes/min, the Olympias' battle rate
+             'rest' - oars held level, blades just above the water (drifting, waiting, before a battle)
+             None   - no oars (shipped inside: under sail or beached)
+      sail:  'set'  - the square linen sail set on its yard, bellied by the wind, brail lines sewn on (cruising;
+                      before a battle the main sail was left on shore, Xenophon Hell. 6.2.27)
+             'furled' or None - the old furled yard / bare mast (trireme() default)
+      crew:  'markers' - named empties where people stand/sit (role in a custom property): helmsman, rowing master,
+                         bow officer, piper, marines, archers, deckhands, and every rower seat (for close shots)
+             'proxies' - markers + low-poly stand-in people on deck (wide shots only)
+      speed_mps: ship moves forward along its heading (battle speed ~4.5 m/s, cruising ~3 m/s); bob: gentle
+                 heave / pitch / roll on the swell. Two steering oars at the stern quarters, as on every trireme."""
+    root = trireme_phoenician((0, 0, 0), 0.0, True, name=name, seed=seed) if phoenician else trireme((0, 0, 0), 0.0, True, name=name)
+    L = _TRI_L
+    rnd = _random.Random(seed)
+    _remove(_children_using(root, 'oar_wood'))                  # the old static oars of trireme()
+    if sail == 'set':
+        _remove(_children_using(root, 'furled_sail'))
+    oarm = bpy.data.materials.get('oar_wood_v2') or principled('oar_wood_v2', (0.38, 0.27, 0.16), rough=0.7, bump=0.15, bump_scale=60)
+    _ship_oars(root, name, oars, oarm, rnd, stroke_frames, frame_start, L)
     # ---- steering oars (pedalia): two big paddles at the stern quarters, angled down and aft into the water
     for sgn in (-1, 1):
         _tube(f'{name}_rudder_shaft', [(L * 0.1, sgn * 2.05, 2.6), (L * 0.1 - 1.9, sgn * 2.35, -0.4)], 0.07, oarm, root, poly=True)
@@ -1335,63 +1676,684 @@ def trireme_v2(loc=(0, 0, 0), heading_deg=0.0, oars='row', stroke_frames=34, fra
             _tube(f'{name}_sheet', [(mast_x + 0.3, sgn * W / 2, 10.45 - Ht), (L * 0.2, sgn * 1.9, 2.5)], 0.012, rf, root, poly=True)
         _tube(f'{name}_forestay', [(mast_x, 0, 11.0), (L - 0.4, 0, 2.6)], 0.014, rf, root, poly=True)
         _tube(f'{name}_backstay', [(mast_x, 0, 11.0), (L * 0.08, 0, 3.0)], 0.014, rf, root, poly=True)
-    # ---- crew markers (+ optional stand-in people)
-    if crew:
-        deck_z = 2.99 if phoenician else 2.42
-        spots = [('helmsman', (L * 0.13, 0, deck_z), 0), ('rowing_master', (L * 0.5, 0, deck_z), 180),
-                 ('bow_officer', (L * 0.86, 0, deck_z), 0), ('piper', (L * 0.47, 0.6, deck_z), 180)]
-        n_mar = 30 if phoenician and marines == 14 else marines          # Hdt 7.184: 30 marines on Xerxes' ships
-        n_arch = 4
-        for i in range(n_mar):
-            x = L * 0.62 + (i // 2) * 0.9 if i < 20 else L * 0.25 + ((i - 20) // 2) * 0.9
-            spots.append(('marine', (x, (-0.7 if i % 2 else 0.7), deck_z), 0))
-        for i in range(n_arch):
-            spots.append(('archer', (L * 0.3 + i * 0.8, (1.0 if i % 2 else -1.0), deck_z), 0))
-        for i in range(6):
-            spots.append(('deckhand', (L * 0.2 + i * 3.5, (1.3 if i % 2 else -1.3), deck_z), 90))
-        mats = _crew_mats() if crew == 'proxies' else None
-        for k, (role, p, face) in enumerate(spots):
-            mk = bpy.data.objects.new(f'{name}_crew_{role}_{k:02d}', None); link(mk)
-            mk.parent = root; mk.location = p; mk.rotation_euler.z = math.radians(face)
-            mk['role'] = role; mk.empty_display_size = 0.3
-            if crew == 'proxies':
-                _person_proxy(f'{name}_p{k:02d}', role, root, p, face + rnd.uniform(-25, 25), mats, rnd)
-        for bank, count, ly, lz, ln in _TRI_BANKS:          # every rower's seat (inside the hull, for close shots)
-            for sgn in (-1, 1):
-                for k in range(count):
-                    x = L * 0.22 + (L * 0.6) * k / (count - 1)
-                    mk = bpy.data.objects.new(f'{name}_seat_{bank}_{"s" if sgn > 0 else "p"}{k:02d}', None); link(mk)
-                    mk.parent = root; mk.location = (x - 0.4, sgn * (ly - 1.0), lz - 0.25)
-                    mk.rotation_euler.z = math.radians(180)          # rowers face the stern
-                    mk['role'] = f'rower_{bank}'; mk.empty_display_size = 0.15
-    # ---- movement: forward along the heading + swell
-    _place(root, loc, heading_deg)
-    if speed_mps or bob:
-        fps = bpy.context.scene.render.fps or 24
-        h = math.radians(heading_deg)
-        if speed_mps:
-            dist = speed_mps * (frame_end - frame_start) / fps
-            for f, d in ((frame_start, 0.0), (frame_end, dist)):
-                root.location = (loc[0] + d * math.cos(h), loc[1] + d * math.sin(h), loc[2])
-                root.keyframe_insert('location', index=0, frame=f); root.keyframe_insert('location', index=1, frame=f)
-            for fc in _fcurves(root):
-                for kp in fc.keyframe_points:
-                    kp.interpolation = 'LINEAR'
-                fc.extrapolation = 'LINEAR'
-        if bob:                                   # heave 6 cm / pitch 0.5 deg / roll 0.7 deg over a ~4 s swell
-            P = 4.0 * fps
-            for i in range(5):
-                f = frame_start + i * P / 4
-                root.location.z = loc[2] + 0.06 * math.sin(i * math.pi / 2)
-                root.rotation_euler = (math.radians(0.7) * math.sin(i * math.pi / 2 + 1.0),
-                                       math.radians(0.5) * math.cos(i * math.pi / 2), h)
-                root.keyframe_insert('location', index=2, frame=f)
-                root.keyframe_insert('rotation_euler', index=0, frame=f); root.keyframe_insert('rotation_euler', index=1, frame=f)
-            for fc in _fcurves(root):
-                if (fc.data_path == 'location' and fc.array_index == 2) or (fc.data_path == 'rotation_euler' and fc.array_index in (0, 1)):
-                    if not any(m.type == 'CYCLES' for m in fc.modifiers):
-                        fc.modifiers.new('CYCLES')
+    _ship_crew(root, name, crew, rnd, L, 2.99 if phoenician else 2.42, phoenician, marines)
+    _ship_motion(root, loc, heading_deg, speed_mps, bob, frame_start, frame_end)
     return root
+
+
+# ------------------------------------------------------------------ TRIREME v3: detailed hull + FAST instanced fleets
+# Why v3: (1) close shots need the detail of a real ship: plank seams under the pitch, rub-rails, an open outrigger
+# with thole pins, leather oar-port sleeves, catheads, rigging as thick laid rope; (2) a fleet scene needs DOZENS of
+# ships, and v1/v2 take ~2 minutes and 400 objects each. v3 builds the static ship ONCE per variant into a hidden
+# 'kit' collection (pure bmesh, no slow bpy.ops), and every ship after that is one cheap INSTANCE of the kit plus
+# whatever must move on its own (oars, sail, crew).
+# Extra design sources: Thucydides 7.34 + 7.36 (epotides = catheads, strengthened for ramming); the askomata, leather
+# sleeves sealing the lowest oar ports (Aristophanes, Acharnians 97); Olympias reconstruction for the open outrigger.
+def _bm_tube(bm, pts, radius, mi, seg=8, caps=True):
+    """A round tube through `pts` (radius = number or one per point) straight into a bmesh. The ring frame is carried
+    along the path (parallel transport) so the tube never twists."""
+    pts = [Vector(p) for p in pts]
+    rad = radius if isinstance(radius, (list, tuple)) else [radius] * len(pts)
+    n = len(pts)
+    t0 = (pts[1] - pts[0]).normalized()
+    a = t0.orthogonal().normalized()
+    rings = []
+    for i, p in enumerate(pts):
+        t = (pts[min(i + 1, n - 1)] - pts[max(i - 1, 0)]).normalized()
+        a = (a - t * a.dot(t)).normalized()
+        b = t.cross(a)
+        rings.append([bm.verts.new(p + (a * math.cos(2 * math.pi * k / seg) + b * math.sin(2 * math.pi * k / seg)) * rad[i])
+                      for k in range(seg)])
+    for r0, r1 in zip(rings, rings[1:]):
+        for k in range(seg):
+            f = bm.faces.new((r0[k], r0[(k + 1) % seg], r1[(k + 1) % seg], r1[k])); f.material_index = mi; f.smooth = True
+    if caps:
+        for r in (rings[0], rings[-1][::-1]):
+            f = bm.faces.new(r[::-1]); f.material_index = mi
+
+
+def _bm_box(bm, centre, size, mi, rot=None):
+    import bmesh
+    M = Matrix.Translation(centre) @ (rot.to_4x4() if rot is not None else Matrix.Identity(4)) @ Matrix.Diagonal((*size, 1.0))
+    r = bmesh.ops.create_cube(bm, size=1.0, matrix=M)
+    for f in {f for v in r['verts'] for f in v.link_faces}:
+        f.material_index = mi
+
+
+def _bm_cyl(bm, centre, r1, r2, depth, mi, rot=None, seg=12):
+    import bmesh
+    M = Matrix.Translation(centre) @ (rot.to_4x4() if rot is not None else Matrix.Identity(4))
+    r = bmesh.ops.create_cone(bm, cap_ends=True, segments=seg, radius1=r1, radius2=r2, depth=depth, matrix=M)
+    for f in {f for v in r['verts'] for f in v.link_faces}:
+        f.material_index = mi
+        f.smooth = True
+
+
+def _tri_hull_pt(t, z, sgn, L=_TRI_L, beam=2.3, top=2.1, keel=-0.85):
+    """Outside point of the trireme hull (the _hull_mesh loft above) at length fraction t, height z, side sgn."""
+    b = beam * (math.sin(math.pi * t) ** 0.55) * (0.88 if t > 0.5 else 1.0) + 0.03
+    stern_rise = 1.4 * max(0.0, 0.18 - t) / 0.18
+    bow_rise = 0.5 * max(0.0, t - 0.9) / 0.1
+    k = keel * (math.sin(math.pi * min(1, t * 1.05)) ** 0.35) + stern_rise + bow_rise
+    tp = top + 0.9 * max(0.0, 0.12 - t) / 0.12 + 0.35 * max(0.0, t - 0.92) / 0.08
+    z = min(max(z, k), tp)
+    s = ((z - k) / max(tp - k, 1e-6)) ** (1 / 2.4)
+    return Vector((t * L, sgn * b * s, z)), tp
+
+
+def _tri_mats(phoenician):
+    hull_col = (0.05, 0.016, 0.01) if phoenician else (0.016, 0.014, 0.012)     # red-ochre pitch / black pitch
+    return [
+        scan_surface('tri3_pitch_red' if phoenician else 'tri3_pitch', 'brown_planks_04', hull_col, tile=1.5,
+                     rough=(0.3, 0.65), normal=0.9, keep_hue=True),           # 0 planked hull under glossy pitch
+        principled('tri3_ochre', (0.30, 0.06, 0.03), rough=0.6, bump=0.15, bump_scale=60),   # 1 red top strake
+        old_wood('tri3_deck', (0.30, 0.21, 0.13)),                                           # 2 deck + frames
+        bpy.data.materials.get('bronze') or aged_bronze('bronze'),                           # 3 ram, fittings
+        principled('eye_white', (0.85, 0.82, 0.74), rough=0.5),                              # 4 painted eye
+        rope_fibre('tri3_rope', (0.42, 0.34, 0.22)),                                         # 5 rigging
+        old_wood('tri3_oarwood', (0.40, 0.29, 0.17)),                                        # 6 steering oars, mast
+        leather('tri3_askoma', (0.09, 0.05, 0.03)),                                          # 7 leather sleeves
+        wool('tri3_furled', (0.62, 0.55, 0.43), tile=0.6),                                   # 8 furled sail
+        principled('tri3_shield_a', (0.55, 0.38, 0.12), metal=0.6, rough=0.45),              # 9 shields (Phoen.)
+        principled('tri3_shield_b', (0.32, 0.06, 0.04), rough=0.7),                          # 10
+        principled('tri3_shield_c', (0.60, 0.52, 0.40), rough=0.7),                          # 11
+    ]
+
+
+def _trireme_kit(phoenician=False, furled=True):
+    """Build (once) the hidden collection with the static ship: hull + every fitting + rigging. Cached by variant."""
+    import bmesh
+    key = f'kit_trireme_{"phoen" if phoenician else "athen"}_{"furled" if furled else "set"}'
+    col = bpy.data.collections.get(key)
+    if col:
+        return col
+    col = bpy.data.collections.new(key)
+    mats = _tri_mats(phoenician)
+    L = _TRI_L
+    # ---- hull: the v1 loft, finer, with plank-scan pitch
+    v, f = _hull_mesh(L=L, sections=120, around=32)
+    me = bpy.data.meshes.new(key + '_hull'); me.from_pydata(v, [], f); me.update()
+    me.materials.append(mats[0])
+    wet = bpy.data.materials.get('tri3_waterline') or principled('tri3_waterline', (0.012, 0.016, 0.01), rough=0.22,
+                                                                   bump=0.3, bump_scale=30)   # wet pitch + a little weed
+    me.materials.append(wet)
+    for p_ in me.polygons:
+        p_.use_smooth = True
+        if p_.center.z < 0.18:                       # everything at and just above the waterline stays wet
+            p_.material_index = 1
+    hull = bpy.data.objects.new(key + '_hull', me); col.objects.link(hull)
+    hull.modifiers.new('thick', 'SOLIDIFY').thickness = 0.07
+    hull.modifiers.new('smooth', 'SUBSURF').levels = 1
+    # ---- fittings: one bmesh, many parts, material by index
+    bm = bmesh.new()
+    ts = [0.05 + 0.9 * i / 40 for i in range(41)]
+    for sgn in (-1, 1):
+        # rub-rails (wales): three thick strakes following the hull, the top one painted red ochre
+        for z, r, mi in ((0.55, 0.05, 0), (1.25, 0.055, 0), (1.85, 0.065, 0), (2.02, 0.07, 1)):
+            pts = []
+            for t in ts:
+                p, tp = _tri_hull_pt(t, z + (0.0 if z < 1.9 else 0.0), sgn)
+                if z > 1.9:
+                    p, _ = _tri_hull_pt(t, tp - 0.08, sgn)
+                pts.append(p + Vector((0, sgn * r * 0.6, 0)))
+            _bm_tube(bm, pts, r, mi, seg=8)
+        # open outrigger: top rail + thole rail, brackets back to the hull every ~1.4 m, a thole pin per thranite
+        x0, x1 = L * 0.2, L * 0.83
+        _bm_tube(bm, [(x0, sgn * 2.78, 2.22), (x1, sgn * 2.78, 2.22)], 0.07, 2, seg=8)
+        _bm_tube(bm, [(x0, sgn * 2.72, 1.98), (x1, sgn * 2.72, 1.98)], 0.06, 2, seg=8)
+        nb = int((x1 - x0) / 1.4)
+        for k in range(nb + 1):
+            x = x0 + (x1 - x0) * k / nb
+            hp, _ = _tri_hull_pt(x / L, 1.9, sgn)
+            _bm_tube(bm, [hp, (x, sgn * 2.75, 2.2)], 0.055, 2, seg=6)
+            _bm_tube(bm, [(x, sgn * 2.75, 2.22), (x, sgn * 2.2, 2.42)], 0.045, 2, seg=6)   # knee up to the deck edge
+        for k in range(31):
+            x = L * 0.22 + (L * 0.6) * k / 30
+            _bm_cyl(bm, (x, sgn * 2.72, 2.08), 0.022, 0.018, 0.2, 2, seg=6)
+        # oar ports: leather askomata on the lowest bank, dark ports on the middle bank
+        for bank, count, ly, lz, ln in _TRI_BANKS[1:]:
+            for k in range(count):
+                x = L * 0.22 + (L * 0.6) * k / (count - 1)
+                p, _ = _tri_hull_pt(x / L, lz, sgn)
+                rot = Matrix.Rotation(math.radians(90), 3, 'X')
+                if bank == 'thalamite':
+                    _bm_cyl(bm, p + Vector((0, sgn * 0.02, 0)), 0.13, 0.08, 0.06, 7, rot=rot, seg=10)
+                else:
+                    _bm_cyl(bm, p + Vector((0, sgn * 0.01, 0)), 0.085, 0.085, 0.02, 0, rot=rot, seg=10)
+        # painted eye on the bow
+        p, _ = _tri_hull_pt(0.95, 1.25, sgn)
+        rot = Matrix.Rotation(math.radians(90), 3, 'X') @ Matrix.Rotation(0, 3, 'Z')
+        _bm_cyl(bm, p + Vector((0, sgn * 0.03, 0)), 0.32, 0.32, 0.02, 4, rot=Matrix.Rotation(math.radians(-sgn * 20), 3, 'Z') @ rot, seg=24)
+        _bm_cyl(bm, p + Vector((0.08, sgn * 0.05, 0)), 0.15, 0.15, 0.02, 0, rot=Matrix.Rotation(math.radians(-sgn * 20), 3, 'Z') @ rot, seg=16)
+        # catheads (epotides): heavy beams sticking out either side of the bow
+        _bm_box(bm, (L * 0.9, sgn * 1.55, 2.35), (0.3, 1.5, 0.28), 2)
+        _bm_box(bm, (L * 0.9, sgn * 2.33, 2.35), (0.34, 0.08, 0.32), 3)          # bronze cap
+        # deck stanchions + a light rail
+        for k in range(13):
+            x = L * 0.16 + (L * 0.7) * k / 12
+            _bm_box(bm, (x, sgn * 1.68, 2.72), (0.08, 0.08, 0.62), 2)
+        _bm_tube(bm, [(L * 0.16, sgn * 1.68, 3.03), (L * 0.86, sgn * 1.68, 3.03)], 0.04, 2, seg=6)
+        # steering oars with tillers at the stern quarters
+        _bm_tube(bm, [(L * 0.1 + 0.6, sgn * 1.7, 3.1), (L * 0.1, sgn * 2.1, 2.6), (L * 0.1 - 1.9, sgn * 2.4, -0.4)], 0.075, 6, seg=8)
+        _bm_box(bm, (L * 0.1 - 2.06, sgn * 2.42, -0.66), (0.62, 0.06, 1.15), 6, rot=Matrix.Rotation(math.radians(-33), 3, 'Y'))
+    # deck (planked), helmsman's bench, mast step
+    _bm_box(bm, (L * 0.5, 0, 2.4), (L * 0.72, 3.4, 0.07), 2)
+    _bm_box(bm, (L * 0.12, 0, 2.62), (0.5, 1.6, 0.12), 2)
+    # bronze 3-fin ram (Athenian) or pointed ram (Phoenician) + small upper ram (proembolion)
+    if phoenician:
+        _bm_cyl(bm, (L + 1.0, 0, 0.08), 0.36, 0.02, 2.4, 3, rot=Matrix.Rotation(math.radians(90), 3, 'Y'), seg=16)
+    else:
+        _bm_cyl(bm, (L + 0.9, 0, 0.05), 0.42, 0.06, 2.4, 3, rot=Matrix.Rotation(math.radians(90), 3, 'Y'), seg=4)
+        for dz in (-0.18, 0.0, 0.18):
+            _bm_box(bm, (L + 1.4, 0, 0.05 + dz), (1.0, 0.5, 0.04), 3)
+    _bm_cyl(bm, (L + 0.35, 0, 1.45), 0.14, 0.03, 0.8, 3, rot=Matrix.Rotation(math.radians(90), 3, 'Y'), seg=8)
+    # stern: the aphlaston curling up and forward, tapering (fan of three tips like the vase paintings)
+    for dy in (-0.18, 0.0, 0.18):
+        pts = [(0.7, dy * 0.3, 2.9), (-0.6, dy * 0.6, 3.6), (-1.0, dy, 4.5), (-0.5, dy * 1.4, 5.4), (0.4, dy * 1.6, 5.7)]
+        smooth = []
+        for i in range(len(pts) - 1):                      # smooth the path a little (Catmull-like midpoints)
+            a_, b_ = Vector(pts[i]), Vector(pts[i + 1])
+            smooth += [a_, a_.lerp(b_, 0.5)]
+        smooth.append(Vector(pts[-1]))
+        _bm_tube(bm, smooth, [0.2 - 0.17 * i / (len(smooth) - 1) for i in range(len(smooth))], 0, seg=10)
+    # stem post at the bow
+    _bm_tube(bm, [(L - 0.2, 0, 2.3), (L + 0.1, 0, 2.7), (L + 0.05, 0, 3.0)], [0.14, 0.1, 0.06], 0, seg=8)
+    # mast + yard (+ furled sail bundled on the yard) + rigging in thick laid rope
+    mx = L * 0.55
+    _bm_cyl(bm, (mx, 0, 6.7), 0.16, 0.11, 8.6, 6, seg=14)
+    _bm_cyl(bm, (mx + 0.25, 0, 10.55), 0.13, 0.13, 10.2, 6, rot=Matrix.Rotation(math.radians(90), 3, 'X'), seg=12)
+    if furled:
+        _bm_cyl(bm, (mx + 0.25, 0, 10.32), 0.28, 0.28, 9.4, 8, rot=Matrix.Rotation(math.radians(90), 3, 'X'), seg=14)
+    top = Vector((mx, 0, 11.0))
+    rig = [[top, (L - 0.3, 0, 2.7)], [top, (L * 0.08, 0, 3.4)]]                  # forestay, backstay
+    for sgn in (-1, 1):
+        arm = Vector((mx + 0.25, sgn * 5.0, 10.55))
+        rig += [[top, arm], [arm, (L * 0.18, sgn * 1.7, 3.0)], [top + Vector((0, 0, -0.4)), (mx - 0.8, sgn * 1.6, 2.5)]]
+    for a_, b_ in rig:                                   # each rope sags a little between its ends
+        a_, b_ = Vector(a_), Vector(b_)
+        mid = a_.lerp(b_, 0.5) + Vector((0, 0, -0.02 * (b_ - a_).length))
+        _bm_tube(bm, [a_, a_.lerp(mid, 0.5), mid, mid.lerp(b_, 0.5), b_], 0.022, 5, seg=6, caps=False)
+    if phoenician:                                       # high deck, bulwark and a rail of round shields
+        x0, x1 = L * 0.16, L * 0.86
+        _bm_box(bm, ((x0 + x1) / 2, 0, 2.95), (x1 - x0, 3.5, 0.08), 2)
+        for sgn in (-1, 1):
+            _bm_box(bm, ((x0 + x1) / 2, sgn * 1.76, 2.7), (x1 - x0, 0.06, 0.6), 0)
+            _bm_box(bm, ((x0 + x1) / 2, sgn * 1.76, 3.42), (x1 - x0, 0.1, 0.06), 2)
+            n = int((x1 - x0) / 0.95)
+            for k in range(n):
+                _bm_cyl(bm, (x0 + 0.5 + k * 0.95, sgn * 1.83, 3.12), 0.42, 0.42, 0.05, 9 + (k + (sgn > 0)) % 3,
+                        rot=Matrix.Rotation(math.radians(90), 3, 'X'), seg=20)
+        _bm_cyl(bm, (L - 0.45, 0, 2.72), 0.13, 0.09, 0.4, 3, seg=10)                 # pataikos
+        _bm_cyl(bm, (L - 0.45, 0, 3.0), 0.1, 0.1, 0.2, 3, seg=10)
+    fm = bpy.data.meshes.new(key + '_fittings'); bm.to_mesh(fm); bm.free()
+    for m in mats:
+        fm.materials.append(m)
+    fit = bpy.data.objects.new(key + '_fittings', fm); col.objects.link(fit)
+    bv = fit.modifiers.new('bevel', 'BEVEL'); bv.width = 0.015; bv.segments = 1; bv.limit_method = 'ANGLE'
+    return col
+
+
+def trireme_sail_mesh(name='tri3_sail', W=9.6, Ht=6.8, belly=1.0, folds=14):
+    """The set square sail as real cloth shape: bellied by a following wind, the foot sagging between the sheets,
+    and soft vertical FOLDS between the brail lines (the ropes that gather a Greek sail up like a blind)."""
+    me = bpy.data.meshes.get(name)
+    if me:
+        return me
+    nu, nv = 48, 30
+    verts, faces = [], []
+    for i in range(nu + 1):
+        for j in range(nv + 1):
+            u, v = i / nu, j / nv
+            y = (u - 0.5) * W
+            z = -v * Ht + 0.35 * math.sin(math.pi * u) * v ** 3            # the foot sags in the middle
+            x = belly * math.sin(math.pi * u) * math.sin(math.pi * (0.12 + 0.88 * v)) ** 0.8
+            x += 0.05 * math.sin(u * math.pi * 2 * folds) * (0.3 + 0.7 * v)  # folds between the brails, deeper below
+            verts.append((x, y, z))
+    for i in range(nu):
+        for j in range(nv):
+            a = i * (nv + 1) + j
+            faces.append((a, a + 1, a + nv + 2, a + nv + 1))
+    me = bpy.data.meshes.new(name); me.from_pydata(verts, [], faces); me.update()
+    for p_ in me.polygons:
+        p_.use_smooth = True
+    uv = me.uv_layers.new(name='UVMap')
+    for p_ in me.polygons:
+        for li, vi in zip(p_.loop_indices, p_.vertices):
+            i, j = divmod(vi, nv + 1)
+            uv.data[li].uv = (i / nu, 1 - j / nv)
+    return me
+
+
+def _sail_material(name='tri3_sail_linen'):
+    """Undyed linen sail with sewn horizontal strips and vertical brail lines (vase paintings show this grid)."""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = wool(name, (0.70, 0.63, 0.50), tile=1.0)
+    nt = m.node_tree; L = nt.links.new
+    tint = nt.nodes['tint']
+    uvn = nt.nodes.new('ShaderNodeUVMap'); sep = nt.nodes.new('ShaderNodeSeparateXYZ'); L(uvn.outputs['UV'], sep.inputs['Vector'])
+    out = None
+    for axis, count, width in ((0, 13, 0.06), (1, 8, 0.05)):            # 13 brail lines, 8 seams
+        mul = nt.nodes.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; mul.inputs[1].default_value = count
+        L(sep.outputs[axis], mul.inputs[0])
+        fr = nt.nodes.new('ShaderNodeMath'); fr.operation = 'FRACT'; L(mul.outputs[0], fr.inputs[0])
+        lt = nt.nodes.new('ShaderNodeMath'); lt.operation = 'LESS_THAN'; lt.inputs[1].default_value = width
+        L(fr.outputs[0], lt.inputs[0])
+        if out is None:
+            out = lt
+        else:
+            mx = nt.nodes.new('ShaderNodeMath'); mx.operation = 'MAXIMUM'; L(out.outputs[0], mx.inputs[0]); L(lt.outputs[0], mx.inputs[1]); out = mx
+    mix = nt.nodes.new('ShaderNodeMix'); mix.data_type = 'RGBA'
+    mix.inputs['A'].default_value = (0.70, 0.63, 0.50, 1); mix.inputs['B'].default_value = (0.36, 0.28, 0.18, 1)
+    L(out.outputs[0], mix.inputs['Factor']); L(mix.outputs['Result'], tint.inputs['B'])
+    b = nt.nodes['Principled BSDF']
+    if 'Subsurface Weight' in b.inputs:                # thin linen lets a little sun through (backlit sails glow)
+        b.inputs['Subsurface Weight'].default_value = 0.15
+    return m
+
+
+def _ship_foam(root, name, speed_mps, L=_TRI_L):
+    """Bow wave (foam strips peeling off the bow along the hull) + the wake (a widening, fading foam path behind
+    the stern, longer at higher speed). Flat meshes lying on the water (z ~ 0.03), moving with the ship."""
+    foam = foam_material('ship_foam', density=0.5, scale=3.0)
+    k = min(1.5, speed_mps / 4.0)
+    for sgn in (-1, 1):                              # bow wave: hugs the hull from the bow back ~40 %
+        verts, faces = [], []
+        n = 20
+        for i in range(n + 1):
+            t = 1.0 - 0.4 * i / n
+            p, _ = _tri_hull_pt(t, 0.0, sgn)
+            w = (0.15 + 1.4 * (i / n)) * k
+            verts += [(p.x, p.y + sgn * 0.02, 0.03), (p.x - 0.3 * i / n, p.y + sgn * (0.02 + w), 0.03)]
+        for i in range(n):
+            a = 2 * i
+            faces.append((a, a + 2, a + 3, a + 1) if sgn > 0 else (a, a + 1, a + 3, a + 2))
+        o = mesh_obj(f'{name}_bowwave', verts, faces, foam); o.parent = root
+    verts, faces = [], []                            # wake: from the stern (x = 0) backward, widening
+    n = 30; ln = 40.0 * k
+    for i in range(n + 1):
+        t = i / n
+        w = 1.6 + 7.0 * t * k
+        verts += [(t * ln, -w, 0.025), (t * ln, w, 0.025)]   # built along +X so Generated X = 0 at the stern
+    for i in range(n):
+        a = 2 * i
+        faces.append((a, a + 1, a + 3, a + 2))
+    me = bpy.data.meshes.new(f'{name}_wake'); me.from_pydata(verts, [], faces); me.update()
+    me.materials.append(foam_material('wake_foam', density=0.4, scale=1.5, fade=True))
+    o = bpy.data.objects.new(f'{name}_wake', me); link(o); o.parent = root
+    o.rotation_euler.z = math.pi                     # ...then turned to trail behind the stern (-X)
+
+
+def trireme_v3(loc=(0, 0, 0), heading_deg=0.0, oars='row', stroke_frames=34, frame_start=1, frame_end=240,
+               sail=None, crew='markers', marines=14, speed_mps=0.0, bob=True, phoenician=False, seed=0,
+               wind=True, name='trireme3'):
+    """TRIREME v3 - same options as trireme_v2 (oars 'row' | 'rest' | None, sail 'set' | None, crew 'markers' |
+    'proxies' | None, speed_mps, bob, phoenician) but with the DETAILED hull and fittings, and FAST: the static ship is
+    an instance of a cached kit, so the 2nd..100th ship costs seconds. wind=True ripples the set sail (Wave modifier)."""
+    rnd = _random.Random(seed)
+    kit = _trireme_kit(phoenician, furled=(sail != 'set'))
+    root = bpy.data.objects.new(name, None); link(root)
+    root['ws7_prop'] = 'trireme_v3'
+    inst = bpy.data.objects.new(name + '_ship', None); link(inst)
+    inst.instance_type = 'COLLECTION'; inst.instance_collection = kit; inst.parent = root
+    oarm = old_wood('tri3_oarwood', (0.40, 0.29, 0.17))
+    _ship_oars(root, name, oars, oarm, rnd, stroke_frames, frame_start, _TRI_L, splash=(oars == 'row'),
+               rowers=(oars == 'row' and crew == 'proxies'))
+    if speed_mps > 0.5:                              # under way: bow wave + a wake trailing behind, fading out
+        _ship_foam(root, name, speed_mps)
+    if sail == 'set':
+        s = bpy.data.objects.new(name + '_sail', trireme_sail_mesh()); link(s)
+        if not s.data.materials:
+            s.data.materials.append(_sail_material())
+        s.parent = root; s.location = (_TRI_L * 0.55 + 0.35, 0, 10.4)
+        if wind:                                      # the cloth breathes: slow ripples running across the sail
+            w = s.modifiers.new('wind', 'WAVE'); w.use_normal = True; w.use_x = w.use_y = False
+            w.height = 0.06; w.width = 2.2; w.narrowness = 1.0; w.speed = 0.04; w.time_offset = rnd.uniform(0, 40)
+        s.modifiers.new('thick', 'SOLIDIFY').thickness = 0.008
+    _ship_crew(root, name, crew, rnd, _TRI_L, 2.99 if phoenician else 2.42, phoenician, marines)
+    _ship_motion(root, loc, heading_deg, speed_mps, bob, frame_start, frame_end)
+    return root
+
+
+def fleet(centre, count=12, spread=(220.0, 120.0), heading_deg=0.0, phoenician_share=0.0, oars='rest', sail=None,
+          speed_mps=0.0, seed=0, far=150.0, camera=None, name='fleet'):
+    """A FLEET of v3 triremes in loose lines (ancient fleets sailed in column and deployed in line abreast,
+    Herodotus 8.83-86). Ships farther than `far` metres from `camera` get NO separate oars or crew (the kit only:
+    one object each), so 100+ ships stay light. phoenician_share = fraction of Phoenician ships (Xerxes' fleet)."""
+    rnd = _random.Random(seed)
+    out = []
+    rows = max(1, int(math.sqrt(count * spread[1] / max(spread[0], 1))))
+    per = math.ceil(count / rows)
+    h = math.radians(heading_deg)
+    fwd, side = Vector((math.cos(h), math.sin(h), 0)), Vector((-math.sin(h), math.cos(h), 0))
+    for i in range(count):
+        r, c = divmod(i, per)
+        off = side * ((c - (per - 1) / 2) * spread[0] / max(per, 1) + rnd.uniform(-6, 6)) \
+            + fwd * (-(r * spread[1] / max(rows, 1)) + rnd.uniform(-10, 10))
+        p = Vector(centre) + off
+        near = camera is None or (Vector(camera) - p).length < far
+        ph = rnd.random() < phoenician_share
+        out.append(trireme_v3(tuple(p), heading_deg + rnd.uniform(-6, 6), oars=oars if near else None,
+                              sail=sail, crew='proxies' if near else None, speed_mps=speed_mps, phoenician=ph,
+                              seed=seed * 100 + i, frame_start=1 + rnd.randint(0, 8), name=f'{name}_{i:03d}'))
+    return out
+
+
+# ------------------------------------------------------------------ STORY PROPS (the 5 Salamis Shorts)
+def sea_bronze(name='sea_bronze'):
+    """Bronze after 2,000 years under the sea: dark brown metal under mottled green-blue corrosion, a few rubbed
+    golden highlights on the edges (how the Athlit ram looks in the Haifa museum)."""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = principled(name, (0.25, 0.16, 0.08), metal=0.85, rough=0.45)
+    nt = m.node_tree; b = nt.nodes['Principled BSDF']; L = nt.links.new
+    n = nt.nodes.new('ShaderNodeTexNoise'); n.inputs['Scale'].default_value = 7.0; n.inputs['Detail'].default_value = 10
+    n.inputs['Roughness'].default_value = 0.65
+    mk = nt.nodes.new('ShaderNodeMapRange'); mk.inputs['From Min'].default_value = 0.45; mk.inputs['From Max'].default_value = 0.6
+    L(n.outputs['Fac'], mk.inputs['Value'])
+    col = nt.nodes.new('ShaderNodeMix'); col.data_type = 'RGBA'
+    col.inputs['A'].default_value = (0.22, 0.13, 0.06, 1); col.inputs['B'].default_value = (0.12, 0.26, 0.22, 1)  # bronze / verdigris
+    L(mk.outputs['Result'], col.inputs['Factor']); L(_age(m, col.outputs['Result'], 0.35, 0.5, 0.05), b.inputs['Base Color'])
+    inv = nt.nodes.new('ShaderNodeMath'); inv.operation = 'SUBTRACT'; inv.inputs[0].default_value = 0.85
+    L(mk.outputs['Result'], inv.inputs[1]); L(inv.outputs[0], b.inputs['Metallic'])                         # corrosion is not metal
+    rr = nt.nodes.new('ShaderNodeMapRange'); rr.inputs['To Min'].default_value = 0.35; rr.inputs['To Max'].default_value = 0.85
+    L(mk.outputs['Result'], rr.inputs['Value']); L(rr.outputs['Result'], b.inputs['Roughness'])
+    bp = nt.nodes.new('ShaderNodeBump'); bp.inputs['Strength'].default_value = 0.4
+    L(n.outputs['Fac'], bp.inputs['Height']); L(bp.outputs['Normal'], b.inputs['Normal'])
+    return m
+
+
+def ram_athlit(loc=(0, 0, 0), heading_deg=0.0, plinth=True, corroded=True, name='athlit_ram'):
+    """The ATHLIT RAM (found off Athlit, Israel, 1980; Hellenistic, c. 200 BC; Haifa Maritime Museum): ONE casting of
+    bronze, 465 kg, 2.26 m long, 0.95 m high, 0.76 m wide. A hollow sheath fitted over the bow timbers: a trough-like
+    body that narrows forward, a raised cowl on top, flaring side wings, and at the front the 'driving centre' with
+    THREE horizontal fins and a vertical plate that split enemy planks. (Its relief emblems - helmets, eagle,
+    thunderbolt - are left out on purpose: the Short shows its shape and size.) Tip points to +X.
+    corroded=True: as it came out of the sea; False: freshly cast golden bronze (how Salamis rams looked)."""
+    import bmesh
+    root = _root(name)
+    mat = sea_bronze() if corroded else (bpy.data.materials.get('bronze') or aged_bronze('bronze'))
+    bm = bmesh.new()
+    Lr = 2.26
+    secs = 24
+    ring_n = 14
+    rings = []
+    for i in range(secs + 1):
+        t = i / secs                                     # 0 = rear opening .. 1 = front of the body
+        x = -Lr + 0.55 + t * (Lr - 0.55)                 # body from x = -1.71 (rear) to 0 (base of the fins)
+        w = 0.38 * (1 - 0.72 * t ** 1.4)                 # half-width narrows toward the front
+        h = 0.95 * (1 - 0.65 * t ** 1.2)                 # height drops toward the front
+        cowl = 0.12 * (1 - t) ** 0.7                     # raised ridge on top
+        pts = []
+        for k in range(ring_n):                          # section: flat keel trough at the bottom, flared sides, peaked top
+            a = 2 * math.pi * k / ring_n
+            yy, zz = math.sin(a), -math.cos(a)           # start at the bottom
+            r_side = w * (1.0 + 0.25 * max(0.0, zz) * (1 - t))       # wings flare out higher up at the back
+            z = (zz * 0.5 + 0.5) * h + cowl * max(0.0, zz) ** 6
+            pts.append(bm.verts.new((x, yy * r_side * (0.85 if zz < -0.5 else 1.0), z - h * 0.3)))
+        rings.append(pts)
+    for r0, r1 in zip(rings, rings[1:]):
+        for k in range(ring_n):
+            f = bm.faces.new((r0[k], r0[(k + 1) % ring_n], r1[(k + 1) % ring_n], r1[k])); f.smooth = True
+    bm.faces.new(rings[-1][::-1])                        # the front face (the fins grow out of it)
+    # the driving centre: three horizontal fins + a vertical plate, ~0.55 m forward of the body
+    zc = rings[-1][0].co.z + 0.95 * 0.35 * 0.5
+    for dz in (-0.17, 0.0, 0.17):
+        _bm_box(bm, (0.27, 0, zc + dz), (0.58, 0.42 - abs(dz) * 0.6, 0.045), 0)
+    _bm_box(bm, (0.24, 0, zc), (0.52, 0.05, 0.42), 0)
+    for sgn in (-1, 1):                                  # the long side wings (fluted flanges) sweeping back
+        _bm_tube(bm, [(0.05, sgn * 0.12, zc + 0.08), (-0.6, sgn * 0.3, zc + 0.18), (-1.6, sgn * 0.42, zc + 0.32)],
+                 [0.03, 0.04, 0.05], 0, seg=8)
+    me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
+    me.materials.append(mat)
+    o = bpy.data.objects.new(name + '_bronze', me); link(o); o.parent = root
+    o.modifiers.new('thick', 'SOLIDIFY').thickness = 0.03          # a 3 cm thick hollow casting
+    o.modifiers.new('smooth', 'SUBSURF').levels = 2
+    zmin = min(v.co.z for v in me.vertices)
+    o.location.z = -zmin + (0.45 if plinth else 0.0)
+    if plinth:                                           # museum display plinth (dark stone)
+        _box(f'{name}_plinth', (-0.75, 0, 0.22), (2.0, 0.95, 0.44), principled(f'{name}_stone', (0.05, 0.05, 0.055), rough=0.7),
+             bevel=0.02, parent=root)
+    return _place(root, loc, heading_deg)
+
+
+def wreck_debris(centre=(0, 0, 0), radius=12.0, count=40, frames=(1, 240), seed=0, name='debris'):
+    """After a ramming: smashed planks, snapped oars, floating shields, a broken spar, rope and an amphora, spread on
+    the water and bobbing on the swell (keyframed, looping). z = 0 is the sea surface."""
+    rnd = _random.Random(seed)
+    root = _root(name); root.location = centre
+    wood = old_wood('debris_wood', (0.22, 0.15, 0.09))
+    pitch = scan_surface('tri3_pitch', 'brown_planks_04', (0.016, 0.014, 0.012), tile=1.5, rough=(0.3, 0.65), normal=0.9, keep_hue=True)
+    oarw = old_wood('tri3_oarwood', (0.40, 0.29, 0.17))
+    smats = [bpy.data.materials.get('bronze') or aged_bronze('bronze'), principled('debris_shield_red', (0.3, 0.06, 0.04), rough=0.7)]
+    for i in range(count):
+        a = rnd.uniform(0, 2 * math.pi); r = radius * math.sqrt(rnd.random())
+        p = (r * math.cos(a), r * math.sin(a), 0.0)
+        kind = rnd.random()
+        if kind < 0.45:                                  # hull planks, black outside, raw wood where they broke
+            o = _box(f'{name}_plank', p, (rnd.uniform(0.8, 3.0), rnd.uniform(0.15, 0.3), 0.05), rnd.choice((pitch, wood)), parent=root)
+        elif kind < 0.75:                                # snapped oar
+            ln = rnd.uniform(1.0, 3.5)
+            o = _cyl(f'{name}_oar', p, 0.04, ln, oarw, rot=(0, math.radians(90), 0), verts=8, parent=root)
+        elif kind < 0.88:                                # a hoplite shield floating face-down
+            o = _cyl(f'{name}_shield', p, 0.45, 0.06, rnd.choice(smats), verts=24, parent=root)
+        elif kind < 0.95:
+            o = _cyl(f'{name}_spar', p, 0.1, rnd.uniform(3, 6), wood, rot=(0, math.radians(90), 0), verts=10, parent=root)
+        else:
+            o = _tube(f'{name}_rope', [(p[0] + 0.4 * math.cos(k), p[1] + 0.4 * math.sin(k * 1.3), 0.02) for k in range(8)],
+                      0.015, rope_fibre(), root)
+        o.rotation_euler.z = rnd.uniform(0, 6.28)
+        if o.type == 'MESH':                             # bob and roll a little on the swell, each with its own rhythm
+            per = rnd.uniform(60, 110); ph = rnd.uniform(0, per)
+            for k in range(5):
+                f = frames[0] + ph + k * per / 4
+                o.location.z = 0.03 * math.sin(k * math.pi / 2)
+                o.rotation_euler.x = 0.06 * math.cos(k * math.pi / 2)
+                o.keyframe_insert('location', index=2, frame=f); o.keyframe_insert('rotation_euler', index=0, frame=f)
+            _loop(o)
+    return root
+
+
+def tripod_cauldron(loc=(0, 0, 0), heading_deg=0.0, height=1.6, seat=False, name='tripod'):
+    """Bronze TRIPOD-CAULDRON (lebes on three tall legs with two ring handles on the rim): the great offering of the
+    Greek sanctuaries (Delphi, Olympia), and the seat of the Pythia when seat=True (a lid she sits on, as on the
+    Kodros Painter cup, c. 440 BC)."""
+    root = _root(name)
+    br = bpy.data.materials.get('bronze') or aged_bronze('bronze')
+    rim = height * 0.72
+    for k in range(3):
+        a = 2 * math.pi * k / 3
+        _tube(f'{name}_leg', [(0.33 * math.cos(a), 0.33 * math.sin(a), rim - 0.05), (0.36 * math.cos(a), 0.36 * math.sin(a), rim * 0.5),
+                              (0.42 * math.cos(a), 0.42 * math.sin(a), 0.04)], 0.028, br, root, taper_end=1.5)
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=12, ring_count=8, radius=0.05, location=(0.42 * math.cos(a), 0.42 * math.sin(a), 0.04))
+        ft = bpy.context.object; ft.name = f'{name}_foot'; ft.scale = (1, 1, 0.6); ft.data.materials.append(br); ft.parent = root
+    _lathe(f'{name}_lebes', [(rim - 0.32, 0.0), (rim - 0.3, 0.18), (rim - 0.18, 0.33), (rim - 0.05, 0.37), (rim, 0.36)], br,
+           seg=48, parent=root, thick=0.008, smooth=2)
+    for sgn in (-1, 1):                                  # two big ring handles standing on the rim
+        bpy.ops.mesh.primitive_torus_add(major_radius=0.17, minor_radius=0.018, location=(0, sgn * 0.33, rim + 0.17),
+                                         rotation=(0, 0, 0))
+        t = bpy.context.object; t.name = f'{name}_handle'; t.rotation_euler = (0, math.radians(90), 0)
+        t.data.materials.append(br); t.parent = root
+    if seat:
+        _cyl(f'{name}_lid', (0, 0, rim + 0.01), 0.36, 0.03, br, verts=40, parent=root)
+    return _place(root, loc, heading_deg)
+
+
+def omphalos(loc=(0, 0, 0), heading_deg=0.0, height=1.0, name='omphalos'):
+    """The OMPHALOS of Delphi, the 'navel of the world': an egg-shaped stone wrapped in a net of woollen fillets
+    (the agrenon), carved in relief on the marble copy in the Delphi museum."""
+    root = _root(name)
+    m = principled(f'{name}_stone', (0.55, 0.52, 0.47), rough=0.7)
+    nt = m.node_tree; b = nt.nodes['Principled BSDF']; L = nt.links.new
+    tc = nt.nodes.new('ShaderNodeTexCoord')
+    net = None
+    for rot in (0.75, -0.75):                            # two crossing sets of diagonal bands = the knotted net
+        mp = nt.nodes.new('ShaderNodeMapping'); mp.inputs['Rotation'].default_value = (0, rot, 0)
+        L(tc.outputs['Object'], mp.inputs['Vector'])
+        w = nt.nodes.new('ShaderNodeTexWave'); w.inputs['Scale'].default_value = 3.0 / height; w.wave_profile = 'SIN'
+        L(mp.outputs['Vector'], w.inputs['Vector'])
+        if net is None:
+            net = w
+        else:
+            mx = nt.nodes.new('ShaderNodeMath'); mx.operation = 'MAXIMUM'; L(net.outputs['Fac'], mx.inputs[0]); L(w.outputs['Fac'], mx.inputs[1])
+            net = mx
+    sock = net.outputs[0]
+    bp = nt.nodes.new('ShaderNodeBump'); bp.inputs['Strength'].default_value = 0.6; L(sock, bp.inputs['Height']); L(bp.outputs['Normal'], b.inputs['Normal'])
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=48, ring_count=24, radius=0.5)
+    o = bpy.context.object; o.name = f'{name}_stone'
+    for v in o.data.vertices:                            # egg: flat base, fuller below, rounded dome above
+        z = v.co.z
+        if z < -0.3:
+            v.co.z = -0.3
+        v.co.x *= 1 - 0.12 * max(0.0, z) ; v.co.y *= 1 - 0.12 * max(0.0, z)
+    o.data.transform(Matrix.Diagonal((height * 0.85, height * 0.85, height * 1.25, 1.0)))
+    o.location.z = 0.3 * height * 1.25
+    o.data.materials.append(m); o.parent = root
+    for p_ in o.data.polygons:
+        p_.use_smooth = True
+    return _place(root, loc, heading_deg)
+
+
+def suppliant_branch(loc=(0, 0, 0), heading_deg=0.0, length=0.8, leaves=55, seed=0, name='hiketeria'):
+    """Suppliant's OLIVE BRANCH wound with white wool fillets (hiketeria) - what the Athenian envoys carried when they
+    went back to Delphi (Herodotus 7.141). Narrow olive leaves, dark green above, silver below. Hold it at +Z."""
+    import bmesh
+    rnd = _random.Random(seed)
+    root = _root(name)
+    bark = old_wood('olive_bark', (0.18, 0.14, 0.1), grain=3)
+    leaf = principled('olive_leaf', (0.10, 0.13, 0.06), rough=0.55, sss=0.1)
+    leaf_b = principled('olive_leaf_under', (0.42, 0.45, 0.38), rough=0.6)
+    wool_m = wool('fillet_wool', (0.82, 0.79, 0.72), tile=0.05)
+    stem = [(0, 0, 0), (0.02, 0.0, length * 0.35), (-0.03, 0.01, length * 0.7), (0.0, 0.03, length)]
+    _tube(f'{name}_stem', stem, 0.008, bark, root, taper_end=0.3)
+    bm = bmesh.new()
+    for i in range(leaves):
+        t = 0.25 + 0.75 * rnd.random()
+        base = Vector((0.0, 0.0, t * length)) + Vector((rnd.uniform(-0.02, 0.02), rnd.uniform(-0.02, 0.02), 0))
+        a = rnd.uniform(0, 2 * math.pi); up = rnd.uniform(0.3, 0.9)
+        d = Vector((math.cos(a), math.sin(a), up)).normalized()
+        side = d.cross(Vector((0, 0, 1))).normalized() * 0.006
+        ln = rnd.uniform(0.04, 0.07)                       # olive leaves: 4-7 cm long, ~1 cm wide
+        v = [bm.verts.new(base), bm.verts.new(base + d * ln * 0.5 + side), bm.verts.new(base + d * ln),
+             bm.verts.new(base + d * ln * 0.5 - side)]
+        f = bm.faces.new(v); f.material_index = 0 if rnd.random() < 0.6 else 1
+    me = bpy.data.meshes.new(f'{name}_leaves'); bm.to_mesh(me); bm.free()
+    me.materials.append(leaf); me.materials.append(leaf_b)
+    lv = bpy.data.objects.new(f'{name}_leaves', me); link(lv); lv.parent = root
+    lv.modifiers.new('thick', 'SOLIDIFY').thickness = 0.0008
+    for k in range(3):                                   # wool fillets tied round the branch, ends hanging
+        z = length * (0.2 + 0.12 * k)
+        bpy.ops.mesh.primitive_torus_add(major_radius=0.014, minor_radius=0.006, location=(0, 0, z))
+        t = bpy.context.object; t.name = f'{name}_fillet'; t.data.materials.append(wool_m); t.parent = root
+        _tube(f'{name}_fillet_end', [(0.012, 0, z), (0.03, 0.01, z - 0.08), (0.025, 0.02, z - 0.16)], 0.004, wool_m, root)
+    return _place(root, loc, heading_deg)
+
+
+def timber_barricade(loc=(0, 0, 0), heading_deg=0.0, length=12.0, height=2.2, burning=False, frames=(1, 240), seed=0,
+                     name='wooden_wall'):
+    """The Acropolis barricade of 480 BC: 'a wall of planks and timber' (Herodotus 8.51-52) that temple stewards and
+    poor men built at the entrance, believing it was the oracle's wooden wall. Rough posts dug in at an angle,
+    planks and doors nailed across them at different heights, beams propping it from behind, gaps.
+    burning=True: flame tongues along it and a flickering fire light (the Persians shot burning arrows into it)."""
+    rnd = _random.Random(seed)
+    root = _root(name)
+    wood = scan_surface('barricade_wood', 'brown_planks_04', (0.25, 0.18, 0.12), tile=1.6, rough=(0.6, 0.95), normal=1.0,
+                        keep_hue=True, age=(0.25, 0.6))
+    charred = principled('charred_wood', (0.015, 0.012, 0.01), rough=0.95, bump=0.6, bump_scale=40)
+    x = -length / 2
+    while x <= length / 2:                               # posts every ~1.2 m, leaning a little
+        h = height * rnd.uniform(0.9, 1.15)
+        p = _box(f'{name}_post', (x, 0, h / 2 - 0.2), (0.16, 0.16, h), wood, bevel=0.01, parent=root)
+        p.rotation_euler = (rnd.uniform(-0.06, 0.06), rnd.uniform(-0.05, 0.05), rnd.uniform(-0.1, 0.1))
+        _box(f'{name}_prop', (x, 0.7, h * 0.35), (0.12, 0.12, h * 0.9), wood, bevel=0.01, parent=root).rotation_euler.x = math.radians(-38)
+        x += rnd.uniform(1.0, 1.4)
+    z = 0.15
+    while z < height:                                    # planks and old doors across, uneven, some gaps
+        x = -length / 2
+        while x < length / 2:
+            ln = rnd.uniform(1.2, 3.2); hh = rnd.uniform(0.18, 0.32)
+            if rnd.random() > 0.12:
+                pl = _box(f'{name}_plank', (x + ln / 2, -0.11, z + hh / 2), (ln, 0.05, hh * 0.95),
+                          charred if burning and rnd.random() < 0.35 else wood, bevel=0.006, parent=root)
+                pl.rotation_euler.y = rnd.uniform(-0.05, 0.05)
+            x += ln + rnd.uniform(-0.1, 0.05)
+        z += rnd.uniform(0.2, 0.34)
+    if burning:
+        for i in range(int(length / 1.5)):
+            fx_ = -length / 2 + (i + rnd.random()) * 1.5
+            flame_tongues(root, (fx_, -0.2, rnd.uniform(0.2, height * 0.8)), height=rnd.uniform(0.8, 1.8), width=rnd.uniform(0.4, 0.8),
+                          n=5, frames=frames, seed=seed + i, name=f'{name}_fire{i}', strength=55.0)
+        _flicker_light((0, -1.5, height * 0.6), 2500.0, root, f'{name}_firelight', frames, seed, radius=2.5, color=(1.0, 0.6, 0.32))
+    return _place(root, loc, heading_deg)
+
+
+def scribe_kit(loc=(0, 0, 0), heading_deg=0.0, persian=True, name='scribe_kit'):
+    """What the king's secretaries wrote with (Plutarch: Xerxes had secretaries beside him at Salamis; Herodotus 8.90:
+    they wrote down the captains' names). Achaemenid scribes wrote Aramaic in ink on LEATHER scrolls (the Arsames
+    letters) - persian=True: a leather scroll half unrolled with lines of ink, a stone ink pot, reed pens.
+    persian=False: the Greek WAX TABLET (a hinged wooden diptych with black wax, writing scratched with a bronze
+    stylus) - the kind Demaratus used to send his hidden warning (Herodotus 7.239)."""
+    root = _root(name)
+    ink = principled('scribe_ink', (0.01, 0.01, 0.012), rough=0.3)
+    if persian:
+        hide = principled('scroll_leather', (0.55, 0.42, 0.28), rough=0.8, bump=0.2, bump_scale=200)
+        nt = hide.node_tree; b = nt.nodes['Principled BSDF']; L = nt.links.new
+        tc = nt.nodes.new('ShaderNodeTexCoord')
+        w = nt.nodes.new('ShaderNodeTexWave'); w.wave_type = 'BANDS'; w.bands_direction = 'Y'; w.inputs['Scale'].default_value = 60.0
+        w.inputs['Distortion'].default_value = 2.0
+        L(tc.outputs['Object'], w.inputs['Vector'])
+        nz = nt.nodes.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 900.0; L(tc.outputs['Object'], nz.inputs['Vector'])
+        mul = nt.nodes.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; L(w.outputs['Fac'], mul.inputs[0]); L(nz.outputs['Fac'], mul.inputs[1])
+        th = nt.nodes.new('ShaderNodeMath'); th.operation = 'GREATER_THAN'; th.inputs[1].default_value = 0.42; L(mul.outputs[0], th.inputs[0])
+        mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'
+        mx.inputs['A'].default_value = (0.55, 0.42, 0.28, 1); mx.inputs['B'].default_value = (0.04, 0.03, 0.03, 1)  # lines of ink
+        L(th.outputs[0], mx.inputs['Factor']); L(mx.outputs['Result'], b.inputs['Base Color'])
+        _box(f'{name}_sheet', (0.18, 0, 0.002), (0.36, 0.24, 0.002), hide, bevel=0.0, parent=root)        # the unrolled part
+        _cyl(f'{name}_roll', (-0.02, 0, 0.025), 0.025, 0.25, hide, rot=(math.radians(90), 0, 0), verts=20, parent=root)
+        pot = _lathe(f'{name}_inkpot', [(0, 0), (0.0, 0.03), (0.04, 0.035), (0.05, 0.02), (0.052, 0.015)],
+                     principled('inkpot_stone', (0.25, 0.24, 0.22), rough=0.6), seg=24, parent=root, smooth=1)
+        pot.location = (0.42, 0.12, 0.0)                     # stone ink pot beside the scroll
+        _cyl(f'{name}_ink', (0.42, 0.12, 0.048), 0.012, 0.002, ink, verts=16, parent=root)   # the ink surface inside
+        reed = principled('reed_pen', (0.55, 0.47, 0.30), rough=0.6)
+        for k in range(2):
+            _cyl(f'{name}_pen', (0.32 + k * 0.03, -0.15, 0.006), 0.004, 0.22, reed, rot=(0, math.radians(90), math.radians(10 + 15 * k)), verts=8, parent=root)
+    else:
+        w = old_wood('tablet_wood', (0.32, 0.22, 0.12), grain=4)
+        wax = principled('tablet_wax', (0.02, 0.018, 0.015), rough=0.35, bump=0.3, bump_scale=120)
+        for k, (x, rz) in enumerate(((-0.075, 0.0), (0.075, 0.0))):         # two leaves, open like a book
+            _box(f'{name}_leaf{k}', (x, 0, 0.006), (0.14, 0.19, 0.012), w, bevel=0.002, parent=root)
+            _box(f'{name}_wax{k}', (x, 0, 0.0125), (0.11, 0.16, 0.002), wax, bevel=0.0, parent=root)
+        for k in range(2):                                                   # cord hinges
+            bpy.ops.mesh.primitive_torus_add(major_radius=0.008, minor_radius=0.002, location=(0, (k - 0.5) * 0.1, 0.01))
+            t = bpy.context.object; t.name = f'{name}_hinge'; t.rotation_euler.x = math.radians(90)
+            t.data.materials.append(rope_fibre()); t.parent = root
+        _cyl(f'{name}_stylus', (0.05, -0.13, 0.004), 0.003, 0.13, bpy.data.materials.get('bronze') or aged_bronze('bronze'),
+             rot=(0, math.radians(90), 0.3), verts=8, parent=root)
+    return _place(root, loc, heading_deg)
+
+
+def royal_parasol(loc=(0, 0, 0), heading_deg=0.0, height=2.6, tilt_deg=12.0, name='royal_parasol'):
+    """The ROYAL PARASOL held over the Great King by an attendant (Persepolis reliefs, Palace of Darius doorways):
+    a tall staff, a shallow dome of ribs covered in cloth with a deep fringe, a finial. Tilted as if carried."""
+    root = _root(name)
+    g = bpy.data.materials.get('royal_gold') or gold()
+    cloth = wool(f'{name}_cloth', (0.32, 0.06, 0.12), tile=0.3)
+    _cyl(f'{name}_staff', (0, 0, height / 2), 0.022, height, g, verts=12, parent=root)
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=32, ring_count=12, radius=0.75, location=(0, 0, height))
+    d = bpy.context.object; d.name = f'{name}_dome'
+    for v in d.data.vertices:
+        if v.co.z < 0:
+            v.co.z = 0
+    d.scale = (1, 1, 0.35); d.data.materials.append(cloth); d.parent = root
+    for k in range(16):                                  # fringe tassels round the edge
+        a = 2 * math.pi * k / 16
+        _cyl(f'{name}_tassel', (0.74 * math.cos(a), 0.74 * math.sin(a), height - 0.09), 0.02, 0.18, g, verts=6, parent=root)
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=12, ring_count=8, radius=0.05, location=(0, 0, height + 0.3))
+    f = bpy.context.object; f.name = f'{name}_finial'; f.data.materials.append(g); f.parent = root
+    root.rotation_euler.x = math.radians(tilt_deg)
+    return _place(root, loc, heading_deg)
 
 
 # ------------------------------------------------------------------ HORSE TACK (480 BC: cloth + bridle, NO saddle, NO stirrups)

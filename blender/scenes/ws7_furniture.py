@@ -20,6 +20,12 @@ W.room(w=8.0, d=6.0, floor='damaged_plaster', wall='clay_plaster', wall_tint=(0.
 W.dark_world(0.015)
 lit = VARIANT != 'day'
 
+if VARIANT == 'kit':                      # the whole room from one call (dressing kit)
+    props.dress_symposion((0, 0.4, 0), couches=3, lit=True, seed=1)
+    common.area_light('moon', 200.0, (0.55, 0.65, 1.0), (3.8, -1.5, 2.6), (0.0, 2.0, 0.5), size=1.5)
+    common.camera('cam', Vector((0.3, -2.6, 1.7)), Vector((0.0, 1.2, 0.6)), lens=24)
+    W.finish(OUT, SAMPLES, exposure=0.0)
+    raise SystemExit
 props.kline((0.2, 2.35, 0), heading_deg=0)
 props.trapeza((0.1, 1.55, 0), heading_deg=0)
 props.footstool((-0.9, 1.75, 0), heading_deg=0)
@@ -29,7 +35,7 @@ props.basket((-2.6, 1.05, 0), kind='kalathos', fill=(0.85, 0.82, 0.74), name='wo
 props.basket((2.1, 1.0, 0), kind='carry', name='market_basket')
 props.oil_lamp((0.25, 1.5, 0.5), heading_deg=-60, lit=lit, seed=2, name='table_lamp')
 props.lamp_stand((-1.25, 2.6, 0), lit=lit, seed=3)
-props.brazier((1.7, 1.9, 0), kind='bronze', lit=lit, power=140.0, seed=4)
+props.brazier((1.7, 1.9, 0), kind='bronze', lit=lit, power=100.0, seed=4)
 props.brazier((2.9, 1.3, 0), kind='clay', lit=lit, power=90.0, flames=False, seed=5, name='clay_brazier')
 props.rope_coil((3.0, 0.2, 0), radius=0.3, turns=5, layers=2)
 props.stone_anchor((2.4, 0.15, 0), heading_deg=30)
@@ -37,7 +43,7 @@ scans_glb.load_glb('kylix_cleveland', loc=(-0.05, 1.6, 0.5), rot_z_deg=20)      
 scans_glb.load_glb('amphora_neck_cleveland', loc=(-2.8, 2.65, 0.0), rot_z_deg=160)
 
 if lit:
-    common.area_light('moon', 260.0, (0.55, 0.65, 1.0), (3.8, -1.5, 2.6), (0.0, 2.0, 0.5), size=1.5)   # cool door light
+    common.area_light('moon', 200.0, (0.55, 0.65, 1.0), (3.8, -1.5, 2.6), (0.0, 2.0, 0.5), size=1.5)   # cool door light
 else:
     W.window_light((0.0, 2.0, 0.5), energy=900.0, loc=(3.6, -1.8, 2.6), size=1.8)
 

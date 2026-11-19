@@ -1,0 +1,9 @@
+{
+  "name": "ws7_furniture",
+  "active": true,
+  "script": "blender/scenes/ws7_furniture.py",
+  "args": [
+    "out/ws7_furniture.png",
+    "24"
+  ]
+}

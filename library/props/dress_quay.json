@@ -1,0 +1,13 @@
+{
+  "name": "dress_quay",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.dress_quay(loc, heading_deg, length, boats)",
+  "contents": "quay dressing: amphora clusters, rope coils, stone anchors, catch baskets, moored fishing boats",
+  "design_source": "harbour scenes on vases; Piraeus emporion",
+  "licence": "our own code (scanned textures: Poly Haven CC0)",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": []
+}

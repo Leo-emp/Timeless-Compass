@@ -1,0 +1,11 @@
+{
+  "name": "ws7_story_oracle",
+  "active": true,
+  "script": "blender/scenes/ws7_story.py",
+  "args": [
+    "out/ws7_story_oracle.png",
+    "24",
+    "oracle",
+    "12"
+  ]
+}

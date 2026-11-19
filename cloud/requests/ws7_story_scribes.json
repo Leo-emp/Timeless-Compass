@@ -1,0 +1,11 @@
+{
+  "name": "ws7_story_scribes",
+  "active": true,
+  "script": "blender/scenes/ws7_story.py",
+  "args": [
+    "out/ws7_story_scribes.png",
+    "24",
+    "scribes",
+    "12"
+  ]
+}

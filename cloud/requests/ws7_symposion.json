@@ -1,0 +1,10 @@
+{
+  "name": "ws7_symposion",
+  "active": true,
+  "script": "blender/scenes/ws7_furniture.py",
+  "args": [
+    "out/ws7_symposion.png",
+    "24",
+    "kit"
+  ]
+}
