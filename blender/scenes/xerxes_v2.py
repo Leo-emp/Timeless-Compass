@@ -82,7 +82,7 @@ else:
     tunic = wardrobe.median_tunic(human, rig, pos, cloth('mede_tunic', 'rough_linen', (0.45, 0.3, 0.1), band=(0.07, 0.1, 0.26)))
     wardrobe.tight_sleeves(human, rig, cloth('mede_sleeves', 'rough_linen', (0.45, 0.3, 0.1), band=(0.07, 0.1, 0.26)))
     wardrobe.belt(rig, tunic, leather, kind='strap', knot=False)
-    wardrobe.persian_cap(human, rig, cloth('mede_felt', 'caban', (0.4, 0.33, 0.24), tiles=(3, 3), sheen=0.1), kind='median')
+    wardrobe.persian_cap(human, rig, cloth('mede_felt', 'caban', (0.4, 0.33, 0.24), tiles=(10, 8), sheen=0.35), kind='median')
     wardrobe.earrings(human, rig, gold)
 
 human.modifiers.new('smooth', 'SUBSURF').levels = 1

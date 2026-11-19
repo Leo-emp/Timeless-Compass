@@ -312,3 +312,108 @@ def explosion(loc, size=4.0, frame=24, debris=80, seed=0, name='blast'):
             d.keyframe_insert('location', frame=frame + int(t * 24))
         d.scale = [rnd.uniform(0.5, 2.0)] * 3
     return fl
+
+
+# ------------------------------------------------------------------ WS18 (Session G): dust kicked up by hooves
+def _dust_material(name, density=0.6, color=(0.52, 0.43, 0.31), frames=(1, 240), rise=0.25, drift=(0.0, 0.6)):
+    """Ground dust: a volume whose density is 4D noise, THICK at the ground and fading with height (cube Generated
+    Z 0 -> 1), soft at the box edges, drifting slowly (wind) and rising a little - kicked-up soil, not smoke."""
+    m = bpy.data.materials.new(name); m.use_fake_user = True
+    nt = m.node_tree; nt.nodes.remove(nt.nodes['Principled BSDF'])
+    out = nt.nodes['Material Output']; L = nt.links.new
+    v = nt.nodes.new('ShaderNodeVolumePrincipled'); v.inputs['Color'].default_value = (*color, 1)
+    v.inputs['Anisotropy'].default_value = 0.35                      # dust scatters light forward: glows against the sun
+    tc = nt.nodes.new('ShaderNodeTexCoord')
+    mp = nt.nodes.new('ShaderNodeMapping'); L(tc.outputs['Object'], mp.inputs['Vector'])
+    dur = (frames[1] - frames[0]) / 24
+    mp.inputs['Location'].default_value = (0, 0, 0); mp.inputs['Location'].keyframe_insert('default_value', frame=frames[0])
+    mp.inputs['Location'].default_value = (-drift[0] * dur, -drift[1] * dur, -rise * dur)
+    mp.inputs['Location'].keyframe_insert('default_value', frame=frames[1])
+    noise = nt.nodes.new('ShaderNodeTexNoise'); noise.noise_dimensions = '4D'
+    noise.inputs['Scale'].default_value = 0.9; noise.inputs['Detail'].default_value = 5
+    noise.inputs['Roughness'].default_value = 0.62
+    L(mp.outputs['Vector'], noise.inputs['Vector'])
+    noise.inputs['W'].default_value = 0.0; noise.inputs['W'].keyframe_insert('default_value', frame=frames[0])
+    noise.inputs['W'].default_value = dur * 0.25; noise.inputs['W'].keyframe_insert('default_value', frame=frames[1])
+    sep = nt.nodes.new('ShaderNodeSeparateXYZ'); L(tc.outputs['Generated'], sep.inputs['Vector'])
+    hz = nt.nodes.new('ShaderNodeMapRange'); hz.interpolation_type = 'SMOOTHSTEP'
+    hz.inputs['From Min'].default_value = 0.0; hz.inputs['From Max'].default_value = 1.0
+    hz.inputs['To Min'].default_value = 1.0; hz.inputs['To Max'].default_value = 0.0
+    L(sep.outputs['Z'], hz.inputs['Value'])
+    edge_out = None
+    for ax in ('X', 'Y'):                                             # soft edges: 1 inside, 0 at the box walls
+        c = nt.nodes.new('ShaderNodeMath'); c.operation = 'PINGPONG'; c.inputs[1].default_value = 0.5
+        L(sep.outputs[ax], c.inputs[0])
+        e = nt.nodes.new('ShaderNodeMapRange'); e.interpolation_type = 'SMOOTHSTEP'
+        e.inputs['From Min'].default_value = 0.0; e.inputs['From Max'].default_value = 0.22
+        L(c.outputs[0], e.inputs['Value'])
+        if edge_out is None:
+            edge_out = e.outputs['Result']
+        else:
+            mm = nt.nodes.new('ShaderNodeMath'); mm.operation = 'MULTIPLY'
+            L(edge_out, mm.inputs[0]); L(e.outputs['Result'], mm.inputs[1]); edge_out = mm.outputs[0]
+    puffs = nt.nodes.new('ShaderNodeMapRange'); puffs.inputs['From Min'].default_value = 0.4
+    puffs.inputs['From Max'].default_value = 0.75; L(noise.outputs['Fac'], puffs.inputs['Value'])
+    a = nt.nodes.new('ShaderNodeMath'); a.operation = 'MULTIPLY'; L(hz.outputs['Result'], a.inputs[0]); L(edge_out, a.inputs[1])
+    b = nt.nodes.new('ShaderNodeMath'); b.operation = 'MULTIPLY'; L(a.outputs[0], b.inputs[0]); L(puffs.outputs['Result'], b.inputs[1])
+    d = nt.nodes.new('ShaderNodeMath'); d.operation = 'MULTIPLY'; d.inputs[1].default_value = density
+    L(b.outputs[0], d.inputs[0]); L(d.outputs[0], v.inputs['Density'])
+    L(v.outputs[0], out.inputs['Volume'])
+    return m
+
+
+def hoof_dust(movers, frames=(1, 240), width_pad=4.0, length=14.0, height=3.5, density=0.5,
+              color=(0.52, 0.43, 0.31), name='hoof_dust', puffs=True, seed=0):
+    """Dust kicked up by a body of horsemen (or a herd, a chariot, a wagon train):
+      1. a TRAILING CLOUD - one dust volume behind the formation, following its centre, as wide as the formation
+         + width_pad, `length` metres long, `height` m tall (thick at the ground, thinning upward);
+      2. PUFFS - small dust bursts from every mover's hooves (particles: soft dust volumes born at the ground behind
+         each horse, rising + spreading), only when `puffs`.
+    `movers` = animated roots / instance empties (cavalry.squadron, animals.flock_move). Heading 0 = moving -Y.
+    Dry Mediterranean summer soil = (0.52, 0.43, 0.31); Egyptian / Persian desert: (0.62, 0.52, 0.38)."""
+    from mathutils import Matrix
+    sc = bpy.context.scene
+    sc.frame_set(frames[0])
+    xs = [m.matrix_world.translation.x for m in movers]; ys = [m.matrix_world.translation.y for m in movers]
+    w = (max(xs) - min(xs)) + width_pad if xs else 6.0
+    back_depth = (max(ys) - min(ys)) if ys else 0.0
+    # ---- 1. the trailing cloud follows the formation's centre (sampled every 4 frames)
+    bpy.ops.mesh.primitive_cube_add(size=1)
+    cloud = bpy.context.object; cloud.name = name
+    cloud.data.transform(Matrix.Translation((0, 0.5, 0.5)))          # origin at the front-bottom edge, box trails +Y
+    cloud.scale = (w, length, height)
+    cloud.data.materials.append(_dust_material(name + '_mat', density, color, frames))
+    for f in range(frames[0], frames[1] + 1, 4):
+        sc.frame_set(f)
+        c = Vector((0, 0, 0))
+        for m in movers:
+            c += m.matrix_world.translation
+        c /= max(len(movers), 1)
+        hh = movers[0].matrix_world.to_euler().z if movers else 0.0
+        back = Vector((-math.sin(hh), math.cos(hh), 0)) * (back_depth * 0.5)
+        cloud.location = (c.x + back.x, c.y + back.y, 0.0)
+        cloud.rotation_euler = (0, 0, hh)
+        cloud.keyframe_insert('location', frame=f); cloud.keyframe_insert('rotation_euler', index=2, frame=f)
+    out = [cloud]
+    if not puffs:
+        return out
+    # ---- 2. puffs at the hooves: one small particle emitter under each mover
+    sprite_m = _dust_material(name + '_puff', density * 3.0, color, frames, rise=0.4, drift=(0, 0.2))
+    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2, radius=0.5, location=(0, 0, -200))
+    puff = bpy.context.object; puff.name = name + '_puff_obj'; puff.data.materials.append(sprite_m)
+    rnd = random.Random(seed)
+    for i, m in enumerate(movers):
+        bpy.ops.mesh.primitive_plane_add(size=1.0, location=(0, 0, 0))
+        em = bpy.context.object; em.name = f'{name}_emit{i}'; em.scale = (0.9, 1.8, 1); em.hide_render = True
+        em.parent = m; em.location = (0, 0.6, 0.02)
+        ps = em.modifiers.new('dust', 'PARTICLE_SYSTEM').particle_system
+        ps.seed = rnd.randint(0, 9999)
+        st = ps.settings
+        st.count = int((frames[1] - frames[0]) * 0.6); st.frame_start = frames[0] - 20; st.frame_end = frames[1]
+        st.lifetime = 40; st.lifetime_random = 0.5
+        st.normal_factor = 0.6; st.factor_random = 0.5
+        st.effector_weights.gravity = 0.0; st.brownian_factor = 0.15; st.damping = 0.4
+        st.render_type = 'OBJECT'; st.instance_object = puff
+        st.particle_size = 0.9; st.size_random = 0.6
+        out.append(em)
+    return out

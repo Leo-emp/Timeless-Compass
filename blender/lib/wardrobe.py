@@ -220,7 +220,7 @@ def chiton(human, rig, pos, material, length='knee', follow=False):
                     y, z = cy + 0.25 * (y - cy), st + 0.006
                     w = 1.0
             elif r == 0 and abs(x) < 0.07:                              # neckline: lies on the collarbones / upper back
-                nz = M['shoulder_z'] - (0.035 if y < cy else 0.0)
+                nz = M['shoulder_z'] - (neck_drop if y < cy else 0.0)
                 sy = surface_y(pos, x, nz, front=y < cy)
                 if sy is not None:                                      # SOFT pin: the neckline can sag into a
                     y, z = sy + (-0.006 if y < cy else 0.006), nz         # curve but the tunic stays on the shoulders
@@ -598,7 +598,8 @@ def _column_tube(name, seg, top_fn, waist_z, bottom_fn, upper_xy, skirt_xy, belt
     return o
 
 
-def _seam_top(pos, M, rx, ry, top_z, pinned=lambda x: True, neck_w=0.35, seam_lo=0.07, seam_hi=None, lift=0.006):
+def _seam_top(pos, M, rx, ry, top_z, pinned=lambda x: True, neck_w=0.35, seam_lo=0.07, seam_hi=None, lift=0.006,
+              neck_drop=0.035):
     """top_fn for a garment sewn/pinned along both shoulders (chiton style): front and back halves meet on top of
     the shoulder; the neckline lies softly on the collarbones. `pinned(x)` chooses which seam points are hard
     pins (all = sewn seam; a few = dress pins, the cloth between them sags)."""
@@ -610,7 +611,7 @@ def _seam_top(pos, M, rx, ry, top_z, pinned=lambda x: True, neck_w=0.35, seam_lo
             if st is not None:
                 return x, cy + 0.25 * (y - cy), st + lift, (1.0 if pinned(x) else 0.0)
         elif abs(x) < seam_lo:
-            nz = M['shoulder_z'] - (0.035 if y < cy else 0.0)
+            nz = M['shoulder_z'] - (neck_drop if y < cy else 0.0)
             sy = surface_y(pos, x, nz, front=y < cy)
             if sy is not None:
                 return x, sy + (-0.006 if y < cy else 0.006), nz, neck_w
@@ -953,7 +954,8 @@ def candys(human, rig, pos, material, pleats=24, hitch=0.05, frames=45, seg=192,
         k = 1 + 0.07 * tri * min(1.0, t * 3)                            # pleats open up below the belt
         f = t ** 0.5                                                    # flares quickly: room for the legs
         return ((wrx + (hrx - wrx) * f) * k * math.cos(a), cy + (wry + (hry - wry) * f) * k * math.sin(a))
-    o = _column_tube('candys', seg, _seam_top(ppos, M, urx, ury, top_z, seam_hi=urx + 0.02),
+    o = _column_tube('candys', seg, _seam_top(ppos, M, urx, ury, top_z, seam_hi=urx + 0.02, neck_w=0.85, neck_drop=0.015,
+                                              seam_lo=0.06),
                      M['waist_z'], lambda a: 0.04 + hitch * abs(math.cos(a)) ** 1.5,
                      lambda a, z: (urx * math.cos(a), cy + ury * math.sin(a)), skirt,
                      lambda a: (wrx * math.cos(a), cy + wry * math.sin(a)), ring_h, material)
@@ -1086,7 +1088,9 @@ def median_tunic(human, rig, pos, material, frames=45, seg=144, sim=True):
     def skirt(a, z, t):
         f = t ** 0.4                                                  # flares fast: room for the trouser legs
         return ((wrx + (0.27 - wrx) * f) * math.cos(a), cy + (wry + (0.21 - wry) * f) * math.sin(a))
-    o = _column_tube('median_tunic', seg, _seam_top(ppos, M, urx, ury, M['shoulder_z'] + 0.02, seam_hi=urx + 0.02),
+    # closed round neckline at the collarbone, firmly pinned (an open V showed bare chest - character cards)
+    o = _column_tube('median_tunic', seg, _seam_top(ppos, M, urx, ury, M['shoulder_z'] + 0.02, seam_hi=urx + 0.02,
+                                                    neck_w=0.85, neck_drop=0.012, seam_lo=0.06),
                      M['waist_z'], lambda a: M['knee_z'] - 0.02, lambda a, z: (urx * math.cos(a), cy + ury * math.sin(a)),
                      skirt, lambda a: (wrx * math.cos(a), cy + wry * math.sin(a)), 0.014, material)
     _cloth(o, 'pin', mass=0.15, tension=13, bending=0.4).settings.quality = 10
@@ -1165,25 +1169,26 @@ def persian_cap(human, rig, felt, band=None, kind='royal', height=None, lift=0.0
         # down over the skull (fuller than the head, no flat top, no straight walls), with a flap over the back of
         # the neck and two narrow lappets hanging beside the ears to the jaw; the face stays open. Felt sags: the
         # surface gets gentle dents and the flaps a soft wave.
-        rnd = np.random.default_rng(7)
-        back = np.clip(np.sin(th), 0, 1) ** 1.5                      # +y = back of the head
-        ear = np.exp(-((np.abs(np.cos(th)) - 0.97) / 0.06) ** 2)      # narrow bands beside the ears
+        back = np.clip(np.sin(th), 0, 1)                              # +y = back of the head
         front = np.clip(-np.sin(th), 0, 1)
-        drop = (0.012 + 0.1 * back + 0.13 * ear) * (1 - front ** 2)   # flaps: neck + lappets; open over the face
+        side = np.abs(np.cos(th))
+        # ONE continuous soft flap: covers the ears, wraps round to the nape, shortest at the temples, open on the face
+        drop = (0.03 + 0.07 * back + 0.075 * np.exp(-((side - 0.95) / 0.22) ** 2)) * (1 - front ** 1.6)
         rings = []
-        for t in np.linspace(1, 0, 7):                                # flaps: lower edge up to the base ring
-            ring = c + (base - c) * (1.04 + 0.02 * t)
+        for t in np.linspace(1, 0, 8):                                # flap: lower edge up to the base - it HUGS the head
+            ring = c + (base - c) * (1.0 + 0.025 * t)                 # (no outward lip: that read as a helmet brim)
             ring = ring.copy(); ring[:, 2] = zb - drop * t
-            ring[:, :2] += (base[:, :2] - c[:2]) * (0.03 * np.sin(th * 5) * t)[:, None]   # soft wave in the felt
+            wave = 0.012 * np.sin(th * 7 + 0.5) * t                   # soft felt folds in the flap
+            ring[:, :2] += (base[:, :2] - c[:2]) * (wave / 0.08)[:, None]
             rings.append(ring)
-        Hd = height or 0.085
-        for t in np.linspace(0.08, 1.0, 12):                          # the dome: full, round, slightly leaning forward
-            k = 1.07 * (1 - t ** 2.4) ** (1 / 2.4)                   # superellipse: rounder than a sphere cap
+        Hd = height or 0.08
+        for t in np.linspace(0.06, 1.0, 13):                          # the dome: soft, round, a little slumped
+            k = 1.06 * (1 - t ** 2.2) ** (1 / 2.2)
             ring = c + (base - c) * max(k, 0.04)
             ring = ring.copy()
-            ring[:, 1] -= 0.012 * t * t
-            ring[:, 2] = zb + Hd * t ** 0.85
-            dent = 0.004 * np.sin(th * 3 + 1.3) * np.sin(np.pi * t)   # felt is never perfectly round
+            ring[:, 1] -= 0.015 * t * t                               # the crown leans a little forward
+            ring[:, 2] = zb + Hd * t ** 0.85 - 0.006 * np.sin(th * 2) * t   # slumped, uneven top
+            dent = (0.006 * np.sin(th * 3 + 1.3) + 0.004 * np.sin(th * 7 + 0.4)) * np.sin(np.pi * t)
             ring[:, :2] += (base[:, :2] - c[:2]) * (dent / 0.08)[:, None]
             rings.append(ring)
         cap = _loft('median_cap', rings, felt, cap_top=True)
@@ -1303,7 +1308,7 @@ def dress_pins(garment, rig, metal, kind='perone', per_side=2):
     return parts
 
 
-def diadem(human, rig, metal, height=0.006, front=0.02, lift=0.008, z_up=0.05, kind='stephane', over=None):
+def diadem(human, rig, metal, height=0.0045, front=0.012, lift=0.004, z_up=0.052, kind='stephane', over=None):
     """A band round the head just above the forehead:
       stephane : metal crown-band, taller over the forehead (goddesses, priestesses, brides: Hera and Aphrodite
                  on Attic vases)
@@ -1333,14 +1338,14 @@ def diadem(human, rig, metal, height=0.006, front=0.02, lift=0.008, z_up=0.05, k
     h = height + (front - height) * np.clip(-ny, 0, 1) ** 2.5 if kind == 'stephane' else np.full(len(base), height)
     top = c + (base - c) * 1.02; top[:, 2] = z + h
     o = _loft(kind, [base, top], metal)
-    s = o.modifiers.new('thick', 'SOLIDIFY'); s.thickness = 0.0008 if kind == 'stephane' else 0.004; s.offset = 1.0
+    s = o.modifiers.new('thick', 'SOLIDIFY'); s.thickness = 0.0006 if kind == 'stephane' else 0.004; s.offset = 1.0
     from lib import cast as _cast
     _cast.parent_to_bone(o, rig, 'head')
     if kind == 'stephane':                                            # fine granulation: a row of tiny gold beads
         import bmesh
         bm = bmesh.new()
         for i in range(0, len(top), 2):
-            bmesh.ops.create_uvsphere(bm, u_segments=6, v_segments=4, radius=0.0011,
+            bmesh.ops.create_uvsphere(bm, u_segments=6, v_segments=4, radius=0.0008,
                                       matrix=Matrix.Translation(Vector(tuple(map(float, top[i])))))
         me = bpy.data.meshes.new(kind + '_beads'); bm.to_mesh(me); bm.free()
         beads = link(bpy.data.objects.new(kind + '_beads', me)); beads.data.materials.append(metal)
@@ -1371,7 +1376,7 @@ def earrings(human, rig, metal, drop=0.012):
         p = Vector(tuple(map(float, lobe))) + Vector((sgn * 0.001, 0, -0.003))
         bmesh.ops.create_uvsphere(bm, u_segments=8, v_segments=6, radius=0.0022, matrix=Matrix.Translation(p))
         for t in np.linspace(0, 1, 6):                               # little chain of tiny links to the drop
-            bmesh.ops.create_uvsphere(bm, u_segments=6, v_segments=4, radius=0.0011,
+            bmesh.ops.create_uvsphere(bm, u_segments=6, v_segments=4, radius=0.0008,
                                       matrix=Matrix.Translation(p + Vector((0, 0, -drop * 0.6 * t))))
         bmesh.ops.create_uvsphere(bm, u_segments=10, v_segments=8, radius=0.0035,
                                   matrix=Matrix.Translation(p + Vector((0, 0, -drop))))
