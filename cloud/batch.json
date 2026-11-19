@@ -1,9 +1,9 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "ws7-21",
+  "batch": "ws7-22",
   "run": [
     "ws7_place_hold",
-    "ws7_place_deck",
-    "ws7_place_flagship"
+    "ws7_place_flagship",
+    "ws7_harbour"
   ]
 }

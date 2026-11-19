@@ -38,7 +38,7 @@ if VARIANT == 'hold':
     sun = bpy.data.objects['sun']; sun.data.energy = 6.0
     m = props.place_trireme_rowing_hold((0, 30, 0), 0, rowers=24, built=8, seed=2)
     common.camera('cam', m['cam_gangway'], m['cam_target'], lens=38, fstop=2.8, focus=m['seats'][0])
-    exposure = 0.6
+    exposure = 1.0
 elif VARIANT == 'deck':
     sets.salamis_dusk()
     sun = bpy.data.objects['sun']; sun.data.energy = 7.0
@@ -55,7 +55,8 @@ else:
     for i, mk in enumerate(m['officers']):
         person('commander' if i == 0 else 'courtier', 'persia_480bc', mk, m['cam_orbit_centre'], seed=40 + i)
     c = m['cam_orbit_centre']; r = m['cam_orbit_radius']
-    common.camera('cam', c + Vector((r * 0.8, -r * 0.6, -0.9)), c, lens=38, fstop=2.8, focus=c)
+    # a little above eye level looking slightly DOWN: the officers + the dark sea dotted with the fleet's lanterns behind
+    common.camera('cam', c + Vector((r * 0.85, -r * 0.6, 0.35)), c + Vector((-6.0, 4.0, -1.4)), lens=34, fstop=2.8, focus=c)
     exposure = 1.0
 
 sc.frame_set(FRAME)

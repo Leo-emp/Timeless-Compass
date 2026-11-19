@@ -3037,8 +3037,15 @@ def dress_harbour(loc=(0, 0, 0), heading_deg=0.0, length=40.0, ships=2, seed=0, 
     L = length
     # back buildings
     _put(market.stoa((0, 0, 0), 0, columns=10, spacing=3.2, name=f'{name}_stoa'), root, (-L * 0.15, 15.0, 0), 180)
-    for k, x in enumerate((L * 0.22, L * 0.38)):
-        _put(market.workshop_shed((0, 0, 0), 0, w=6.5, d=4.0, h=3.0, name=f'{name}_shed{k}'), root, (x, 12.0, 0), 180)
+    for k, x in enumerate((L * 0.22, L * 0.38)):          # open fronts face the quay: you see INTO the workshops
+        _put(market.workshop_shed((0, 0, 0), 0, w=6.5, d=4.0, h=3.0, name=f'{name}_shed{k}'), root, (x, 12.0, 0), 0)
+        _put(amphora_rack((0, 0, 0), 0, rows=2, per_row=6, seed=seed + 40 + k, name=f'{name}_shedrack{k}'), root, (x - 1.5, 11.0, 0), 0)
+        aw = wall_hanging((0, 0, 0), 0, size=(3.2, 0.7), color=((0.42, 0.3, 0.16), (0.3, 0.08, 0.05))[k], folds=6,
+                          name=f'{name}_awning{k}')                    # a cloth awning over the shed front
+        _put(aw, root, (x + 1.2, 10.0, 2.9), 180)
+        for j in range(3):
+            _put(basket((0, 0, 0), 0, kind='carry', fill=(0.5, 0.42, 0.25) if j % 2 else None, name=f'{name}_shedbasket{k}{j}'),
+                 root, (x + 0.5 + j * 0.6, 10.4, 0))
     # working strip
     for k, x in enumerate(range(int(-L / 2) + 3, int(L / 2) - 3, 7)):
         kind = k % 5
@@ -3443,7 +3450,7 @@ def place_trireme_rowing_hold(loc=(0, 0, 0), heading_deg=0.0, rowers=24, built=8
     for k in range(10):
         x = L * 0.25 + (L * 0.55) * k / 9
         for sgn in (-1, 1):
-            sp = bpy.data.lights.new(f'{name}_port_light', 'SPOT'); sp.energy = 120.0; sp.spot_size = math.radians(14)
+            sp = bpy.data.lights.new(f'{name}_port_light', 'SPOT'); sp.energy = 260.0; sp.spot_size = math.radians(16)
             sp.color = (1.0, 0.9, 0.75); sp.shadow_soft_size = 0.05
             o = link(bpy.data.objects.new(f'{name}_port_light', sp)); o.parent = ship
             o.location = (x, sgn * 2.4, 1.6); o.rotation_euler = (math.radians(-sgn * 65), 0, 0)
@@ -3453,6 +3460,10 @@ def place_trireme_rowing_hold(loc=(0, 0, 0), heading_deg=0.0, rowers=24, built=8
         sp.color = (1.0, 0.92, 0.8)
         o = link(bpy.data.objects.new(f'{name}_seam_light', sp)); o.parent = ship
         o.location = (x, rnd.uniform(-0.4, 0.4), 2.36); o.rotation_euler = (math.radians(rnd.uniform(-8, 8)), math.radians(rnd.uniform(-10, 10)), 0)
+    common_bounce = bpy.data.lights.new(f'{name}_gangway_bounce', 'AREA'); common_bounce.energy = 60.0; common_bounce.size = 6.0
+    common_bounce.color = (1.0, 0.82, 0.6)                 # sunlight bouncing off the gangway onto the rowers' faces
+    ob_ = link(bpy.data.objects.new(f'{name}_gangway_bounce', common_bounce)); ob_.parent = ship
+    ob_.location = (L * 0.55, 0, 1.0); ob_.rotation_euler = (math.pi, 0, 0)
     bpy.ops.mesh.primitive_cube_add(size=1, location=(L * 0.52, 0, 1.2))
     hz = bpy.context.object; hz.name = f'{name}_haze'; hz.scale = (L * 0.62, 4.0, 2.4); hz.parent = ship
     hm = bpy.data.materials.new(f'{name}_dust'); hm.use_fake_user = True
@@ -3537,10 +3548,10 @@ def place_persian_flagship(loc=(0, 0, 0), heading_deg=0.0, frames=(1, 240), seed
         if i % 5 == 0:                                   # every fifth light hangs on a visible dark hull
             trireme_v3(tuple(p_), rnd.uniform(0, 360), oars=None, crew=None, phoenician=True, bob=False,
                              seed=seed + 50 + i, name=f'{name}_fleet{i}')
-        l = bpy.data.lights.new(f'{name}_far_lantern', 'POINT'); l.energy = rnd.uniform(150, 400)
+        l = bpy.data.lights.new(f'{name}_far_lantern', 'POINT'); l.energy = rnd.uniform(400, 1200)
         l.color = (1.0, 0.62, 0.3); l.shadow_soft_size = 0.2
         o = link(bpy.data.objects.new(f'{name}_far_lantern', l)); o.location = (p_.x, p_.y, rnd.uniform(3.0, 6.0))
-        bpy.ops.mesh.primitive_uv_sphere_add(segments=8, ring_count=6, radius=0.12, location=o.location)
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=8, ring_count=6, radius=0.35, location=o.location)   # visible far off
         bpy.context.object.data.materials.append(flame_glow('far_lantern_glow', strength=40.0))
     bpy.context.view_layer.update()
     M = ship.matrix_world
