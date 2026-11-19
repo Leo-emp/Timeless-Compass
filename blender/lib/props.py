@@ -575,7 +575,7 @@ def rope_fibre(name='rope_fibre', color=(0.45, 0.36, 0.22)):
     return scan_surface(name, 'hessian_230', color, tile=0.08, rough=(0.8, 0.98), normal=1.0)
 
 
-def ember_glow(name='ember_glow', strength=6.0, temp=1250.0):
+def ember_glow(name='ember_glow', strength=6.0, temp=1250.0, cracks=0.45):
     """Glowing charcoal: black crust with orange-red light coming through the cracks (noise mask x blackbody)."""
     m = bpy.data.materials.get(name)
     if m:
@@ -584,10 +584,10 @@ def ember_glow(name='ember_glow', strength=6.0, temp=1250.0):
     nt = m.node_tree; b = nt.nodes['Principled BSDF']; L = nt.links.new
     b.inputs['Base Color'].default_value = (0.02, 0.018, 0.016, 1); b.inputs['Roughness'].default_value = 0.9
     n = nt.nodes.new('ShaderNodeTexNoise'); n.inputs['Scale'].default_value = 45.0; n.inputs['Detail'].default_value = 6
-    mr = nt.nodes.new('ShaderNodeMapRange'); mr.inputs['From Min'].default_value = 0.45; mr.inputs['From Max'].default_value = 0.7
+    mr = nt.nodes.new('ShaderNodeMapRange'); mr.inputs['From Min'].default_value = cracks; mr.inputs['From Max'].default_value = cracks + 0.25
     L(n.outputs['Fac'], mr.inputs['Value'])
-    bb = nt.nodes.new('ShaderNodeBlackbody'); bb.inputs['Temperature'].default_value = temp
-    L(bb.outputs['Color'], b.inputs['Emission Color'])
+    # explicit ember colour (deep orange-red); a physical blackbody colour washes to salmon-pink under the film curve
+    b.inputs['Emission Color'].default_value = (1.0, 0.22, 0.03, 1) if temp < 1150 else (1.0, 0.38, 0.06, 1)
     mul = nt.nodes.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; mul.inputs[1].default_value = strength
     L(mr.outputs['Result'], mul.inputs[0]); L(mul.outputs['Value'], b.inputs['Emission Strength'])
     return m
@@ -2400,7 +2400,7 @@ def timber_barricade(loc=(0, 0, 0), heading_deg=0.0, length=12.0, height=2.2, bu
                 flame_tongues(root, (fx_, -0.18, z0), height=rnd.uniform(1.0, 2.2) * (1.3 if layer else 1.0),
                               width=rnd.uniform(0.6, 1.0), n=6, frames=frames, seed=seed + i * 7 + layer,
                               name=f'{name}_fire{i}_{layer}', strength=3.5)
-        ember = ember_glow('barricade_embers', strength=1.6, temp=1050.0)   # deep red glow in the cracks
+        ember = ember_glow('barricade_embers', strength=1.2, temp=1050.0, cracks=0.62)   # glow only deep in the cracks
         for o in root.children:                      # charred planks glow in their cracks
             if o.type == 'MESH' and o.data.materials and o.data.materials[0] == charred:
                 o.data.materials[0] = ember
