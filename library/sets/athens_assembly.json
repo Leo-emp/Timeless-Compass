@@ -1,0 +1,17 @@
+{
+  "name": "athens_assembly",
+  "version": 1,
+  "era": "greece_480bc",
+  "builder": "places.pnyx_assembly",
+  "contents": "the Pnyx: rocky slope, rock-cut bema, citizens, Acropolis in view",
+  "design_source": "Herodotus 7.143; Pnyx Phase I archaeology",
+  "licence": "our own code + CC0/CC-BY scans",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": [],
+  "aliases": [
+    "athens_assembly",
+    "pnyx",
+    "assembly"
+  ]
+}

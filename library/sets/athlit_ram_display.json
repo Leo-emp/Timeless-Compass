@@ -1,0 +1,16 @@
+{
+  "name": "athlit_ram_display",
+  "version": 1,
+  "era": "modern",
+  "builder": "places.athlit_ram_display",
+  "contents": "the Athlit ram in the National Maritime Museum, Haifa",
+  "design_source": "National Maritime Museum, Haifa",
+  "licence": "our own code + CC0/CC-BY scans",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": [],
+  "aliases": [
+    "athlit_ram_display",
+    "museum"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "persian_flagship",
+  "version": 1,
+  "era": "greece_480bc",
+  "builder": "props.place_persian_flagship",
+  "contents": "Persian flagship at night, lanterns, officers (Session E)",
+  "design_source": "Herodotus 8.88-89",
+  "licence": "our own code + CC0/CC-BY scans",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": [],
+  "aliases": [
+    "persian_flagship"
+  ]
+}

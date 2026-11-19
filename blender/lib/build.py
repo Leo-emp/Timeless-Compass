@@ -85,9 +85,22 @@ def character(name, wardrobe_name, motion_spec, mark=(0, 0, 0), turn_deg=0.0, fr
 
 
 def build_set(builder):
-    """'sets.salamis_dusk' -> sets.salamis_dusk()."""
-    mod, fn = builder.split('.')
-    return getattr({'sets': sets}[mod], fn)()
+    """'sets.salamis_dusk' -> sets.salamis_dusk(); 'places.tent_interior:kind=council' -> places.tent_interior(kind='council');
+    'props.place_trireme_deck' -> Session E's ship places. Modules: sets, places, props."""
+    import importlib
+    name, _, argtxt = builder.partition(':')
+    mod, fn = name.split('.')
+    kwargs = {}
+    for kv in filter(None, argtxt.split(',')):
+        k, v = kv.split('=')
+        v = v.strip()
+        try:
+            v = float(v) if '.' in v else int(v)
+        except ValueError:
+            pass
+        kwargs[k.strip()] = v
+    module = sets if mod == 'sets' else importlib.import_module(f'lib.{mod}')
+    return getattr(module, fn)(**kwargs)
 
 
 def head_point(rig, bone):

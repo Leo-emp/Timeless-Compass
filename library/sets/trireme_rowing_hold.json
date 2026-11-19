@@ -1,0 +1,16 @@
+{
+  "name": "trireme_rowing_hold",
+  "version": 1,
+  "era": "greece_480bc",
+  "builder": "props.place_trireme_rowing_hold",
+  "contents": "inside a trireme: rowers on benches in unison, light through the oar ports (Session E)",
+  "design_source": "Morrison, Coates & Rankov, The Athenian Trireme",
+  "licence": "our own code + CC0/CC-BY scans",
+  "self_rating": null,
+  "owner_rating": null,
+  "renders": [],
+  "aliases": [
+    "trireme_rowing_hold",
+    "rowing hold"
+  ]
+}
