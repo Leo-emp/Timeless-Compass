@@ -607,7 +607,7 @@ def flame_glow(name='lamp_flame', strength=30.0, temp=1800.0):
     return m
 
 
-def tongue_flame_material(name='flame_tongue2', strength=3.2):
+def tongue_flame_material(name='flame_tongue3', strength=3.2):
     """Flame like a real wood/oil flame: hottest (yellow-white, ~1900 K) at the root, cooling to red (~1200 K) toward
     the tip, and fading to nothing at the top and edges (a flame has no hard outline). Uses each tongue's own
     0..1 'Generated' height, so it works at any size."""
@@ -625,11 +625,18 @@ def tongue_flame_material(name='flame_tongue2', strength=3.2):
     temp = nt.nodes.new('ShaderNodeMapRange'); temp.inputs['From Min'].default_value = 0.15; temp.inputs['From Max'].default_value = 1.2
     temp.inputs['To Min'].default_value = 1650.0; temp.inputs['To Max'].default_value = 1000.0   # orange root -> deep red tip
     L(zt.outputs['Value'], temp.inputs['Value'])
-    bb = nt.nodes.new('ShaderNodeBlackbody'); L(temp.outputs['Result'], bb.inputs['Temperature'])
+    # fire colour by height: an explicit ramp (the physical blackbody colour washed to pink under the film curve)
+    ramp = nt.nodes.new('ShaderNodeValToRGB')
+    L(zt.outputs['Value'], ramp.inputs['Fac'])
+    els = ramp.color_ramp.elements
+    els[0].position = 0.1; els[0].color = (1.0, 0.62, 0.16, 1)            # root: yellow-orange
+    els[1].position = 0.95; els[1].color = (0.35, 0.04, 0.01, 1)          # tip: dark red
+    mid = els.new(0.5); mid.color = (0.95, 0.28, 0.04, 1)                 # body: orange-red
+    bb = ramp                                                           # (keeps the code below unchanged)
     fade = nt.nodes.new('ShaderNodeMapRange'); fade.inputs['From Min'].default_value = 0.35; fade.inputs['From Max'].default_value = 1.25
     fade.inputs['To Min'].default_value = 1.0; fade.inputs['To Max'].default_value = 0.0
     L(zt.outputs['Value'], fade.inputs['Value'])
-    em = nt.nodes.new('ShaderNodeEmission'); L(bb.outputs['Color'], em.inputs['Color'])
+    em = nt.nodes.new('ShaderNodeEmission'); L(ramp.outputs['Color'], em.inputs['Color'])
     st = nt.nodes.new('ShaderNodeMath'); st.operation = 'MULTIPLY'; st.inputs[1].default_value = strength
     L(fade.outputs['Result'], st.inputs[0]); L(st.outputs[0], em.inputs['Strength'])
     tr = nt.nodes.new('ShaderNodeBsdfTransparent')
@@ -643,7 +650,7 @@ def flame_tongues(parent, loc, height=0.4, width=0.25, n=6, frames=(1, 240), see
     """A small fire as several teardrop 'tongues' of glowing gas that flicker and sway (keyframed scale + lean every
     2-3 frames). Light-weight and readable at any distance - no volume simulation. Returns the tongue objects."""
     rnd = _random.Random(seed)
-    mat = tongue_flame_material(f'flame_tongue2_{round(strength, 1)}', strength)   # shared per brightness
+    mat = tongue_flame_material(f'flame_tongue3_{round(strength, 1)}', strength)   # shared per brightness
     tex = bpy.data.textures.get('flame_ragged') or bpy.data.textures.new('flame_ragged', 'CLOUDS')
     tex.noise_scale = 0.12; tex.noise_depth = 3
     n = n * 2                                       # twice as many, thinner tongues: a fire, not a candle
@@ -2381,11 +2388,23 @@ def timber_barricade(loc=(0, 0, 0), heading_deg=0.0, length=12.0, height=2.2, bu
             x += ln + rnd.uniform(-0.1, 0.05)
         z += rnd.uniform(0.2, 0.34)
     if burning:
-        for i in range(int(length / 1.5)):
-            fx_ = -length / 2 + (i + rnd.random()) * 1.5
-            flame_tongues(root, (fx_, -0.2, rnd.uniform(0.2, height * 0.8)), height=rnd.uniform(0.8, 1.8), width=rnd.uniform(0.4, 0.8),
-                          n=5, frames=frames, seed=seed + i, name=f'{name}_fire{i}', strength=3.5)
-        _flicker_light((0, -1.5, height * 0.6), 2500.0, root, f'{name}_firelight', frames, seed, radius=2.5, color=(1.0, 0.6, 0.32))
+        for i in range(int(length / 0.7)):          # overlapping fires every ~0.7 m: the whole wall is alight
+            fx_ = -length / 2 + (i + rnd.random()) * 0.7
+            for layer in range(2):                   # low fire along the planks + taller tongues climbing above
+                z0 = rnd.uniform(0.0, height * 0.5) if layer == 0 else rnd.uniform(height * 0.4, height * 0.9)
+                flame_tongues(root, (fx_, -0.18, z0), height=rnd.uniform(1.0, 2.2) * (1.3 if layer else 1.0),
+                              width=rnd.uniform(0.6, 1.0), n=6, frames=frames, seed=seed + i * 7 + layer,
+                              name=f'{name}_fire{i}_{layer}', strength=3.5)
+        ember = ember_glow('barricade_embers', strength=4.0)
+        for o in root.children:                      # charred planks glow in their cracks
+            if o.type == 'MESH' and o.data.materials and o.data.materials[0] == charred:
+                o.data.materials[0] = ember
+        from lib import fx
+        sm = fx.smoke_column((0, 0, 0), height=40.0, width=length * 0.6, density=0.05, frames=frames, name=f'{name}_smoke')
+        sm.parent = root; sm.location = (0, 1.0, height + 20.0)
+        for k, xk in enumerate((-length / 3, 0, length / 3)):
+            _flicker_light((xk, -1.2, height * 0.7), 1500.0, root, f'{name}_firelight{k}', frames, seed + k, radius=1.5,
+                           color=(1.0, 0.55, 0.25))
     return _place(root, loc, heading_deg)
 
 
