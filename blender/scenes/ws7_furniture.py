@@ -25,10 +25,11 @@ if VARIANT == 'andron':                   # RICH room from one call: painted she
         bpy.data.objects.remove(o, do_unlink=True)
     W.dark_world(0.01)
     props.dress_andron((0, 0, 0), couches=3, lit=True, seed=2)
-    common.area_light('door', 120.0, (0.6, 0.7, 1.0), (2.6, 2.2, 2.0), (0.0, 0.0, 1.0), size=0.8)     # cool light from the doorway
-    common.area_light('fill', 40.0, (1.0, 0.75, 0.5), (0.0, -2.0, 2.6), (0.0, 1.0, 1.0), size=2.0)
+    # NIGHT: the lamps and the brazier carry the room; a faint cool spill from the doorway; warm low bounce
+    common.area_light('door', 35.0, (0.55, 0.65, 1.0), (2.6, 2.2, 2.0), (0.0, 0.0, 1.0), size=0.8)
+    common.area_light('bounce', 18.0, (1.0, 0.62, 0.35), (0.0, -1.0, 0.4), (0.0, 1.5, 1.2), size=3.0)
     common.camera('cam', Vector((0.4, -3.2, 1.55)), Vector((-0.1, 1.5, 1.05)), lens=22)
-    W.finish(OUT, SAMPLES, exposure=0.1)
+    W.finish(OUT, SAMPLES, exposure=0.6)
     raise SystemExit
 if VARIANT == 'kit':                      # the whole room from one call (dressing kit)
     props.dress_symposion((0, 0.4, 0), couches=3, lit=True, seed=1)

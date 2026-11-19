@@ -2806,6 +2806,35 @@ def floor_mat(loc=(0, 0, 0), heading_deg=0.0, size=(1.8, 1.0), name='mat'):
     return _place(root, loc, heading_deg)
 
 
+def amphora_stand(loc=(0, 0, 0), heading_deg=0.0, scan=None, name='amphora_stand'):
+    """A wine amphora resting in a wooden RING STAND (pointed-toe amphorae cannot stand alone) - in every storeroom
+    and dining room corner. scan = a museum amphora id (scans_glb) or None for the code transport amphora."""
+    root = _root(name)
+    w = old_wood(f'{name}_wood', (0.24, 0.15, 0.08))
+    bpy.ops.mesh.primitive_torus_add(major_radius=0.16, minor_radius=0.02, location=(0, 0, 0.32))
+    t = bpy.context.object; t.name = f'{name}_ring'; t.data.materials.append(w); t.parent = root
+    for k in range(3):
+        a = 2 * math.pi * k / 3
+        _tube(f'{name}_leg', [(0.16 * math.cos(a), 0.16 * math.sin(a), 0.32), (0.22 * math.cos(a), 0.22 * math.sin(a), 0.0)],
+              0.018, w, root, poly=True)
+    if scan:
+        from lib import scans_glb
+        a_ = scans_glb.load_glb(scan); a_.parent = root; a_.location = (0, 0, 0.12)
+    else:
+        a_ = amphora((0, 0, 0.12), height=0.75, name=f'{name}_jar'); a_.parent = root; a_.location = (0, 0, 0.12)
+    return _place(root, loc, heading_deg)
+
+
+def sandals(loc=(0, 0, 0), heading_deg=0.0, name='sandals'):
+    """A pair of leather sandals (soles + straps) - left by the door or hung on a peg, as on the vases."""
+    root = _root(name)
+    lea = leather('sandal_leather', (0.2, 0.1, 0.05))
+    for sx in (-1, 1):
+        sole = _box(f'{name}_sole', (sx * 0.06, 0, 0.006), (0.09, 0.26, 0.012), lea, bevel=0.004, parent=root)
+        _tube(f'{name}_strap', [(sx * 0.06 - 0.04, 0.02, 0.012), (sx * 0.06, 0.03, 0.05), (sx * 0.06 + 0.04, 0.02, 0.012)], 0.004, lea, root)
+    return _place(root, loc, heading_deg)
+
+
 def room_shell(loc=(0, 0, 0), heading_deg=0.0, w=6.0, d=5.0, h=3.4, door='front', dado=(0.32, 0.07, 0.05),
                upper=(0.78, 0.72, 0.6), frieze=True, beams=True, platform=True, name='room'):
     """The ROOM itself, never a plain box: plaster walls painted in zones (dark red dado to ~1 m, pale upper wall, a
@@ -2815,7 +2844,7 @@ def room_shell(loc=(0, 0, 0), heading_deg=0.0, w=6.0, d=5.0, h=3.4, door='front'
     root = _root(name)
     up = scan_surface(f'{name}_upper', 'clay_plaster', upper, tile=1.4, rough=(0.7, 0.95), normal=0.8, age=(0.05, 0.5))
     dm = scan_surface(f'{name}_dado', 'clay_plaster', dado, tile=1.4, rough=(0.6, 0.9), normal=0.8, age=(0.15, 0.45))
-    fl = scan_surface(f'{name}_floor', 'damaged_plaster', (0.5, 0.45, 0.38), tile=1.8, rough=(0.6, 0.95), normal=1.0, age=(0.05, 0.6))
+    fl = scan_surface(f'{name}_floor', 'clay_plaster', (0.36, 0.3, 0.24), tile=2.2, rough=(0.55, 0.9), normal=0.5, age=(0.03, 0.6))   # beaten earth + lime wash
     dado_h = 0.95
     _box(f'{name}_floor', (0, 0, -0.05), (w, d, 0.1), fl, bevel=0.0, parent=root)
     for (c, sz, rot) in (((0, d / 2, 0), (w, 0.2, 0), 0), ((-w / 2, 0, 0), (0.2, d, 0), 1), ((w / 2, 0, 0), (0.2, d, 0), 1)):
@@ -2837,7 +2866,7 @@ def room_shell(loc=(0, 0, 0), heading_deg=0.0, w=6.0, d=5.0, h=3.4, door='front'
             _box(f'{name}_beam', (-w / 2 + k * w / n, 0, h - 0.08), (0.16, d, 0.18), bw, parent=root)
         _box(f'{name}_ceiling', (0, 0, h + 0.03), (w, d, 0.06), old_wood(f'{name}_planks', (0.18, 0.12, 0.07)), bevel=0.0, parent=root)
     if platform:                                            # andron: raised plastered border ~1 m wide, 12 cm high
-        pm = scan_surface(f'{name}_platform', 'damaged_plaster', (0.55, 0.5, 0.42), tile=1.8, rough=(0.6, 0.95), age=(0.12, 0.5))
+        pm = scan_surface(f'{name}_platform', 'clay_plaster', (0.5, 0.44, 0.36), tile=1.8, rough=(0.55, 0.9), normal=0.5, age=(0.12, 0.5))
         _box(f'{name}_platform_b', (0, d / 2 - 0.6, 0.06), (w - 0.2, 1.0, 0.12), pm, bevel=0.01, parent=root)
         _box(f'{name}_platform_l', (-w / 2 + 0.6, 0, 0.06), (1.0, d - 0.2, 0.12), pm, bevel=0.01, parent=root)
         _box(f'{name}_platform_r', (w / 2 - 0.6, 0, 0.06), (1.0, d - 0.2, 0.12), pm, bevel=0.01, parent=root)
@@ -2882,6 +2911,18 @@ def dress_andron(loc=(0, 0, 0), heading_deg=0.0, lit=True, couches=3, seed=0, fr
         wh = wall_hanging((0, 0, 0), 0, size=(1.5, 1.1), color=rnd.choice(((0.3, 0.07, 0.05), (0.08, 0.09, 0.2), (0.55, 0.38, 0.12))),
                           name=f'{name}_hang{"r" if sgn > 0 else "l"}')
         _put(wh, root, (sgn * (W_ / 2 - 0.12), -0.9, 2.6), -90 * sgn)
+    # more on the back wall: a second row of pegs higher up with baskets + sandals, two big hangings beside the couches
+    for i, x in enumerate((-2.0, 0.9)):
+        _put(wall_peg((0, 0, 0), 0, name=f'{name}_peg_hi{i}'), root, (x, back, 2.35))
+        b_ = basket((0, 0, 0), 0, kind='carry', scale=0.55, name=f'{name}_peg_basket{i}'); _put(b_, root, (x, back - 0.14, 2.05))
+    sd = sandals((0, 0, 0), 0, name=f'{name}_sandals'); _put(sd, root, (W_ / 2 - 1.2, -1.6, 0.0), 20)
+    for i, x in enumerate((-1.5, 1.6)):
+        wh = wall_hanging((0, 0, 0), 0, size=(0.9, 1.3), color=((0.08, 0.09, 0.2), (0.5, 0.33, 0.1))[i], folds=4,
+                          name=f'{name}_backhang{i}')
+        _put(wh, root, (x, back - 0.02, 3.05))
+    # corners: wine amphorae on ring stands, lamp stands lit at head height
+    _put(amphora_stand((0, 0, 0), 0, scan='amphora_neck_cleveland', name=f'{name}_wine0'), root, (-W_ / 2 + 0.45, D_ / 2 - 0.45, 0.12))
+    _put(amphora_stand((0, 0, 0), 0, name=f'{name}_wine1'), root, (-W_ / 2 + 0.45, -D_ / 2 + 0.9, 0.0))
     # floor: mats, a spare cushion, a basket, a water jar (hydria) by the door
     from lib import market
     _put(floor_mat((0, 0, 0), 0, size=(1.6, 0.9), name=f'{name}_mat0'), root, (0.0, -0.6, 0.0), rnd.uniform(-8, 8))
