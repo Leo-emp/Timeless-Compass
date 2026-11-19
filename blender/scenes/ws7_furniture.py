@@ -26,10 +26,17 @@ if VARIANT == 'andron':                   # RICH room from one call: painted she
     W.dark_world(0.01)
     props.dress_andron((0, 0, 0), couches=3, lit=True, seed=2)
     # NIGHT: the lamps and the brazier carry the room; a faint cool spill from the doorway; warm low bounce
-    common.area_light('door', 35.0, (0.55, 0.65, 1.0), (2.6, 2.2, 2.0), (0.0, 0.0, 1.0), size=0.8)
-    common.area_light('bounce', 18.0, (1.0, 0.62, 0.35), (0.0, -1.0, 0.4), (0.0, 1.5, 1.2), size=3.0)
+    for o in bpy.data.objects:                 # lamp-lit night: every flame light 5x (pools of warm light, dark corners)
+        if o.type == 'LIGHT' and o.data.type == 'POINT':
+            o.data.energy *= 5.0
+            ad = o.data.animation_data             # the flicker keys must scale too, or they override the new energy
+            if ad and ad.action:
+                for fc in props._fcurves(o.data):
+                    for kp in fc.keyframe_points:
+                        kp.co.y *= 5.0; kp.handle_left.y *= 5.0; kp.handle_right.y *= 5.0
+    common.area_light('door', 60.0, (0.5, 0.62, 1.0), (2.6, 2.2, 2.0), (0.0, 0.0, 1.0), size=0.8)   # cool moon spill
     common.camera('cam', Vector((0.4, -3.2, 1.55)), Vector((-0.1, 1.5, 1.05)), lens=22)
-    W.finish(OUT, SAMPLES, exposure=0.6)
+    W.finish(OUT, SAMPLES, exposure=-0.2)
     raise SystemExit
 if VARIANT == 'kit':                      # the whole room from one call (dressing kit)
     props.dress_symposion((0, 0.4, 0), couches=3, lit=True, seed=1)

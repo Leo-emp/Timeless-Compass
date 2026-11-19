@@ -2835,7 +2835,7 @@ def sandals(loc=(0, 0, 0), heading_deg=0.0, name='sandals'):
     return _place(root, loc, heading_deg)
 
 
-def room_shell(loc=(0, 0, 0), heading_deg=0.0, w=6.0, d=5.0, h=3.4, door='front', dado=(0.32, 0.07, 0.05),
+def room_shell(loc=(0, 0, 0), heading_deg=0.0, w=6.0, d=5.0, h=3.4, door='front', dado=(0.25, 0.08, 0.06),
                upper=(0.78, 0.72, 0.6), frieze=True, beams=True, platform=True, name='room'):
     """The ROOM itself, never a plain box: plaster walls painted in zones (dark red dado to ~1 m, pale upper wall, a
     painted meander frieze under the ceiling), exposed wooden ceiling beams with planks, a doorway (with a heavy
