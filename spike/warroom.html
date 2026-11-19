@@ -1,0 +1,385 @@
+<!doctype html>
+<!--
+  SPIKE (throwaway): one code-drawn cinematic scene for Timeless Compass.
+  Scene: 1958, Project A119 war room. Officers + scientist look up at the moon on a big screen.
+  Everything here is drawn with code (SVG + a little JavaScript). No photos, no AI images.
+  Rendered to a 1080x1920 still with headless Edge.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Special+Elite&display=block" rel="stylesheet">
+<style>
+  /* The page is exactly one vertical Short frame. */
+  html, body { margin: 0; width: 1080px; height: 1920px; background: #050404; overflow: hidden; }
+  svg { display: block; }
+</style>
+</head>
+<body>
+<svg id="s" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg"></svg>
+<script>
+// ---------- tiny helpers ----------
+// Seeded random numbers, so the drawing is the same every time we render it.
+function rng(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed);
+  t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+const R = rng(1958);
+const W = 1080, H = 1920;
+let out = [];            // we collect SVG strings here and inject them at the end
+const add = s => out.push(s);
+
+// ---------- 1. definitions: gradients, filters, clip shapes ----------
+const MX = 540, MY = 575, MR = 225;   // moon screen centre + radius
+add(`<defs>
+  <!-- blur filters of different strengths (used for glows, haze, soft light) -->
+  ${[1,3,8,18,40,80].map(b=>`<filter id="b${b}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${b}"/></filter>`).join('')}
+
+  <!-- film grain: random noise turned grey, used as a light overlay on the whole frame -->
+  <filter id="grain" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" stitchTiles="stitch"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0.55 0"/>
+  </filter>
+
+  <!-- moon surface texture: big soft noise = dusty, uneven ground -->
+  <filter id="moontex" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="6" seed="3"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feComponentTransfer><feFuncA type="linear" slope="0.9"/></feComponentTransfer>
+  </filter>
+  <!-- fine moon grit -->
+  <filter id="moongrit" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.35" numOctaves="3" seed="11"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  <!-- wall plaster texture -->
+  <filter id="plaster" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.04 0.6" numOctaves="4" seed="5"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 0.2  0 0 0 0 0.14  0 0 0 0 0.1  0 0 0 0.35 0"/>
+  </filter>
+
+  <!-- red title glow -->
+  <filter id="redglow" x="-30%" y="-80%" width="160%" height="260%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="14" result="g"/>
+    <feFlood flood-color="#ff1a10" flood-opacity="0.85"/><feComposite in2="g" operator="in" result="glow"/>
+    <feMerge><feMergeNode in="glow"/><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+
+  <clipPath id="moonClip"><circle cx="${MX}" cy="${MY}" r="${MR}"/></clipPath>
+  <clipPath id="screenClip"><circle cx="${MX}" cy="${MY}" r="${MR+38}"/></clipPath>
+
+  <!-- back wall: warm dark brown, a bit lighter in the middle where the screen glows -->
+  <radialGradient id="wall" cx="50%" cy="34%" r="70%">
+    <stop offset="0" stop-color="#2a1d18"/><stop offset="0.4" stop-color="#140d0b"/><stop offset="1" stop-color="#040303"/>
+  </radialGradient>
+  <!-- moon: lit from the upper left -->
+  <radialGradient id="moonBase" cx="36%" cy="32%" r="75%">
+    <stop offset="0" stop-color="#eef0ee"/><stop offset="0.3" stop-color="#c4c6c2"/>
+    <stop offset="0.7" stop-color="#7c7f80"/><stop offset="1" stop-color="#34373b"/>
+  </radialGradient>
+  <!-- shadow side of the moon (lower right) -->
+  <radialGradient id="moonShade" cx="30%" cy="26%" r="88%">
+    <stop offset="0.32" stop-color="#000" stop-opacity="0"/><stop offset="0.72" stop-color="#05060a" stop-opacity="0.6"/>
+    <stop offset="1" stop-color="#020306" stop-opacity="0.9"/>
+  </radialGradient>
+  <!-- the cool light the moon screen throws into the room -->
+  <radialGradient id="screenGlow" cx="50%" cy="50%" r="50%">
+    <stop offset="0" stop-color="#cfe0ff" stop-opacity="0.38"/><stop offset="0.55" stop-color="#8fb0e8" stop-opacity="0.12"/>
+    <stop offset="1" stop-color="#8fb0e8" stop-opacity="0"/>
+  </radialGradient>
+  <!-- steel bezel around the screen -->
+  <linearGradient id="bezel" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#9a958c"/><stop offset="0.3" stop-color="#3b3833"/>
+    <stop offset="0.6" stop-color="#1a1816"/><stop offset="1" stop-color="#5a554d"/>
+  </linearGradient>
+  <!-- the lamp's warm light cone -->
+  <linearGradient id="cone" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffd9a0" stop-opacity="0.55"/><stop offset="0.5" stop-color="#ffc47a" stop-opacity="0.16"/>
+    <stop offset="1" stop-color="#ffb060" stop-opacity="0.0"/>
+  </linearGradient>
+  <!-- table top: dark wood, brightest under the lamp -->
+  <radialGradient id="table" cx="50%" cy="25%" r="80%">
+    <stop offset="0" stop-color="#6a4a2e"/><stop offset="0.45" stop-color="#3a2616"/><stop offset="1" stop-color="#140c07"/>
+  </radialGradient>
+  <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#efe2c4"/><stop offset="1" stop-color="#b9a47c"/>
+  </linearGradient>
+  <linearGradient id="chalk" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#1c2622"/><stop offset="1" stop-color="#0d1311"/>
+  </linearGradient>
+  <linearGradient id="coat" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#9a958a"/><stop offset="0.3" stop-color="#5e5a52"/><stop offset="1" stop-color="#141311"/>
+  </linearGradient>
+  <linearGradient id="uniform" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#23241a"/><stop offset="0.35" stop-color="#121309"/><stop offset="1" stop-color="#050504"/>
+  </linearGradient>
+  <linearGradient id="floorHaze" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.85"/>
+  </linearGradient>
+  <radialGradient id="vignette" cx="50%" cy="45%" r="75%">
+    <stop offset="0.5" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.9"/>
+  </radialGradient>
+  <linearGradient id="titleRed" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ff5a46"/><stop offset="0.55" stop-color="#e3180f"/><stop offset="1" stop-color="#8e0805"/>
+  </linearGradient>
+  <linearGradient id="rocket" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#5d5a52"/><stop offset="0.35" stop-color="#f1ece0"/><stop offset="0.7" stop-color="#a7a296"/><stop offset="1" stop-color="#3a3832"/>
+  </linearGradient>
+</defs>`);
+
+// ---------- 2. the room: wall, plaster, panels, ceiling ----------
+add(`<rect width="${W}" height="${H}" fill="url(#wall)"/>`);
+add(`<rect width="${W}" height="1300" filter="url(#plaster)" opacity="0.9"/>`);
+// vertical wood panel seams on the wall, fading into the dark
+for (let x = 30; x < W; x += 150) {
+  add(`<rect x="${x}" y="0" width="3" height="1300" fill="#000" opacity="0.35"/>`);
+  add(`<rect x="${x+3}" y="0" width="1.5" height="1300" fill="#7a5a44" opacity="0.12"/>`);
+}
+// dado rail across the wall
+add(`<rect x="0" y="1040" width="${W}" height="16" fill="#0c0806"/><rect x="0" y="1040" width="${W}" height="2" fill="#8a6a50" opacity="0.25"/>`);
+// ceiling pipes / ducts in the dark at the top
+add(`<rect x="0" y="0" width="${W}" height="70" fill="#060404"/>`);
+add(`<rect x="0" y="70" width="${W}" height="26" fill="#120d0b"/><rect x="0" y="70" width="${W}" height="3" fill="#5a4a40" opacity="0.4"/>`);
+add(`<rect x="0" y="110" width="${W}" height="12" rx="6" fill="#0f0b09"/><rect x="0" y="111" width="${W}" height="2" fill="#6a5a50" opacity="0.35"/>`);
+for (let x = 60; x < W; x += 210) add(`<rect x="${x}" y="96" width="16" height="30" fill="#0a0706"/>`);
+
+// ---------- 3. left wall chart: "LUNAR APPROACH" plot ----------
+add(`<g transform="translate(58 400) rotate(-2)">
+  <rect x="6" y="8" width="250" height="330" fill="#000" opacity="0.5" filter="url(#b8)"/>
+  <rect width="250" height="330" fill="url(#paper)" opacity="0.55"/>
+  ${Array.from({length:12},(_,i)=>`<line x1="${15+i*20}" y1="40" x2="${15+i*20}" y2="310" stroke="#3a2a1a" stroke-width="0.8" opacity="0.35"/>`).join('')}
+  ${Array.from({length:14},(_,i)=>`<line x1="15" y1="${40+i*20}" x2="235" y2="${40+i*20}" stroke="#3a2a1a" stroke-width="0.8" opacity="0.35"/>`).join('')}
+  <text x="125" y="28" text-anchor="middle" font-family="Special Elite, Courier New" font-size="17" fill="#2a1a0e">LUNAR APPROACH</text>
+  <circle cx="45" cy="270" r="22" fill="none" stroke="#2a1a0e" stroke-width="2"/>
+  <circle cx="200" cy="80" r="11" fill="none" stroke="#2a1a0e" stroke-width="2"/>
+  <path d="M60 255 C 90 150, 150 90, 192 84" fill="none" stroke="#b3120c" stroke-width="3" stroke-dasharray="8 5"/>
+  <text x="70" y="300" font-family="Special Elite, Courier New" font-size="12" fill="#2a1a0e">T+0  LAUNCH</text>
+  <text x="120" y="120" font-family="Special Elite, Courier New" font-size="12" fill="#2a1a0e">T+76h</text>
+  <circle cx="12" cy="12" r="5" fill="#8a1a10"/><circle cx="238" cy="14" r="5" fill="#8a1a10"/>
+  <!-- the wall is dark, so the whole chart sits in shadow -->
+  <rect width="250" height="330" fill="#0a0604" opacity="0.45"/>
+</g>`);
+
+// ---------- 4. right blackboard with chalk maths ----------
+add(`<g transform="translate(790 410) rotate(1.5)">
+  <rect x="6" y="10" width="240" height="320" fill="#000" opacity="0.6" filter="url(#b8)"/>
+  <rect width="240" height="320" fill="#3a2a1c"/><rect x="10" y="10" width="220" height="300" fill="url(#chalk)"/>
+  <g font-family="Special Elite, Courier New" fill="#d8dcd2" opacity="0.62" font-size="18">
+    <text x="26" y="52">Δv = 2.38 km/s</text>
+    <text x="26" y="88">t ≈ 3d 4h</text>
+    <text x="26" y="124">W = 1.7 kt</text>
+    <text x="26" y="160" font-size="15">r⊕→☾ 384,400 km</text>
+  </g>
+  <path d="M40 280 C 80 200, 150 190, 205 200" fill="none" stroke="#d8dcd2" stroke-width="2" stroke-dasharray="6 6" opacity="0.5"/>
+  <circle cx="38" cy="284" r="13" fill="none" stroke="#d8dcd2" stroke-width="2" opacity="0.5"/>
+  <circle cx="208" cy="198" r="7" fill="none" stroke="#d8dcd2" stroke-width="2" opacity="0.5"/>
+  <!-- chalk dust smudges -->
+  <ellipse cx="120" cy="230" rx="80" ry="25" fill="#cfd4ca" opacity="0.05" filter="url(#b8)"/>
+  <rect width="240" height="320" fill="#050404" opacity="0.35"/>
+</g>`);
+
+// small wall clock + red warning light
+add(`<g transform="translate(205 220)">
+  <circle r="46" fill="#0d0a08"/><circle r="40" fill="#d9d0bc" opacity="0.55"/><circle r="40" fill="#000" opacity="0.35"/>
+  ${Array.from({length:12},(_,i)=>{const a=i*Math.PI/6;return `<line x1="${Math.sin(a)*32}" y1="${-Math.cos(a)*32}" x2="${Math.sin(a)*37}" y2="${-Math.cos(a)*37}" stroke="#1a1410" stroke-width="3"/>`}).join('')}
+  <line x1="0" y1="0" x2="16" y2="-20" stroke="#1a1410" stroke-width="4" stroke-linecap="round"/>
+  <line x1="0" y1="0" x2="-4" y2="30" stroke="#1a1410" stroke-width="3" stroke-linecap="round"/>
+</g>`);
+add(`<circle cx="880" cy="235" r="60" fill="#ff2a14" opacity="0.25" filter="url(#b18)"/>
+<rect x="862" y="215" width="36" height="40" rx="6" fill="#2a0806"/><rect x="866" y="219" width="28" height="32" rx="4" fill="#ff3a1e"/>
+<rect x="866" y="219" width="28" height="10" rx="4" fill="#ffd0b0" opacity="0.6"/>`);
+
+// ---------- 5. the moon screen ----------
+// big soft glow that the screen spills onto the wall
+add(`<circle cx="${MX}" cy="${MY}" r="${MR*2.1}" fill="url(#screenGlow)"/>`);
+// bezel (steel ring) with a drop shadow
+add(`<circle cx="${MX+8}" cy="${MY+14}" r="${MR+44}" fill="#000" opacity="0.7" filter="url(#b18)"/>`);
+add(`<circle cx="${MX}" cy="${MY}" r="${MR+44}" fill="url(#bezel)"/>`);
+add(`<circle cx="${MX}" cy="${MY}" r="${MR+30}" fill="#07080b"/>`);
+// bolts around the bezel
+for (let i = 0; i < 16; i++) { const a = i * Math.PI / 8;
+  add(`<circle cx="${MX+Math.cos(a)*(MR+37)}" cy="${MY+Math.sin(a)*(MR+37)}" r="4.5" fill="#1a1815"/>
+       <circle cx="${MX+Math.cos(a)*(MR+37)-1.2}" cy="${MY+Math.sin(a)*(MR+37)-1.2}" r="2" fill="#bdb6aa" opacity="0.55"/>`); }
+// the moon itself, built in layers inside the round clip
+let moon = [`<g clip-path="url(#moonClip)">`];
+moon.push(`<circle cx="${MX}" cy="${MY}" r="${MR}" fill="url(#moonBase)"/>`);
+moon.push(`<rect x="${MX-MR}" y="${MY-MR}" width="${MR*2}" height="${MR*2}" filter="url(#moontex)" opacity="0.75" style="mix-blend-mode:multiply"/>`);
+// "maria" = the big dark lava plains
+[[-70,-60,95,70],[40,-90,70,55],[70,10,80,95],[-40,60,70,50],[-120,10,45,60],[110,110,50,40]].forEach(([dx,dy,rx,ry])=>{
+  moon.push(`<ellipse cx="${MX+dx}" cy="${MY+dy}" rx="${rx}" ry="${ry}" fill="#4a4d50" opacity="0.55" filter="url(#b18)"/>`);
+  moon.push(`<ellipse cx="${MX+dx+8}" cy="${MY+dy+5}" rx="${rx*0.7}" ry="${ry*0.7}" fill="#4a4641" opacity="0.3" filter="url(#b8)"/>`);
+});
+// craters: many sizes, each with a shadowed upper-left wall and a lit lower-right rim
+for (let i = 0; i < 420; i++) {
+  const a = R() * Math.PI * 2, d = Math.sqrt(R()) * MR * 0.97;
+  const x = MX + Math.cos(a) * d, y = MY + Math.sin(a) * d;
+  const r = 1.2 + Math.pow(R(), 4.5) * 30;
+  // craters near the edge look squashed because the moon is a ball
+  const edge = d / MR, sq = Math.max(0.35, Math.sqrt(1 - edge * edge)), rot = a * 180 / Math.PI;
+  moon.push(`<g transform="translate(${x} ${y}) rotate(${rot}) scale(${sq} 1)">
+    <circle r="${r*1.25}" fill="#fffaf0" opacity="${0.05+0.05*R()}"/>
+    <circle r="${r}" fill="#26282a" opacity="0.22"/>
+    <circle cx="${r*0.22}" cy="${r*0.22}" r="${r*0.8}" fill="#b8bab6" opacity="0.2"/>
+    <path d="M${r*0.7} ${-r*0.7} A${r} ${r} 0 0 1 ${-r*0.7} ${r*0.7}" fill="none" stroke="#f6f6f2" stroke-width="${Math.max(0.5,r*0.14)}" opacity="0.22" transform="rotate(90)"/>
+  </g>`);
+}
+// bright ray crater (like Tycho) with streaks
+moon.push(`<g opacity="0.35">${Array.from({length:14},(_,i)=>{const a=i/14*Math.PI*2+0.2;return `<line x1="${MX-40}" y1="${MY+150}" x2="${MX-40+Math.cos(a)*170}" y2="${MY+150+Math.sin(a)*170}" stroke="#fffaf0" stroke-width="${3+R()*4}" filter="url(#b3)"/>`}).join('')}</g>`);
+moon.push(`<circle cx="${MX-40}" cy="${MY+150}" r="11" fill="#fffaf0" opacity="0.8"/>`);
+moon.push(`<rect x="${MX-MR}" y="${MY-MR}" width="${MR*2}" height="${MR*2}" filter="url(#moongrit)" opacity="0.13" style="mix-blend-mode:overlay"/>`);
+moon.push(`<circle cx="${MX}" cy="${MY}" r="${MR}" fill="url(#moonShade)"/>`);
+moon.push(`</g>`);
+add(moon.join(''));
+// screen effects: faint scanlines, a cool tint, glass reflection, inner edge shadow
+add(`<g clip-path="url(#moonClip)">
+  ${Array.from({length:Math.ceil(MR*2/4)},(_,i)=>`<rect x="${MX-MR}" y="${MY-MR+i*4}" width="${MR*2}" height="1.4" fill="#000" opacity="0.13"/>`).join('')}
+  <circle cx="${MX}" cy="${MY}" r="${MR}" fill="#9cc0ff" opacity="0.07"/>
+  <ellipse cx="${MX-80}" cy="${MY-150}" rx="190" ry="70" fill="#fff" opacity="0.07" transform="rotate(-28 ${MX-80} ${MY-150})" filter="url(#b8)"/>
+  <circle cx="${MX}" cy="${MY}" r="${MR}" fill="none" stroke="#000" stroke-width="26" opacity="0.55" filter="url(#b8)"/>
+</g>`);
+// bezel highlight rim
+add(`<circle cx="${MX}" cy="${MY}" r="${MR+44}" fill="none" stroke="#d8d2c6" stroke-width="2" opacity="0.25"/>`);
+
+// ---------- 6. hanging lamp + its light cone and floating dust ----------
+// (replaced) No ceiling lamp: it would cover the moon. Instead the moon screen is the key light,
+// and a projector beam comes from behind the camera (top-left) onto the screen, full of smoke and dust.
+add(`<polygon points="-80,-40 140,-60 ${MX+MR*0.7},${MY-MR*0.7} ${MX-MR*0.7},${MY+MR*0.7}" fill="#dfe8ff" opacity="0.10" filter="url(#b40)" style="mix-blend-mode:screen"/>`);
+add(`<polygon points="-40,-20 60,-30 ${MX+MR*0.3},${MY-MR*0.3} ${MX-MR*0.3},${MY+MR*0.3}" fill="#eef3ff" opacity="0.10" filter="url(#b18)" style="mix-blend-mode:screen"/>`);
+for (let i = 0; i < 160; i++) {           // dust specks drifting in the projector beam
+  const t = R(), bx = 20 + t * (MX - 20), by = -20 + t * (MY + 20), spread = 40 + t * 150;
+  const o = (R() * 2 - 1) * spread;
+  add(`<circle cx="${bx + o*0.7}" cy="${by - o*0.7}" r="${0.6+R()*1.7}" fill="#eef2ff" opacity="${0.08+R()*0.4}"/>`);
+}
+// cigarette smoke hanging in layers across the room (very 1950s)
+for (let i = 0; i < 7; i++) {
+  const y = 760 + i * 95 + R() * 40, x = R() * 400 - 100;
+  add(`<path d="M${x} ${y} C ${x+200} ${y-60}, ${x+420} ${y+50}, ${x+700} ${y-20} S ${x+1000} ${y+30}, ${x+1300} ${y-30}" fill="none" stroke="#c8d0e0" stroke-width="${30+R()*40}" opacity="${0.035+R()*0.035}" filter="url(#b40)"/>`);
+}
+
+add(person('p2', 470, 1262, 0.52, 'scientist', 540));
+// ---------- 7. the table (seen from behind the men) ----------
+add(`<polygon points="250,1300 830,1300 1080,1700 0,1700" fill="url(#table)"/>`);
+add(`<polygon points="250,1300 830,1300 834,1308 246,1308" fill="#b88a5a" opacity="0.4"/>`);   // lit far edge
+add(`<ellipse cx="640" cy="1420" rx="300" ry="110" fill="#ffcf8a" opacity="0.28" filter="url(#b40)" style="mix-blend-mode:screen"/>`); // lamp pool
+// big map / plot spread on the table (flattened by perspective)
+add(`<g transform="translate(330 1345)">
+  <polygon points="40,0 360,0 420,150 -10,150" fill="#000" opacity="0.4" filter="url(#b8)" transform="translate(6 8)"/>
+  <polygon points="40,0 360,0 420,150 -10,150" fill="url(#paper)"/>
+  ${Array.from({length:9},(_,i)=>`<line x1="${40+i*40}" y1="0" x2="${-10+i*53.75}" y2="150" stroke="#5a4428" stroke-width="0.8" opacity="0.4"/>`).join('')}
+  ${Array.from({length:6},(_,i)=>{const y=i*25,l=40-50*(y/150),r=360+60*(y/150);return `<line x1="${l}" y1="${y}" x2="${r}" y2="${y}" stroke="#5a4428" stroke-width="0.8" opacity="0.4"/>`}).join('')}
+  <path d="M60 125 C 140 40, 260 20, 330 25" fill="none" stroke="#c0140c" stroke-width="4" stroke-dasharray="10 6"/>
+  <ellipse cx="60" cy="125" rx="26" ry="12" fill="none" stroke="#2a1a0e" stroke-width="2.5"/>
+  <ellipse cx="333" cy="24" rx="14" ry="6" fill="#2a1a0e"/>
+</g>`);
+// "TOP SECRET" folder on the left of the table
+add(`<g transform="translate(150 1470) rotate(-8)">
+  <rect x="5" y="8" width="210" height="140" fill="#000" opacity="0.5" filter="url(#b8)"/>
+  <rect width="210" height="140" fill="#b49464"/><rect x="0" y="0" width="210" height="140" fill="#000" opacity="0.18"/>
+  <rect x="18" y="38" width="175" height="46" fill="none" stroke="#a3120c" stroke-width="4" transform="rotate(-6 105 60)"/>
+  <text x="105" y="72" text-anchor="middle" font-family="Special Elite, Courier New" font-size="30" fill="#a3120c" transform="rotate(-6 105 60)">TOP SECRET</text>
+  <text x="20" y="120" font-family="Special Elite, Courier New" font-size="16" fill="#2a1a0e" opacity="0.8">PROJECT A119</text>
+</g>`);
+// coffee cup on the right of the table + steam
+add(`<g transform="translate(800 1520)">
+  <ellipse cx="0" cy="44" rx="52" ry="14" fill="#000" opacity="0.5" filter="url(#b3)"/>
+  <path d="M-34 0 L34 0 L28 44 Q0 54 -28 44 Z" fill="#d8d0c0"/><path d="M-34 0 L34 0 L28 44 Q0 54 -28 44 Z" fill="#000" opacity="0.25"/>
+  <path d="M34 10 q22 4 16 20 q-4 10 -20 8" fill="none" stroke="#bdb4a2" stroke-width="7"/>
+  <ellipse cx="0" cy="0" rx="34" ry="9" fill="#2a1a10"/><ellipse cx="0" cy="0" rx="34" ry="9" fill="none" stroke="#efe6d6" stroke-width="3"/>
+  <path d="M-6 -12 C -26 -50, 18 -70, -4 -120 C -18 -150, 10 -170, 0 -200" fill="none" stroke="#fff" stroke-width="7" opacity="0.10" filter="url(#b8)"/>
+</g>`);
+// rocket model on a stand, in the middle of the table (casts a long shadow)
+add(`<g transform="translate(620 1150)">
+  <ellipse cx="18" cy="232" rx="70" ry="12" fill="#000" opacity="0.6" filter="url(#b8)"/>
+  <rect x="-30" y="222" width="60" height="12" rx="3" fill="#1c1410"/><rect x="-4" y="180" width="8" height="44" fill="#2a201a"/>
+  <path d="M0 0 C 16 22, 20 50, 20 90 L20 175 L-20 175 L-20 90 C -20 50, -16 22, 0 0 Z" fill="url(#rocket)"/>
+  <path d="M-20 140 L-40 185 L-20 178 Z M20 140 L40 185 L20 178 Z" fill="#8e1a12"/>
+  <rect x="-20" y="96" width="40" height="10" fill="#2a2a22"/>
+  <!-- radiation symbol (simplified trefoil) -->
+  <g transform="translate(0 125)">
+    <circle r="12" fill="#e8c21a"/>
+    ${[0,120,240].map(a=>`<path d="M0 0 L${10*Math.cos((a-30)*Math.PI/180)} ${10*Math.sin((a-30)*Math.PI/180)} A10 10 0 0 1 ${10*Math.cos((a+30)*Math.PI/180)} ${10*Math.sin((a+30)*Math.PI/180)} Z" fill="#111"/>`).join('')}
+    <circle r="2.6" fill="#111"/>
+  </g>
+  <path d="M-14 30 C -10 60, -10 120, -12 170" stroke="#fff" stroke-width="3" opacity="0.5" fill="none"/>
+</g>`);
+
+// green banker's desk lamp: the only warm light in the room
+add(`<g transform="translate(735 1300)">
+  <ellipse cx="0" cy="120" rx="60" ry="12" fill="#000" opacity="0.6" filter="url(#b3)"/>
+  <ellipse cx="0" cy="112" rx="42" ry="10" fill="#6a4a1e"/><rect x="-4" y="30" width="8" height="82" fill="#8a6a2a"/>
+  <path d="M-70 40 Q0 -10 70 40 Z" fill="#0e4a2e"/><path d="M-70 40 Q0 -10 70 40" fill="none" stroke="#3a9a6a" stroke-width="2" opacity="0.6"/>
+  <ellipse cx="0" cy="40" rx="70" ry="9" fill="#ffe2a8"/>
+  <ellipse cx="0" cy="44" rx="170" ry="60" fill="#ffd08a" opacity="0.35" filter="url(#b40)" style="mix-blend-mode:screen"/>
+</g>`);
+// ---------- 8. people (drawn from behind, lit by the screen above and the lamp) ----------
+// Builds one person as a set of shapes. kind: "general" | "scientist" | "officer"
+function person(id, cx, sy, s, kind, lightX) {
+  const body = `M${cx-40*s} ${sy-60*s}
+    C ${cx-95*s} ${sy-44*s}, ${cx-170*s} ${sy-34*s}, ${cx-196*s} ${sy+18*s}
+    C ${cx-222*s} ${sy+62*s}, ${cx-232*s} ${sy+170*s}, ${cx-238*s} ${sy+900*s}
+    L ${cx+238*s} ${sy+900*s}
+    C ${cx+232*s} ${sy+170*s}, ${cx+222*s} ${sy+62*s}, ${cx+196*s} ${sy+18*s}
+    C ${cx+170*s} ${sy-34*s}, ${cx+95*s} ${sy-44*s}, ${cx+40*s} ${sy-60*s} Z`;
+  const neck = `<rect x="${cx-40*s}" y="${sy-125*s}" width="${80*s}" height="${100*s}" rx="${20*s}"/>`;
+  const head = `<ellipse cx="${cx}" cy="${sy-180*s}" rx="${64*s}" ry="${80*s}"/>
+    <ellipse cx="${cx-63*s}" cy="${sy-173*s}" rx="${12*s}" ry="${22*s}"/><ellipse cx="${cx+63*s}" cy="${sy-173*s}" rx="${12*s}" ry="${22*s}"/>`;
+  let hat = '';
+  if (kind === 'general') hat = `<rect x="${cx-74*s}" y="${sy-243*s}" width="${148*s}" height="${40*s}" rx="${8*s}"/>
+      <path d="M${cx-104*s} ${sy-237*s} C ${cx-110*s} ${sy-275*s}, ${cx+110*s} ${sy-275*s}, ${cx+104*s} ${sy-237*s} C ${cx+60*s} ${sy-225*s}, ${cx-60*s} ${sy-225*s}, ${cx-104*s} ${sy-237*s} Z"/>`;
+  if (kind === 'officer') hat = `<path d="M${cx-70*s} ${sy-225*s} L${cx-60*s} ${sy-267*s} L${cx+66*s} ${sy-271*s} L${cx+72*s} ${sy-225*s} Z"/>`;
+  const shapes = `<path d="${body}"/>${neck}${head}${hat}`;
+  const cloth = kind === 'scientist' ? 'url(#coat)' : 'url(#uniform)';
+  const dark = kind === 'scientist' ? '#26221d' : '#0b0a08';
+  let g = `<clipPath id="${id}">${shapes}</clipPath>`;
+  g += `<g clip-path="url(#${id})">
+    <rect x="${cx-320*s}" y="${sy-295*s}" width="${640*s}" height="${1300*s}" fill="${dark}"/>
+    <path d="${body}" fill="${cloth}"/>
+    <ellipse cx="${cx}" cy="${sy-180*s}" rx="${64*s}" ry="${80*s}" fill="#2a1c15"/>
+    ${kind==='scientist' ? `<path d="M${cx-66*s} ${sy-175*s} C ${cx-60*s} ${sy-115*s}, ${cx+60*s} ${sy-115*s}, ${cx+66*s} ${sy-175*s} L ${cx+66*s} ${sy-135*s} C ${cx+40*s} ${sy-93*s}, ${cx-40*s} ${sy-93*s}, ${cx-66*s} ${sy-135*s} Z" fill="#5c5650"/>` : ''}
+    ${kind!=='scientist' ? `<path d="M${cx-66*s} ${sy-195*s} C ${cx-60*s} ${sy-115*s}, ${cx+60*s} ${sy-115*s}, ${cx+66*s} ${sy-195*s} L ${cx+66*s} ${sy-125*s} C ${cx+40*s} ${sy-93*s}, ${cx-40*s} ${sy-93*s}, ${cx-66*s} ${sy-125*s} Z" fill="#120c09"/>` : ''}
+    ${hat ? `<g fill="#14140f">${hat}</g>` : ''}
+    ${kind==='general' ? `<rect x="${cx-74*s}" y="${sy-215*s}" width="${148*s}" height="${7*s}" fill="#b08a3a" opacity="0.7"/>` : ''}
+    <!-- cool rim light from the moon screen, from above and toward the middle -->
+    <ellipse cx="${lightX}" cy="${sy-305*s}" rx="${260*s}" ry="${150*s}" fill="#cfe0ff" opacity="0.5" filter="url(#b18)" style="mix-blend-mode:screen"/>
+    <!-- warm bounce from the lamp, lower down -->
+    <ellipse cx="${(cx+540)/2}" cy="${sy+120*s}" rx="${220*s}" ry="${120*s}" fill="#ffb870" opacity="0.18" filter="url(#b40)" style="mix-blend-mode:screen"/>
+    <!-- coat seam / shoulder crease details -->
+    <path d="M${cx} ${sy-50*s} L ${cx} ${sy+700*s}" stroke="#000" stroke-width="${3*s}" opacity="0.35"/>
+    <path d="M${cx-150*s} ${sy-10*s} C ${cx-170*s} ${sy+80*s}, ${cx-190*s} ${sy+200*s}, ${cx-200*s} ${sy+400*s}" stroke="#000" stroke-width="${4*s}" opacity="0.28" fill="none"/>
+    <path d="M${cx+150*s} ${sy-10*s} C ${cx+170*s} ${sy+80*s}, ${cx+190*s} ${sy+200*s}, ${cx+200*s} ${sy+400*s}" stroke="#000" stroke-width="${4*s}" opacity="0.28" fill="none"/>
+    ${kind!=='scientist' ? `<rect x="${cx-215*s}" y="${sy-14*s}" width="${70*s}" height="${22*s}" rx="${6*s}" fill="#2a2618" transform="rotate(18 ${cx-180*s} ${sy})"/>
+      <rect x="${cx+145*s}" y="${sy-14*s}" width="${70*s}" height="${22*s}" rx="${6*s}" fill="#2a2618" transform="rotate(-18 ${cx+180*s} ${sy})"/>
+      <circle cx="${cx-178*s}" cy="${sy-2*s}" r="${7*s}" fill="#d0a64a" opacity="0.85"/><circle cx="${cx+178*s}" cy="${sy-2*s}" r="${7*s}" fill="#d0a64a" opacity="0.85"/>` : ''}
+    ${kind==='scientist' ? `<path d="M${cx-60*s} ${sy-175*s} L ${cx-100*s} ${sy-187*s}" stroke="#d8d0c0" stroke-width="${3*s}" opacity="0.8"/>` : ''}
+    <!-- legs/lower body fall into the dark -->
+    <rect x="${cx-320*s}" y="${sy+150*s}" width="${640*s}" height="${900*s}" fill="url(#floorHaze)"/>
+  </g>`;
+  return g;
+}
+// middle-distance scientist (smaller, further away, between table and screen)
+
+// re-draw the table's front strip over his legs so he stands behind it
+add(`<polygon points="160,1460 920,1460 1080,1700 0,1700" fill="url(#table)" opacity="0.0"/>`);
+// two big foreground figures, cropped by the frame edges (over-the-shoulder shot)
+add(person('p1', 150, 1470, 1.15, 'general', 420));
+add(person('p3', 950, 1450, 1.05, 'officer', 720));
+
+// ---------- 9. title ----------
+add(`<g font-family="Anton, Impact, sans-serif" text-anchor="middle">
+  <g transform="translate(540 905)"><rect x="-150" y="-34" width="300" height="48" fill="#0a0706" opacity="0.75"/><rect x="-150" y="-34" width="300" height="48" fill="none" stroke="#c8b89a" stroke-width="1.5" opacity="0.6"/><text y="2" font-size="30" letter-spacing="10" fill="#e8dcc4">1958 · A119</text></g>
+  <g filter="url(#redglow)">
+    <text x="535" y="1052" font-size="132" letter-spacing="2" fill="#00e1ff" opacity="0.22">DESTROYING</text>
+    <text x="540" y="1050" font-size="132" letter-spacing="2" fill="url(#titleRed)">DESTROYING</text>
+  </g>
+  <text x="540" y="1112" font-size="52" letter-spacing="24" fill="#f4ece0">THE MOON</text>
+</g>`);
+
+// ---------- 10. finishing: haze, vignette, colour grade, grain ----------
+add(`<rect y="1500" width="${W}" height="420" fill="url(#floorHaze)"/>`);
+add(`<rect width="${W}" height="${H}" fill="url(#vignette)"/>`);
+add(`<rect width="${W}" height="${H}" fill="#1a3a5a" opacity="0.10" style="mix-blend-mode:soft-light"/>`);
+add(`<rect width="${W}" height="${H}" fill="#ff8a3a" opacity="0.06" style="mix-blend-mode:overlay"/>`);
+add(`<rect width="${W}" height="${H}" filter="url(#grain)" opacity="0.22" style="mix-blend-mode:overlay"/>`);
+
+document.getElementById('s').innerHTML = out.join('\n');
+</script>
+</body>
+</html>

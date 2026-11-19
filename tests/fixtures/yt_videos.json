@@ -1,0 +1,5 @@
+{"items": [
+ {"id": "v1", "statistics": {"viewCount": "2500000"}, "contentDetails": {"duration": "PT18M30S"}},
+ {"id": "v2", "statistics": {"viewCount": "400000"}, "contentDetails": {"duration": "PT1H2M"}},
+ {"id": "v3", "statistics": {"viewCount": "90000"}, "contentDetails": {"duration": "PT55S"}}
+]}

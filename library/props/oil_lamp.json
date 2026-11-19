@@ -1,0 +1,20 @@
+{
+  "name": "oil_lamp",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.oil_lamp(loc, heading_deg, lit, power, frames, seed)",
+  "contents": "black-glazed wheel-made lamp ~8 cm, nozzle, loop handle, flame + flickering 6 W light",
+  "design_source": "Athenian Agora lamps, Howland types 21-23 (c. 500-450 BC)",
+  "licence": "our own code",
+  "self_rating": {
+    "shape": 7,
+    "surface": 5,
+    "era": 9,
+    "notes": "own flame lights the body grey (light too close)"
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws7/furniture_close_v2.png"
+  ]
+}

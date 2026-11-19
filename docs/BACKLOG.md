@@ -1,0 +1,220 @@
+# Timeless Compass — full build backlog (for parallel sessions)
+
+Goal: animated cinematic 3D documentaries (history + secret government projects) at ~85% of the quality of the
+Heroes of Bronze reference (quality ruler only — rule r9: never copy). Status 2026-11-19: ~62% overall.
+Branch: `cinematic-agent` in `C:\Users\User\timeless-compass`. Spec: `docs/superpowers/specs/2026-11-19-cinematic-agent-design.md`.
+
+---
+
+## RULES FOR EVERY SESSION (read first)
+
+1. **Claim before you start.** Put your session name next to the task in this file (`CLAIMED: <name>`), and only edit
+   the files listed for your workstream. If you must touch another workstream's file, ask the owner first.
+2. **Only ONE Blender at a time on this laptop — use the lock file:** before running Blender, check that
+   `spike/BLENDER_LOCK` does not exist, then create it containing your session name + start time; delete it when
+   Blender exits (also on errors). If it exists, wait or do code/tests instead.
+   **Only ONE Blender render at a time on this laptop** (16 GB RAM, often ~4 GB free — two Blenders crash everything).
+   Before starting Blender, check `Get-Process blender`. Code, tests, research and tiny Workbench previews are fine;
+   long Cycles renders wait their turn. Close Edge/Chrome tabs you don't need.
+3. **Disk is ~96% full (≈20 GB free).** Downloads go through `python -m tc assets` (3 GB cap) / `tc sketchfab` /
+   `tc mixamo`. Never download whole libraries. Delete your test frames when done.
+4. **No commits / pushes** unless the owner says so. Never print or commit keys (`.env` holds MIXAMO_TOKEN,
+   SKETCHFAB_TOKEN, FISH_AUDIO_API_KEY, Azure keys). The repo is PUBLIC.
+5. **No spending money**, no AI-generated images/3D/music. Free + CC0 / CC-BY only (credit lines go in
+   `library/scans/<id>/asset.json`). Mixamo raw files stay outside the repo (`C:\Users\User\tools\mocap\mixamo`).
+6. **TDD for `tc/` code** (`python -m pytest`, must stay green). Blender code is verified by renders: put stills in
+   `spike/lib_stills/<task>/` and run `python -m tc look <png>` (rule r10, score ≥ 80).
+7. Heavily commented code (owner is learning). Era accuracy is mandatory (design from busts, vase paintings,
+   museum pieces, Herodotus/Plutarch). Owner rules: `python -m tc rules`.
+8. When a task is done: tick it here, add one line to `spike/review/README.md`, keep tests green.
+
+Tools you will use: Blender 5.3 portable `C:\Users\User\tools\blender-5.3.0-windows-x64\blender.exe`
+(`blender -b --python <script> -- args`), MPFB (MakeHuman) extension, `python -m tc --help`.
+
+---
+
+## OWNER (needs the human)
+- [ ] Commit + push branch `cinematic-agent` (nothing committed yet)
+- [ ] Disable the old scheduled `.github/workflows/pipeline.yml` on `main` (still runs Mon/Wed/Fri)
+- [ ] Kaggle: phone-verify + API token → `.env` (free GPU rendering — needed before final renders)
+- [ ] YouTube Data API key → `.env` `YOUTUBE_API_KEY` (topic demand scoring)
+- [ ] Freesound API key → `.env` `FREESOUND_API_KEY` (sound effects)
+- [x] Character voices picked → `library/voices.json` (5 Fish voices)
+- [ ] Fish Audio: decide free vs paid before monetisation (free plan terms = non-commercial)
+- [x] Mixamo account (25 motions downloaded) · [x] Sketchfab token (museum scans downloaded)
+
+---
+
+## WS1 Characters & faces (also: `tc cast` list/missing/promote + `blender/scenes/cast_card.py` character cards) — files: `blender/lib/cast.py`, `blender/lib/expressions.py`, `library/cast/*.json`
+(this session — main thread)
+- [x] Sculpted faces from portraits, skin v2, wet eyes, age lines, groomed hair/beards, 11 expressions
+- [x] Talking face layer: `blender/lib/talk.py` silent_talk / listen / lip_sync(Rhubarb A-H,X); 9 mouth shapes
+      verified (`spike/lib_stills/talk2/sheet.png`), teeth split at the bite line
+- [ ] Lip sync: integrate Rhubarb Lip Sync (free) → mouth shapes from a dialogue WAV (check MPFB viseme targets)
+- [~] Women: `cast.hair_bun` (gathered krobylos + ribbon) + `cast.groom(spec)` written, render test pending; female
+      face recipes (Artemisia); jewellery → WS3; children test renders
+- [~] Strand eyebrows: `cast.brow_strands` (spec flag `brow_strands`), render test pending
+- [x] Cast specs: xerxes (v2 face/hair), leonidas, artemisia, aristides, eurybiades, sicinnus in `library/cast/`
+      (their wardrobes come from WS3)
+- [ ] Skin close-up pass: pores/micro-normal stronger on cheeks/nose, subsurface tuning, ear translucency check
+
+## WS2 Crowds — files: `tc/crowd.py`, `tests/test_crowd.py`, NEW `blender/lib/crowd.py`
+- [x] `tc/crowd.py` generator (roles, eras, no lookalikes, cast history) — tests green
+- [~] Blender crowd builder `blender/lib/crowd.py` (mid people fully built + frozen skinned cloth + own clip offset;
+      far = instances) + `blender/scenes/crowd_test.py` (render queued)
+- [~] Eras: usa_1950s + ussr_1950s done (MakeHuman suits/work suits/fedoras, clean-shaven, 8 roles); TODO egypt,
+      rome_republic, medieval
+- [x] `tc assemble`: `crowd:<role>:<n>` in `who` → unique extras in the recipe, saved to `cast_history.json`; shot.py
+      places them behind the actors
+
+## WS3 Wardrobe — files: `blender/lib/wardrobe.py`, `library/wardrobe/*.json` — CLAIMED: Session D
+- [x] Chiton (wide, belt folds), himation, scanned linen/wool (`scan_cloth`), settle-then-follow cloth for motion
+- [x] Women's peplos + veil; exomis (one-shoulder worker tunic); child tunic; priest/priestess robes
+      DONE (Session D): `wardrobe.peplos/veil/exomis/child_tunic/priest_robes`, scene `blender/scenes/ws3_wardrobe.py`,
+      stills `spike/lib_stills/ws3/` (all `tc look` >= 83). Open: veil + priestess stephane tent above the crown;
+      overfold flares a little at the arms; child shoulders boxy
+- [x] Belts, sandals, cloak pins (fibulae), jewellery (diadems, earrings, necklaces)
+      DONE: `belt` (cord+knot / strap, collider), `sandals`, `dress_pins` (perone / fibula), `diadem`, `fillet`,
+      `earrings`, `necklace`. Open: pins too small to read at full shot; fibula not yet rendered
+- [x] Persian: candys robe (wide sleeves, pleats), trousers, sleeved tunic, tiara/kidaris, Immortal dress → Xerxes v2
+      DONE: `trousers`, `candys`, `wide_sleeves`, `median_tunic`, `tight_sleeves`, `persian_cap` (royal / fluted /
+      median); Xerxes v2 = `blender/scenes/xerxes_v2.py king` (xerxes_king_v3.png, look 100). Open: squared relief
+      beard (WS1), sceptre + lotus (WS7), Immortal spear/bow kit (WS4); fluted cap coded, not rendered
+- [x] Wear: patches, frayed hems, sweat/dirt maps by rank (crowd `dye.grime`, `dye.patched`)
+      DONE: `worn_cloth` + `crowd_cloth(name, person['dye'])`; swatches `ws3_wardrobe.py swatches [close]`
+
+## WS4 Armour & weapons (main session added: `armour.follow_body` rigid bone-riding kit, emblem shield faces,
+## `blender/lib/crowd.arm_hoplite` = unique armed extras; phalanx test queued) — files: `blender/lib/armour.py`, `library/wardrobe/greek_hoplite_480bc.json`
+- [ ] Armour follows the body in motion (bind cuirass/greaves/helmet to bones; no clipping on a walk)
+- [ ] Compare our Corinthian helmet with the CC0 museum scan `library/scans/helmet_corinthian_cleveland` (glb);
+      either adopt the scan (retexture bronze) or improve ours
+- [ ] Helmet variants (Chalcidian, pilos), crest colours, commander's tall crest
+- [x] Shield emblem painter `tc/emblems.py` (`tc emblems <dir>`): all 22 emblems, vase-painting colours, round alpha
+      texture (v1 animals are simple silhouettes) — TODO: map onto `armour.aspis`
+- [ ] Linothorax, spear/sword variants, Persian wicker shield (spara), bows + quivers, scale armour
+
+## WS5 Motion & acting — files: `blender/lib/motion.py`, `blender/lib/pose.py`, `blender/lib/life.py`
+- [x] CMU + Mixamo retargeting onto the full face rig, life layer, gestures, two-bone `pose.reach` (hand contacts)
+- [x] All 25 Mixamo clips tested (`blender/scenes/mixamo_test.py`, report in spike/lib_stills/mixamo/): no failures;
+      8 floated (up to 1.66 m) → per-frame grounding `motion.ground_feet` added (re-test queued)
+- [~] Grounding done (feet on the floor every frame); hand contacts done (`pose.reach`); TODO foot-sliding lock
+- [ ] Sitting on a chair/throne, kneeling, bowing sequences; clip blending (idle → gesture → idle)
+- [ ] Action index: tag every clip with action words; expand `tc/assemble.py ACTIONS` from it
+- [ ] Rowing animation (oars in stroke + rowers), fighting choreography (two-person exchanges)
+- [ ] Horse: test `library/scans/horse_akhalteke` (CC-BY, rigged + 3 animations); era-correct saddle cloth + bridle;
+      rider sitting on it
+
+## WS6 Sets & environments — files: `blender/lib/sets.py`, `blender/lib/scatter.py`, `library/sets/*.json`
+(this session owns Salamis v2)
+- [x] Salamis v2 cove with real scans (rocks, grass, bushes, trees), sandstone wall, amphorae, haze
+- [~] Mountains: Voronoi erosion ridges added to `sets.land` (render check pending); scanned rock at distance
+- [~] Athens 480 BC: `lib/architecture.py` (Doric temple kit, painted polychrome; houses) + `sets.athens_480bc` with
+      the Old Temple of Athena on a flat-topped `sets.mesa` Acropolis (no Parthenon in 480 BC!); TODO: streets/agora,
+      tiling-break check, burning version
+- [~] Thermopylae: `sets.thermopylae_480bc` (coastal shelf, Kallidromos cliffs, Phocian wall) written, render pending
+- [~] `sets.xerxes_throne_aigaleos` (Herodotus 8.90): pavilion, golden throne, standards, camp tents — render queued
+- [~] Interiors: `architecture.palace_hall` + `sets.persian_palace_interior` (light shafts) render queued; TODO house
+      courtyard, temple interior
+- [~] Day skies: `common.hdri_sky` (camera sees real clouds, scene lit gently) used by Athens; TODO night/moon
+- [~] FX `blender/lib/fx.py`: smoke columns, flames (blackbody), flickering fire light, embers; used by burning Athens;
+      TODO dust, sea spray, wakes
+
+## Animals (main session): downloaded CC-BY/CC0 camels (animated), sheep (animated), seagull, raven (museum CC0) to
+## library/scans/animal_*; `fx.bird_flock` (flapping gull/crow flocks, used over Salamis). TODO dogs, goats, oxen, horses (WS7)
+
+## WS7 Props & ships — files: `blender/lib/props.py`, NEW `blender/lib/scans_glb.py` — CLAIMED: Session E
+- [x] Trireme, code amphora
+- [x] Loader for Sketchfab glb scans: `scans_glb.load_glb(id, height_m|width_m, loc, rot_z_deg)` - museum size from
+      `KNOWN`, base on the ground, one shared-mesh copy per call, material fix (spec-gloss IOR 1000 = mirror bug ->
+      1.5; roughness clamp; colour spaces); rigged scans keep their rig (`clips()`, `play()`)
+- [x] Museum pottery + Corinthian helmet at real size, era checked from museum records -> `library/props/*.json`
+      (krater_bell_met = 430-410 BC Lucanian: background only for 480 BC). `lib_stills/ws7/pottery_v3.png` (look 83),
+      `pottery_close_v2.png` (83)
+- [x] Horse (CC-BY): 1.42 m withers, Trot/Run_Gallop/Chewing play; `props.horse_tack()` saddle cloth (greek/persian
+      + fringe), girth, bridle, bronze bit, reins, rider_seat marker - NO saddle/stirrups. `horse_trot_f10_v3.png` (100)
+      TODO: re-render persian/gallop after the v3 strap fix; reins are thin tubes
+- [x] Phoenician trireme (`trireme_phoenician`), fishing boat, furniture (klismos, kline, trapeza, footstool, kibotos),
+      oil lamp + lamp stand, braziers (bronze/clay, fire glow), baskets, rope coil, stone anchor. Ships look 100
+      (`fleet_v1`, `boat_v2`). OPEN: room still (`furniture_v3`) look 67 (too warm/saturated); kline blanket pale +
+      smeared; brazier flame reads as white haze; lamp lit grey by its own flame; rope/anchor not yet in a frame
+- [~] Trireme v2 (`trireme_v2`): 170 pivoted oars with looping stroke (verified `oars_f1_v1` vs `oars_f16_v1`, look 100),
+      steering oars, crew markers (all roles + 170 rower seats) + far-shot proxies, forward motion + swell.
+      Sail ('set', brailed linen) built + smoke-tested but NOT yet seen in a render (fleet_v2 stopped: low memory).
+      Slow to build (~100-150 s: old trireme() makes 340 objects)
+
+## WS8 Lighting & camera — files: NEW `blender/lib/lighting.py`, `blender/lib/camera_moves.py`
+- [x] `blender/lib/lighting.py` film_lights(subject, camera, mood): dusk/day/night/firelit/interior/menace; used by shot.py
+- [ ] God rays / volumetric shafts (interiors, forest), sun through leaves
+- [ ] Shot-type camera rules: lens + distance + focus per shot type (close-up 85 mm f/2, medium 50 mm, wide 28 mm)
+- [ ] Every shot through `tc look` + `tc finish` before review
+
+## WS9 Rendering infrastructure — files: `cloud/`, `.github/workflows/`, `tc/render_plan.py` — CLAIMED: Session C
+- [x] Kaggle GPU render notebook: `tc kaggle <job> --shard N [--resume]` writes notebook + metadata (`cloud/kaggle/render_shard.py`); GPU OptiX/CUDA, only needed scans, 11 h budget, resume. Needs owner Kaggle token to push
+- [x] GitHub Actions CPU shards: `.github/workflows/render-shards.yml` (≤20 runners, manual start, artifacts, resume_run_id, report). Needs owner push + run
+- [x] Asset cache: `tc cache index|plan|built|fetch|push`, `library/scans_index.json`, `cloud/build_asset_cache.py`, `cloud/r2_push.sh` (6 GB budget). Needs owner R2 bucket; WS10 must append cached .blend in build.py
+- [x] Denoise (OIDN) + lower samples + adaptive; Eevee for wide/landscape (`tc render-plan --speed`, `cloud/blender_shot.py`); estimates until M3 measures
+- [x] Resume + frame checks (missing/black/broken) + requeue + join: `tc render-shard`, `tc frames check|requeue|join` (`tc/render_farm.py`)
+
+## Main session sets added tonight: athens_480bc (+burning, fx), thermopylae_480bc, xerxes_throne_aigaleos, persian_palace_interior,
+## salamis_night_v2, courtyard_house (architecture), lab_1950s (modern.py) — fixes/tests in the render queues
+
+## WS10 Shot pipeline — files: `blender/scenes/shot.py`, `blender/lib/build.py`, `tc/assemble.py`
+- [~] `shot.py` uses: full-face-rig mocap, settle-follow cloth, expressions, talk/listen, life layer (done, CLAIMED: main);
+      still to add: crowds, museum props, finishing
+- [ ] Contact-sheet gate: render one still per shot → sheet → `tc look` → owner review before full render
+- [~] Shorts: `shot.py` vertical 1080x1920 mode (`format: short`): own camera, tighter, wider lens; TODO safe areas
+
+## WS11 Audio — files: NEW `tc/sfx.py`, NEW `tc/dialogue.py`, `tc/voice.py` — CLAIMED: Session A
+- [x] Dialogue: script lines `NAME: "..."` → Fish Audio voice per character (`spike/voices_fish/` tests), log every
+      Fish line used (`library/fish_usage.json`)
+      DONE `tc dialogue <id>` (free model only, cached, splices into voice.wav via `tc voice`; live-tested)
+- [x] Rhubarb lip sync from dialogue WAV → mouth-shape timeline for WS1
+      DONE `tc/lipsync.py`, Rhubarb 1.14 in `C:/Users/User/tools/rhubarb`; `jobs/<id>/lipsync.json` (cues + mouth
+      controls jaw/round/closed/wide/teeth_lip/tongue + one shape per frame) for WS1
+- [x] SFX sources: Sonniss GDC bundles (best, no credit; download only needed categories), Pixabay SFX (no credit),
+      The Beat / PremiumBeat free packs, Freesound (filter per sound: CC0 / CC-BY only, NEVER CC-BY-NC; write credit
+      lines). SFX fetch; layered sound design per shot (march = steps + armour +
+      spears + chant + wind); ambiences (sea, wind, crowd walla, fire)
+      DONE code: `tc sfx add|fetch|plan` -> `jobs/<id>/sound.json`. LIBRARY EMPTY: needs FREESOUND_API_KEY (owner)
+      and hand downloads (Sonniss categories / Pixabay) registered with `tc sfx add`
+- [x] Music: ONLY at chosen moments (rule r11: hook, tension, battle/climax, emotional beats, ending); other scenes =
+      ambience + SFX only. The agent must CHOOSE music by meaning:
+      1. `library/music/tracks.json`: every track tagged mood (tension, menace, mystery, grief, triumph, awe, hope,
+         dread), intensity 1-5, era fit (ancient: lyre/aulos/frame drum/choir · epic orchestral · cold-war/modern: dark
+         strings, synth pulse), shape (slow build / steady / hit / fade-out), length, tempo, licence, source
+      2. shot list gets `music: {cue, mood, from, to, era}` only where r11 allows (script structure gives the beats)
+      3. picker: best tag match; start on a line/cut, put the track's peak on the climax shot, fade out on a story beat,
+         duck under narration, swell in gaps; never the same track in two consecutive videos (`library/music/used.json`)
+      4. learning: retention dips during music + owner feedback → rules (`tc learn`)
+      Sources: YouTube Audio Library, Pixabay Music (free commercial), FMA CC0/CC-BY
+      DONE code: `tc music add|pick|learn` -> `jobs/<id>/music.json`. CATALOGUE EMPTY: tracks to be downloaded by hand
+      + tagged with `tc music add`
+- [x] Mix + loudness standard (check owner audio rules), Shorts louder
+      DONE `tc mix <id>` -> `mix.wav` 48k stereo: long -12 LUFS, Shorts -10 LUFS, TP <= -1 dB, music+ambience ducked
+      under voice (CapitalCode-approved levels; owner to confirm by ear on the first real video)
+
+## WS12 Edit & finish — files: NEW `tc/edit.py`, `tc/finish.py`
+- [x] `tc finish` film look (grade, bloom, grain, vignette)
+- [ ] Timeline assembly: shot renders + narration + dialogue + music + SFX → master (ffmpeg), 2.35:1 letterbox
+- [ ] Place/date cards and map labels (only allowed text), end card
+- [ ] QA: black frames, audio sync, loudness, length, missing shots
+
+## WS13 Script, research, packaging — files: `tc/script.py`, NEW `tc/research.py`, `tc/packaging.py` — CLAIMED: Session B
+- [x] Dialogue lines in the script format (`NAME: "..."  [dramatised]` or `[source: ...]`) + checker: max 2 per
+      video; a source is required only for lines presented as real quotes; dramatised lines allowed (rule r12);
+      packaging adds 'Some dialogue is dramatised.' to the description (`tc description <id>`)
+- [x] Research stage: sourced facts file per job (Herodotus, Plutarch, modern historians) — `tc research <id>
+      --world salamis_480bc --topics ...` (world sheet `library/research/salamis_480bc.json`, 37 facts)
+- [x] Thumbnails rendered from the 3D scenes (big face + emotion + era detail), 3 variants — `tc thumbnail`
+      (plan + render requests + finish + phone check done; Blender `blender/scenes/thumbnail.py` = TODO in
+      `tc/thumbnail.py render_request`, needs WS1/WS8)
+- [x] First test series: 5 Salamis-world Shorts (secret message, Xerxes' throne, rams, Athens burning, the oracle)
+      — jobs `20261119-1824-*` (script.md passes `tc script`, awaiting owner approval; thumbs/plan.json)
+
+## WS14 Learning & analytics — files: `tc/learning.py`, NEW `tc/analytics.py`
+- [ ] YouTube Analytics after upload (OAuth): swipe-away, % watched, subs per 1k views → rules
+- [ ] Look-gate history (which settings passed) → defaults for next videos
+
+## WS15 Housekeeping
+- [ ] Keep `README.md`, `blender/README.md`, plan docs current
+- [ ] Final whole-branch code review before the owner commits

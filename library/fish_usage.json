@@ -1,0 +1,18 @@
+{
+  "_note": "Every Fish Audio line used by Timeless Compass (tc dialogue). bytes = what Fish bills on paid plans.",
+  "lines": [
+    {
+      "date": "2026-11-19T18:25:33",
+      "job": "ws11-live-test",
+      "line": 0,
+      "speaker": "XERXES",
+      "voice": "xerxes",
+      "reference_id": "f8dfe9c83081432386f143e2fe9767ef",
+      "model": "s2.1-pro-free",
+      "bytes": 43,
+      "text": "My men have become women, and my women men.",
+      "file": "line_000_xerxes_2da22966.mp3",
+      "cached": false
+    }
+  ]
+}

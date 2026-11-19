@@ -1,0 +1,277 @@
+<!doctype html>
+<!--
+  SPIKE (throwaway): "living marble" Zeus for Timeless Compass Greek topics.
+  Idea: draw people as the era's own art. Marble is smooth and one colour, so code can shade it
+  very realistically with soft blurred light and shadow, then add veins, cracks and glowing gold.
+  Pure code: SVG + JavaScript, rendered to a 1080x1920 still with headless Edge.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Cinzel:wght@600;800&display=block" rel="stylesheet">
+<style>html,body{margin:0;width:1080px;height:1920px;background:#050404;overflow:hidden}svg{display:block}</style>
+</head>
+<body>
+<svg id="s" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg"></svg>
+<script>
+// seeded random so every render is identical
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R = rng(777), W = 1080, H = 1920, CX = 540;
+const out = []; const add = s => out.push(s);
+const usedBlur = new Set([2,4,8,14,24,40,70]);
+const blur = (n) => { usedBlur.add(n); return `filter="url(#b${n})"`; };
+
+// ---------- definitions ----------
+add(`<defs>
+  ${[2,4,8,14,24,40,70].map(b=>`<filter id="b${b}" filterUnits="userSpaceOnUse" x="-600" y="-600" width="2280" height="3120"><feGaussianBlur stdDeviation="${b}"/></filter>`).join('')}
+  <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" stitchTiles="stitch"/>
+    <feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .6 0"/></filter>
+  <!-- marble veins: noise turned into thin wandering grey lines -->
+  <filter id="veins" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.006 0.016" numOctaves="4" seed="21"/>
+    <feComponentTransfer>
+      <feFuncR type="table" tableValues="0 0 0 0 0 0 0 0 0 0 .8 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .5 0 0 0 0 0 0 0"/>
+    </feComponentTransfer>
+    <feColorMatrix values="0 0 0 0 .32  0 0 0 0 .30  0 0 0 0 .30  1.4 0 0 0 0"/>
+    <feGaussianBlur stdDeviation="0.8"/>
+  </filter>
+  <!-- fine stone pores -->
+  <filter id="pores" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" seed="8"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  <filter id="goldglow" filterUnits="userSpaceOnUse" x="-600" y="-600" width="2280" height="3120">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="a"/><feGaussianBlur in="SourceGraphic" stdDeviation="22" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <radialGradient id="bg" cx="50%" cy="36%" r="70%">
+    <stop offset="0" stop-color="#2a3442"/><stop offset=".45" stop-color="#11161e"/><stop offset="1" stop-color="#030406"/>
+  </radialGradient>
+  <linearGradient id="col" x1="0" x2="1">
+    <stop offset="0" stop-color="#0c0f14"/><stop offset=".35" stop-color="#3a4250"/><stop offset=".55" stop-color="#596272"/><stop offset="1" stop-color="#0a0c10"/>
+  </linearGradient>
+  <!-- marble base: warm white, light from upper left -->
+  <radialGradient id="marble" cx="38%" cy="28%" r="80%">
+    <stop offset="0" stop-color="#fbf8f2"/><stop offset=".45" stop-color="#dcd6cc"/><stop offset=".8" stop-color="#9e978c"/><stop offset="1" stop-color="#5e5850"/>
+  </radialGradient>
+  <linearGradient id="sideShade" x1="0" x2="1">
+    <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset=".55" stop-color="#000" stop-opacity="0"/>
+    <stop offset=".8" stop-color="#1a1c24" stop-opacity=".45"/><stop offset="1" stop-color="#0a0c12" stop-opacity=".75"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fff1b0"/><stop offset=".4" stop-color="#f0b83a"/><stop offset="1" stop-color="#8a5a10"/>
+  </linearGradient>
+  <linearGradient id="titleGold" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fff6d0"/><stop offset=".5" stop-color="#f2c04a"/><stop offset="1" stop-color="#a06a12"/>
+  </linearGradient>
+  <radialGradient id="vig" cx="50%" cy="45%" r="72%"><stop offset=".5" stop-opacity="0"/><stop offset="1" stop-opacity=".92"/></radialGradient>
+  <linearGradient id="fadeDown" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-opacity="0"/><stop offset="1" stop-opacity=".95"/></linearGradient>
+</defs>`);
+
+// ---------- background: dark temple, storm light behind ----------
+add(`<rect width="${W}" height="${H}" fill="url(#bg)"/>`);
+// storm glow behind the head
+add(`<ellipse cx="${CX}" cy="640" rx="520" ry="560" fill="#7f9cc8" opacity=".25" ${blur(70)}/>`);
+// distant columns (smaller, foggier) then near columns (bigger, darker) = depth
+[[70,0.5,.35],[1010,0.5,.35],[200,0.75,.6],[880,0.75,.6]].forEach(([x,s,o])=>{
+  const w = 120*s, top = 120, bot = 1700;
+  add(`<g opacity="${o}"><rect x="${x-w/2}" y="${top}" width="${w}" height="${bot-top}" fill="url(#col)"/>
+    ${Array.from({length:6},(_,i)=>`<rect x="${x-w/2+ (i+0.5)*w/6 -1.5}" y="${top}" width="3" height="${bot-top}" fill="#000" opacity=".35"/>`).join('')}
+    <rect x="${x-w*0.7}" y="${top-30*s}" width="${w*1.4}" height="${34*s}" fill="#2a303a"/></g>`);
+});
+// big near columns at the frame edges, almost black
+[[-20,1],[1100,1]].forEach(([x])=>add(`<rect x="${x-110}" y="0" width="220" height="${H}" fill="url(#col)" opacity=".9"/><rect x="${x-110}" y="0" width="220" height="${H}" fill="#000" opacity=".55"/>`));
+// lightning bolt far behind, softly glowing
+function bolt(x, y, len, seed){ const r=rng(seed); let d=`M${x} ${y}`; let cx=x, cy=y;
+  for(let i=0;i<14;i++){ cx+= (r()-0.5)*70; cy+= len/14; d+=` L${cx.toFixed(1)} ${cy.toFixed(1)}`; } return d; }
+const B1 = bolt(860, 60, 520, 5), B2 = bolt(200, 120, 380, 9);
+[B1,B2].forEach((d,i)=>add(`<path d="${d}" stroke="#bcd4ff" stroke-width="${i?8:14}" fill="none" opacity=".35" ${blur(14)}/>
+  <path d="${d}" stroke="#eef4ff" stroke-width="${i?2:3}" fill="none" opacity="${i?.5:.85}"/>`));
+// god-rays from the top
+for(let i=0;i<7;i++){ const x=CX-380+i*125+R()*30;
+  add(`<polygon points="${x},-20 ${x+40},-20 ${x+160+R()*80},1300 ${x-80},1300" fill="#cfe0ff" opacity="${.03+R()*.035}" ${blur(24)}/>`); }
+
+// ---------- the statue silhouette (head + hair + beard + bust) ----------
+// We union these shapes into one clip, then paint light and shadow INSIDE it like a sculptor.
+const headPath = `M${CX-160} 760 C ${CX-170} 560, ${CX-90} 470, ${CX} 468 C ${CX+90} 470, ${CX+170} 560, ${CX+160} 760
+  C ${CX+158} 860, ${CX+130} 960, ${CX+80} 1010 L ${CX-80} 1010 C ${CX-130} 960, ${CX-158} 860, ${CX-160} 760 Z`;
+// beard outline: wide at the cheeks, flowing down to a rounded point
+const beardPath = `M${CX-168} 770 C ${CX-215} 900, ${CX-220} 1080, ${CX-150} 1200 C ${CX-100} 1290, ${CX-40} 1330, ${CX} 1338
+  C ${CX+40} 1330, ${CX+100} 1290, ${CX+150} 1200 C ${CX+220} 1080, ${CX+215} 900, ${CX+168} 770
+  C ${CX+150} 860, ${CX+110} 950, ${CX+50} 972 Q ${CX} 986 ${CX-50} 972 C ${CX-110} 950, ${CX-150} 860, ${CX-168} 770 Z`;
+const hairPath = `M${CX-205} 800 C ${CX-250} 560, ${CX-140} 400, ${CX} 396 C ${CX+140} 400, ${CX+250} 560, ${CX+205} 800
+  L ${CX+160} 790 C ${CX+165} 700, ${CX+130} 625, ${CX+40} 612 Q ${CX} 606 ${CX-40} 612 C ${CX-130} 625, ${CX-165} 700, ${CX-160} 790 Z`;
+const bustPath = `M${CX-105} 1100 C ${CX-200} 1190, ${CX-330} 1230, ${CX-400} 1300 C ${CX-450} 1350, ${CX-445} 1480, ${CX-400} 1580 L ${CX-330} 1700 L ${CX+330} 1700 L ${CX+400} 1580
+  C ${CX+445} 1480, ${CX+450} 1350, ${CX+400} 1300 C ${CX+330} 1230, ${CX+200} 1190, ${CX+105} 1100 Z`;
+add(`<clipPath id="statue"><path d="${headPath}"/><path d="${beardPath}"/><path d="${hairPath}"/><path d="${bustPath}"/></clipPath>`);
+add(`<clipPath id="face"><path d="${headPath}"/></clipPath>`);
+
+// soft shadow the statue casts on the dark behind it
+add(`<g ${blur(40)} opacity=".7" transform="translate(30 30)"><path d="${hairPath}"/><path d="${beardPath}"/><path d="${bustPath}"/><path d="${headPath}"/></g>`);
+
+const S = []; // everything painted inside the statue
+S.push(`<rect x="0" y="380" width="${W}" height="1400" fill="url(#marble)"/>`);
+
+// --- bust: chest + draped cloth (himation) over the left shoulder ---
+S.push(`<path d="${bustPath}" fill="#cfc8bc"/>`);
+S.push(`<ellipse cx="${CX-300}" cy="1330" rx="110" ry="80" fill="#fffcf4" opacity=".8" ${blur(30)}/>`);
+S.push(`<ellipse cx="${CX+320}" cy="1360" rx="120" ry="160" fill="#1a1c24" opacity=".55" ${blur(30)}/>`);
+S.push(`<path d="M${CX-400} 1300 C ${CX-450} 1350, ${CX-445} 1480, ${CX-400} 1580" stroke="#2a2a30" stroke-width="40" fill="none" opacity=".35" ${blur(18)} transform="translate(30 0)"/>`);   // lit chest
+S.push(`<ellipse cx="${CX+230}" cy="1500" rx="200" ry="300" fill="#2a2c34" opacity=".5" ${blur(40)}/>`);    // shadow side
+// drape folds: alternating light/dark curved bands running diagonally from the shoulder
+for (let i = 0; i < 9; i++) {
+  const o = i * 46;
+  const d = `M${CX-470+o*0.2} ${1290+o} C ${CX-250+o*0.5} ${1240+o*1.1}, ${CX-40+o*0.6} ${1420+o*0.9}, ${CX+120+o*0.4} ${1760}`;
+  S.push(`<path d="${d}" stroke="#3a3836" stroke-width="${16+R()*8}" fill="none" opacity=".35" ${blur(8)}/>`);
+  S.push(`<path d="${d}" stroke="#fffaf0" stroke-width="${7+R()*5}" fill="none" opacity=".45" ${blur(4)} transform="translate(-14 -8)"/>`);
+}
+
+// --- hair: rows of carved curls framing the face, with a gold diadem ---
+function curl(x, y, s, flip, light) {
+  const f = flip ? -1 : 1;
+  const d = `M${x-14*s*f} ${y-16*s} C ${x+20*s*f} ${y-26*s}, ${x+26*s*f} ${y+10*s}, ${x+4*s*f} ${y+18*s} C ${x-10*s*f} ${y+22*s}, ${x-16*s*f} ${y+6*s}, ${x-4*s*f} ${y+1*s}`;
+  return `<path d="${d}" stroke="#1a1a1e" stroke-width="${18*s}" fill="none" opacity=".45" ${blur(4)} transform="translate(${5*s} ${7*s})"/>
+    <path d="${d}" stroke="${light}" stroke-width="${15*s}" stroke-linecap="round" fill="none"/>
+    <path d="${d}" stroke="#fffdf8" stroke-width="${4*s}" stroke-linecap="round" fill="none" opacity=".55" transform="translate(${-3*s} ${-3*s})"/>
+    <path d="${d}" stroke="#4a4640" stroke-width="${2.2*s}" fill="none" opacity=".55" transform="translate(${3*s} ${3*s})"/>`;
+}
+S.push(`<path d="${hairPath}" fill="#a69e92"/>`);
+const ctx = document.createElement("canvas").getContext("2d");
+const inside = (d, x, y) => ctx.isPointInPath(new Path2D(d), x, y);
+for (let y = 410; y < 800; y += 36) for (let x = CX - 240; x < CX + 240; x += 38) {
+  const jx = x + (R() - .5) * 14 + ((y / 36) % 2) * 19, jy = y + (R() - .5) * 10;
+  if (!inside(hairPath, jx, jy)) continue;
+  const lit = jx < CX - 60 ? "#ebe5d9" : jx < CX + 60 ? "#d2cbbe" : "#a59d90";
+  S.push(curl(jx, jy, 1.05 + R() * .3, jx > CX, lit));
+}
+for (let row = 0; row < 0; row++) {
+  const n = 13 - row, rad = 190 - row * 34;
+  for (let i = 0; i < n; i++) {
+    const a = Math.PI * (0.98 + (i + 0.5) / n * 1.04) + (R() - .5) * .06;
+    const x = CX + Math.cos(a) * rad * 1.05, y = 655 + Math.sin(a) * rad * 1.15;
+    const lit = x < CX ? '#e6e0d4' : '#b3ab9e';
+    S.push(curl(x, y, 1.45 - row * 0.12, x > CX, lit));
+  }
+}
+// side locks falling by the temples
+for (let i = 0; i < 5; i++) { S.push(curl(CX-182, 700+i*42, 1.25, false, '#d8d1c4')); S.push(curl(CX+182, 700+i*42, 1.25, true, '#a39b8e')); }
+
+// --- face: sculpted with blurred light and shadow shapes ---
+const F = [];
+F.push(`<path d="${headPath}" fill="url(#marble)"/>`);
+F.push(`<ellipse cx="${CX-30}" cy="610" rx="120" ry="60" fill="#fffdf8" opacity=".7" ${blur(24)}/>`);       // forehead highlight
+F.push(`<path d="M${CX-150} 690 Q ${CX-75} 660 ${CX-8} 694" stroke="#5a554e" stroke-width="22" fill="none" opacity=".45" ${blur(8)}/>`); // brow shadow L
+F.push(`<path d="M${CX+150} 690 Q ${CX+75} 660 ${CX+8} 694" stroke="#3e3a35" stroke-width="22" fill="none" opacity=".55" ${blur(8)}/>`); // brow shadow R
+F.push(`<path d="M${CX-140} 672 Q ${CX-75} 640 ${CX-12} 672" stroke="#fffdf6" stroke-width="12" fill="none" opacity=".55" ${blur(4)}/>`); // brow ridge lit
+F.push(`<path d="M${CX+140} 672 Q ${CX+75} 640 ${CX+12} 672" stroke="#efe9de" stroke-width="10" fill="none" opacity=".35" ${blur(4)}/>`);
+// deep eye sockets
+F.push(`<ellipse cx="${CX-72}" cy="728" rx="60" ry="34" fill="#2f2c28" opacity=".55" ${blur(14)}/>`);
+F.push(`<ellipse cx="${CX+72}" cy="728" rx="60" ry="34" fill="#1f1d1a" opacity=".65" ${blur(14)}/>`);
+// eyeballs (blank, as on real statues) + lids
+[[-72,'#d9d2c6'],[72,'#b2aa9d']].forEach(([dx,c])=>{
+  F.push(`<path d="M${CX+dx-40} 732 Q ${CX+dx} 708 ${CX+dx+40} 732 Q ${CX+dx} 752 ${CX+dx-40} 732 Z" fill="${c}"/>`);
+  F.push(`<path d="M${CX+dx-44} 730 Q ${CX+dx} 700 ${CX+dx+44} 730" stroke="#3a3630" stroke-width="6" fill="none" opacity=".6" ${blur(2)}/>`); // upper lid crease
+  F.push(`<path d="M${CX+dx-36} 744 Q ${CX+dx} 760 ${CX+dx+36} 744" stroke="#fffaf0" stroke-width="4" fill="none" opacity=".45" ${blur(2)}/>`); // lower lid catch light
+});
+// nose: lit bridge on the left, shadow plane on the right, nostril shadows
+F.push(`<path d="M${CX-6} 700 L ${CX-18} 850" stroke="#fffdf8" stroke-width="20" opacity=".65" ${blur(8)}/>`);
+F.push(`<path d="M${CX+14} 705 C ${CX+30} 770, ${CX+46} 820, ${CX+44} 866" stroke="#2a2824" stroke-width="26" fill="none" opacity=".45" ${blur(10)}/>`);
+F.push(`<ellipse cx="${CX-4}" cy="868" rx="44" ry="20" fill="#fffaf0" opacity=".55" ${blur(8)}/>`);          // nose tip
+F.push(`<ellipse cx="${CX+8}" cy="892" rx="58" ry="14" fill="#1a1816" opacity=".55" ${blur(8)}/>`);          // under-nose shadow
+F.push(`<ellipse cx="${CX-24}" cy="884" rx="10" ry="6" fill="#141210" opacity=".8" ${blur(2)}/><ellipse cx="${CX+30}" cy="884" rx="10" ry="6" fill="#141210" opacity=".85" ${blur(2)}/>`);
+// cheekbones: lit left, shaded right; then the whole right side darker
+F.push(`<ellipse cx="${CX-112}" cy="800" rx="46" ry="34" fill="#fffaf2" opacity=".5" ${blur(14)}/>`);
+F.push(`<ellipse cx="${CX+118}" cy="815" rx="46" ry="60" fill="#25242a" opacity=".45" ${blur(18)}/>`);
+F.push(`<path d="${headPath}" fill="url(#sideShade)"/>`);
+add(`<g clip-path="url(#statue)">${S.join('')}<g clip-path="url(#face)">${F.join('')}</g></g>`);
+
+// --- beard + moustache: many carved curls in rows (drawn after the face so it sits on top) ---
+const Bd = [`<path d="${beardPath}" fill="#a49c90"/>`,
+  `<path d="${beardPath}" fill="#fffaf0" opacity=".25" ${blur(30)} transform="translate(-40 -30)"/>`];
+for (let y = 790; y < 1340; y += 40) for (let x = CX - 230; x < CX + 230; x += 42) {
+  const jx = x + (R() - .5) * 12 + ((y / 40) % 2) * 21, jy = y + (R() - .5) * 8;
+  if (!inside(beardPath, jx, jy)) continue;
+  const t = (jy - 790) / 550, lit = jx < CX - 50 ? "#ece6da" : jx < CX + 50 ? "#cfc8bb" : "#a39b8e";
+  Bd.push(curl(jx, jy, 1.25 - t * .3 + R() * .15, jx > CX, lit));
+}
+for (let row = 0; row < 0; row++) {
+  const y = 905 + row * 44;
+  // beard half-width at this height
+  const t = (y - 880) / 450, hw = 205 * Math.sin(Math.PI * (0.18 + t * 0.82)) + 10 - t * 40;
+  const n = Math.max(2, Math.round(hw * 2 / 46));
+  for (let i = 0; i < n; i++) {
+    const x = CX - hw + (i + 0.5) * (hw * 2 / n) + (R() - .5) * 10 + (row % 2) * 10;
+    const lit = x < CX - 40 ? '#ece6da' : x < CX + 50 ? '#cfc8bb' : '#a49c8f';
+    Bd.push(curl(x, y + (R() - .5) * 8, 1.3 - t * 0.25, x > CX, lit));
+  }
+}
+// moustache: two big sweeping locks from under the nose over the mouth
+[['L',-1,'#e2dccf'],['R',1,'#a8a093']].forEach(([_,f,c])=>{
+  const d = `M${CX+6*f} 906 C ${CX+50*f} 898, ${CX+105*f} 912, ${CX+128*f} 955 C ${CX+138*f} 975, ${CX+128*f} 992, ${CX+112*f} 985`;
+  Bd.push(`<path d="${d}" stroke="#1c1b1e" stroke-width="40" fill="none" opacity=".45" ${blur(6)} transform="translate(6 10)"/>`);
+  Bd.push(`<path d="${d}" stroke="${c}" stroke-width="34" stroke-linecap="round" fill="none"/>`);
+  Bd.push(`<path d="${d}" stroke="#fffdf8" stroke-width="7" stroke-linecap="round" fill="none" opacity=".5" transform="translate(-4 -6)"/>`);
+});
+// the mouth: a dark gap between moustache and beard
+Bd.push(`<path d="M${CX-40} 948 Q ${CX} 960 ${CX+40} 948" stroke="#0e0d0c" stroke-width="8" fill="none" opacity=".85" ${blur(2)}/>`);
+Bd.push(`<ellipse cx="${CX-6}" cy="964" rx="30" ry="9" fill="#efe8dc" opacity=".8" ${blur(4)}/>`);
+Bd.push(`<path d="${beardPath}" fill="url(#sideShade)"/>`);
+add(`<g clip-path="url(#statue)">${Bd.join('')}</g>`);
+
+// gold diadem across the hair
+add(`<g filter="url(#goldglow)" opacity=".95">
+  <path d="M${CX-170} 640 Q ${CX} 560 ${CX+170} 640" stroke="url(#gold)" stroke-width="20" fill="none"/>
+  ${Array.from({length:9},(_,i)=>{const t=(i+0.5)/9, x=CX-170+t*340, y=640-Math.sin(Math.PI*t)*80+ (t-0.5)*0;
+    return `<path d="M${x-9} ${y-6} L${x} ${y-30} L${x+9} ${y-6} Z" fill="url(#gold)"/>`}).join('')}
+</g>`);
+
+// ---------- stone surface: veins + pores over the whole statue ----------
+add(`<g clip-path="url(#statue)">
+  <rect x="0" y="380" width="${W}" height="1400" filter="url(#veins)" opacity=".9"/>
+  <rect x="0" y="380" width="${W}" height="1400" filter="url(#pores)" opacity=".10" style="mix-blend-mode:multiply"/>
+</g>`);
+
+// ---------- the power awakening: cracks with molten gold light inside ----------
+function crack(x, y, steps, dir, seed, w) {
+  const r = rng(seed); let d = `M${x} ${y}`; let cx = x, cy = y; const pts = [[x, y]];
+  for (let i = 0; i < steps; i++) { cx += (r() - .5) * 34 + dir * 6; cy += 14 + r() * 22; d += ` L${cx.toFixed(1)} ${cy.toFixed(1)}`; pts.push([cx, cy]); }
+  return {d, pts, w};
+}
+const cracks = [crack(CX+40, 520, 9, .6, 3, 5), crack(CX-60, 560, 7, -.8, 7, 4), crack(CX+70, 1010, 10, 1, 13, 4), crack(CX-130, 1240, 8, -1, 17, 5)];
+// small branches off each main crack
+cracks.slice().forEach((c, k) => { const p = c.pts[3]; cracks.push(crack(p[0], p[1], 4, k % 2 ? 1.5 : -1.5, 40 + k, 2.5)); });
+add(`<g clip-path="url(#statue)">${cracks.map(c => `
+  <path d="${c.d}" stroke="#ffb020" stroke-width="${c.w*4}" fill="none" opacity=".55" ${blur(14)}/>
+  <path d="${c.d}" stroke="#2a1a08" stroke-width="${c.w+2}" fill="none" stroke-linejoin="bevel"/>
+  <path d="${c.d}" stroke="#ffe7a0" stroke-width="${c.w*0.55}" fill="none" stroke-linejoin="bevel" filter="url(#goldglow)"/>
+  <path d="${c.d}" stroke="#fffaf0" stroke-width="1.4" fill="none" opacity=".6" transform="translate(-2 -1)"/>`).join('')}</g>`);
+
+// glowing gold eyes (the statue is coming alive)
+[[-72],[72]].forEach(([dx])=>add(`<g filter="url(#goldglow)">
+  <ellipse cx="${CX+dx}" cy="731" rx="26" ry="13" fill="#ffcf4a"/><ellipse cx="${CX+dx}" cy="731" rx="10" ry="8" fill="#fffbe8"/></g>
+  <ellipse cx="${CX+dx}" cy="731" rx="110" ry="40" fill="#ffb43a" opacity=".35" ${blur(24)} style="mix-blend-mode:screen"/>`));
+
+// floating gold embers + stone dust around the statue
+for (let i = 0; i < 90; i++) { const x = R() * W, y = 300 + R() * 1400, r = .8 + R() * 2.6;
+  add(`<circle cx="${x}" cy="${y}" r="${r}" fill="${R() > .4 ? '#ffd27a' : '#e8eefc'}" opacity="${.15 + R() * .6}" ${r > 2.6 ? blur(2) : ''}/>`); }
+// cool rim light on the shadow side, from the storm
+add(`<g clip-path="url(#statue)"><path d="${hairPath}" fill="none" stroke="#bcd4ff" stroke-width="22" opacity=".35" ${blur(8)} transform="translate(10 0)"/>
+  <path d="${beardPath}" fill="none" stroke="#bcd4ff" stroke-width="18" opacity=".25" ${blur(8)} transform="translate(10 0)"/></g>`);
+
+// ---------- plinth fade, title, finishing ----------
+add(`<rect x="${CX-360}" y="1700" width="720" height="70" fill="#8c8578"/><rect x="${CX-360}" y="1700" width="720" height="10" fill="#e8e2d6"/>
+  <rect x="${CX-400}" y="1770" width="800" height="150" fill="#3a3732"/><rect x="${CX-400}" y="1770" width="800" height="8" fill="#9a9284"/>`);
+add(`<rect y="1640" width="${W}" height="280" fill="url(#fadeDown)" opacity=".7"/>`);
+add(`<g text-anchor="middle">
+  <text x="${CX}" y="250" font-family="Cinzel, serif" font-weight="600" font-size="34" letter-spacing="16" fill="#d9cfb8" opacity=".85">ΖΕΥΣ · KING OF THE GODS</text>
+  <text x="${CX}" y="1830" font-family="Anton, Impact" font-size="64" letter-spacing="8" fill="#efe7d6">HE PUNISHED <tspan fill="url(#titleGold)" font-size="92" filter="url(#goldglow)">LIARS</tspan></text>
+</g>`);
+add(`<rect width="${W}" height="${H}" fill="url(#vig)"/>`);
+add(`<rect width="${W}" height="${H}" fill="#ffa040" opacity=".05" style="mix-blend-mode:overlay"/>`);
+add(`<rect width="${W}" height="${H}" filter="url(#grain)" opacity=".22" style="mix-blend-mode:overlay"/>`);
+
+add(`<defs>${[...usedBlur].map(b=>`<filter id="b${b}" filterUnits="userSpaceOnUse" x="-600" y="-600" width="2280" height="3120"><feGaussianBlur stdDeviation="${b}"/></filter>`).join("")}</defs>`);
+document.getElementById('s').innerHTML = out.join('\n');
+</script>
+</body>
+</html>

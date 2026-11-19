@@ -1,0 +1,20 @@
+{
+  "name": "klismos",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.klismos(loc, heading_deg, wood=None, cushion=(r,g,b))",
+  "contents": "sabre-legged chair, back legs sweep into uprights, concave back board, cord seat, cushion; 0.45 m seat",
+  "design_source": "Richter, Furniture of the Greeks (1966); Attic red-figure domestic scenes c. 480-450 BC; Hegeso stele (c. 410) for later form",
+  "licence": "our own code",
+  "self_rating": {
+    "shape": 8,
+    "surface": 6,
+    "era": 9,
+    "notes": "reads well; room look 67 (too warm)"
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws7/furniture_v3.png"
+  ]
+}

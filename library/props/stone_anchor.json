@@ -1,0 +1,18 @@
+{
+  "name": "stone_anchor",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.stone_anchor(loc)",
+  "contents": "pierced stone anchor with rope",
+  "design_source": "Archaic/Classical small-craft anchors",
+  "licence": "our own code",
+  "self_rating": {
+    "shape": null,
+    "surface": null,
+    "era": 8,
+    "notes": "built (smoke test) - not yet in a render frame"
+  },
+  "owner_rating": null,
+  "renders": []
+}

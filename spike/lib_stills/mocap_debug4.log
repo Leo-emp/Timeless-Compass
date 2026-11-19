@@ -1,0 +1,33 @@
+00:08.469  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mocap_debug4\p011.png'
+00:09.078  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mocap_debug4\p025.png'
+00:09.609  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mocap_debug4\p040.png'
+00:10.031  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mocap_debug4\p055.png'
+[INFO ] services.locationservice ...............: Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.
+[INFO ] mpfb.init ..............................: Build info 20261010
+[INFO ] mpfb.init ..............................: Online access preference is not enabled. Not checking if MakeHuman is online.
+[INFO ] mpfb.init ..............................: MPFB initialization has finished.
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+	parsing bvh 'C:/Users/User/tools/mocap\\16_15.bvh'...	zero length node found: Hips
+	zero length node found: Spine1
+	zero length node found: LeftHand
+	zero length node found: RightHand
+0.0291
+	importing to blender...Done in 0.2720
+
+F  1 hips (0.0, 0.06, 1.01)  Ltoe z 0.04  Rtoe z 0.04  head z 1.86
+F 11 hips (0.0, 0.06, 1.01)  Ltoe z 0.07  Rtoe z 0.19  head z 1.86
+F 20 hips (-0.03, -0.34, 0.98)  Ltoe z 0.12  Rtoe z 0.05  head z 1.83
+F 30 hips (-0.06, -0.8, 1.0)  Ltoe z 0.08  Rtoe z 0.08  head z 1.84
+F 40 hips (-0.03, -1.3, 1.0)  Ltoe z 0.07  Rtoe z 0.17  head z 1.85
+F 50 hips (-0.06, -1.78, 0.99)  Ltoe z 0.15  Rtoe z 0.04  head z 1.84
+F 60 hips (-0.08, -2.24, 0.98)  Ltoe z 0.09  Rtoe z 0.09  head z 1.82
+F 71 hips (-0.05, -2.77, 0.98)  Ltoe z 0.07  Rtoe z 0.07  head z 1.83
+DEBUG DONE
+Blender 5.3.0 (hash 02f0899d78e3 built 2026-11-10 01:33:43)
+OBJ import of 'base.obj' took 22.92 ms
+OBJ import of 'high-poly.obj' took 3.54 ms
+OBJ import of 'eyebrow001.obj' took 1.15 ms
+OBJ import of 'eyelashes01.obj' took 1.31 ms
+OBJ import of 'teeth_base.obj' took 5.26 ms
+
+Blender quit

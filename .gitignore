@@ -14,3 +14,19 @@ dashboard/.next/
 
 .vercel
 .env*
+
+.superpowers/
+jobs/
+spike/frames*/
+spike/**/*.png
+spike/**/*.mp4
+spike/**/*.mp3
+spike/**/*.wav
+spike/**/*.jpg
+*.blend1
+library/scans/
+
+# WS11 audio files (catalogues library/sfx/index.json + library/music/tracks.json stay in git)
+library/sfx/files/
+library/music/files/
+cloud/kaggle/out/

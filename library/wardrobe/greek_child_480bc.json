@@ -1,0 +1,28 @@
+{
+  "name": "greek_child_480bc",
+  "version": 1,
+  "era": "greece_480bc",
+  "pieces": {
+    "tunic": {
+      "builder": "wardrobe.child_tunic",
+      "material": "rough_linen, undyed + madder hem"
+    },
+    "belt": {
+      "builder": "wardrobe.belt(kind='cord')",
+      "material": "woad wool"
+    }
+  },
+  "design_source": "Attic choes (Anthesteria jugs with children, c. 420 BC), children on Attic grave reliefs: short belted tunic, barefoot",
+  "scene": "blender/scenes/ws3_wardrobe.py child",
+  "licence": "our own code (Blender cloth simulation); scanned fabrics CC0 Poly Haven (rough_linen, caban, hessian_230); MakeHuman body CC0",
+  "self_rating": {
+    "shape": 6,
+    "surface": 7,
+    "era": 8,
+    "notes": "v3: belted at the child's real waist (the adult rule belted at the chest), kolpos over the belt, madder hem, hands outside (look 100). Shoulders still a little boxy."
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws3/child_v3.png"
+  ]
+}

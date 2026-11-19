@@ -1,0 +1,46 @@
+{
+  "name": "persian_king_480bc",
+  "version": 2,
+  "era": "persia_achaemenid_480bc",
+  "pieces": {
+    "trousers": {
+      "builder": "wardrobe.trousers",
+      "material": "crimson wool (Xenophon)"
+    },
+    "candys": {
+      "builder": "wardrobe.candys",
+      "material": "purple linen + gold border",
+      "notes": "pleated skirt (zigzag), hem hitched up at the sides, belted"
+    },
+    "sleeves": {
+      "builder": "wardrobe.wide_sleeves",
+      "notes": "upper sleeve + wide bag hanging from the forearm"
+    },
+    "belt": {
+      "builder": "wardrobe.belt(kind='strap')",
+      "material": "gold"
+    },
+    "tiara": {
+      "builder": "wardrobe.persian_cap(kind='royal')",
+      "notes": "tall upright felt tiara with gold rosette band"
+    },
+    "earrings": {
+      "builder": "wardrobe.earrings"
+    },
+    "beard": "cast.beard length 0.11 (squared relief beard = WS1)"
+  },
+  "design_source": "Persepolis reliefs (Treasury audience relief, Apadana, palace door jambs); Xenophon Cyropaedia 8.3.13 (purple robe, crimson trousers, upright tiara); Xenophon Anabasis 2.5.23; Herodotus 7.61",
+  "scene": "blender/scenes/xerxes_v2.py king",
+  "replaces": "v1: Greek chiton + himation in purple + paper-bucket crown (xerxes_test.py)",
+  "licence": "our own code (Blender cloth simulation); scanned fabrics CC0 Poly Haven (rough_linen, caban, hessian_230); MakeHuman body CC0",
+  "self_rating": {
+    "shape": 7,
+    "surface": 7,
+    "era": 8,
+    "notes": "v2 (scene xerxes_v2.py): tall upright tiara with gold rosette band, pleated robe with side-hitched hem, wide sleeves hanging from the raised forearms with gold borders, gold belt, crimson trousers hidden underneath (look 100). Still: beard should be squared with rows of curls (WS1), no sceptre/lotus props yet (WS7), pleats could be deeper."
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws3/xerxes_king_v3.png"
+  ]
+}

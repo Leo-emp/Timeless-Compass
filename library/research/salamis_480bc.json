@@ -1,0 +1,60 @@
+{
+  "world": "salamis_480bc",
+  "_note": "Shared fact sheet for the Salamis world (480 BC). Narrator lines cite fact ids. Cites are '<source>:<passage>'. Aeschylus line numbers follow the usual OCT numbering and can differ by +-5 lines between editions. 'disputed' = tell it as 'Herodotus says...', never flat. Checked from the ancient texts by Session B 2026-11-19; owner/historian review still welcome before publishing.",
+  "sources": {
+    "herodotus":     {"author": "Herodotus", "work": "Histories", "kind": "ancient", "date": "c. 430 BC", "note": "main narrative; wrote about 50 years after the battle, from Athenian and other informants"},
+    "aeschylus":     {"author": "Aeschylus", "work": "The Persians", "kind": "ancient", "date": "472 BC", "note": "a play staged 8 years after the battle, for an audience of men who fought in it"},
+    "plutarch_them": {"author": "Plutarch", "work": "Life of Themistocles", "kind": "ancient", "date": "c. AD 100", "note": "late; quotes older lost historians"},
+    "strauss":       {"author": "Barry Strauss", "work": "The Battle of Salamis", "kind": "modern", "date": "2004"},
+    "green":         {"author": "Peter Green", "work": "The Greco-Persian Wars", "kind": "modern", "date": "1996"},
+    "holland":       {"author": "Tom Holland", "work": "Persian Fire", "kind": "modern", "date": "2005"},
+    "morrison":      {"author": "J. S. Morrison, J. F. Coates and N. B. Rankov", "work": "The Athenian Trireme (2nd ed.)", "kind": "modern", "date": "2000"},
+    "athlit":        {"author": "L. Casson and J. R. Steffy (eds.)", "work": "The Athlit Ram", "kind": "archaeology", "date": "1991"}
+  },
+  "facts": [
+    {"id": "f-date", "claim": "The battle of Salamis was fought in 480 BC, traditionally dated to late September.", "cites": ["strauss", "green"], "topics": ["secret_message", "throne", "rams", "athens_burns", "oracle"]},
+
+    {"id": "f-oracle-first", "claim": "Before the invasion, Athenian envoys at Delphi received a terrifying first answer from the priestess Aristonice: flee to the ends of the earth.", "cites": ["herodotus:7.140"], "topics": ["oracle"]},
+    {"id": "f-oracle-second", "claim": "The envoys returned as suppliants carrying olive branches and were given a second answer: Zeus grants that a wooden wall alone shall not be taken.", "cites": ["herodotus:7.141"], "topics": ["oracle", "athens_burns"]},
+    {"id": "f-oracle-salamis", "claim": "The second answer also said: divine Salamis, you will destroy the children of women.", "cites": ["herodotus:7.141"], "topics": ["oracle"]},
+    {"id": "f-oracle-hedge", "claim": "Some older Athenians believed the wooden wall meant the thorn hedge that once ringed the Acropolis.", "cites": ["herodotus:7.142"], "topics": ["oracle", "athens_burns"]},
+    {"id": "f-oracle-ships", "claim": "Others said the wooden wall meant the ships, and Themistocles argued the oracle would have said 'cruel Salamis', not 'divine', if Athenians were meant to die there.", "cites": ["herodotus:7.142-143", "plutarch_them:10"], "topics": ["oracle"]},
+    {"id": "f-oracle-vote", "claim": "The Athenians decided to meet the invader at sea with their ships, together with the other Greeks who were willing.", "cites": ["herodotus:7.144", "strauss"], "topics": ["oracle"]},
+    {"id": "f-laurium", "claim": "Years earlier Themistocles had persuaded Athens to spend a rich new silver strike from the Laurium mines on warships instead of sharing the money out.", "cites": ["herodotus:7.144", "plutarch_them:4"], "topics": ["oracle", "rams"]},
+    {"id": "f-laurium-number", "status": "disputed", "note": "Herodotus says 200 ships; Plutarch and Aristotle's Constitution of the Athenians say 100. Say 'a new fleet' or give both numbers.", "claim": "Herodotus says the silver built 200 ships.", "cites": ["herodotus:7.144", "plutarch_them:4"], "topics": ["oracle"]},
+
+    {"id": "f-evacuation", "claim": "The Athenians evacuated their families and slaves to Troezen, Aegina and Salamis.", "cites": ["herodotus:8.41", "plutarch_them:10"], "topics": ["athens_burns", "oracle"]},
+    {"id": "f-defenders", "claim": "A few Athenians, the temple stewards and poor men, stayed on the Acropolis behind a barricade of planks and timber, believing it was the wooden wall of the oracle.", "cites": ["herodotus:8.51"], "topics": ["athens_burns", "oracle"]},
+    {"id": "f-climb", "claim": "The Persians climbed the steep front of the Acropolis near the shrine of Aglauros, where no guard was posted.", "cites": ["herodotus:8.53"], "topics": ["athens_burns"]},
+    {"id": "f-burned", "claim": "They killed the defenders, plundered the temple and set the whole Acropolis on fire.", "cites": ["herodotus:8.53"], "topics": ["athens_burns", "oracle"]},
+    {"id": "f-susa", "claim": "Xerxes sent a horseman to Susa to announce his success.", "cites": ["herodotus:8.54"], "topics": ["athens_burns", "throne"]},
+    {"id": "f-olive", "status": "disputed", "note": "A story the Athenians told Herodotus; say 'Herodotus says' or 'the Athenians said'.", "claim": "Herodotus says Athena's sacred olive tree burned with the temple, yet the next day a new shoot a cubit long had grown from the stump.", "cites": ["herodotus:8.55"], "topics": ["athens_burns"]},
+    {"id": "f-panic", "claim": "When news reached the Greek fleet at Salamis that the Acropolis had fallen, some commanders panicked and voted to sail away to the Isthmus.", "cites": ["herodotus:8.56"], "topics": ["athens_burns", "secret_message"]},
+    {"id": "f-athens-ships", "claim": "Athens supplied the largest contingent of the Greek fleet: 180 ships.", "cites": ["herodotus:8.44"], "topics": ["athens_burns", "rams"]},
+
+    {"id": "f-sicinnus-who", "claim": "Sicinnus was a slave of Themistocles' household and the tutor of his children.", "cites": ["herodotus:8.75", "plutarch_them:12"], "topics": ["secret_message"]},
+    {"id": "f-sicinnus-message", "claim": "Themistocles sent him by boat to the Persian commanders with a message: Themistocles was on the king's side, and the Greeks were terrified and planning to flee.", "cites": ["herodotus:8.75", "plutarch_them:12"], "topics": ["secret_message"]},
+    {"id": "f-sicinnus-bait", "claim": "The message said that if the Persians stopped the Greeks escaping, they would see them fighting among themselves.", "cites": ["herodotus:8.75"], "topics": ["secret_message"]},
+    {"id": "f-aeschylus-message", "claim": "Aeschylus, eight years later, also tells of a Greek who came to Xerxes saying the Greeks would slip away under cover of night.", "cites": ["aeschylus:355-363"], "topics": ["secret_message", "throne"]},
+    {"id": "f-night-move", "claim": "The Persians believed it: that night they moved their ships to close the channels around Salamis and landed soldiers on the islet of Psyttaleia.", "cites": ["herodotus:8.76", "aeschylus:364-373"], "topics": ["secret_message"]},
+    {"id": "f-aristides", "claim": "Aristides, Themistocles' old rival who had been ostracised from Athens, crossed from Aegina and brought word that the fleet was surrounded.", "cites": ["herodotus:8.79-81", "plutarch_them:12"], "topics": ["secret_message"]},
+    {"id": "f-sicinnus-reward", "claim": "Afterwards Themistocles made Sicinnus a citizen of Thespiae and a rich man.", "cites": ["herodotus:8.75"], "topics": ["secret_message"]},
+    {"id": "f-trap", "claim": "Modern historians read the message as a deliberate trap to force the battle into the narrow strait.", "cites": ["strauss", "green", "holland"], "topics": ["secret_message", "rams"]},
+
+    {"id": "f-throne-aigaleos", "claim": "Xerxes watched the battle seated at the foot of Mount Aigaleos, on the mainland opposite Salamis.", "cites": ["herodotus:8.90"], "topics": ["throne"]},
+    {"id": "f-throne-scribes", "claim": "Whenever he saw one of his captains do something notable, he asked who it was, and his scribes wrote down the captain's name, his father and his city.", "cites": ["herodotus:8.90"], "topics": ["throne"]},
+    {"id": "f-throne-golden", "claim": "Plutarch says Xerxes sat on a golden throne, with many secretaries beside him to record the battle.", "cites": ["plutarch_them:13"], "topics": ["throne"]},
+    {"id": "f-artemisia", "claim": "Artemisia, queen of Halicarnassus, chased by an Athenian ship, rammed and sank a ship from her own side.", "cites": ["herodotus:8.87"], "topics": ["throne", "rams"]},
+    {"id": "f-men-women", "claim": "Xerxes thought she had sunk a Greek ship and said: my men have become women, and my women men.", "cites": ["herodotus:8.88"], "topics": ["throne"]},
+    {"id": "f-phoenicians", "claim": "When Phoenician captains blamed the Ionians for the defeat, Xerxes had them beheaded.", "cites": ["herodotus:8.90"], "topics": ["throne"]},
+    {"id": "f-robes", "claim": "Aeschylus says that when Xerxes saw the depth of the disaster he tore his robes and cried out, for he had a seat in full view of the whole army, on a high hill near the sea.", "cites": ["aeschylus:465-470"], "topics": ["throne"]},
+
+    {"id": "f-ram-weapon", "claim": "A trireme's main weapon was a bronze ram fixed at the waterline of its bow.", "cites": ["morrison"], "topics": ["rams"]},
+    {"id": "f-rowers", "claim": "A trireme carried about 170 rowers on three levels and about 200 men in all.", "cites": ["morrison", "herodotus:7.184"], "topics": ["rams"]},
+    {"id": "f-first-ram", "claim": "Herodotus says the Athenian Ameinias of Pallene was the first to ram an enemy ship; when the ships locked together, others came to help and the battle began.", "cites": ["herodotus:8.84"], "topics": ["rams"]},
+    {"id": "f-aeschylus-ram", "claim": "Aeschylus says a Greek ship began the ramming and smashed off the curved stern of a Phoenician ship.", "cites": ["aeschylus:408-411"], "topics": ["rams"]},
+    {"id": "f-narrows", "claim": "In the narrow strait the crowded Persian ships could not use their numbers; they struck each other with their bronze rams and broke their oars.", "cites": ["aeschylus:412-420", "herodotus:8.86"], "topics": ["rams", "throne", "secret_message", "oracle"]},
+    {"id": "f-fleet-size", "status": "disputed", "note": "Herodotus gives 378 Greek ships; modern historians think the Persian fleet was far smaller than 1,207 by the day of battle. Say 'Aeschylus claims'.", "claim": "Aeschylus puts the Greek fleet at about 310 ships and Xerxes' fleet at 1,207.", "cites": ["aeschylus:338-343", "strauss"], "topics": ["rams", "throne"]},
+    {"id": "f-athlit", "claim": "The largest ancient warship ram ever found, the Athlit ram, was discovered off Israel in 1980: one piece of cast bronze, about 2.26 metres long and 465 kilograms. It comes from a later warship, not from Salamis.", "cites": ["athlit"], "topics": ["rams"]}
+  ]
+}

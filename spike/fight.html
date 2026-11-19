@@ -1,0 +1,261 @@
+<!doctype html>
+<!--
+  SPIKE (throwaway): Greek fight scene in "red-figure pottery come alive" style.
+  Achilles (left) drives his spear into Hector's shield outside the walls of Troy.
+  Red-figure vases: orange clay figures on black glaze, black contour lines, Greek name labels.
+  Pure code (SVG + JS). Figures are built from a skeleton: each limb = a tapered capsule between joints.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Cinzel:wght@600;800&display=block" rel="stylesheet">
+<style>html,body{margin:0;width:1080px;height:1920px;background:#050302;overflow:hidden}svg{display:block}</style>
+</head>
+<body>
+<svg id="s" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg"></svg>
+<script>
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R = rng(1184), W = 1080, H = 1920;
+const out = []; const add = s => out.push(s);
+const used = new Set(); const blur = n => { used.add(n); return `filter="url(#b${n})"`; };
+
+const CLAY = '#d0743c', CLAY_LIGHT = '#e8955a', CLAY_DARK = '#a4542a', INK = '#120a06', WASH = '#7a3a1a';
+
+add(`<defs>
+  <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="2" stitchTiles="stitch"/>
+    <feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .6 0"/></filter>
+  <!-- worn clay: patchy noise that knocks back the orange in places, like a 2,500-year-old vase -->
+  <filter id="wear" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.012 0.03" numOctaves="5" seed="9"/>
+    <feComponentTransfer><feFuncA type="table" tableValues="0 0 0 0 .55 .9"/></feComponentTransfer>
+    <feColorMatrix values="0 0 0 0 .08  0 0 0 0 .04  0 0 0 0 .02  0 0 0 1 0"/>
+  </filter>
+  <filter id="craze" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="2" seed="31"/>
+    <feComponentTransfer><feFuncR type="table" tableValues="0 0 0 1 0 0 0 0 0 0 0 0 0"/></feComponentTransfer>
+    <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  .9 0 0 0 0"/>
+  </filter>
+  <filter id="spark" filterUnits="userSpaceOnUse" x="-500" y="-500" width="2080" height="2920">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="a"/><feGaussianBlur in="SourceGraphic" stdDeviation="22" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <!-- black glaze: deep, slightly warm, glossy -->
+  <linearGradient id="glaze" x1="0" x2="1">
+    <stop offset="0" stop-color="#020101"/><stop offset=".2" stop-color="#140c08"/><stop offset=".32" stop-color="#2a1a12"/>
+    <stop offset=".45" stop-color="#120a07"/><stop offset=".8" stop-color="#0a0605"/><stop offset="1" stop-color="#010101"/>
+  </linearGradient>
+  <!-- curved surface: the vase is round, so the sides roll off into shadow -->
+  <linearGradient id="curve" x1="0" x2="1">
+    <stop offset="0" stop-color="#000" stop-opacity=".85"/><stop offset=".18" stop-color="#000" stop-opacity=".1"/>
+    <stop offset=".5" stop-color="#000" stop-opacity="0"/><stop offset=".82" stop-color="#000" stop-opacity=".15"/><stop offset="1" stop-color="#000" stop-opacity=".9"/>
+  </linearGradient>
+  <linearGradient id="clay" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${CLAY_LIGHT}"/><stop offset="1" stop-color="${CLAY_DARK}"/></linearGradient>
+  <radialGradient id="fire" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#ff7a20" stop-opacity=".55"/><stop offset=".5" stop-color="#ff5010" stop-opacity=".12"/><stop offset="1" stop-color="#ff4000" stop-opacity="0"/></radialGradient>
+  <radialGradient id="vig" cx="50%" cy="48%" r="72%"><stop offset=".55" stop-opacity="0"/><stop offset="1" stop-opacity=".9"/></radialGradient>
+  <linearGradient id="titleRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd2a0"/><stop offset=".5" stop-color="#ff7a2a"/><stop offset="1" stop-color="#b8360c"/></linearGradient>
+</defs>`);
+
+// ---------- the vase surface ----------
+add(`<rect width="${W}" height="${H}" fill="url(#glaze)"/>`);
+// decorative bands (meander / Greek key) above and below the picture, painted in clay
+function meander(y, h) {
+  let g = `<rect x="0" y="${y}" width="${W}" height="${h}" fill="url(#clay)"/>`;
+  const u = h / 5; let d = '';
+  for (let x = -u * 2; x < W + u * 6; x += u * 6) {
+    // one Greek-key unit drawn as a thick black line
+    d += `M${x} ${y+h-u} L${x} ${y+u} L${x+u*4} ${y+u} L${x+u*4} ${y+h-u*2} L${x+u*2} ${y+h-u*2} L${x+u*2} ${y+u*3} `;
+  }
+  g += `<path d="${d}" stroke="${INK}" stroke-width="${u*0.9}" fill="none" stroke-linejoin="miter"/>`;
+  g += `<rect x="0" y="${y}" width="${W}" height="${u*0.5}" fill="${INK}"/><rect x="0" y="${y+h-u*0.5}" width="${W}" height="${u*0.5}" fill="${INK}"/>`;
+  return g;
+}
+// "tongue" pattern band
+function tongues(y, h) {
+  let g = `<rect x="0" y="${y}" width="${W}" height="${h}" fill="url(#clay)"/>`;
+  for (let x = 0; x < W + 40; x += 38) g += `<path d="M${x} ${y} L${x} ${y+h*0.55} Q${x+17} ${y+h} ${x+34} ${y+h*0.55} L${x+34} ${y} Z" fill="${INK}"/>`;
+  return g;
+}
+add(tongues(390, 44));
+add(meander(1520, 80));
+// ground line the warriors stand on
+add(`<rect x="0" y="1468" width="${W}" height="10" fill="url(#clay)"/>`);
+
+// ---------- figure builder ----------
+// capsule = tapered limb between two joints. "o" = outline pass (black, a bit fatter), else clay fill.
+function capsule(a, ra, b, rb, fill) {
+  const dx = b[0]-a[0], dy = b[1]-a[1], L = Math.hypot(dx, dy), nx = -dy/L, ny = dx/L;
+  const p = [[a[0]+nx*ra, a[1]+ny*ra],[b[0]+nx*rb, b[1]+ny*rb],[b[0]-nx*rb, b[1]-ny*rb],[a[0]-nx*ra, a[1]-ny*ra]];
+  return `<g fill="${fill}"><circle cx="${a[0]}" cy="${a[1]}" r="${ra}"/><circle cx="${b[0]}" cy="${b[1]}" r="${rb}"/>
+    <polygon points="${p.map(q=>q.join(',')).join(' ')}"/></g>`;
+}
+// a limb with red-figure contour: black first, clay on top
+const limb = (a, ra, b, rb) => capsule(a, ra+4.5, b, rb+4.5, INK) + capsule(a, ra, b, rb, 'url(#clay)');
+// a filled shape with a black contour
+const shape = (d, fill='url(#clay)', sw=9) => `<path d="${d}" fill="${INK}" stroke="${INK}" stroke-width="${sw}" stroke-linejoin="round"/><path d="${d}" fill="${fill}"/>`;
+const line = (d, w=3, c=INK, o=1) => `<path d="${d}" stroke="${c}" stroke-width="${w}" fill="none" stroke-linecap="round" opacity="${o}"/>`;
+
+// round hoplite shield (aspis), seen at an angle = ellipse, with rim and an emblem
+function shield(cx, cy, rx, ry, rot, emblem) {
+  let g = `<g transform="rotate(${rot} ${cx} ${cy})">`;
+  g += `<ellipse cx="${cx}" cy="${cy}" rx="${rx+6}" ry="${ry+6}" fill="${INK}"/>`;
+  g += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#clay)"/>`;
+  g += `<ellipse cx="${cx}" cy="${cy}" rx="${rx-20}" ry="${ry-22}" fill="none" stroke="${INK}" stroke-width="4"/>`;
+  // dots on the rim, painted like real vases
+  for (let i = 0; i < 28; i++) { const a = i / 28 * Math.PI * 2;
+    g += `<circle cx="${cx+Math.cos(a)*(rx-10)}" cy="${cy+Math.sin(a)*(ry-11)}" r="3" fill="${INK}"/>`; }
+  g += `<ellipse cx="${cx}" cy="${cy}" rx="${rx-26}" ry="${ry-28}" fill="${INK}"/>`;   // black field
+  g += emblem(cx, cy);                                                                  // clay emblem on black
+  g += `</g>`;
+  return g;
+}
+// Corinthian helmet in profile, with a tall horsehair crest. dir = 1 faces right, -1 faces left
+function helmet(cx, cy, r, dir, tilt) {
+  const f = dir;
+  const dome = `M${cx-r*1.05*f} ${cy+r*0.2} C ${cx-r*1.1*f} ${cy-r*1.1}, ${cx+r*0.9*f} ${cy-r*1.25}, ${cx+r*1.05*f} ${cy-r*0.1}
+    L ${cx+r*1.0*f} ${cy+r*0.35} L ${cx+r*0.55*f} ${cy+r*0.38} L ${cx+r*0.6*f} ${cy+r*1.05} L ${cx+r*0.1*f} ${cy+r*1.2}
+    L ${cx-r*0.55*f} ${cy+r*1.05} C ${cx-r*0.85*f} ${cy+r*0.9}, ${cx-r*1.05*f} ${cy+r*0.6}, ${cx-r*1.05*f} ${cy+r*0.2} Z`;
+  const crest = `M${cx+r*0.6*f} ${cy-r*0.95} C ${cx+r*0.3*f} ${cy-r*2.2}, ${cx-r*1.4*f} ${cy-r*2.4}, ${cx-r*2.3*f} ${cy-r*0.6}
+    C ${cx-r*2.0*f} ${cy-r*1.0}, ${cx-r*1.3*f} ${cy-r*1.3}, ${cx-r*0.6*f} ${cy-r*1.05} Z`;
+  let g = `<g transform="rotate(${tilt} ${cx} ${cy})">`;
+  g += shape(crest, 'url(#clay)', 8);
+  for (let i = 1; i < 12; i++) { const t = i / 12;   // horsehair strands
+    const x1 = cx + (r*0.6 - t*2.9*r)*f, y1 = cy - r*0.95 - Math.sin(Math.PI*t)*r*1.2;
+    g += line(`M${x1} ${y1} l ${-r*0.25*f} ${r*0.45}`, 2.2, INK, .85); }
+  g += shape(dome, 'url(#clay)', 8);
+  g += line(`M${cx+r*0.3*f} ${cy+r*0.05} L ${cx+r*0.95*f} ${cy+r*0.05}`, 6);          // eye slit
+  g += line(`M${cx-r*0.2*f} ${cy-r*0.55} C ${cx+r*0.2*f} ${cy-r*0.7}, ${cx+r*0.7*f} ${cy-r*0.5}, ${cx+r*0.95*f} ${cy-r*0.2}`, 2.5); // brow ridge
+  g += line(`M${cx-r*0.95*f} ${cy+r*0.35} C ${cx-r*0.5*f} ${cy+r*0.15}, ${cx} ${cy+r*0.4}, ${cx+r*0.2*f} ${cy+r*1.1}`, 2.5);   // cheek-guard edge
+  g += `</g>`;
+  return g;
+}
+// torso with a linen cuirass + skirt of leather strips (pteruges)
+function torso(sh1, sh2, hip1, hip2, dir) {
+  const d = `M${sh1[0]} ${sh1[1]} L ${sh2[0]} ${sh2[1]} C ${sh2[0]+6*dir} ${sh2[1]+90}, ${hip2[0]+4*dir} ${hip2[1]-80}, ${hip2[0]} ${hip2[1]} L ${hip1[0]} ${hip1[1]}
+    C ${hip1[0]-4*dir} ${hip1[1]-80}, ${sh1[0]-12*dir} ${sh1[1]+90}, ${sh1[0]} ${sh1[1]} Z`;
+  let g = shape(d, 'url(#clay)', 9);
+  // cuirass details: belt + chest line + shoulder flap
+  const my = (hip1[1] + hip2[1]) / 2 - 40;
+  g += line(`M${hip1[0]-4} ${my} L ${hip2[0]+4} ${my-6*dir}`, 7);
+  g += line(`M${hip1[0]} ${my-22} L ${hip2[0]} ${my-28*dir}`, 2.5);
+  g += line(`M${(sh1[0]+sh2[0])/2} ${sh1[1]+16} C ${sh2[0]} ${sh1[1]+70}, ${hip2[0]} ${hip2[1]-130}, ${(hip1[0]+hip2[0])/2+10} ${hip2[1]-110}`, 2.5, WASH, .9);
+  // pteruges: strips hanging below the belt
+  const n = 7;
+  for (let i = 0; i < n; i++) { const t = i / (n - 1);
+    const x = hip1[0] + (hip2[0] - hip1[0]) * t, y = hip1[1] + (hip2[1] - hip1[1]) * t;
+    g += `<rect x="${x-11}" y="${y-8}" width="22" height="62" rx="3" fill="url(#clay)" stroke="${INK}" stroke-width="4" transform="rotate(${(t-.5)*-14} ${x} ${y})"/>`;
+    g += line(`M${x-7} ${y+40} L ${x+7} ${y+40}`, 2.5); }
+  return g;
+}
+// greave (shin armour) drawn over a shin
+const greave = (k, a) => line(`M${k[0]} ${k[1]+20} L ${a[0]} ${a[1]-24}`, 30, INK) + line(`M${k[0]} ${k[1]+20} L ${a[0]} ${a[1]-24}`, 22, CLAY_LIGHT) + line(`M${k[0]+3} ${k[1]+30} C ${k[0]+10} ${k[1]+90}, ${a[0]+8} ${a[1]-100}, ${a[0]+2} ${a[1]-30}`, 2.5, WASH);
+const foot = (a, dir) => shape(`M${a[0]-14*dir} ${a[1]-14} L ${a[0]+62*dir} ${a[1]+12} L ${a[0]+64*dir} ${a[1]+24} L ${a[0]-20*dir} ${a[1]+24} Z`, 'url(#clay)', 8);
+// muscle line along a thigh/calf (dilute glaze, like the painters used)
+const muscle = (a, b, bow) => { const mx = (a[0]+b[0])/2 + bow, my = (a[1]+b[1])/2; return line(`M${a[0]} ${a[1]} Q ${mx} ${my} ${b[0]} ${b[1]}`, 2.5, WASH, .95); };
+
+// ======================= ACHILLES (left, lunging right) =======================
+const A = { head:[285,610], sh1:[245,705], sh2:[340,700], hip1:[230,965], hip2:[315,975],
+  bk:[150,1190], ba:[70,1405], fk:[420,1130], fa:[445,1440],
+  re:[205,590], rh:[275,515],          // spear arm raised overhead
+  le:[400,790] };                      // shield arm
+let a = '';
+// back leg (furthest from us) first
+a += limb(A.hip1, 34, A.bk, 26) + limb(A.bk, 25, A.ba, 15) + greave(A.bk, A.ba) + foot(A.ba, -1);
+a += muscle([A.hip1[0]-10, A.hip1[1]+40], [A.bk[0]+14, A.bk[1]-30], -18);
+// spear arm behind the head
+a += limb(A.sh1, 26, A.re, 20) + limb(A.re, 19, A.rh, 15);
+a += `<circle cx="${A.rh[0]}" cy="${A.rh[1]}" r="20" fill="${INK}"/><circle cx="${A.rh[0]}" cy="${A.rh[1]}" r="15" fill="url(#clay)"/>`;
+// the spear: long shaft from behind him to Hector's shield
+const spearA = [95, 430], spearB = [655, 720];
+a += line(`M${spearA[0]} ${spearA[1]} L ${spearB[0]} ${spearB[1]}`, 11, INK) + line(`M${spearA[0]} ${spearA[1]} L ${spearB[0]} ${spearB[1]}`, 5, CLAY_LIGHT);
+a += shape(`M${spearB[0]} ${spearB[1]} l -46 -10 l 6 -12 Z`, 'url(#clay)', 5);
+// front leg, lunging
+a += limb(A.hip2, 36, A.fk, 28) + limb(A.fk, 26, A.fa, 16) + greave(A.fk, A.fa) + foot(A.fa, 1);
+a += muscle([A.hip2[0]+10, A.hip2[1]+30], [A.fk[0]-10, A.fk[1]-30], 24);
+a += line(`M${A.fk[0]-20} ${A.fk[1]-6} q 18 16 36 0`, 2.5);   // knee cap
+// torso + head
+a += torso(A.sh1, A.sh2, A.hip1, A.hip2, 1);
+a += limb([A.head[0]+8, A.head[1]+40], 20, [A.head[0]+10, A.head[1]+90], 22);   // neck
+a += helmet(A.head[0], A.head[1], 52, 1, -8);
+// beard curling out under the helmet's cheek guards
+a += shape(`M${A.head[0]+10} ${A.head[1]+62} q 20 30 4 52 q -16 -10 -24 -40 Z`, INK, 4);
+// shield arm + shield (closest to us, so last)
+a += limb(A.sh2, 26, A.le, 21);
+a += shield(445, 800, 120, 165, -10, (x, y) => {
+  // emblem: a lion's head (Achilles' house) — simplified as a roaring head in clay on black
+  return shape(`M${x-40} ${y-10} C ${x-50} ${y-60}, ${x+20} ${y-80}, ${x+46} ${y-40} C ${x+70} ${y-10}, ${x+60} ${y+30}, ${x+30} ${y+40}
+    L ${x+40} ${y+64} L ${x+10} ${y+48} L ${x-6} ${y+70} L ${x-16} ${y+42} C ${x-40} ${y+30}, ${x-50} ${y+10}, ${x-40} ${y-10} Z`, 'url(#clay)', 5)
+    + `<circle cx="${x+18}" cy="${y-22}" r="6" fill="${INK}"/>` + line(`M${x+8} ${y+16} L ${x+48} ${y+8}`, 4) +
+    Array.from({length:7},(_,i)=>{const t=i/6;return line(`M${x-44+t*30} ${y-14-t*50} l -22 -14`,3)}).join('');
+});
+add(`<g>${a}</g>`);
+
+// ======================= HECTOR (right, driven back) =======================
+const Hh = { head:[815,690], sh1:[845,775], sh2:[770,780], hip1:[860,1020], hip2:[790,1025],
+  bk:[935,1210], ba:[990,1420], fk:[720,1200], fa:[690,1440],
+  re:[930,830], rh:[985,745],          // sword arm swung back
+  le:[720,840] };                      // shield arm, bracing
+let h = '';
+// sword arm + sword behind him
+h += limb(Hh.sh1, 25, Hh.re, 20) + limb(Hh.re, 19, Hh.rh, 14);
+h += line(`M${Hh.rh[0]} ${Hh.rh[1]} L ${Hh.rh[0]+40} ${Hh.rh[1]-150}`, 14, INK) + line(`M${Hh.rh[0]} ${Hh.rh[1]} L ${Hh.rh[0]+40} ${Hh.rh[1]-150}`, 7, CLAY_LIGHT);
+h += line(`M${Hh.rh[0]-22} ${Hh.rh[1]+4} L ${Hh.rh[0]+22} ${Hh.rh[1]-6}`, 9, INK);
+// back leg bracing
+h += limb(Hh.hip1, 34, Hh.bk, 26) + limb(Hh.bk, 25, Hh.ba, 15) + greave(Hh.bk, Hh.ba) + foot(Hh.ba, 1);
+h += muscle([Hh.hip1[0]+10, Hh.hip1[1]+40], [Hh.bk[0]-14, Hh.bk[1]-30], 18);
+// front leg buckling
+h += limb(Hh.hip2, 36, Hh.fk, 28) + limb(Hh.fk, 26, Hh.fa, 16) + greave(Hh.fk, Hh.fa) + foot(Hh.fa, -1);
+h += muscle([Hh.hip2[0]-10, Hh.hip2[1]+30], [Hh.fk[0]+10, Hh.fk[1]-30], -22);
+h += torso(Hh.sh2, Hh.sh1, Hh.hip2, Hh.hip1, -1);
+h += limb([Hh.head[0]-6, Hh.head[1]+40], 20, [Hh.head[0]-2, Hh.head[1]+92], 22);
+h += helmet(Hh.head[0], Hh.head[1], 52, -1, 14);   // head thrown back by the blow
+h += shape(`M${Hh.head[0]-10} ${Hh.head[1]+60} q -20 30 -4 52 q 16 -10 24 -40 Z`, INK, 4);
+h += limb(Hh.sh2, 26, Hh.le, 21);
+h += shield(690, 815, 118, 165, 12, (x, y) => {
+  // emblem: a coiled serpent
+  return line(`M${x-50} ${y+60} C ${x-70} ${y}, ${x+40} ${y+20}, ${x+30} ${y-30} C ${x+20} ${y-70}, ${x-40} ${y-60}, ${x-20} ${y-90}`, 18, 'url(#clay)')
+    + `<circle cx="${x-20}" cy="${y-92}" r="14" fill="url(#clay)"/><circle cx="${x-24}" cy="${y-96}" r="3.5" fill="${INK}"/>`
+    + line(`M${x-14} ${y-104} l 16 -12 m -16 12 l 18 -2`, 3, 'url(#clay)');
+});
+add(`<g>${h}</g>`);
+
+// Greek name labels, written next to the heroes the way vase painters did
+add(`<g font-family="Cinzel, serif" font-weight="600" font-size="30" fill="${CLAY_LIGHT}" letter-spacing="3">
+  <text x="70" y="520" transform="rotate(-90 70 520)">ΑΧΙΛΛΕΥΣ</text>
+  <text x="1010" y="560" transform="rotate(90 1010 560)">ΗΕΚΤΟΡ</text>
+</g>`);
+
+// ---------- the clash: sparks where the spear hits the shield ----------
+const hit = [652, 718];
+add(`<circle cx="${hit[0]}" cy="${hit[1]}" r="70" fill="#ffd28a" opacity=".55" ${blur(30)} style="mix-blend-mode:screen"/>`);
+let sp = '';
+for (let i = 0; i < 26; i++) { const ang = -Math.PI * (0.1 + R() * 1.1), len = 30 + R() * 120;
+  const x2 = hit[0] + Math.cos(ang) * len, y2 = hit[1] + Math.sin(ang) * len;
+  sp += `<line x1="${hit[0]}" y1="${hit[1]}" x2="${x2}" y2="${y2}" stroke="${R() > .5 ? '#fff2c8' : '#ffb040'}" stroke-width="${1.5 + R() * 2.5}" stroke-linecap="round"/>`; }
+add(`<g filter="url(#spark)">${sp}<circle cx="${hit[0]}" cy="${hit[1]}" r="9" fill="#fffbe8"/></g>`);
+// motion lines behind the spear (the thrust)
+for (let i = 0; i < 5; i++) add(line(`M${130 + i*10} ${470 + i*18} L ${330 + i*22} ${560 + i*16}`, 2, '#ffd8a8', .25));
+
+// ---------- surface of the old vase: wear, crazing, glossy highlight ----------
+add(`<rect width="${W}" height="${H}" filter="url(#wear)" opacity=".55"/>`);
+add(`<rect y="380" width="${W}" height="1240" filter="url(#craze)" opacity=".18"/>`);
+add(`<rect width="${W}" height="${H}" fill="url(#curve)"/>`);
+add(`<rect x="250" y="0" width="90" height="${H}" fill="#fff6e8" opacity=".07" ${blur(30)} style="mix-blend-mode:screen"/>`);   // glaze shine
+add(`<rect x="300" y="0" width="14" height="${H}" fill="#fff6e8" opacity=".08" ${blur(6)} style="mix-blend-mode:screen"/>`);
+// firelight flickering from below, as if the vase sits beside a hearth
+add(`<rect width="${W}" height="${H}" fill="url(#fire)" style="mix-blend-mode:screen"/>`);
+for (let i = 0; i < 60; i++) { const x = R() * W, y = 1000 + R() * 900;
+  add(`<circle cx="${x}" cy="${y}" r="${1 + R() * 2.2}" fill="#ffb060" opacity="${.2 + R() * .6}"/>`); }
+
+// ---------- title ----------
+add(`<g text-anchor="middle">
+  <text x="540" y="200" font-family="Cinzel, serif" font-weight="600" font-size="30" letter-spacing="12" fill="#e9c9a0" opacity=".85">TROY · 1184 BC</text>
+  <text x="540" y="320" font-family="Anton, Impact" font-size="120" letter-spacing="3" fill="url(#titleRed)" filter="url(#spark)">THE LAST DUEL</text>
+  <text x="540" y="1740" font-family="Anton, Impact" font-size="58" letter-spacing="6" fill="#f2e6d2">ACHILLES <tspan fill="#ff8a3a">VS</tspan> HECTOR</text>
+</g>`);
+add(`<rect width="${W}" height="${H}" fill="url(#vig)"/>`);
+add(`<rect width="${W}" height="${H}" filter="url(#grain)" opacity=".2" style="mix-blend-mode:overlay"/>`);
+
+add(`<defs>${[...used].map(b=>`<filter id="b${b}" filterUnits="userSpaceOnUse" x="-500" y="-500" width="2080" height="2920"><feGaussianBlur stdDeviation="${b}"/></filter>`).join('')}</defs>`);
+document.getElementById('s').innerHTML = out.join('\n');
+</script>
+</body>
+</html>

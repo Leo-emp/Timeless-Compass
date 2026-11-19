@@ -1,0 +1,12 @@
+{
+  "_note": "Editing + pushing this file on branch cinematic-agent starts .github/workflows/render-scene.yml (one still or test scene in the cloud).",
+  "name": "harbour_best_still",
+  "script": "blender/scenes/hero_v2.py",
+  "args": ["out", "256", "best", "1.5"],
+  "finish": {"in": "out/best_0118.png", "out": "out/BEST_harbour_still.png", "look": "dusk"},
+  "scans": {
+    "hdris": ["qwantani_sunset_puresky"],
+    "textures": ["rough_linen", "caban", "hessian_230", "coast_sand_rocks_02", "rock_boulder_dry", "cliff_side", "coast_land_rocks_01"],
+    "models": ["grass_medium_01", "dry_branches_medium_01", "searsia_lucida", "boulder_01", "island_tree_02", "coast_land_rocks_02", "wicker_basket_01"]
+  }
+}

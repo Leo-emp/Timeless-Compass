@@ -1,0 +1,21 @@
+{
+  "name": "trapeza",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.trapeza(loc, heading_deg)",
+  "contents": "three-legged low table 0.72 x 0.42 m, 0.5 m high, stretchers",
+  "design_source": "Attic symposion vases: table under the couch",
+  "licence": "our own code",
+  "self_rating": {
+    "shape": 7,
+    "surface": 5,
+    "era": 8,
+    "notes": "plain wood grain"
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws7/furniture_v3.png",
+    "spike/lib_stills/ws7/furniture_close_v2.png"
+  ]
+}

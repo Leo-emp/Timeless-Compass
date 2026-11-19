@@ -1,0 +1,44 @@
+{
+  "name": "persian_court_480bc",
+  "version": 1,
+  "era": "persia_achaemenid_480bc",
+  "pieces": {
+    "trousers": {
+      "builder": "wardrobe.trousers"
+    },
+    "tunic": {
+      "builder": "wardrobe.median_tunic"
+    },
+    "sleeves": {
+      "builder": "wardrobe.tight_sleeves"
+    },
+    "belt": {
+      "builder": "wardrobe.belt(kind='strap')",
+      "material": "leather"
+    },
+    "cap": {
+      "builder": "wardrobe.persian_cap(kind='median')",
+      "notes": "rounded felt cap with neck and ear flaps"
+    },
+    "earrings": {
+      "builder": "wardrobe.earrings"
+    },
+    "alt_headwear": {
+      "builder": "wardrobe.persian_cap(kind='fluted')",
+      "notes": "Persian nobles / Immortals with the robe"
+    }
+  },
+  "design_source": "Persepolis Apadana reliefs: 'Median' dress of guards, ushers and nobles (belted knee-length sleeved tunic, trousers, rounded cap); Herodotus 7.61-62",
+  "scene": "blender/scenes/xerxes_v2.py median",
+  "licence": "our own code (Blender cloth simulation); scanned fabrics CC0 Poly Haven (rough_linen, caban, hessian_230); MakeHuman body CC0",
+  "self_rating": {
+    "shape": 6,
+    "surface": 6,
+    "era": 7,
+    "notes": "rounded felt cap with flaps, ochre sleeved tunic with woad hem, belt (look 83+). Trousers: simulated tubes collapsed into rings (thin body slices) -> now a fitted folded mesh, loose and gathered at the ankle; top still shows a little at the left hip."
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws3/median_v5.png"
+  ]
+}

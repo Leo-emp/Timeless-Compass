@@ -1,0 +1,29 @@
+{
+  "name": "amphora_blackfigure_cleveland",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "museum_scan",
+  "builder": "scans_glb.load_glb('amphora_blackfigure_cleveland', loc=(x, y, z), rot_z_deg=0)",
+  "scan": "library/scans/amphora_blackfigure_cleveland/model.glb",
+  "object": "Attic black-figure amphora (type B, storage vessel): men and horses",
+  "museum": "Cleveland Museum of Art 1923.645",
+  "date": "c. 540 BC",
+  "real_size": "overall height 40.6 cm",
+  "era_fit": "OK - Attic, 60 years old in 480 BC: an heirloom / storeroom jar in an Athenian house. Not new-looking ware for 480 BC.",
+  "use_in": "houses, storerooms, symposion corners, shrine offerings",
+  "licence": "CC0",
+  "author": "Cleveland Museum of Art",
+  "source": "https://sketchfab.com/3d-models/1923645-black-figure-amphora-8a2cd743529e4267ba0395954ed7846a",
+  "credit": "\"1923.645 Black-Figure Amphora\" by Cleveland Museum of Art, https://sketchfab.com/3d-models/1923645-black-figure-amphora-8a2cd743529e4267ba0395954ed7846a (CC0)",
+  "facts_from": "museum open-access records (openaccess-api.clevelandart.org / collectionapi.metmuseum.org), 2026-11-19",
+  "self_rating": {
+    "shape": 9,
+    "surface": 8,
+    "era": 7,
+    "notes": "museum scan; c. 540 BC = heirloom in 480; look 83"
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws7/pottery_v3.png"
+  ]
+}

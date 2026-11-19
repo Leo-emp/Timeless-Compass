@@ -1,0 +1,31 @@
+{
+  "name": "kylix_cleveland",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "museum_scan",
+  "builder": "scans_glb.load_glb('kylix_cleveland', loc=(x, y, z), rot_z_deg=0)",
+  "scan": "library/scans/kylix_cleveland/model.glb",
+  "object": "Attic red-figure kylix (drinking cup) by Douris: Dionysos and satyr (tondo), satyrs and maenads",
+  "museum": "Cleveland Museum of Art 1915.718",
+  "date": "c. 480 BC",
+  "real_size": "diameter 29.6 cm (with handles)",
+  "era_fit": "EXACT - painted in Athens in the year of Salamis by a famous painter (Douris, active c. 500-470 BC).",
+  "use_in": "symposion scenes, a cup in a hero's hand, a table close-up",
+  "licence": "CC0",
+  "author": "Cleveland Museum of Art",
+  "source": "https://sketchfab.com/3d-models/1915718-kylix-76a66bd6e84c474bad3a58df99fa61b4",
+  "credit": "\"1915.718 Kylix\" by Cleveland Museum of Art, https://sketchfab.com/3d-models/1915718-kylix-76a66bd6e84c474bad3a58df99fa61b4 (CC0)",
+  "facts_from": "museum open-access records (openaccess-api.clevelandart.org / collectionapi.metmuseum.org), 2026-11-19",
+  "self_rating": {
+    "shape": 9,
+    "surface": 9,
+    "era": 10,
+    "notes": "Douris c. 480 BC; close-up look 83"
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws7/pottery_v3.png",
+    "spike/lib_stills/ws7/pottery_close_v2.png",
+    "spike/lib_stills/ws7/furniture_close_v2.png"
+  ]
+}

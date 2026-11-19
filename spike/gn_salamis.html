@@ -1,0 +1,100 @@
+<!doctype html>
+<!--
+  ART DIRECTION C TEST: GRAPHIC-NOVEL CINEMATIC (16:9 long-form).
+  Voice line: "That night, Themistocles sent his most trusted servant across the water... to the Persian king."
+  Dusk on the dock at Salamis. Athens burns on the far horizon; the Persian fleet's lanterns glow across the strait.
+  Themistocles hands a sealed message to his servant Sicinnus; a rowboat with a lantern waits.
+-->
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&display=block" rel="stylesheet">
+<style>html,body{margin:0;width:1920px;height:1080px;background:#000;overflow:hidden}svg{display:block}</style>
+</head><body>
+<svg id="s" width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"></svg>
+<script>window.SIZE = [1920, 1080];</script>
+<script src="common.js"></script>
+<script src="rig.js"></script>
+<script>
+const R = rng(4801);
+const HZ = 620, GROUND = 930;
+const LANTERN = [1560, 700];
+
+add(`<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#0b1028"/><stop offset=".45" stop-color="#2a1f48"/><stop offset=".78" stop-color="#8a3a48"/><stop offset=".93" stop-color="#e2723c"/><stop offset="1" stop-color="#ffb060"/>
+  </linearGradient>
+  <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a3044"/><stop offset=".25" stop-color="#2a1c3a"/><stop offset="1" stop-color="#0a0a1a"/></linearGradient>
+  <radialGradient id="fire"><stop offset="0" stop-color="#ff8a30" stop-opacity=".9"/><stop offset=".5" stop-color="#e04a1a" stop-opacity=".35"/><stop offset="1" stop-color="#a02010" stop-opacity="0"/></radialGradient>
+  <radialGradient id="lanternLight"><stop offset="0" stop-color="#ffc070" stop-opacity=".55"/><stop offset=".4" stop-color="#ff9a40" stop-opacity=".18"/><stop offset="1" stop-color="#ff7020" stop-opacity="0"/></radialGradient>
+  <linearGradient id="dockTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2a2a"/><stop offset="1" stop-color="#140e12"/></linearGradient>
+</defs>`);
+
+// ============ SKY: dusk, first stars, thin moon ============
+let bg = `<rect width="${W}" height="${HZ}" fill="url(#sky)"/>`;
+for (let i = 0; i < 160; i++) { const y = R() * 360; bg += `<circle cx="${R() * W}" cy="${y}" r="${R() > .95 ? 2.2 : .7 + R()}" fill="#fff4dc" opacity="${(.3 + R() * .6) * (1 - y / 420)}"/>`; }
+bg += `<path d="M 1660 150 a 38 38 0 1 0 30 62 a 30 30 0 1 1 -30 -62 Z" fill="#fff0d0" opacity=".9"/>`;
+for (let i = 0; i < 9; i++) bg += `<ellipse cx="${R() * W}" cy="${470 + i * 16}" rx="${300 + R() * 400}" ry="${3 + R() * 5}" fill="#c0503a" opacity=".35" ${blur(4)}/>`;
+
+// ============ FAR: Athens burning on the left horizon ============
+bg += `<circle cx="300" cy="${HZ}" r="260" fill="url(#fire)"/>`;
+for (let i = 0; i < 7; i++) bg += `<ellipse cx="${300 + i * 26 + R() * 20}" cy="${560 - i * 62}" rx="${70 + i * 26}" ry="${60 + i * 16}" fill="#1a1020" opacity="${.32 - i * .03}" ${blur(30)}/>`;   // smoke column
+bg += `<path d="M 120 ${HZ} L 150 590 L 230 576 L 250 560 L 370 558 L 390 576 L 470 590 L 500 ${HZ} Z" fill="#1a0e18"/>`;      // Acropolis hill silhouette
+bg += `<path d="M 262 560 L 262 540 L 358 540 L 358 560 Z M 256 540 L 310 528 L 364 540 Z" fill="#1a0e18"/>`;                   // Parthenon silhouette
+for (let i = 0; i < 14; i++) bg += `<path d="M ${200 + R() * 220} ${HZ - 4} q 6 -${10 + R() * 18} 12 0 Z" fill="#ffb040"/>`;   // little flames on the hill
+
+// ============ FAR RIGHT: island of Salamis + the Persian fleet's lanterns ============
+bg += `<path d="M 820 ${HZ} C 960 600, 1100 560, 1260 556 C 1420 550, 1520 520, 1660 520 C 1780 520, 1860 540, 1920 548 L 1920 ${HZ} Z" fill="#20162c"/>`;
+bg += `<rect y="${HZ}" width="${W}" height="${H - HZ}" fill="url(#sea)"/>`;
+// the strait reflects the fire and the last of the sunset
+for (let i = 0; i < 26; i++) { const y = HZ + 4 + i * i * .6, w = 300 - i * 9 + R() * 40;
+  bg += `<rect x="${300 - w / 2 + (R() - .5) * 40}" y="${y}" width="${Math.max(8, w)}" height="${2 + i * .1}" rx="2" fill="#ff8a40" opacity="${Math.max(.04, .6 - i * .022)}"/>`; }
+// Persian lanterns: hundreds of ships waiting in the dark
+for (let i = 0; i < 120; i++) { const x = 900 + R() * 1020, y = HZ + 6 + R() * 34;
+  bg += `<circle cx="${x}" cy="${y}" r="${1.4 + R() * 1.8}" fill="#ffc060" opacity="${.5 + R() * .5}"/>`;
+  bg += `<rect x="${x - .8}" y="${y + 4}" width="1.6" height="${6 + R() * 14}" fill="#ffb050" opacity=".25"/>`; }
+for (let i = 0; i < 40; i++) bg += `<path d="M ${R() * W} ${HZ + 60 + R() * 300} l ${40 + R() * 80} 0" stroke="#4a3a5a" stroke-width="2" opacity=".5"/>`;   // ripples
+add(`<g ${blur(1.6)}>${bg}</g>`);
+add(`<rect y="${HZ - 60}" width="${W}" height="120" fill="#ff8a50" opacity=".08" ${blur(30)}/>`);   // haze on the horizon
+
+// ============ MID: the rowboat waiting at the end of the dock ============
+add(`<path d="M 1180 790 C 1260 830, 1560 830, 1690 780 L 1660 840 C 1560 880, 1290 880, 1200 845 Z" fill="#1e1214"/>`);
+add(`<path d="M 1186 792 C 1270 828, 1560 828, 1688 782" stroke="#ff9a50" stroke-width="3" fill="none" opacity=".6"/>`);
+add(`<path d="M 1380 820 L 1560 760 M 1420 826 L 1620 790" stroke="#140c0e" stroke-width="10" stroke-linecap="round"/>`);      // resting oars
+add(`<path d="M 1560 790 L 1560 ${LANTERN[1] + 20}" stroke="#140c0e" stroke-width="6"/>`);
+add(`<rect x="${LANTERN[0] - 14}" y="${LANTERN[1] - 22}" width="28" height="40" rx="4" fill="#ffd890" stroke="#140c0e" stroke-width="5"/>`);
+add(`<path d="M 1100 870 C 1200 880, 1400 900, 1700 870" stroke="#ffb060" stroke-width="2" fill="none" opacity=".3"/>`);
+
+// ============ FOREGROUND: stone dock ============
+add(`<path d="M 0 880 L 1240 870 L 1260 930 L 1240 1080 L 0 1080 Z" fill="url(#dockTop)"/>`);
+add(`<path d="M 0 880 L 1240 870" stroke="#ff9a60" stroke-width="2" opacity=".35"/>`);
+for (let i = 0; i < 8; i++) add(`<path d="M ${i * 160 + R() * 40} ${880 - i * 1.2} L ${i * 150 + 60} 1080" stroke="#000" stroke-opacity=".25" stroke-width="3"/>`);
+add(`<path d="M 1180 820 L 1210 820 L 1214 940 L 1176 940 Z" fill="#1a1012"/>`);   // mooring post
+add(`<path d="M 1196 840 C 1240 850, 1270 830, 1300 812" stroke="#3a2a22" stroke-width="5" fill="none"/>`);   // rope to the boat
+
+// ============ THE CAST ============
+// Themistocles: tall, upright, handing over the sealed message
+const themis = figure({ x: 700, ground: GROUND, s: 1, face: 1, lean: 2, headLean: 6,
+  arms: { front: [62, 84], back: [-6, 8] }, legs: { front: [9, 2], back: [-11, -4] },
+  skin: '#a87452', skinSh: '#7a5038', tunic: '#a89478', cloak: '#6a1e1c', hair: 'full', hairCol: '#1e1612', beard: true, prop: 'scroll', rim: '#ffb070' });
+const scrollAt = figure.last.frontHand;
+// Sicinnus: bowing, both hands reaching for the message, one foot already turned toward the boat.
+// Measure where his hand lands, then place him so his hand meets the scroll.
+const sicPose = { ground: GROUND, s: .95, face: -1, lean: 26, headLean: 18,
+  arms: { front: [78, 94], back: [70, 88] }, legs: { front: [14, -2], back: [-24, -12] },
+  skin: '#8a5a3a', skinSh: '#603c28', tunic: '#5a5048', belt: '#2a1a10', hair: 'short', hairCol: '#1a1210', beard: false, rim: '#ffb070' };
+figure({ ...sicPose, x: 0 }); const off = figure.last.frontHand[0];
+const sic = figure({ ...sicPose, x: scrollAt[0] + 26 - off });
+// soft contact shadows on the dock
+add(`<ellipse cx="710" cy="${GROUND + 4}" rx="120" ry="14" fill="#000" opacity=".5" ${blur(6)}/>`);
+add(`<ellipse cx="${scrollAt[0] + 140}" cy="${GROUND + 4}" rx="120" ry="14" fill="#000" opacity=".5" ${blur(6)}/>`);
+add(themis); add(sic);
+
+// lantern light spilling onto the dock, the servant and the boat
+add(`<circle cx="${LANTERN[0]}" cy="${LANTERN[1]}" r="620" fill="url(#lanternLight)" style="mix-blend-mode:screen"/>`);
+add(`<circle cx="${LANTERN[0]}" cy="${LANTERN[1]}" r="40" fill="#ffe0a0" opacity=".6" ${blur(14)}/>`);
+
+// cinematic grade: cool shadows at the bottom, warm haze in the middle, letterbox bars
+add(`<rect y="880" width="${W}" height="200" fill="#0a0a24" opacity=".25"/>`);
+add(`<rect width="${W}" height="70" fill="#000"/><rect y="${H - 70}" width="${W}" height="70" fill="#000"/>`);
+add(`<text x="110" y="${H - 110}" font-family="Cinzel, serif" font-weight="600" font-size="30" letter-spacing="8" fill="#f4dcb4" opacity=".85">SALAMIS · SEPTEMBER 480 BC</text>`);
+finish({ grain: .14, vignette: .7 });
+</script></body></html>

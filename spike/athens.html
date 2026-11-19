@@ -1,0 +1,237 @@
+<!doctype html>
+<!--
+  SPIKE (throwaway): Athens at sunset, 480 BC. Parthenon on the Acropolis + triremes in the harbour.
+  Shows what code does best: architecture, ships, water, light. Pure SVG + JS, no images.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Cinzel:wght@600;800&display=block" rel="stylesheet">
+<style>html,body{margin:0;width:1080px;height:1920px;background:#000;overflow:hidden}svg{display:block}</style>
+</head>
+<body>
+<svg id="s" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg"></svg>
+<script>
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R = rng(480), W = 1080, H = 1920;
+const out = []; const add = s => out.push(s);
+const used = new Set(); const blur = n => { used.add(n); return `filter="url(#b${n})"`; };
+const HORIZON = 1130;           // where sea meets land
+const SUN = [250, 1010];        // low sun on the left, behind the hills
+
+add(`<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#1a1638"/><stop offset=".3" stop-color="#4a2a50"/><stop offset=".55" stop-color="#b8503a"/>
+    <stop offset=".75" stop-color="#f08a3a"/><stop offset="1" stop-color="#ffd08a"/>
+  </linearGradient>
+  <radialGradient id="sunGlow"><stop offset="0" stop-color="#fff4d0"/><stop offset=".08" stop-color="#ffe0a0"/>
+    <stop offset=".3" stop-color="#ff9a40" stop-opacity=".5"/><stop offset="1" stop-color="#ff6a20" stop-opacity="0"/></radialGradient>
+  <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#c8703a"/><stop offset=".15" stop-color="#6a3a40"/><stop offset=".5" stop-color="#2a2038"/><stop offset="1" stop-color="#0a0a16"/>
+  </linearGradient>
+  <linearGradient id="rock" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#c07a50"/><stop offset=".4" stop-color="#7a4a3e"/><stop offset="1" stop-color="#2a1a24"/>
+  </linearGradient>
+  <linearGradient id="litMarble" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe2b0"/><stop offset="1" stop-color="#e0a070"/></linearGradient>
+  <linearGradient id="shadeMarble" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a6070"/><stop offset="1" stop-color="#5a4058"/></linearGradient>
+  <linearGradient id="hull" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a2a1c"/><stop offset=".5" stop-color="#22140e"/><stop offset="1" stop-color="#0a0605"/></linearGradient>
+  <linearGradient id="sail" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffe6c0"/><stop offset=".6" stop-color="#d8a878"/><stop offset="1" stop-color="#8a5a48"/></linearGradient>
+  <!-- water reflections get wobbled by noise, like real ripples -->
+  <filter id="ripple" filterUnits="userSpaceOnUse" x="0" y="${HORIZON}" width="${W}" height="${H-HORIZON}">
+    <feTurbulence type="fractalNoise" baseFrequency="0.004 0.09" numOctaves="2" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="38" xChannelSelector="R" yChannelSelector="G"/>
+    <feGaussianBlur stdDeviation="1.5 3"/>
+  </filter>
+  <filter id="haze" filterUnits="userSpaceOnUse" x="-200" y="-200" width="1480" height="2320"><feGaussianBlur stdDeviation="2"/></filter>
+  <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" stitchTiles="stitch"/>
+    <feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .6 0"/></filter>
+  <filter id="glow" filterUnits="userSpaceOnUse" x="-200" y="-200" width="1480" height="2320">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="a"/><feMerge><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <radialGradient id="vig" cx="50%" cy="50%" r="75%"><stop offset=".55" stop-opacity="0"/><stop offset="1" stop-opacity=".85"/></radialGradient>
+  <linearGradient id="titleGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2c8"/><stop offset=".5" stop-color="#f6b85a"/><stop offset="1" stop-color="#b8621c"/></linearGradient>
+</defs>`);
+
+// everything above the waterline goes in "world" so we can mirror it into the sea later
+const world = [];
+const w = s => world.push(s);
+
+// ---------- sky ----------
+w(`<rect width="${W}" height="${HORIZON}" fill="url(#sky)"/>`);
+w(`<circle cx="${SUN[0]}" cy="${SUN[1]}" r="560" fill="url(#sunGlow)"/>`);
+w(`<circle cx="${SUN[0]}" cy="${SUN[1]}" r="44" fill="#fff6dc"/>`);
+// long glowing clouds lit from below
+for (let i = 0; i < 9; i++) {
+  const y = 330 + i * 70 + R() * 40, x = R() * 900 - 200, len = 400 + R() * 600, th = 14 + R() * 26;
+  w(`<ellipse cx="${x + len/2}" cy="${y}" rx="${len/2}" ry="${th}" fill="#3a2040" opacity=".55" ${blur(10)}/>`);
+  w(`<ellipse cx="${x + len/2}" cy="${y + th*0.5}" rx="${len/2*0.9}" ry="${th*0.35}" fill="#ffb070" opacity="${.35 + (i/9)*.4}" ${blur(6)}/>`);
+}
+// birds
+for (let i = 0; i < 7; i++) { const x = 560 + R() * 380, y = 420 + R() * 240, s = 6 + R() * 8;
+  w(`<path d="M${x-s} ${y} q ${s/2} ${-s/2} ${s} 0 q ${s/2} ${-s/2} ${s} 0" stroke="#1a1020" stroke-width="2" fill="none"/>`); }
+
+// ---------- distant mountains: layers, each one hazier ----------
+function ridge(y0, amp, seed, fill, op) { const r = rng(seed); let d = `M0 ${HORIZON} L0 ${y0}`;
+  for (let x = 0; x <= W; x += 30) d += ` L${x} ${y0 - Math.sin(x / 180 + seed) * amp * 0.5 - r() * amp * 0.5}`;
+  return `<path d="${d} L${W} ${HORIZON} Z" fill="${fill}" opacity="${op}"/>`; }
+w(ridge(990, 90, 2, '#9a5a6a', .55));
+w(ridge(1040, 70, 5, '#6a3a52', .8));
+
+// ---------- the Acropolis rock ----------
+const rockD = `M380 ${HORIZON} L 400 1000 C 420 960, 470 935, 560 930 L 960 925 C 1010 930, 1040 960, 1060 1000 L 1080 ${HORIZON} Z`;
+w(`<path d="${rockD}" fill="url(#rock)"/>`);
+// cliff strata + cracks
+for (let i = 0; i < 14; i++) { const x = 420 + R() * 620, y = 960 + R() * 150;
+  w(`<path d="M${x} ${y} l ${(R()-.5)*30} ${30 + R()*50}" stroke="#2a1420" stroke-width="${1.5 + R()*2}" opacity=".5"/>`); }
+w(`<path d="M400 1000 C 470 990, 700 1000, 1060 1000" stroke="#ffc890" stroke-width="3" opacity=".35"/>`);
+// fortification wall along the top
+w(`<rect x="470" y="905" width="560" height="30" fill="#b07858"/><rect x="470" y="905" width="560" height="5" fill="#ffd8a8" opacity=".6"/>`);
+for (let x = 470; x < 1030; x += 26) w(`<rect x="${x}" y="897" width="14" height="10" fill="#b07858"/>`);
+
+// ---------- the Parthenon (front facing left/sun = lit, long side = shadow) ----------
+const P = { x: 560, y: 900, colH: 128, front: 230, side: 300 };   // base-left corner on the stylobate
+// steps (crepidoma)
+for (let i = 0; i < 3; i++) {
+  w(`<rect x="${P.x - 8 + i*3}" y="${P.y - i*8}" width="${P.front + 16 - i*6}" height="8" fill="url(#litMarble)"/>`);
+  w(`<polygon points="${P.x+P.front+8-i*3},${P.y-i*8} ${P.x+P.front+8-i*3+P.side},${P.y-i*8-20} ${P.x+P.front+8-i*3+P.side},${P.y-i*8-12} ${P.x+P.front+8-i*3},${P.y-i*8+8}" fill="url(#shadeMarble)"/>`);
+}
+const baseY = P.y - 24;
+// inner cella wall behind the columns (dark)
+w(`<rect x="${P.x+14}" y="${baseY-P.colH}" width="${P.front-28}" height="${P.colH}" fill="#5a3040"/>`);
+w(`<polygon points="${P.x+P.front},${baseY-P.colH} ${P.x+P.front+P.side},${baseY-P.colH-20} ${P.x+P.front+P.side},${baseY-20} ${P.x+P.front},${baseY}" fill="#3a2032"/>`);
+// columns: fluted, slightly tapered, with capitals
+function column(x, yb, h, wd, lit) {
+  const top = wd * 0.82, c = lit ? 'url(#litMarble)' : 'url(#shadeMarble)';
+  let g = `<polygon points="${x-wd/2},${yb} ${x+wd/2},${yb} ${x+top/2},${yb-h} ${x-top/2},${yb-h}" fill="${c}"/>`;
+  for (let f = 1; f < 5; f++) { const t = f / 5;  // flutes
+    g += `<line x1="${x-wd/2+wd*t}" y1="${yb}" x2="${x-top/2+top*t}" y2="${yb-h}" stroke="#000" stroke-width="${Math.max(.6, wd*0.05)}" opacity="${lit ? .16 : .25}"/>`; }
+  // shadow side of the round shaft
+  g += `<polygon points="${x+wd*0.1},${yb} ${x+wd/2},${yb} ${x+top/2},${yb-h} ${x+top*0.1},${yb-h}" fill="#3a1a30" opacity="${lit ? .35 : .2}"/>`;
+  g += `<rect x="${x-wd*0.62}" y="${yb-h-wd*0.28}" width="${wd*1.24}" height="${wd*0.28}" fill="${c}"/>`;           // abacus
+  g += `<path d="M${x-top*0.55} ${yb-h} Q ${x} ${yb-h+wd*0.25} ${x+top*0.55} ${yb-h} L ${x+wd*0.6} ${yb-h-wd*0.06} L ${x-wd*0.6} ${yb-h-wd*0.06} Z" fill="${c}"/>`; // echinus
+  return g;
+}
+// side colonnade (receding, in shadow): smaller toward the back
+const SIDE_N = 12;
+for (let i = SIDE_N - 1; i >= 1; i--) { const t = i / (SIDE_N - 1);
+  const x = P.x + P.front - 10 + t * P.side, yb = baseY - t * 20, sc = 1 - t * 0.12;
+  w(column(x, yb, P.colH * sc, 20 * sc, false)); }
+// front: 8 columns in sunlight
+for (let i = 0; i < 8; i++) w(column(P.x + 14 + i * ((P.front - 28) / 7), baseY, P.colH, 22, true));
+// entablature (architrave + frieze with triglyphs + cornice), front then side
+const eY = baseY - P.colH - 6;
+w(`<rect x="${P.x-4}" y="${eY-22}" width="${P.front+8}" height="22" fill="url(#litMarble)"/>`);
+w(`<rect x="${P.x-4}" y="${eY-46}" width="${P.front+8}" height="24" fill="#f0c088"/>`);
+for (let x = P.x; x < P.x + P.front; x += 14) w(`<rect x="${x}" y="${eY-44}" width="6" height="20" fill="#9a6050" opacity=".7"/>`);
+w(`<rect x="${P.x-10}" y="${eY-56}" width="${P.front+20}" height="10" fill="#ffe0b0"/>`);
+w(`<polygon points="${P.x+P.front+4},${eY-56} ${P.x+P.front+4+P.side},${eY-76} ${P.x+P.front+4+P.side},${eY-20} ${P.x+P.front+4},${eY}" fill="url(#shadeMarble)"/>`);
+for (let i = 0; i < 24; i++) { const t = i / 24, x = P.x + P.front + 6 + t * P.side, y = eY - 44 - t * 20;
+  w(`<rect x="${x}" y="${y}" width="${5 - t*1.2}" height="${18 - t*2}" fill="#2a1a2a" opacity=".55"/>`); }
+// pediment (triangular gable) with a hint of sculpted figures
+const pedY = eY - 56;
+w(`<polygon points="${P.x-10},${pedY} ${P.x+P.front+10},${pedY} ${P.x+P.front/2},${pedY-62}" fill="#ffe4b8"/>`);
+w(`<polygon points="${P.x+8},${pedY-4} ${P.x+P.front-8},${pedY-4} ${P.x+P.front/2},${pedY-52}" fill="#c08068"/>`);
+for (let i = 0; i < 9; i++) { const t = (i + .5) / 9, x = P.x + 20 + t * (P.front - 40), hh = 46 * (1 - Math.abs(t - .5) * 2) * .8 + 6;
+  w(`<rect x="${x-6}" y="${pedY-4-hh}" width="12" height="${hh}" rx="5" fill="#ffe0b8" opacity=".85"/>`); }
+w(`<polygon points="${P.x+P.front/2},${pedY-62} ${P.x+P.front/2+P.side},${pedY-82} ${P.x+P.front+10+P.side},${pedY-20} ${P.x+P.front+10},${pedY}" fill="#7a5060"/>`);
+// sun glint on the front edge
+w(`<rect x="${P.x-10}" y="${pedY}" width="3" height="${P.colH + 80}" fill="#fff4d8" opacity=".6"/>`);
+// a statue of Athena (small, gleaming bronze) in front
+w(`<rect x="525" y="835" width="10" height="70" fill="#d89a50"/><circle cx="530" cy="830" r="8" fill="#e8b060"/><line x1="540" y1="800" x2="540" y2="905" stroke="#e8b060" stroke-width="3"/>`);
+w(`<circle cx="540" cy="800" r="10" fill="#ffe8a0" opacity=".7" ${blur(6)}/>`);
+
+// ---------- the harbour town at the waterline ----------
+for (let i = 0; i < 40; i++) { const x = R() * W, hgt = 16 + R() * 36, wd = 24 + R() * 40, y = HORIZON - hgt;
+  w(`<rect x="${x}" y="${y}" width="${wd}" height="${hgt}" fill="${R() > .5 ? '#5a3040' : '#4a2838'}"/><polygon points="${x-3},${y} ${x+wd+3},${y} ${x+wd/2},${y-8}" fill="#6a3a3a"/>`);
+  if (R() > .6) w(`<rect x="${x + wd*0.4}" y="${y + hgt*0.4}" width="5" height="7" fill="#ffc870" opacity=".9"/>`); }
+
+add(world.join(''));
+
+// ---------- the sea ----------
+add(`<rect y="${HORIZON}" width="${W}" height="${H-HORIZON}" fill="url(#sea)"/>`);
+// reflection of the world above, flipped and rippled
+add(`<g filter="url(#ripple)" opacity=".55"><g transform="translate(0 ${HORIZON*2}) scale(1 -1)">${world.join('')}</g></g>`);
+add(`<rect y="${HORIZON}" width="${W}" height="${H-HORIZON}" fill="#0a0818" opacity=".25"/>`);
+// sun path: glittering streaks on the water under the sun
+for (let i = 0; i < 160; i++) { const t = Math.pow(R(), 1.4), y = HORIZON + 6 + t * (H - HORIZON - 200);
+  const spread = 20 + t * 260, x = SUN[0] + (R() * 2 - 1) * spread, len = 10 + t * 60;
+  add(`<rect x="${x}" y="${y}" width="${len}" height="${1.5 + t*3}" rx="1.5" fill="#ffe0a0" opacity="${(.8 - t*.5) * R()}"/>`); }
+// wave lines across the sea
+for (let i = 0; i < 70; i++) { const t = R(), y = HORIZON + 10 + t * t * (H - HORIZON), x = R() * W, len = 30 + t * 160;
+  add(`<path d="M${x} ${y} q ${len/2} ${-3 - t*6} ${len} 0" stroke="#ff9a60" stroke-width="${1 + t*2}" fill="none" opacity="${.1 + .2*(1-t)}"/>`); }
+
+// ---------- triremes ----------
+// x,y = waterline at the middle of the ship, s = scale, dir = 1 bow points right
+function trireme(x, y, s, dir, sailUp, seed) {
+  const r = rng(seed), f = dir; let g = '';
+  const L = 330 * s;                          // half length
+  const bow = x + L * f, stern = x - L * f;
+  // oars: three banks, angled down into the water, each with a little splash
+  for (let bank = 0; bank < 3; bank++) for (let i = 0; i < 22; i++) {
+    const t = (i + .5) / 22, ox = stern + (bow - stern) * (0.12 + t * 0.72), oy = y - (30 - bank * 9) * s;
+    const ang = 0.35 + r() * 0.1, len = (70 + bank * 12) * s;
+    const ex = ox + Math.cos(Math.PI/2 + ang * f) * len * 0.35 * -f, ey = oy + len;
+    g += `<line x1="${ox}" y1="${oy}" x2="${ex}" y2="${ey}" stroke="#1a0e08" stroke-width="${2.2*s}"/>`;
+    if (bank === 0) g += `<ellipse cx="${ex}" cy="${ey + 2*s}" rx="${7*s}" ry="${2*s}" fill="#ffd8b0" opacity=".45"/>`;
+  }
+  // hull: long low body; stern sweeps up into a curl (aphlaston), bow ends in a bronze ram
+  const hull = `M${stern} ${y - 58*s} C ${stern - 40*s*f} ${y - 120*s}, ${stern - 30*s*f} ${y - 170*s}, ${stern + 10*s*f} ${y - 160*s}
+    C ${stern - 10*s*f} ${y - 140*s}, ${stern - 5*s*f} ${y - 100*s}, ${stern + 30*s*f} ${y - 62*s}
+    L ${bow - 20*s*f} ${y - 64*s} C ${bow + 6*s*f} ${y - 66*s}, ${bow + 10*s*f} ${y - 40*s}, ${bow} ${y - 10*s}
+    L ${bow + 46*s*f} ${y - 4*s} L ${bow} ${y + 6*s} L ${stern + 30*s*f} ${y + 6*s} C ${stern} ${y}, ${stern - 6*s*f} ${y - 30*s}, ${stern} ${y - 58*s} Z`;
+  g += `<path d="${hull}" fill="url(#hull)"/>`;
+  g += `<path d="M${stern + 30*s*f} ${y - 60*s} L ${bow - 20*s*f} ${y - 62*s}" stroke="#ffb070" stroke-width="${3*s}" opacity=".55"/>`;  // sunlit rail
+  g += `<path d="M${stern + 30*s*f} ${y - 38*s} L ${bow - 10*s*f} ${y - 40*s}" stroke="#c0402a" stroke-width="${7*s}"/>`;                 // red painted band
+  // oar ports
+  for (let i = 0; i < 22; i++) { const t = (i + .5) / 22, ox = stern + (bow - stern) * (0.12 + t * 0.72);
+    for (let b = 0; b < 3; b++) g += `<circle cx="${ox}" cy="${y - (30 - b*9)*s}" r="${1.8*s}" fill="#000"/>`; }
+  // the painted eye on the bow
+  g += `<ellipse cx="${bow - 34*s*f}" cy="${y - 36*s}" rx="${12*s}" ry="${7*s}" fill="#f4e8d0"/><circle cx="${bow - 32*s*f}" cy="${y - 36*s}" r="${4*s}" fill="#120a06"/>`;
+  g += `<path d="M${bow} ${y - 4*s} L ${bow + 46*s*f} ${y - 4*s} L ${bow} ${y + 6*s} Z" fill="#c8883a"/>`;   // bronze ram
+  // hoplite shields along the rail
+  for (let i = 0; i < 9; i++) { const t = (i + .5) / 9, sx = stern + (bow - stern) * (0.25 + t * 0.55);
+    g += `<circle cx="${sx}" cy="${y - 70*s}" r="${11*s}" fill="#b8742e"/><circle cx="${sx}" cy="${y - 70*s}" r="${4*s}" fill="#2a1408"/>`; }
+  // mast + yard + square sail with the owl of Athens
+  const mx = x - 20 * s * f;
+  g += `<line x1="${mx}" y1="${y - 64*s}" x2="${mx}" y2="${y - 380*s}" stroke="#2a1810" stroke-width="${6*s}"/>`;
+  if (sailUp) {
+    g += `<line x1="${mx - 140*s}" y1="${y - 360*s}" x2="${mx + 140*s}" y2="${y - 360*s}" stroke="#2a1810" stroke-width="${5*s}"/>`;
+    g += `<path d="M${mx - 136*s} ${y - 358*s} L ${mx + 136*s} ${y - 358*s} C ${mx + 150*s} ${y - 250*s}, ${mx + 140*s} ${y - 180*s}, ${mx + 126*s} ${y - 120*s}
+      L ${mx - 126*s} ${y - 120*s} C ${mx - 110*s} ${y - 180*s}, ${mx - 120*s} ${y - 250*s}, ${mx - 136*s} ${y - 358*s} Z" fill="url(#sail)"/>`;
+    for (let k = 1; k < 5; k++) g += `<line x1="${mx - 130*s + k*52*s}" y1="${y - 356*s}" x2="${mx - 122*s + k*50*s}" y2="${y - 122*s}" stroke="#8a5a40" stroke-width="${1.2*s}" opacity=".4"/>`;
+    // owl emblem
+    g += `<g transform="translate(${mx} ${y - 240*s}) scale(${s})">
+      <ellipse rx="30" ry="40" fill="#3a1c10"/><circle cx="-12" cy="-14" r="11" fill="#e8c890"/><circle cx="12" cy="-14" r="11" fill="#e8c890"/>
+      <circle cx="-12" cy="-14" r="5" fill="#1a0a04"/><circle cx="12" cy="-14" r="5" fill="#1a0a04"/><path d="M-4 -2 L0 6 L4 -2 Z" fill="#c8883a"/>
+      <path d="M-30 -36 L-20 -26 M30 -36 L20 -26" stroke="#3a1c10" stroke-width="6"/></g>`;
+    // rigging
+    g += `<line x1="${mx}" y1="${y - 380*s}" x2="${bow - 10*s*f}" y2="${y - 64*s}" stroke="#2a1810" stroke-width="${1.4*s}"/>`;
+    g += `<line x1="${mx}" y1="${y - 380*s}" x2="${stern + 20*s*f}" y2="${y - 120*s}" stroke="#2a1810" stroke-width="${1.4*s}"/>`;
+  }
+  // bow wave
+  g += `<path d="M${bow + 40*s*f} ${y + 2*s} q ${20*s*f} ${-10*s} ${50*s*f} ${-2*s}" stroke="#ffe0c0" stroke-width="${3*s}" fill="none" opacity=".6"/>`;
+  return g;
+}
+// reflections of the ships (flipped + rippled), then the ships
+const ships = [[820, 1190, 0.42, -1, true, 3], [300, 1290, 0.6, 1, true, 7], [640, 1600, 1.15, 1, true, 11]];
+ships.forEach(([x, y, s, d, sail, sd]) => {
+  add(`<g filter="url(#ripple)" opacity=".4"><g transform="translate(0 ${y*2}) scale(1 -1)">${trireme(x, y, s, d, sail, sd)}</g></g>`);
+});
+ships.forEach(([x, y, s, d, sail, sd]) => add(trireme(x, y, s, d, sail, sd)));
+// warm rim of sunset on the near ship's sail (it faces the sun)
+add(`<ellipse cx="560" cy="1400" rx="160" ry="160" fill="#ffb060" opacity=".12" ${blur(40)} style="mix-blend-mode:screen"/>`);
+
+// ---------- title + finishing ----------
+add(`<g text-anchor="middle">
+  <text x="540" y="190" font-family="Cinzel, serif" font-weight="600" font-size="32" letter-spacing="14" fill="#ffe2c0" opacity=".9">ATHENS · 480 BC</text>
+  <text x="540" y="290" font-family="Anton, Impact" font-size="92" letter-spacing="3" fill="#fff0dc">THE NAVY THAT</text>
+  <text x="540" y="400" font-family="Anton, Impact" font-size="112" letter-spacing="3" fill="url(#titleGold)" filter="url(#glow)">SAVED GREECE</text>
+</g>`);
+add(`<rect width="${W}" height="${H}" fill="url(#vig)"/>`);
+add(`<rect width="${W}" height="${H}" fill="#ff8a30" opacity=".05" style="mix-blend-mode:overlay"/>`);
+add(`<rect width="${W}" height="${H}" filter="url(#grain)" opacity=".18" style="mix-blend-mode:overlay"/>`);
+
+add(`<defs>${[...used].map(b=>`<filter id="b${b}" filterUnits="userSpaceOnUse" x="-500" y="-500" width="2080" height="2920"><feGaussianBlur stdDeviation="${b}"/></filter>`).join('')}</defs>`);
+document.getElementById('s').innerHTML = out.join('\n');
+</script>
+</body>
+</html>

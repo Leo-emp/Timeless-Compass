@@ -1,0 +1,30 @@
+{
+  "name": "helmet_corinthian_cleveland",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "museum_scan",
+  "builder": "scans_glb.load_glb('helmet_corinthian_cleveland', loc=(x, y, z), rot_z_deg=0)",
+  "scan": "library/scans/helmet_corinthian_cleveland/model.glb",
+  "object": "Corinthian helmet, bronze",
+  "museum": "Cleveland Museum of Art 1926.54",
+  "date": "500-475 BC (museum note: \"or modern, before 1926\")",
+  "real_size": "overall height 21.5 cm",
+  "era_fit": "EXACT for the hoplites of Marathon/Thermopylae/Salamis. The museum flags it may be a modern copy - the SHAPE matches genuine late-Archaic Corinthian helmets, which is what we need.",
+  "use_in": "close-ups on a chest or a hoplite's knee, reference for WS4 armour.helmet; a worn helmet still needs WS4 fitting",
+  "licence": "CC0",
+  "author": "Cleveland Museum of Art",
+  "source": "https://sketchfab.com/3d-models/192654-corinthian-helmet-fe4dcf84485242d3b2d5ae652a295db3",
+  "credit": "\"1926.54 Corinthian Helmet\" by Cleveland Museum of Art, https://sketchfab.com/3d-models/192654-corinthian-helmet-fe4dcf84485242d3b2d5ae652a295db3 (CC0)",
+  "facts_from": "museum open-access records (openaccess-api.clevelandart.org / collectionapi.metmuseum.org), 2026-11-19",
+  "self_rating": {
+    "shape": 9,
+    "surface": 9,
+    "era": 9,
+    "notes": "real patina + incised brow border; look 83; WS4 to compare with armour.helmet"
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws7/pottery_v3.png",
+    "spike/lib_stills/ws7/pottery_close_v2.png"
+  ]
+}

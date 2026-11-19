@@ -1,0 +1,43 @@
+{
+  "name": "greek_woman_480bc",
+  "version": 1,
+  "era": "greece_480bc",
+  "pieces": {
+    "peplos": {
+      "builder": "wardrobe.peplos",
+      "material": "caban wool scan, saffron (0.45,0.30,0.10) + woad border",
+      "notes": "body + overfold, 2 pins per shoulder, open sides (armholes), A-line skirt, belt over the overfold"
+    },
+    "veil": {
+      "builder": "wardrobe.veil",
+      "material": "undyed wool + madder border",
+      "notes": "mantle drawn over the head, pinned on the crown, floats over the hair"
+    },
+    "girdle": {
+      "builder": "wardrobe.belt(kind='cord')"
+    },
+    "dress_pins": {
+      "builder": "wardrobe.dress_pins(kind='perone')"
+    },
+    "jewellery": {
+      "builder": "wardrobe.earrings + wardrobe.necklace"
+    },
+    "sandals": {
+      "builder": "wardrobe.sandals"
+    }
+  },
+  "design_source": "Peplos Kore (Acropolis 679, c. 530 BC), Olympia west pediment women, Athena on Attic red-figure vases; long dress pins: Herodotus 5.87-88; veiled women: white-ground lekythoi, Hegeso stele",
+  "scene": "blender/scenes/ws3_wardrobe.py (woman | woman_pins)",
+  "licence": "our own code (Blender cloth simulation); scanned fabrics CC0 Poly Haven (rough_linen, caban, hessian_230); MakeHuman body CC0",
+  "self_rating": {
+    "shape": 6,
+    "surface": 7,
+    "era": 8,
+    "notes": "peplos: armholes, A-line skirt, hands outside, woad hem, belt, sandals, earrings (look 83). Veil over the head works but sat in a peak above the crown and was stiff (fixed in code: lower crown pin, softer wool; not yet re-rendered). Overfold flares a little at the arms. Dress pins too small to read at full shot."
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws3/woman_pins_v2.png",
+    "spike/lib_stills/ws3/woman_veil_v1.png"
+  ]
+}

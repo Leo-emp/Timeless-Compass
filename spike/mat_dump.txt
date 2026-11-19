@@ -1,0 +1,490 @@
+MAT Human Human.body
+   GROUP Human.body GROUP=Human.body Roughness=0.45
+   OUTPUT_MATERIAL Material Output  
+     LINK Human.body shaderOutput -> Material Output Surface
+  GROUP Human.body
+     GROUP_INPUT Group Input  
+     GROUP_OUTPUT Group Output  
+     BRIGHTCONTRAST Bright/Contrast  
+     BUMP Bump  Distance=0.001
+     VALTORGB ColorRamp  
+     COMBXYZ Combine RGB  
+     TEX_IMAGE DiffuseTexture middleage_lightskinned_male_diffuse.png sRGB 
+     TEX_IMAGE SssTexture sss.png sRGB 
+     MATH SSSRadiusRed  
+     MATH SSSRadiusGreen  
+     MATH SSSRadiusBlue  
+     MATH SSSStrength  
+     MIX_RGB Mix  
+     TEX_NOISE Noise Texture  Roughness=0.5
+     NORMAL_MAP Normal Map  Strength=1.0
+     BSDF_PRINCIPLED Principled BSDF  IOR=1.5 Subsurface Scale=0.005 Specular IOR Level=0.45 Sheen Weight=0.0
+     TEX_COORD Texture Coordinate  
+     MIX Mix.001  Factor=1.0 Factor=(0.5, 0.5, 0.5)
+     TEX_VORONOI Voronoi Texture  Scale=900.0 Roughness=0.5
+     TEX_NOISE Noise Texture.001  Scale=400.0 Roughness=0.5
+     MATH Math  
+     BUMP Bump.001  Strength=0.12 Distance=0.001
+     MAP_RANGE Map Range  
+       LINK Principled BSDF BSDF -> Group Output shaderOutput
+       LINK DiffuseTexture Color -> Mix Color1
+       LINK Group Input colorMixIn -> Mix Color2
+       LINK Group Input colorMixInStrength -> Mix Factor
+       LINK Mix Color -> Bright/Contrast Color
+       LINK Group Input Brightness -> Bright/Contrast Brightness
+       LINK Group Input Contrast -> Bright/Contrast Contrast
+       LINK Group Input Clearcoat Roughness -> Principled BSDF Coat Roughness
+       LINK Group Input Clearcoat -> Principled BSDF Coat Weight
+       LINK DiffuseTexture Alpha -> Principled BSDF Alpha
+       LINK Normal Map Normal -> Bump Normal
+       LINK Noise Texture Factor -> ColorRamp Factor
+       LINK ColorRamp Color -> Bump Height
+       LINK Texture Coordinate UV -> Noise Texture Vector
+       LINK Group Input Pore scale -> Noise Texture Scale
+       LINK Group Input Pore detail -> Noise Texture Detail
+       LINK Group Input Pore distortion -> Noise Texture Distortion
+       LINK Group Input Pore strength -> Bump Strength
+       LINK Texture Coordinate UV -> DiffuseTexture Vector
+       LINK Group Input SSS radius R -> SSSRadiusRed Value
+       LINK Group Input SSS radius scale -> SSSRadiusRed Value
+       LINK Group Input SSS radius G -> SSSRadiusGreen Value
+       LINK Group Input SSS radius scale -> SSSRadiusGreen Value
+       LINK Group Input SSS radius B -> SSSRadiusBlue Value
+       LINK Group Input SSS radius scale -> SSSRadiusBlue Value
+       LINK SSSRadiusRed Value -> Combine RGB X
+       LINK SSSRadiusGreen Value -> Combine RGB Y
+       LINK SSSRadiusBlue Value -> Combine RGB Z
+       LINK Combine RGB Vector -> Principled BSDF Subsurface Radius
+       LINK Texture Coordinate UV -> SssTexture Vector
+       LINK SssTexture Color -> SSSStrength Value
+       LINK Group Input SSS strength -> SSSStrength Value
+       LINK SSSStrength Value -> Principled BSDF Subsurface Weight
+       LINK Bright/Contrast Color -> Mix.001 A
+       LINK Mix.001 Result -> Principled BSDF Base Color
+       LINK Voronoi Texture Distance -> Math Value
+       LINK Noise Texture.001 Factor -> Math Value
+       LINK Math Value -> Bump.001 Height
+       LINK Bump Normal -> Bump.001 Normal
+       LINK Bump.001 Normal -> Principled BSDF Normal
+       LINK Noise Texture.001 Factor -> Map Range Value
+       LINK Map Range Result -> Principled BSDF Roughness
+MAT Human Human.nipple
+   GROUP Human.body GROUP=Human.body Roughness=0.45
+   OUTPUT_MATERIAL Material Output  
+     LINK Human.body shaderOutput -> Material Output Surface
+  GROUP Human.body
+     GROUP_INPUT Group Input  
+     GROUP_OUTPUT Group Output  
+     BRIGHTCONTRAST Bright/Contrast  
+     BUMP Bump  Distance=0.001
+     VALTORGB ColorRamp  
+     COMBXYZ Combine RGB  
+     TEX_IMAGE DiffuseTexture middleage_lightskinned_male_diffuse.png sRGB 
+     TEX_IMAGE SssTexture sss.png sRGB 
+     MATH SSSRadiusRed  
+     MATH SSSRadiusGreen  
+     MATH SSSRadiusBlue  
+     MATH SSSStrength  
+     MIX_RGB Mix  
+     TEX_NOISE Noise Texture  Roughness=0.5
+     NORMAL_MAP Normal Map  Strength=1.0
+     BSDF_PRINCIPLED Principled BSDF  IOR=1.5 Subsurface Scale=0.005 Specular IOR Level=0.45 Sheen Weight=0.0
+     TEX_COORD Texture Coordinate  
+     MIX Mix.001  Factor=1.0 Factor=(0.5, 0.5, 0.5)
+     TEX_VORONOI Voronoi Texture  Scale=900.0 Roughness=0.5
+     TEX_NOISE Noise Texture.001  Scale=400.0 Roughness=0.5
+     MATH Math  
+     BUMP Bump.001  Strength=0.12 Distance=0.001
+     MAP_RANGE Map Range  
+       LINK Principled BSDF BSDF -> Group Output shaderOutput
+       LINK DiffuseTexture Color -> Mix Color1
+       LINK Group Input colorMixIn -> Mix Color2
+       LINK Group Input colorMixInStrength -> Mix Factor
+       LINK Mix Color -> Bright/Contrast Color
+       LINK Group Input Brightness -> Bright/Contrast Brightness
+       LINK Group Input Contrast -> Bright/Contrast Contrast
+       LINK Group Input Clearcoat Roughness -> Principled BSDF Coat Roughness
+       LINK Group Input Clearcoat -> Principled BSDF Coat Weight
+       LINK DiffuseTexture Alpha -> Principled BSDF Alpha
+       LINK Normal Map Normal -> Bump Normal
+       LINK Noise Texture Factor -> ColorRamp Factor
+       LINK ColorRamp Color -> Bump Height
+       LINK Texture Coordinate UV -> Noise Texture Vector
+       LINK Group Input Pore scale -> Noise Texture Scale
+       LINK Group Input Pore detail -> Noise Texture Detail
+       LINK Group Input Pore distortion -> Noise Texture Distortion
+       LINK Group Input Pore strength -> Bump Strength
+       LINK Texture Coordinate UV -> DiffuseTexture Vector
+       LINK Group Input SSS radius R -> SSSRadiusRed Value
+       LINK Group Input SSS radius scale -> SSSRadiusRed Value
+       LINK Group Input SSS radius G -> SSSRadiusGreen Value
+       LINK Group Input SSS radius scale -> SSSRadiusGreen Value
+       LINK Group Input SSS radius B -> SSSRadiusBlue Value
+       LINK Group Input SSS radius scale -> SSSRadiusBlue Value
+       LINK SSSRadiusRed Value -> Combine RGB X
+       LINK SSSRadiusGreen Value -> Combine RGB Y
+       LINK SSSRadiusBlue Value -> Combine RGB Z
+       LINK Combine RGB Vector -> Principled BSDF Subsurface Radius
+       LINK Texture Coordinate UV -> SssTexture Vector
+       LINK SssTexture Color -> SSSStrength Value
+       LINK Group Input SSS strength -> SSSStrength Value
+       LINK SSSStrength Value -> Principled BSDF Subsurface Weight
+       LINK Bright/Contrast Color -> Mix.001 A
+       LINK Mix.001 Result -> Principled BSDF Base Color
+       LINK Voronoi Texture Distance -> Math Value
+       LINK Noise Texture.001 Factor -> Math Value
+       LINK Math Value -> Bump.001 Height
+       LINK Bump Normal -> Bump.001 Normal
+       LINK Bump.001 Normal -> Principled BSDF Normal
+       LINK Noise Texture.001 Factor -> Map Range Value
+       LINK Map Range Result -> Principled BSDF Roughness
+MAT Human Human.lips
+   GROUP Human.body GROUP=Human.body Roughness=0.35
+   OUTPUT_MATERIAL Material Output  
+     LINK Human.body shaderOutput -> Material Output Surface
+  GROUP Human.body
+     GROUP_INPUT Group Input  
+     GROUP_OUTPUT Group Output  
+     BRIGHTCONTRAST Bright/Contrast  
+     BUMP Bump  Distance=0.001
+     VALTORGB ColorRamp  
+     COMBXYZ Combine RGB  
+     TEX_IMAGE DiffuseTexture middleage_lightskinned_male_diffuse.png sRGB 
+     TEX_IMAGE SssTexture sss.png sRGB 
+     MATH SSSRadiusRed  
+     MATH SSSRadiusGreen  
+     MATH SSSRadiusBlue  
+     MATH SSSStrength  
+     MIX_RGB Mix  
+     TEX_NOISE Noise Texture  Roughness=0.5
+     NORMAL_MAP Normal Map  Strength=1.0
+     BSDF_PRINCIPLED Principled BSDF  IOR=1.5 Subsurface Scale=0.005 Specular IOR Level=0.45 Sheen Weight=0.0
+     TEX_COORD Texture Coordinate  
+     MIX Mix.001  Factor=1.0 Factor=(0.5, 0.5, 0.5)
+     TEX_VORONOI Voronoi Texture  Scale=900.0 Roughness=0.5
+     TEX_NOISE Noise Texture.001  Scale=400.0 Roughness=0.5
+     MATH Math  
+     BUMP Bump.001  Strength=0.12 Distance=0.001
+     MAP_RANGE Map Range  
+       LINK Principled BSDF BSDF -> Group Output shaderOutput
+       LINK DiffuseTexture Color -> Mix Color1
+       LINK Group Input colorMixIn -> Mix Color2
+       LINK Group Input colorMixInStrength -> Mix Factor
+       LINK Mix Color -> Bright/Contrast Color
+       LINK Group Input Brightness -> Bright/Contrast Brightness
+       LINK Group Input Contrast -> Bright/Contrast Contrast
+       LINK Group Input Clearcoat Roughness -> Principled BSDF Coat Roughness
+       LINK Group Input Clearcoat -> Principled BSDF Coat Weight
+       LINK DiffuseTexture Alpha -> Principled BSDF Alpha
+       LINK Normal Map Normal -> Bump Normal
+       LINK Noise Texture Factor -> ColorRamp Factor
+       LINK ColorRamp Color -> Bump Height
+       LINK Texture Coordinate UV -> Noise Texture Vector
+       LINK Group Input Pore scale -> Noise Texture Scale
+       LINK Group Input Pore detail -> Noise Texture Detail
+       LINK Group Input Pore distortion -> Noise Texture Distortion
+       LINK Group Input Pore strength -> Bump Strength
+       LINK Texture Coordinate UV -> DiffuseTexture Vector
+       LINK Group Input SSS radius R -> SSSRadiusRed Value
+       LINK Group Input SSS radius scale -> SSSRadiusRed Value
+       LINK Group Input SSS radius G -> SSSRadiusGreen Value
+       LINK Group Input SSS radius scale -> SSSRadiusGreen Value
+       LINK Group Input SSS radius B -> SSSRadiusBlue Value
+       LINK Group Input SSS radius scale -> SSSRadiusBlue Value
+       LINK SSSRadiusRed Value -> Combine RGB X
+       LINK SSSRadiusGreen Value -> Combine RGB Y
+       LINK SSSRadiusBlue Value -> Combine RGB Z
+       LINK Combine RGB Vector -> Principled BSDF Subsurface Radius
+       LINK Texture Coordinate UV -> SssTexture Vector
+       LINK SssTexture Color -> SSSStrength Value
+       LINK Group Input SSS strength -> SSSStrength Value
+       LINK SSSStrength Value -> Principled BSDF Subsurface Weight
+       LINK Bright/Contrast Color -> Mix.001 A
+       LINK Mix.001 Result -> Principled BSDF Base Color
+       LINK Voronoi Texture Distance -> Math Value
+       LINK Noise Texture.001 Factor -> Math Value
+       LINK Math Value -> Bump.001 Height
+       LINK Bump Normal -> Bump.001 Normal
+       LINK Bump.001 Normal -> Principled BSDF Normal
+       LINK Noise Texture.001 Factor -> Map Range Value
+       LINK Map Range Result -> Principled BSDF Roughness
+MAT Human Human.fingernails
+   GROUP Human.body GROUP=Human.body Roughness=0.25
+   OUTPUT_MATERIAL Material Output  
+     LINK Human.body shaderOutput -> Material Output Surface
+  GROUP Human.body
+     GROUP_INPUT Group Input  
+     GROUP_OUTPUT Group Output  
+     BRIGHTCONTRAST Bright/Contrast  
+     BUMP Bump  Distance=0.001
+     VALTORGB ColorRamp  
+     COMBXYZ Combine RGB  
+     TEX_IMAGE DiffuseTexture middleage_lightskinned_male_diffuse.png sRGB 
+     TEX_IMAGE SssTexture sss.png sRGB 
+     MATH SSSRadiusRed  
+     MATH SSSRadiusGreen  
+     MATH SSSRadiusBlue  
+     MATH SSSStrength  
+     MIX_RGB Mix  
+     TEX_NOISE Noise Texture  Roughness=0.5
+     NORMAL_MAP Normal Map  Strength=1.0
+     BSDF_PRINCIPLED Principled BSDF  IOR=1.5 Subsurface Scale=0.005 Specular IOR Level=0.45 Sheen Weight=0.0
+     TEX_COORD Texture Coordinate  
+     MIX Mix.001  Factor=1.0 Factor=(0.5, 0.5, 0.5)
+     TEX_VORONOI Voronoi Texture  Scale=900.0 Roughness=0.5
+     TEX_NOISE Noise Texture.001  Scale=400.0 Roughness=0.5
+     MATH Math  
+     BUMP Bump.001  Strength=0.12 Distance=0.001
+     MAP_RANGE Map Range  
+       LINK Principled BSDF BSDF -> Group Output shaderOutput
+       LINK DiffuseTexture Color -> Mix Color1
+       LINK Group Input colorMixIn -> Mix Color2
+       LINK Group Input colorMixInStrength -> Mix Factor
+       LINK Mix Color -> Bright/Contrast Color
+       LINK Group Input Brightness -> Bright/Contrast Brightness
+       LINK Group Input Contrast -> Bright/Contrast Contrast
+       LINK Group Input Clearcoat Roughness -> Principled BSDF Coat Roughness
+       LINK Group Input Clearcoat -> Principled BSDF Coat Weight
+       LINK DiffuseTexture Alpha -> Principled BSDF Alpha
+       LINK Normal Map Normal -> Bump Normal
+       LINK Noise Texture Factor -> ColorRamp Factor
+       LINK ColorRamp Color -> Bump Height
+       LINK Texture Coordinate UV -> Noise Texture Vector
+       LINK Group Input Pore scale -> Noise Texture Scale
+       LINK Group Input Pore detail -> Noise Texture Detail
+       LINK Group Input Pore distortion -> Noise Texture Distortion
+       LINK Group Input Pore strength -> Bump Strength
+       LINK Texture Coordinate UV -> DiffuseTexture Vector
+       LINK Group Input SSS radius R -> SSSRadiusRed Value
+       LINK Group Input SSS radius scale -> SSSRadiusRed Value
+       LINK Group Input SSS radius G -> SSSRadiusGreen Value
+       LINK Group Input SSS radius scale -> SSSRadiusGreen Value
+       LINK Group Input SSS radius B -> SSSRadiusBlue Value
+       LINK Group Input SSS radius scale -> SSSRadiusBlue Value
+       LINK SSSRadiusRed Value -> Combine RGB X
+       LINK SSSRadiusGreen Value -> Combine RGB Y
+       LINK SSSRadiusBlue Value -> Combine RGB Z
+       LINK Combine RGB Vector -> Principled BSDF Subsurface Radius
+       LINK Texture Coordinate UV -> SssTexture Vector
+       LINK SssTexture Color -> SSSStrength Value
+       LINK Group Input SSS strength -> SSSStrength Value
+       LINK SSSStrength Value -> Principled BSDF Subsurface Weight
+       LINK Bright/Contrast Color -> Mix.001 A
+       LINK Mix.001 Result -> Principled BSDF Base Color
+       LINK Voronoi Texture Distance -> Math Value
+       LINK Noise Texture.001 Factor -> Math Value
+       LINK Math Value -> Bump.001 Height
+       LINK Bump Normal -> Bump.001 Normal
+       LINK Bump.001 Normal -> Principled BSDF Normal
+       LINK Noise Texture.001 Factor -> Map Range Value
+       LINK Map Range Result -> Principled BSDF Roughness
+MAT Human Human.toenails
+   GROUP Human.body GROUP=Human.body Roughness=0.25
+   OUTPUT_MATERIAL Material Output  
+     LINK Human.body shaderOutput -> Material Output Surface
+  GROUP Human.body
+     GROUP_INPUT Group Input  
+     GROUP_OUTPUT Group Output  
+     BRIGHTCONTRAST Bright/Contrast  
+     BUMP Bump  Distance=0.001
+     VALTORGB ColorRamp  
+     COMBXYZ Combine RGB  
+     TEX_IMAGE DiffuseTexture middleage_lightskinned_male_diffuse.png sRGB 
+     TEX_IMAGE SssTexture sss.png sRGB 
+     MATH SSSRadiusRed  
+     MATH SSSRadiusGreen  
+     MATH SSSRadiusBlue  
+     MATH SSSStrength  
+     MIX_RGB Mix  
+     TEX_NOISE Noise Texture  Roughness=0.5
+     NORMAL_MAP Normal Map  Strength=1.0
+     BSDF_PRINCIPLED Principled BSDF  IOR=1.5 Subsurface Scale=0.005 Specular IOR Level=0.45 Sheen Weight=0.0
+     TEX_COORD Texture Coordinate  
+     MIX Mix.001  Factor=1.0 Factor=(0.5, 0.5, 0.5)
+     TEX_VORONOI Voronoi Texture  Scale=900.0 Roughness=0.5
+     TEX_NOISE Noise Texture.001  Scale=400.0 Roughness=0.5
+     MATH Math  
+     BUMP Bump.001  Strength=0.12 Distance=0.001
+     MAP_RANGE Map Range  
+       LINK Principled BSDF BSDF -> Group Output shaderOutput
+       LINK DiffuseTexture Color -> Mix Color1
+       LINK Group Input colorMixIn -> Mix Color2
+       LINK Group Input colorMixInStrength -> Mix Factor
+       LINK Mix Color -> Bright/Contrast Color
+       LINK Group Input Brightness -> Bright/Contrast Brightness
+       LINK Group Input Contrast -> Bright/Contrast Contrast
+       LINK Group Input Clearcoat Roughness -> Principled BSDF Coat Roughness
+       LINK Group Input Clearcoat -> Principled BSDF Coat Weight
+       LINK DiffuseTexture Alpha -> Principled BSDF Alpha
+       LINK Normal Map Normal -> Bump Normal
+       LINK Noise Texture Factor -> ColorRamp Factor
+       LINK ColorRamp Color -> Bump Height
+       LINK Texture Coordinate UV -> Noise Texture Vector
+       LINK Group Input Pore scale -> Noise Texture Scale
+       LINK Group Input Pore detail -> Noise Texture Detail
+       LINK Group Input Pore distortion -> Noise Texture Distortion
+       LINK Group Input Pore strength -> Bump Strength
+       LINK Texture Coordinate UV -> DiffuseTexture Vector
+       LINK Group Input SSS radius R -> SSSRadiusRed Value
+       LINK Group Input SSS radius scale -> SSSRadiusRed Value
+       LINK Group Input SSS radius G -> SSSRadiusGreen Value
+       LINK Group Input SSS radius scale -> SSSRadiusGreen Value
+       LINK Group Input SSS radius B -> SSSRadiusBlue Value
+       LINK Group Input SSS radius scale -> SSSRadiusBlue Value
+       LINK SSSRadiusRed Value -> Combine RGB X
+       LINK SSSRadiusGreen Value -> Combine RGB Y
+       LINK SSSRadiusBlue Value -> Combine RGB Z
+       LINK Combine RGB Vector -> Principled BSDF Subsurface Radius
+       LINK Texture Coordinate UV -> SssTexture Vector
+       LINK SssTexture Color -> SSSStrength Value
+       LINK Group Input SSS strength -> SSSStrength Value
+       LINK SSSStrength Value -> Principled BSDF Subsurface Weight
+       LINK Bright/Contrast Color -> Mix.001 A
+       LINK Mix.001 Result -> Principled BSDF Base Color
+       LINK Voronoi Texture Distance -> Math Value
+       LINK Noise Texture.001 Factor -> Math Value
+       LINK Math Value -> Bump.001 Height
+       LINK Bump Normal -> Bump.001 Normal
+       LINK Bump.001 Normal -> Principled BSDF Normal
+       LINK Noise Texture.001 Factor -> Map Range Value
+       LINK Map Range Result -> Principled BSDF Roughness
+MAT Human Human.ears
+   GROUP Human.body GROUP=Human.body Roughness=0.45
+   OUTPUT_MATERIAL Material Output  
+     LINK Human.body shaderOutput -> Material Output Surface
+  GROUP Human.body
+     GROUP_INPUT Group Input  
+     GROUP_OUTPUT Group Output  
+     BRIGHTCONTRAST Bright/Contrast  
+     BUMP Bump  Distance=0.001
+     VALTORGB ColorRamp  
+     COMBXYZ Combine RGB  
+     TEX_IMAGE DiffuseTexture middleage_lightskinned_male_diffuse.png sRGB 
+     TEX_IMAGE SssTexture sss.png sRGB 
+     MATH SSSRadiusRed  
+     MATH SSSRadiusGreen  
+     MATH SSSRadiusBlue  
+     MATH SSSStrength  
+     MIX_RGB Mix  
+     TEX_NOISE Noise Texture  Roughness=0.5
+     NORMAL_MAP Normal Map  Strength=1.0
+     BSDF_PRINCIPLED Principled BSDF  IOR=1.5 Subsurface Scale=0.005 Specular IOR Level=0.45 Sheen Weight=0.0
+     TEX_COORD Texture Coordinate  
+     MIX Mix.001  Factor=1.0 Factor=(0.5, 0.5, 0.5)
+     TEX_VORONOI Voronoi Texture  Scale=900.0 Roughness=0.5
+     TEX_NOISE Noise Texture.001  Scale=400.0 Roughness=0.5
+     MATH Math  
+     BUMP Bump.001  Strength=0.12 Distance=0.001
+     MAP_RANGE Map Range  
+       LINK Principled BSDF BSDF -> Group Output shaderOutput
+       LINK DiffuseTexture Color -> Mix Color1
+       LINK Group Input colorMixIn -> Mix Color2
+       LINK Group Input colorMixInStrength -> Mix Factor
+       LINK Mix Color -> Bright/Contrast Color
+       LINK Group Input Brightness -> Bright/Contrast Brightness
+       LINK Group Input Contrast -> Bright/Contrast Contrast
+       LINK Group Input Clearcoat Roughness -> Principled BSDF Coat Roughness
+       LINK Group Input Clearcoat -> Principled BSDF Coat Weight
+       LINK DiffuseTexture Alpha -> Principled BSDF Alpha
+       LINK Normal Map Normal -> Bump Normal
+       LINK Noise Texture Factor -> ColorRamp Factor
+       LINK ColorRamp Color -> Bump Height
+       LINK Texture Coordinate UV -> Noise Texture Vector
+       LINK Group Input Pore scale -> Noise Texture Scale
+       LINK Group Input Pore detail -> Noise Texture Detail
+       LINK Group Input Pore distortion -> Noise Texture Distortion
+       LINK Group Input Pore strength -> Bump Strength
+       LINK Texture Coordinate UV -> DiffuseTexture Vector
+       LINK Group Input SSS radius R -> SSSRadiusRed Value
+       LINK Group Input SSS radius scale -> SSSRadiusRed Value
+       LINK Group Input SSS radius G -> SSSRadiusGreen Value
+       LINK Group Input SSS radius scale -> SSSRadiusGreen Value
+       LINK Group Input SSS radius B -> SSSRadiusBlue Value
+       LINK Group Input SSS radius scale -> SSSRadiusBlue Value
+       LINK SSSRadiusRed Value -> Combine RGB X
+       LINK SSSRadiusGreen Value -> Combine RGB Y
+       LINK SSSRadiusBlue Value -> Combine RGB Z
+       LINK Combine RGB Vector -> Principled BSDF Subsurface Radius
+       LINK Texture Coordinate UV -> SssTexture Vector
+       LINK SssTexture Color -> SSSStrength Value
+       LINK Group Input SSS strength -> SSSStrength Value
+       LINK SSSStrength Value -> Principled BSDF Subsurface Weight
+       LINK Bright/Contrast Color -> Mix.001 A
+       LINK Mix.001 Result -> Principled BSDF Base Color
+       LINK Voronoi Texture Distance -> Math Value
+       LINK Noise Texture.001 Factor -> Math Value
+       LINK Math Value -> Bump.001 Height
+       LINK Bump Normal -> Bump.001 Normal
+       LINK Bump.001 Normal -> Principled BSDF Normal
+       LINK Noise Texture.001 Factor -> Map Range Value
+       LINK Map Range Result -> Principled BSDF Roughness
+MAT Human Human.genitals
+   GROUP Human.body GROUP=Human.body Roughness=0.45
+   OUTPUT_MATERIAL Material Output  
+     LINK Human.body shaderOutput -> Material Output Surface
+  GROUP Human.body
+     GROUP_INPUT Group Input  
+     GROUP_OUTPUT Group Output  
+     BRIGHTCONTRAST Bright/Contrast  
+     BUMP Bump  Distance=0.001
+     VALTORGB ColorRamp  
+     COMBXYZ Combine RGB  
+     TEX_IMAGE DiffuseTexture middleage_lightskinned_male_diffuse.png sRGB 
+     TEX_IMAGE SssTexture sss.png sRGB 
+     MATH SSSRadiusRed  
+     MATH SSSRadiusGreen  
+     MATH SSSRadiusBlue  
+     MATH SSSStrength  
+     MIX_RGB Mix  
+     TEX_NOISE Noise Texture  Roughness=0.5
+     NORMAL_MAP Normal Map  Strength=1.0
+     BSDF_PRINCIPLED Principled BSDF  IOR=1.5 Subsurface Scale=0.005 Specular IOR Level=0.45 Sheen Weight=0.0
+     TEX_COORD Texture Coordinate  
+     MIX Mix.001  Factor=1.0 Factor=(0.5, 0.5, 0.5)
+     TEX_VORONOI Voronoi Texture  Scale=900.0 Roughness=0.5
+     TEX_NOISE Noise Texture.001  Scale=400.0 Roughness=0.5
+     MATH Math  
+     BUMP Bump.001  Strength=0.12 Distance=0.001
+     MAP_RANGE Map Range  
+       LINK Principled BSDF BSDF -> Group Output shaderOutput
+       LINK DiffuseTexture Color -> Mix Color1
+       LINK Group Input colorMixIn -> Mix Color2
+       LINK Group Input colorMixInStrength -> Mix Factor
+       LINK Mix Color -> Bright/Contrast Color
+       LINK Group Input Brightness -> Bright/Contrast Brightness
+       LINK Group Input Contrast -> Bright/Contrast Contrast
+       LINK Group Input Clearcoat Roughness -> Principled BSDF Coat Roughness
+       LINK Group Input Clearcoat -> Principled BSDF Coat Weight
+       LINK DiffuseTexture Alpha -> Principled BSDF Alpha
+       LINK Normal Map Normal -> Bump Normal
+       LINK Noise Texture Factor -> ColorRamp Factor
+       LINK ColorRamp Color -> Bump Height
+       LINK Texture Coordinate UV -> Noise Texture Vector
+       LINK Group Input Pore scale -> Noise Texture Scale
+       LINK Group Input Pore detail -> Noise Texture Detail
+       LINK Group Input Pore distortion -> Noise Texture Distortion
+       LINK Group Input Pore strength -> Bump Strength
+       LINK Texture Coordinate UV -> DiffuseTexture Vector
+       LINK Group Input SSS radius R -> SSSRadiusRed Value
+       LINK Group Input SSS radius scale -> SSSRadiusRed Value
+       LINK Group Input SSS radius G -> SSSRadiusGreen Value
+       LINK Group Input SSS radius scale -> SSSRadiusGreen Value
+       LINK Group Input SSS radius B -> SSSRadiusBlue Value
+       LINK Group Input SSS radius scale -> SSSRadiusBlue Value
+       LINK SSSRadiusRed Value -> Combine RGB X
+       LINK SSSRadiusGreen Value -> Combine RGB Y
+       LINK SSSRadiusBlue Value -> Combine RGB Z
+       LINK Combine RGB Vector -> Principled BSDF Subsurface Radius
+       LINK Texture Coordinate UV -> SssTexture Vector
+       LINK SssTexture Color -> SSSStrength Value
+       LINK Group Input SSS strength -> SSSStrength Value
+       LINK SSSStrength Value -> Principled BSDF Subsurface Weight
+       LINK Bright/Contrast Color -> Mix.001 A
+       LINK Mix.001 Result -> Principled BSDF Base Color
+       LINK Voronoi Texture Distance -> Math Value
+       LINK Noise Texture.001 Factor -> Math Value
+       LINK Math Value -> Bump.001 Height
+       LINK Bump Normal -> Bump.001 Normal
+       LINK Bump.001 Normal -> Principled BSDF Normal
+       LINK Noise Texture.001 Factor -> Map Range Value
+       LINK Map Range Result -> Principled BSDF Roughness

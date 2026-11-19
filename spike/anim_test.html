@@ -1,0 +1,226 @@
+<!doctype html>
+<!--
+  CHARACTER TEST v2: EPIC POSTER, painted like the Athens scene.
+  Themistocles in front of the Acropolis and the fleet at sunset.
+  v1 was flat vector. v2 adds: soft (blurred) light + shadow planes, sunset rim light,
+  combed hair and beard made of hundreds of flowing strands, a real eye, nostril and lip,
+  and a softly out-of-focus background (cinema depth of field).
+-->
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Cinzel:wght@600;800&display=block" rel="stylesheet">
+<style>html,body{margin:0;width:1080px;height:1920px;background:#000;overflow:hidden}svg{display:block}</style>
+</head><body>
+<svg id="s" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg"></svg>
+<script src="common.js"></script>
+<script>
+let R, T = 0;
+// draw(t): rebuild the whole picture for time t (seconds). The renderer calls this once per frame.
+function draw(t) {
+T = t; out.length = 0; usedBlur.clear(); R = rng(2480);
+const HZ = 1150;                 // horizon line
+const SUNP = [345, 1105];        // sun, low on the left: the light source for the whole picture
+
+add(`<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#1e1234"/><stop offset=".3" stop-color="#4a2350"/><stop offset=".55" stop-color="#9a3e4c"/>
+    <stop offset=".78" stop-color="#e2743e"/><stop offset="1" stop-color="#ffc070"/>
+  </linearGradient>
+  <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c0623e"/><stop offset=".35" stop-color="#7a3446"/><stop offset="1" stop-color="#1c0e26"/></linearGradient>
+  <radialGradient id="sun"><stop offset="0" stop-color="#fff6dc"/><stop offset=".7" stop-color="#ffd890"/><stop offset="1" stop-color="#ffb060"/></radialGradient>
+  <radialGradient id="halo"><stop offset="0" stop-color="#ffc070" stop-opacity=".85"/><stop offset=".5" stop-color="#ff8a4a" stop-opacity=".3"/><stop offset="1" stop-color="#ff7040" stop-opacity="0"/></radialGradient>
+  <linearGradient id="rock" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c07a52"/><stop offset="1" stop-color="#6a3a40"/></linearGradient>
+  <linearGradient id="marble" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffe6c4"/><stop offset="1" stop-color="#c09078"/></linearGradient>
+  <!-- character materials, in the head's local space; light comes from the left (the sun) -->
+  <linearGradient id="skin" gradientUnits="userSpaceOnUse" x1="410" y1="0" x2="800" y2="0"><stop offset="0" stop-color="#f4c08c"/><stop offset=".55" stop-color="#d9935e"/><stop offset="1" stop-color="#a8623e"/></linearGradient>
+  <linearGradient id="cloakG" gradientUnits="userSpaceOnUse" x1="560" y1="0" x2="960" y2="0"><stop offset="0" stop-color="#c2442e"/><stop offset="1" stop-color="#4e1218"/></linearGradient>
+  <linearGradient id="tunicG" gradientUnits="userSpaceOnUse" x1="290" y1="0" x2="900" y2="0"><stop offset="0" stop-color="#f6e2bc"/><stop offset="1" stop-color="#8a6a5a"/></linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#b07820"/></linearGradient>
+  <clipPath id="faceClip"><path d="${HEAD.face}"/></clipPath>
+  <clipPath id="hairClip"><path d="${HEAD.hair}"/></clipPath>
+  <clipPath id="beardClip"><path d="${HEAD.beard}"/></clipPath>
+  <clipPath id="eyeClip"><path d="${HEAD.eye}"/></clipPath>
+  <clipPath id="tunicClip"><path d="${HEAD.tunic}"/></clipPath>
+  <clipPath id="cloakClip"><path d="${HEAD.cloak}"/></clipPath>
+  <filter id="glow" filterUnits="userSpaceOnUse" x="-200" y="-200" width="1480" height="2320"><feGaussianBlur in="SourceGraphic" stdDeviation="10" result="a"/><feMerge><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>`);
+
+// =====================================================================
+// BACKGROUND (soft focus, so the eye goes to the character)
+// =====================================================================
+let bg = '';
+bg += `<rect width="${W}" height="${HZ}" fill="url(#sky)"/>`;
+// long painted cloud streaks lit from below
+for (let i = 0; i < 16; i++) { const y = 420 + i * 42 + R() * 20, c = ['#6a2c56', '#8a3a52', '#c05a46', '#e8844a'][Math.min(3, i >> 2)];
+  bg += `<ellipse cx="${R() * 1080 + T * (5 + i * .8)}" cy="${y}" rx="${260 + R() * 360}" ry="${6 + R() * 10}" fill="${c}" opacity=".75" ${blur(5)}/>`; }
+bg += `<circle cx="${SUNP[0]}" cy="${SUNP[1]}" r="520" fill="url(#halo)"/>`;
+bg += `<circle cx="${SUNP[0]}" cy="${SUNP[1]}" r="95" fill="url(#sun)"/>`;
+// mountains far away
+bg += `<path d="M0 ${HZ} L0 1040 L 90 1000 L 160 1030 L 240 990 L 330 1040 L 420 1010 L 560 1060 L 560 ${HZ} Z" fill="#7a3a50" opacity=".85"/>`;
+// the Acropolis rock + Parthenon, lit warm from the sun (scaled down toward the left edge)
+bg += `<g transform="translate(0 ${HZ * .3}) scale(.7)">`;
+bg += `<path d="M 10 ${HZ} C 20 1060, 40 1010, 90 990 L 370 985 C 410 1000, 430 1060, 440 ${HZ} Z" fill="url(#rock)"/>`;
+bg += `<rect x="70" y="975" width="320" height="14" fill="#d8a070"/>`;
+let cols = ''; for (let i = 0; i < 10; i++) cols += `<rect x="${108 + i * 22}" y="${905}" width="11" height="66" fill="${i < 7 ? '#ffe2b8' : '#c49078'}"/>`;
+bg += `<g><rect x="100" y="968" width="230" height="8" fill="#f0c8a0"/>${cols}
+  <rect x="100" y="892" width="230" height="14" fill="#f4d2a8"/><path d="M 96 892 L 215 858 L 334 892 Z" fill="#ffe2bc"/></g></g>`;
+// little town at the shore with lamplit windows
+for (let i = 0; i < 18; i++) { const x = 380 + i * 40 + R() * 10, h = 20 + R() * 26;
+  bg += `<rect x="${x}" y="${HZ - h}" width="${30 + R() * 12}" height="${h}" fill="#5a2a40"/>`;
+  if (R() > .5) bg += `<rect x="${x + 10}" y="${HZ - h + 8}" width="5" height="6" fill="#ffc070"/>`; }
+// sea + mirrored glitter of the sun
+bg += `<rect y="${HZ}" width="${W}" height="${H - HZ}" fill="url(#sea)"/>`;
+for (let i = 0; i < 40; i++) { const y = HZ + 6 + i * i * .55, w = 220 - i * 4.5 + R() * 40;
+  bg += `<rect x="${SUNP[0] - w / 2 + (R() - .5) * 50}" y="${y}" width="${Math.max(8, w)}" height="${2 + i * .12}" rx="2" fill="#ffd890" opacity="${Math.max(.05, .8 - i * .02) * (.55 + .45 * Math.sin(T * 4 + i * 1.7))}"/>`; }
+// triremes with owl sails (Athena's owl = Athens)
+function trireme(x, y, s) {
+  let oars = ''; for (let i = 0; i < 14; i++) oars += `<line x1="${-100 + i * 15}" y1="4" x2="${-112 + i * 15}" y2="30" stroke="#1e0e14" stroke-width="2.6"/>`;
+  let shields = ''; for (let i = 0; i < 7; i++) shields += `<circle cx="${-80 + i * 26}" cy="-10" r="6" fill="#e0a040"/>`;
+  return `<g transform="translate(${x} ${y}) scale(${s})">${oars}
+    <path d="M-140 -14 C -150 -40, -150 -60, -130 -70 C -138 -50, -132 -30, -120 -18 L 130 -14 L 160 6 L 126 2 C 60 12, -60 12, -120 4 Z" fill="#2a1418"/>
+    <line x1="-120" y1="-4" x2="130" y2="-4" stroke="#c0402a" stroke-width="3"/>${shields}
+    <line x1="0" y1="-10" x2="0" y2="-160" stroke="#2a1418" stroke-width="5"/>
+    <path d="M -62 -150 L 62 -150 C 66 -110, 66 -70, 62 -30 L -62 -30 C -58 -70, -58 -110, -62 -150 Z" fill="#f4dcb4"/>
+    <ellipse cx="0" cy="-88" rx="17" ry="20" fill="#4a2418"/><circle cx="-7" cy="-92" r="5" fill="#f4dcb4"/><circle cx="7" cy="-92" r="5" fill="#f4dcb4"/></g>`;
+}
+// reflections first (flipped + faded), then the boats
+[[200, HZ + 40, .42], [70, HZ + 120, .7]].forEach(([x, y, s], k) => {
+  x += T * (6 + k * 6); y += Math.sin(T * 1.6 + k * 2) * 2;
+  bg += `<g transform="translate(0 ${2 * y}) scale(1 -1)" opacity=".25">${trireme(x, y, s)}</g>`;
+  bg += trireme(x, y, s); });
+add(`<g transform="translate(540 960) scale(1.04) translate(-540 -960) translate(${15 - T * 6} 0)"><g ${blur(2.5)}>${bg}</g></g>`);
+// warm haze over the background
+add(`<rect y="800" width="${W}" height="500" fill="#ff9a5a" opacity=".12" ${blur(40)}/>`);
+
+// =====================================================================
+// THEMISTOCLES (sharp, in focus)
+// =====================================================================
+// Grows one hair strand by following a direction field. Returns an SVG path "d".
+// wave = how much the strand snakes sideways (wavy Greek hair, not straight bristles)
+function strand([x, y], dir, steps, len, wave = 0) {
+  let d = `M ${x.toFixed(1)} ${y.toFixed(1)}`; const ph = R() * 6.28;
+  for (let i = 0; i < steps; i++) { const [dx, dy] = dir(x, y), L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;
+    const w = Math.sin(ph + i * 1.1) * wave;          // sideways wobble
+    x += ux * len - uy * w; y += uy * len + ux * w; d += ` L ${x.toFixed(1)} ${y.toFixed(1)}`; }
+  return d;
+}
+// head hair sweeps back from the forehead and down toward the nape (no swirl)
+const hairDir = (x, y) => [1, (x - 560) / 240 + Math.sin(T * 2 + y * .02) * .07];
+// beard hair falls down and curls forward toward the tip
+const beardDir = (x, y) => [-.1 - (y - 1060) / 480 + Math.sin(T * 2.2 + x * .03) * .09, 1];
+
+let g = '';
+// ---- neck shadow + skin ----
+g += `<path d="${HEAD.face}" fill="url(#skin)"/>`;
+g += `<g clip-path="url(#faceClip)">`;
+g += `<path d="${HEAD.shade}" fill="#6e3428" opacity=".85" ${blur(14)}/>`;                        // soft shadow side
+g += `<ellipse cx="482" cy="926" rx="40" ry="20" fill="#9a5234" opacity=".55" ${blur(8)}/>`;       // eye socket
+g += `<ellipse cx="560" cy="860" rx="50" ry="64" fill="#a05a3c" opacity=".35" ${blur(14)}/>`;      // temple
+g += `<ellipse cx="560" cy="1030" rx="54" ry="30" fill="#8a4a30" opacity=".4" ${blur(12)}/>`;      // cheek hollow
+g += `<ellipse cx="505" cy="985" rx="54" ry="22" fill="#ffd6a4" opacity=".45" ${blur(10)}/>`;     // cheekbone light
+g += `<ellipse cx="470" cy="830" rx="26" ry="54" fill="#ffe2b8" opacity=".5" ${blur(10)}/>`;      // forehead light
+g += `<path d="M 440 905 L 404 1024" stroke="#ffe8c4" stroke-width="7" opacity=".75" ${blur(2)}/>`; // nose ridge
+g += `<ellipse cx="640" cy="1290" rx="110" ry="60" fill="#5a2418" opacity=".75" ${blur(18)}/>`;    // beard shadow on neck
+g += `<path d="${HEAD.face}" fill="none" stroke="#ffe2b0" stroke-width="12" opacity=".9" ${blur(3)}/>`; // sunset rim
+g += `<path d="M 600 1270 C 640 1320, 660 1360, 670 1420" stroke="#9a5a3c" stroke-width="10" fill="none" opacity=".4" ${blur(5)}/>`; // neck muscle
+g += `</g>`;
+// nostril + nose wing
+g += `<path d="M 446 1018 C 456 1030, 452 1046, 436 1050" stroke="#9a5034" stroke-width="4" fill="none" opacity=".8"/>`;
+g += `<path d="M 418 1046 C 424 1050, 430 1050, 434 1046" stroke="#5a2418" stroke-width="4" fill="none"/>`;
+
+// ---- back of the neck in shadow ----
+g += `<path d="M 700 1150 C 720 1250, 730 1330, 740 1420 L 780 1420 L 775 1150 Z" fill="#5a2618" opacity=".7" ${blur(10)}/>`;
+// ---- clothes (painted folds), lifted 70px so the neck is shorter ----
+g += `<g transform="translate(0 -70) scale(1 1.04) skewX(${Math.sin(T * 1.7) * .8})">`;
+g += `<path d="${HEAD.tunic}" fill="url(#tunicG)"/>`;
+g += `<g clip-path="url(#tunicClip)">
+  <path d="M 360 1560 C 440 1500, 520 1490, 600 1510" stroke="#fff4dc" stroke-width="26" fill="none" opacity=".5" ${blur(8)}/>
+  <path d="M 340 1660 C 420 1610, 520 1600, 600 1620" stroke="#8a6a58" stroke-width="22" fill="none" opacity=".55" ${blur(8)}/>
+  <ellipse cx="600" cy="1420" rx="120" ry="50" fill="#4a2a20" opacity=".6" ${blur(16)}/></g>`;
+g += `<path d="${HEAD.cloak}" fill="url(#cloakG)"/>`;
+g += `<g clip-path="url(#cloakClip)">
+  ${[680, 760, 840].map((x, i) => `<path d="M ${x} 1380 C ${x + 30} 1500, ${x + 46} 1640, ${x + 50} 1780" stroke="#2e080c" stroke-width="18" fill="none" opacity=".6" ${blur(7)}/>
+  <path d="M ${x + 26} 1390 C ${x + 56} 1510, ${x + 72} 1640, ${x + 76} 1780" stroke="#e26a48" stroke-width="10" fill="none" opacity="${.5 - i * .14}" ${blur(5)}/>`).join('')}
+  <path d="${HEAD.cloak}" fill="none" stroke="#ff9a6a" stroke-width="10" opacity=".5" ${blur(4)}/></g>`;
+g += `<circle cx="652" cy="1396" r="21" fill="url(#gold)" stroke="#6a400e" stroke-width="3"/><circle cx="645" cy="1389" r="5" fill="#fff4c8"/>`;
+
+g += `</g>`;
+// ---- ear ----
+g += `<path d="${HEAD.ear}" fill="#b8704a"/><path d="M 664 955 C 680 966, 682 992, 668 1004" stroke="#6a2e1c" stroke-width="5" fill="none"/>`;
+g += `<path d="M 652 945 C 670 936, 686 950, 690 975" stroke="#e0a070" stroke-width="3" fill="none" opacity=".7"/>`;
+
+// ---- hair: dark base + hundreds of combed strands, lit from the front ----
+g += `<path d="${HEAD.hair}" fill="#24120c"/>`;
+g += `<g clip-path="url(#hairClip)" fill="none" stroke-linecap="round" stroke-linejoin="round">`;
+// 1) dark gaps between locks, 2) the locks, 3) a few bright hairs catching the sun
+scatterIn(HEAD.hair, 60, R, [460, 630, 870, 1170]).forEach(([x, y]) =>
+  g += `<path d="${strand([x, y], hairDir, 9, 12, 3)}" stroke="#120804" stroke-width="7" opacity=".6"/>`);
+scatterIn(HEAD.hair, 520, R, [460, 630, 870, 1170]).forEach(([x, y]) => {
+  const lit = Math.max(0, 1 - Math.hypot(x - 520, y - 720) / 340);           // closer to the sun side = brighter
+  const col = lit > .55 ? '#9a643e' : lit > .25 ? '#6a3e24' : '#3e2216';
+  g += `<path d="${strand([x, y], hairDir, 6, 8 + R() * 4, 2.5)}" stroke="${col}" stroke-width="${1.4 + R() * 1.8}" opacity="${.45 + R() * .4}"/>`;
+});
+scatterIn(HEAD.hair, 40, R, [460, 630, 640, 860]).forEach(([x, y]) =>
+  g += `<path d="${strand([x, y], hairDir, 5, 9, 2)}" stroke="#e0a060" stroke-width="1.4" opacity=".7"/>`);
+g += `<circle cx="540" cy="700" r="170" fill="#ff9a50" opacity=".28" ${blur(30)}/>`;       // sunlight on the crown
+g += `</g>`;
+// gold headband with a highlight
+g += `<path d="M 476 798 C 560 830, 680 850, 858 890" stroke="url(#gold)" stroke-width="13" fill="none"/>`;
+g += `<path d="M 480 794 C 560 824, 640 840, 700 848" stroke="#fff2c0" stroke-width="3" fill="none" opacity=".8"/>`;
+
+// ---- beard: strands falling and curling forward ----
+g += `<path d="${HEAD.beard}" fill="#24120c"/>`;
+g += `<g clip-path="url(#beardClip)" fill="none" stroke-linecap="round" stroke-linejoin="round">`;
+// beard = wavy locks: dark gaps, then mid strands, then sunlit strands on the front
+scatterIn(HEAD.beard, 40, R, [410, 1040, 700, 1320]).forEach(([x, y]) =>
+  g += `<path d="${strand([x, y], beardDir, 9, 12, 5)}" stroke="#100604" stroke-width="8" opacity=".55"/>`);
+scatterIn(HEAD.beard, 380, R, [410, 1040, 700, 1320]).forEach(([x, y]) => {
+  const lit = Math.max(0, 1 - (x - 418) / 240);
+  const col = lit > .6 ? '#8a5634' : lit > .3 ? '#5a3420' : '#341c12';
+  g += `<path d="${strand([x, y], beardDir, 6, 8 + R() * 4, 4)}" stroke="${col}" stroke-width="${1.4 + R() * 1.8}" opacity="${.45 + R() * .45}"/>`;
+});
+scatterIn(HEAD.beard, 30, R, [410, 1060, 520, 1300]).forEach(([x, y]) =>
+  g += `<path d="${strand([x, y], beardDir, 5, 9, 4)}" stroke="#d89a64" stroke-width="1.4" opacity=".7"/>`);
+g += `<path d="${HEAD.beard}" fill="none" stroke="#ffc890" stroke-width="10" opacity=".45" ${blur(4)}/>`;   // rim on the beard
+g += `</g>`;
+// lower lip peeking out under the moustache, then the moustache over it
+const open = (T > 2.4 && T < 4.2) ? Math.abs(Math.sin(T * 11)) * (.55 + .45 * Math.sin(T * 3.7)) : 0;
+g += `<ellipse cx="438" cy="${1092 + open * 3}" rx="14" ry="${1 + open * 6}" fill="#2a0c08"/>`;
+g += `<g transform="translate(0 ${open * 7})">`;
+g += `<path d="M 424 1092 C 434 1087, 448 1089, 455 1095 C 447 1104, 432 1104, 424 1098 Z" fill="#b8644e"/></g>`;
+g += `<path d="M 426 1056 C 450 1054, 482 1062, 504 1084 C 490 1090, 468 1084, 450 1080 C 438 1080, 428 1072, 426 1056 Z" fill="#3a2014"/>`;
+g += `<path d="M 432 1062 C 452 1062, 474 1068, 494 1082" stroke="#a06a42" stroke-width="3" fill="none" opacity=".8"/>`;
+
+// ---- eye: white, iris, highlight, lids, crease ----
+g += `<path d="${HEAD.eye}" fill="#ecd8bc"/>`;
+g += `<g clip-path="url(#eyeClip)"><circle cx="${HEAD.iris[0] + 2}" cy="${HEAD.iris[1]}" r="8" fill="#4a2410"/><circle cx="${HEAD.iris[0] + 2}" cy="${HEAD.iris[1]}" r="4" fill="#140804"/>
+  <rect x="440" y="918" width="70" height="7" fill="#8a5a40" opacity=".5"/></g>`;
+g += `<circle cx="${HEAD.iris[0]}" cy="${HEAD.iris[1] - 3}" r="2.2" fill="#fff"/>`;
+g += `<path d="M 449 929 C 464 917, 486 916, 502 926" stroke="#1e0c06" stroke-width="5" fill="none" stroke-linecap="round"/>`;   // upper lid
+g += `<path d="M 456 912 C 470 905, 488 905, 504 913" stroke="#9a5638" stroke-width="3" fill="none"/>`;                         // crease
+g += `<path d="M 456 934 C 470 940, 488 938, 498 930" stroke="#b06c4c" stroke-width="2" fill="none"/>`;                          // lower lid
+if ((T > 1.6 && T < 1.76) || (T > 4.5 && T < 4.66)) {
+  g += `<path d="${HEAD.eye}" fill="#e0a070" stroke="#e0a070" stroke-width="3"/><path d="M 450 931 C 466 936, 486 935, 500 929" stroke="#1e0c06" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+}
+// brow: a tapered shape with hair strokes
+g += `<path d="M 438 906 C 458 890, 492 886, 520 898 C 500 896, 470 898, 442 912 Z" fill="#2a140c"/>`;
+for (let i = 0; i < 9; i++) g += `<line x1="${446 + i * 8}" y1="${905 - i * .9}" x2="${452 + i * 8}" y2="${897 - i * .6}" stroke="#6a3e24" stroke-width="2"/>`;
+
+add(`<g transform="translate(${-120 - T * 3} ${-340 + Math.sin(T * 1.75) * 4}) scale(1.32) rotate(${Math.sin(T * 1.1) * .7} 650 1300)">${g}</g>`);
+// dust floating in the sunlight
+for (let i = 0; i < 45; i++) { const x = (R() * 1200 + T * (10 + R() * 14)) % 1200 - 60, y = 500 + R() * 1300 - T * (6 + R() * 8);
+  add(`<circle cx="${x}" cy="${y}" r="${1 + R() * 2.2}" fill="#ffd8a0" opacity="${(.25 + R() * .5) * (.6 + .4 * Math.sin(T * 3 + i))}"/>`); }
+
+// sunlight wrapping the whole frame from the left
+add(`<circle cx="${SUNP[0]}" cy="${SUNP[1]}" r="600" fill="#ffb070" opacity=".12" style="mix-blend-mode:screen" ${blur(120)}/>`);
+
+// ---------- title ----------
+add(`<g text-anchor="middle">
+  <text x="540" y="170" font-family="Cinzel, serif" font-weight="600" font-size="32" letter-spacing="14" fill="#ffe2c0">SALAMIS · 480 BC</text>
+  <text x="540" y="280" font-family="Anton, Impact" font-size="98" letter-spacing="3" fill="#fff2e0">THE MAN WHO</text>
+  <text x="540" y="395" font-family="Anton, Impact" font-size="112" letter-spacing="3" fill="#ffc058" filter="url(#glow)">TRICKED AN EMPIRE</text>
+</g>`);
+finish({ grain: .16, vignette: .7 });
+}
+window.draw = draw;
+draw(+location.hash.slice(1) || 0);
+</script></body></html>

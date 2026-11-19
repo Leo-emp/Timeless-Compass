@@ -1,0 +1,38 @@
+00:09.829  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\expr\neutral.png'
+00:13.188  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\expr\resolve.png'
+00:16.485  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\expr\anger.png'
+00:19.891  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\expr\rage.png'
+00:23.266  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\expr\fear.png'
+00:26.766  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\expr\grief.png'
+00:30.079  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\expr\contempt.png'
+00:33.297  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\expr\cunning.png'
+00:36.610  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\expr\awe.png'
+00:39.969  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\expr\pain.png'
+00:43.297  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\expr\smile.png'
+[INFO ] services.locationservice ...............: Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.
+[INFO ] mpfb.init ..............................: Build info 20261010
+[INFO ] mpfb.init ..............................: Online access preference is not enabled. Not checking if MakeHuman is online.
+[INFO ] mpfb.init ..............................: MPFB initialization has finished.
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+saved C:/Users/User/timeless-compass/spike/lib_stills/expr\neutral.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/expr\resolve.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/expr\anger.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/expr\rage.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/expr\fear.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/expr\grief.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/expr\contempt.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/expr\cunning.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/expr\awe.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/expr\pain.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/expr\smile.png
+EXPR DONE
+Blender 5.3.0 (hash 02f0899d78e3 built 2026-11-10 01:33:43)
+OBJ import of 'base.obj' took 24.80 ms
+OBJ import of 'high-poly.obj' took 3.82 ms
+OBJ import of 'eyebrow001.obj' took 1.06 ms
+OBJ import of 'eyelashes01.obj' took 1.42 ms
+OBJ import of 'teeth_base.obj' took 6.16 ms
+
+Blender quit

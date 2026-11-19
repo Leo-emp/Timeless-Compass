@@ -1,0 +1,58 @@
+{
+  "name": "salamis_strait_dusk",
+  "version": 1,
+  "era": "greece_480bc",
+  "builder": "sets.salamis_dusk",
+  "contents": "Blender Ocean-modifier waves + far sea to the horizon; physical dusk sky; Salamis island ridge (~160 m, 1.5 km away), Mount Aigaleos (~420 m, farther), Attic shore; weathered limestone harbour wall; rowboat + lantern; glow of burning Athens on the horizon; Persian fleet lanterns; thin atmospheric haze",
+  "scale": "real-world metres (strait ~1.5 km wide)",
+  "design_source": "geography of the Salamis strait and Mount Aigaleos (Herodotus 8.90; modern topographic maps)",
+  "lighting_notes": "golden side light (sun 12 deg, azimuth 118) reads best; a sun below ~10 deg is hidden by Aigaleos",
+  "licence": "our own code",
+  "self_rating": {
+    "shape": 6,
+    "surface": 6,
+    "era": 7,
+    "notes": "hills good at distance; foreground water a little glossy; no vegetation objects or buildings yet"
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/salamis_set_v8.png",
+    "spike/lib_stills/hero_salamis_v8.png"
+  ],
+  "aliases": [
+    "strait",
+    "salamis",
+    "salamis strait",
+    "harbour",
+    "harbour wall",
+    "strait at dusk"
+  ],
+  "marks": [
+    {
+      "at": [
+        -0.5,
+        -6.0,
+        0.8
+      ],
+      "turn": 62
+    },
+    {
+      "at": [
+        0.36,
+        -5.95,
+        0.8
+      ],
+      "turn": -70
+    }
+  ],
+  "walk_mark": {
+    "at": [
+      -3.0,
+      -6.3,
+      0.8
+    ],
+    "turn": 90,
+    "note": "walks along the harbour wall toward +X"
+  },
+  "film_light": "sets.salamis_film_light"
+}

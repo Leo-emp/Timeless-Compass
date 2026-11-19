@@ -1,0 +1,20 @@
+{
+  "name": "basket",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.basket(loc, kind='kalathos'|'carry'|'flat', fill=(r,g,b))",
+  "contents": "woven kalathos (flared wool basket), carry basket with handles, flat tray; optional fill heap",
+  "design_source": "Attic vases of women spinning (kalathos), market scenes",
+  "licence": "our own code",
+  "self_rating": {
+    "shape": 6,
+    "surface": 5,
+    "era": 8,
+    "notes": "kalathos with wool reads like a bucket at this distance"
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws7/furniture_v3.png"
+  ]
+}

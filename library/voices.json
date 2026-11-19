@@ -1,0 +1,11 @@
+{
+  "_note": "Character dialogue voices (Fish Audio, model s2.1-pro-free while the channel is not monetised; see docs/BACKLOG.md WS11). Narrator stays Azure en-US-LewisMultilingualNeural. Never use voices cloned from real actors/game/anime characters. Test clips: spike/voices_fish/.",
+  "narrator": {"provider": "azure", "voice": "en-US-LewisMultilingualNeural"},
+  "characters": {
+    "xerxes":            {"provider": "fish", "reference_id": "f8dfe9c83081432386f143e2fe9767ef", "voice_name": "BOOK RECORD REGULAR (Sujon Ahmed)", "use": "old kings, elders, priests"},
+    "secret_official":   {"provider": "fish", "reference_id": "ea16e09486a141a0a8268c84627d1f80", "voice_name": "Menacing Character Voice (Callan Laux)", "use": "modern secret-project officials, generals, villains"},
+    "messenger":         {"provider": "fish", "reference_id": "3fa82aa8829b46fba2f5c890bf2d883b", "voice_name": "Lively Character Voice (mzer)", "use": "young men, messengers, soldiers"},
+    "young_soldier":     {"provider": "fish", "reference_id": "b7b86797ec4448058b8e041a8c8abfae", "voice_name": "Intense Anime Character", "use": "defiant young warriors (test first: may be too theatrical)"},
+    "artemisia":         {"provider": "fish", "reference_id": "3b61dc6d4dd440309f7454814b77b64b", "voice_name": "Rukia Inspired Character (leandra.n.dionies)", "use": "queens, priestesses, commanding women", "owner_ok": "2026-11-19: does not sound like the anime actress"}
+  }
+}

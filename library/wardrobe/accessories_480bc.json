@@ -1,0 +1,30 @@
+{
+  "name": "accessories_480bc",
+  "version": 1,
+  "era": "greece_480bc + persia_achaemenid_480bc",
+  "pieces": {
+    "belt": "wardrobe.belt (cord with knot + ends | flat strap), collider",
+    "dress_pins": "wardrobe.dress_pins (perone | fibula)",
+    "diadem": "wardrobe.diadem (stephane)",
+    "fillet": "wardrobe.fillet",
+    "earrings": "wardrobe.earrings (lobe ring + chain + drop)",
+    "necklace": "wardrobe.necklace (cord + bead row, bigger centre bead)",
+    "sandals": "wardrobe.sandals (sole, fore/instep/ankle straps, toe thong)"
+  },
+  "design_source": "Greek dress pins and fibulae from sanctuaries (Herodotus 5.87); gold disc/boat earrings and bead necklaces from Greek graves c. 500-450 BC; sandals on Attic vases, Delphi Charioteer, Nike parapet sandal-binder; Achaemenid gold rosette plaques",
+  "scene": "blender/scenes/ws3_wardrobe.py (woman_pins, priestess, priest)",
+  "licence": "our own code (Blender cloth simulation); scanned fabrics CC0 Poly Haven (rough_linen, caban, hessian_230); MakeHuman body CC0",
+  "self_rating": {
+    "shape": 6,
+    "surface": 6,
+    "era": 8,
+    "notes": "belts, sandals, earrings, necklace, fillet, stephane, gold rosette band render; dress pins exist but read poorly at full-shot distance; fibula coded, not yet rendered."
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws3/woman_pins_v2.png",
+    "spike/lib_stills/ws3/priest_v1.png",
+    "spike/lib_stills/ws3/priestess_v2.png",
+    "spike/lib_stills/ws3/xerxes_king_v3.png"
+  ]
+}

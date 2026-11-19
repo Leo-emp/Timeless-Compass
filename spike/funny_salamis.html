@@ -1,0 +1,108 @@
+<!doctype html>
+<!--
+  FUNNY-BUT-SMART TEST SCENE (16:9 long-form).
+  480 BC, the night before Salamis. Themistocles secretly sends his servant Sicinnus
+  to tell Xerxes "the Greeks are running away". Xerxes believes it and watches from
+  a golden throne on Mount Aigaleos (true story: Herodotus 8.75, 8.90).
+  Our style: painted sunset poster background (soft focus) + our own cartoon cast in front.
+-->
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Cinzel:wght@600;800&family=Patrick+Hand&display=block" rel="stylesheet">
+<style>html,body{margin:0;width:1920px;height:1080px;background:#000;overflow:hidden}svg{display:block}</style>
+</head><body>
+<svg id="s" width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"></svg>
+<script>window.SIZE = [1920, 1080];</script>
+<script src="common.js"></script>
+<script src="cast.js"></script>
+<script>
+const R = rng(480);
+const HZ = 640;                       // horizon
+const SUN = [1010, 615];
+
+add(`<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#25153e"/><stop offset=".35" stop-color="#5a2652"/><stop offset=".7" stop-color="#d0663e"/><stop offset="1" stop-color="#ffc46e"/>
+  </linearGradient>
+  <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8663e"/><stop offset=".5" stop-color="#7a3448"/><stop offset="1" stop-color="#2a1430"/></linearGradient>
+  <radialGradient id="sun"><stop offset="0" stop-color="#fff6dc"/><stop offset=".7" stop-color="#ffd890"/><stop offset="1" stop-color="#ffb060"/></radialGradient>
+  <radialGradient id="halo"><stop offset="0" stop-color="#ffc070" stop-opacity=".85"/><stop offset=".5" stop-color="#ff8a4a" stop-opacity=".3"/><stop offset="1" stop-color="#ff7040" stop-opacity="0"/></radialGradient>
+  <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a6038"/><stop offset="1" stop-color="#5a3420"/></linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#c08a20"/></linearGradient>
+</defs>`);
+
+// =================== BACKGROUND (painted, soft focus) ===================
+let bg = `<rect width="${W}" height="${HZ}" fill="url(#sky)"/>`;
+for (let i = 0; i < 18; i++) { const y = 160 + i * 26 + R() * 14, c = ['#6a2c56', '#8a3a52', '#c05a46', '#e8844a'][Math.min(3, i / 4.5 | 0)];
+  bg += `<ellipse cx="${R() * W}" cy="${y}" rx="${300 + R() * 420}" ry="${5 + R() * 8}" fill="${c}" opacity=".75" ${blur(5)}/>`; }
+bg += `<circle cx="${SUN[0]}" cy="${SUN[1]}" r="560" fill="url(#halo)"/><circle cx="${SUN[0]}" cy="${SUN[1]}" r="90" fill="url(#sun)"/>`;
+// Athens + Acropolis on the far left
+bg += `<path d="M0 ${HZ} L0 540 C 60 520, 120 500, 190 500 L 420 498 C 470 520, 500 580, 520 ${HZ} Z" fill="#8a4a4c"/>`;
+let cols = ''; for (let i = 0; i < 10; i++) cols += `<rect x="${206 + i * 20}" y="438" width="10" height="56" fill="${i < 7 ? '#ffe2b8' : '#c49078'}"/>`;
+bg += `<rect x="196" y="490" width="214" height="10" fill="#f0c8a0"/>${cols}<rect x="196" y="426" width="214" height="13" fill="#f4d2a8"/><path d="M 192 426 L 303 396 L 414 426 Z" fill="#ffe2bc"/>`;
+// Mount Aigaleos on the right, where Xerxes sits
+bg += `<path d="M 1300 ${HZ} C 1420 600, 1520 520, 1660 480 C 1760 452, 1860 440, 1920 440 L 1920 ${HZ} Z" fill="#6a3446"/>`;
+bg += `<path d="M 1380 ${HZ} C 1500 610, 1600 560, 1720 530 L 1920 520 L 1920 ${HZ} Z" fill="#7a3c48"/>`;
+// sea + glitter
+bg += `<rect y="${HZ}" width="${W}" height="${H - HZ}" fill="url(#sea)"/>`;
+for (let i = 0; i < 34; i++) { const y = HZ + 5 + i * i * .32, w = 240 - i * 6 + R() * 40;
+  bg += `<rect x="${SUN[0] - w / 2 + (R() - .5) * 60}" y="${y}" width="${Math.max(8, w)}" height="${2 + i * .1}" rx="2" fill="#ffd890" opacity="${Math.max(.05, .8 - i * .022)}"/>`; }
+// the two fleets in the strait: Greek owl sails left, Persian red sails right
+function ship(x, y, s, sail, mark) {
+  let oars = ''; for (let i = 0; i < 12; i++) oars += `<line x1="${-90 + i * 15}" y1="4" x2="${-100 + i * 15}" y2="26" stroke="#1e0e14" stroke-width="3"/>`;
+  return `<g transform="translate(${x} ${y}) scale(${s})">${oars}
+    <path d="M-130 -12 C -140 -40, -136 -58, -120 -66 C -126 -46, -122 -28, -110 -16 L 120 -12 L 150 6 L 116 2 C 60 12, -60 12, -110 4 Z" fill="#2a1418"/>
+    <line x1="0" y1="-10" x2="0" y2="-150" stroke="#2a1418" stroke-width="5"/>
+    <path d="M -56 -140 L 56 -140 C 60 -100, 60 -64, 56 -30 L -56 -30 C -52 -64, -52 -100, -56 -140 Z" fill="${sail}"/>${mark}</g>`;
+}
+const owl = `<ellipse cx="0" cy="-84" rx="15" ry="18" fill="#4a2418"/><circle cx="-6" cy="-88" r="4.5" fill="#f4dcb4"/><circle cx="6" cy="-88" r="4.5" fill="#f4dcb4"/>`;
+const sunMark = `<circle cx="0" cy="-86" r="16" fill="#f0b83a"/>`;
+[[560, 690, .5], [700, 720, .62], [430, 740, .7]].forEach(([x, y, s]) => bg += ship(x, y, s, '#f4dcb4', owl));
+[[1330, 690, .5], [1470, 712, .58], [1610, 742, .66], [1200, 724, .55]].forEach(([x, y, s]) => bg += ship(x, y, s, '#a83a2a', sunMark));
+add(`<g ${blur(2.2)}>${bg}</g>`);
+add(`<rect y="520" width="${W}" height="260" fill="#ff9a5a" opacity=".1" ${blur(40)}/>`);
+
+// =================== XERXES on his golden throne (far right, on the hill) ===================
+// royal parasol held over him (Persian kings were shown under one)
+add(`<line x1="1700" y1="560" x2="1700" y2="330" stroke="${OL}" stroke-width="7"/>`);
+add(P('M 1600 340 Q 1700 270 1800 340 Z', '#7a2a6a'));
+add(`<path d="M 1610 338 L 1610 352 M 1640 336 L 1640 350 M 1670 334 L 1670 348 M 1730 334 L 1730 348 M 1760 336 L 1760 350 M 1790 338 L 1790 352" stroke="#f0b83a" stroke-width="6"/>`);
+// throne: gold back, seat, lion feet
+add(P('M 1612 380 L 1696 380 L 1702 540 L 1606 540 Z', 'url(#gold)'));
+add(P('M 1600 470 L 1720 470 L 1720 492 L 1600 492 Z', '#d89a2a'));
+add(P('M 1606 492 L 1622 492 L 1618 560 L 1604 560 Z', '#c08a20') + P('M 1700 492 L 1716 492 L 1720 560 L 1706 560 Z', '#c08a20'));
+add(chibi({ x: 1640, y: 560, s: .5, face: -1, skin: '#d8a070', skinSh: '#b07a50', tunic: '#7a2a6a', tunicSh: '#5a1a4a', belt: '#f0b83a',
+  hair: 'none', hat: 'crown', beard: 'persian', beardCol: '#1e1210', exp: 'happy', pose: 'sit', prop: 'goblet' }));
+// a little thought bubble: he thinks he has already won
+// add(`<circle cx="1590" cy="330" r="9" fill="#fff8ea" stroke="${OL}" stroke-width="4"/><circle cx="1570" cy="300" r="13" fill="#fff8ea" stroke="${OL}" stroke-width="4"/>`);
+// add(bubble(1380, 196, 250, 86, 1566, 288, ['EASY WIN!'], 40));
+
+// =================== FOREGROUND: the dock ===================
+add(`<path d="M 0 880 L 1060 860 L 1100 1080 L 0 1080 Z" fill="url(#wood)" stroke="${OL}" stroke-width="6"/>`);
+for (let i = 0; i < 7; i++) add(`<path d="M 0 ${900 + i * 28} L ${1066 + i * 6} ${880 + i * 28}" stroke="#4a2a18" stroke-width="3" opacity=".7"/>`);
+for (let i = 0; i < 9; i++) { const x = 40 + i * 124; add(`<path d="M ${x} ${880 - i * 2} L ${x + 4} 1080" stroke="#4a2a18" stroke-width="3" opacity=".5"/>`); }
+[60, 1000].forEach(x => add(P(`M ${x} 760 L ${x + 34} 760 L ${x + 34} 1080 L ${x} 1080 Z`, '#6a3e22')));
+// a crate + amphora for life on the dock
+add(P('M 70 870 L 220 870 L 220 990 L 70 990 Z', '#a86a3a') + `<path d="M 70 930 L 220 930 M 145 870 L 145 990" stroke="${OL}" stroke-width="5"/>`);
+add(P('M 255 980 C 230 940, 240 900, 270 890 L 270 870 L 300 870 L 300 890 C 330 900, 340 940, 315 980 Z', '#c0603a') +
+    `<path d="M 246 930 L 324 930" stroke="#2a1610" stroke-width="10"/>`);
+
+// =================== THEMISTOCLES whispering to SICINNUS ===================
+add(`<ellipse cx="520" cy="1006" rx="130" ry="18" fill="#2a1610" opacity=".35"/><ellipse cx="790" cy="1006" rx="110" ry="16" fill="#2a1610" opacity=".35"/>`);
+add(chibi({ x: 520, y: 1000, s: 1.3, face: 1, skin: '#eab48a', tunic: '#efe2c8', cloak: '#b8362a', cloakSh: '#7a1c18',
+  hair: 'curly', hairCol: '#3a2216', beard: 'short', beardCol: '#3a2216', exp: 'smug', look: [1, 0], pose: 'whisper' }));
+add(chibi({ x: 800, y: 1000, s: 1.08, face: -1, skin: '#c8885a', skinSh: '#a06a40', tunic: '#c8b088', tunicSh: '#9a8460', belt: '#5a3a1a',
+  hair: 'bald', exp: 'nervous', look: [-1, 0], pose: 'hold', prop: 'scroll', sweat: true }));
+
+// speech bubble from Themistocles
+// (no speech bubbles: the voiceover tells the story) add(bubble(170, 190, 640, 150, 600, 520, ['Psst… go tell Xerxes', 'the Greeks are RUNNING AWAY.'], 44));
+
+// =================== our corner badge: a bronze coin with Athena's owl + place/date ===================
+add(`<g transform="translate(70 70)">
+  <circle r="46" fill="url(#gold)" stroke="${OL}" stroke-width="6"/><circle r="36" fill="none" stroke="#9a6a18" stroke-width="3"/>
+  <ellipse cx="0" cy="4" rx="17" ry="21" fill="#7a4a18"/><circle cx="-7" cy="-2" r="6" fill="#ffe8a8"/><circle cx="7" cy="-2" r="6" fill="#ffe8a8"/>
+  <circle cx="-7" cy="-2" r="2.5" fill="${OL}"/><circle cx="7" cy="-2" r="2.5" fill="${OL}"/>
+  <text x="66" y="-6" font-family="Cinzel, serif" font-weight="800" font-size="30" fill="#fff4e0" stroke="${OL}" stroke-width="6" paint-order="stroke">SALAMIS</text>
+  <text x="66" y="30" font-family="Cinzel, serif" font-weight="800" font-size="26" fill="#ffd070" stroke="${OL}" stroke-width="6" paint-order="stroke">480 BC</text>
+</g>`);
+finish({ grain: .12, vignette: .55 });
+</script></body></html>

@@ -1,0 +1,21 @@
+02:06.078  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\dressed_v2c_med.png'
+[INFO ] services.locationservice ...............: Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.
+[INFO ] mpfb.init ..............................: Build info 20261010
+[INFO ] mpfb.init ..............................: Online access preference is not enabled. Not checking if MakeHuman is online.
+[INFO ] mpfb.init ..............................: MPFB initialization has finished.
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+saved C:/Users/User/timeless-compass/spike/lib_stills/dressed_v2c_med.png
+Blender 5.3.0 (hash 02f0899d78e3 built 2026-11-10 01:33:43)
+OBJ import of 'base.obj' took 34.44 ms
+OBJ import of 'high-poly.obj' took 4.82 ms
+OBJ import of 'eyebrow001.obj' took 1.98 ms
+OBJ import of 'eyelashes01.obj' took 1.88 ms
+OBJ import of 'teeth_base.obj' took 6.96 ms
+
+Blender quit
+
+real	2m7.245s
+user	0m0.031s
+sys	0m0.015s

@@ -1,0 +1,31 @@
+{
+  "name": "horse_akhalteke",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "scan_rigged",
+  "builder": "h = scans_glb.load_glb('horse_akhalteke', loc, rot_z_deg); scans_glb.play(h, 'Trot'|'Run_Gallop'|'Chewing'); props.horse_tack(h, cloth='greek'|'persian'|None)",
+  "scan": "library/scans/horse_akhalteke/model.glb",
+  "rig": "88 bones (DEF-*), 7 meshes, armature-skinned",
+  "clips": {
+    "Trot": "0-70 frames",
+    "Run_Gallop": "0-48 frames",
+    "Chewing": "0-226 frames (idle: head + jaw)"
+  },
+  "real_size": "scaled to 1.42 m at the withers (ancient Greek/Persian horses ~1.35-1.45 m)",
+  "era_fit": "breed is modern (Akhal-Teke) but its slim desert build is close to the Nisaean/Median horses of the Persian army; scaled down to ancient size. Tack must come from props.horse_tack (no saddle, no stirrups in 480 BC).",
+  "licence": "CC BY 4.0",
+  "author": "Animal Animator",
+  "source": "https://sketchfab.com/3d-models/akhal-teke-stallion-rigged-animated-3d-model-3d6e93ffd4154c308ee2e35cfde3bc42",
+  "credit": "\"Akhal-Teke Stallion — Rigged & Animated 3D Model\" by Animal Animator, https://sketchfab.com/3d-models/akhal-teke-stallion-rigged-animated-3d-model-3d6e93ffd4154c308ee2e35cfde3bc42 (CC BY 4.0)",
+  "self_rating": {
+    "shape": 8,
+    "surface": 8,
+    "era": 7,
+    "notes": "Trot/Run_Gallop/Chewing all play (NLA); scaled 1.42 m withers; look 100"
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws7/horse_trot_f10_v3.png",
+    "spike/lib_stills/ws7/horse_persian_gallop_f20_v2.png"
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "_note": "Music catalogue (tc music add). Tag every track: moods (tension, menace, mystery, grief, triumph, awe, hope, dread), intensity 1-5, era (ancient | epic | modern), shape (slow_build | steady | hit | fade_out), length_s, tempo_bpm, peak_s, licence, source. Sources: YouTube Audio Library, Pixabay Music, FMA CC0/CC-BY. Files in library/music/files/ (git-ignored). Rule r11: music only at chosen moments.",
+  "tracks": []
+}

@@ -1,0 +1,105 @@
+<!doctype html>
+<!--
+  CHARACTER TEST: EPIC POSTER close-up.
+  Themistocles at sunset looking out at the fleet before Salamis.
+  Art-deco poster rules: a clean profile, flat planes of light and shadow, rhythmic curls.
+  No realistic skin; the face reads through shape and lighting.
+-->
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Cinzel:wght@600;800&display=block" rel="stylesheet">
+<style>html,body{margin:0;width:1080px;height:1920px;background:#000;overflow:hidden}svg{display:block}</style>
+</head><body>
+<svg id="s" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg"></svg>
+<script src="common.js"></script>
+<script>
+const R = rng(1180);
+const HORIZON = 1160;
+
+add(`<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#24133c"/><stop offset=".35" stop-color="#5e2756"/><stop offset=".65" stop-color="#c85a3c"/>
+    <stop offset=".88" stop-color="#f49a4c"/><stop offset="1" stop-color="#ffd07a"/>
+  </linearGradient>
+  <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8563e"/><stop offset=".4" stop-color="#6a2a44"/><stop offset="1" stop-color="#1e1030"/></linearGradient>
+  <radialGradient id="sun"><stop offset="0" stop-color="#fff4d0"/><stop offset=".7" stop-color="#ffd48a"/><stop offset="1" stop-color="#ffb060"/></radialGradient>
+  <radialGradient id="halo"><stop offset="0" stop-color="#ffc070" stop-opacity=".8"/><stop offset="1" stop-color="#ff7040" stop-opacity="0"/></radialGradient>
+  <!-- skin + hair shade from light (front, left) to dark (back, right), in the head's local space -->
+  <linearGradient id="skin" gradientUnits="userSpaceOnUse" x1="420" y1="0" x2="820" y2="0"><stop offset="0" stop-color="#f6c08a"/><stop offset="1" stop-color="#d08a5a"/></linearGradient>
+  <linearGradient id="hairG" gradientUnits="userSpaceOnUse" x1="460" y1="0" x2="860" y2="0"><stop offset="0" stop-color="#5a3222"/><stop offset="1" stop-color="#1c0e0a"/></linearGradient>
+  <linearGradient id="cloakG" gradientUnits="userSpaceOnUse" x1="560" y1="0" x2="960" y2="0"><stop offset="0" stop-color="#b23a2a"/><stop offset="1" stop-color="#5a161a"/></linearGradient>
+  <linearGradient id="tunicG" gradientUnits="userSpaceOnUse" x1="290" y1="0" x2="900" y2="0"><stop offset="0" stop-color="#f2dcb4"/><stop offset="1" stop-color="#a08068"/></linearGradient>
+  <clipPath id="faceClip"><path d="${HEAD.face}"/></clipPath>
+  <clipPath id="hairClip"><path d="${HEAD.hair}"/></clipPath>
+  <clipPath id="beardClip"><path d="${HEAD.beard}"/></clipPath>
+</defs>`);
+
+// ---------- background: sunset sea before the battle ----------
+add(`<rect width="${W}" height="${HORIZON}" fill="url(#sky)"/>`);
+// long deco cloud bands
+[[120, 560, 520, '#7a3460'], [380, 700, 600, '#9a4058'], [60, 840, 420, '#c86048'], [520, 900, 380, '#d8704a'], [200, 1010, 520, '#e8884c']]
+  .forEach(([x, y, w, c]) => add(`<rect x="${x}" y="${y}" width="${w}" height="${16 + R() * 10}" rx="12" fill="${c}" opacity=".8"/>`));
+add(`<circle cx="300" cy="${HORIZON - 40}" r="420" fill="url(#halo)"/>`);
+add(`<circle cx="300" cy="${HORIZON - 40}" r="140" fill="url(#sun)"/>`);
+// the Acropolis far away on the left horizon
+add(`<path d="M0 ${HORIZON} L0 1100 C 40 1080, 90 1074, 150 1086 L 170 ${HORIZON} Z" fill="#4a2040"/>`);
+add(`<g fill="#4a2040"><rect x="40" y="1056" width="84" height="8"/><path d="M36 1056 L82 1040 L128 1056 Z"/>
+  ${[0, 1, 2, 3, 4, 5].map(i => `<rect x="${46 + i * 14}" y="1064" width="6" height="22"/>`).join('')}</g>`);
+add(`<rect y="${HORIZON}" width="${W}" height="${H - HORIZON}" fill="url(#sea)"/>`);
+// sun glitter on the water
+for (let i = 0; i < 30; i++) { const y = HORIZON + 8 + i * i * .9, w = 260 - i * 7 + R() * 40;
+  add(`<rect x="${300 - w / 2 + (R() - .5) * 40}" y="${y}" width="${Math.max(10, w)}" height="${3 + i * .15}" rx="2" fill="#ffd890" opacity="${.75 - i * .022}"/>`); }
+// the Greek fleet: small trireme silhouettes on the horizon
+function boat(x, y, s, col) {
+  let oars = ''; for (let i = 0; i < 12; i++) oars += `<line x1="${-90 + i * 15}" y1="2" x2="${-100 + i * 15}" y2="20" stroke-width="2.4"/>`;
+  return `<g transform="translate(${x} ${y}) scale(${s})" fill="${col}" stroke="${col}">
+    <path d="M-120 0 C -60 14, 60 14, 120 -6 L 140 -24 L 122 -2 C 60 6, -60 6, -110 -8 Z"/>
+    <rect x="-4" y="-120" width="5" height="115" stroke="none"/><path d="M-50 -112 L 46 -112 L 50 -34 L -54 -34 Z" stroke="none"/>${oars}</g>`;
+}
+add(boat(110, HORIZON + 22, .55, '#3a1834'));
+add(boat(420, HORIZON + 14, .4, '#4a2040'));
+add(boat(250, HORIZON + 60, .85, '#2a1028'));
+
+// ---------- Themistocles (head kit, facing left, scaled up) ----------
+let g = '';
+g += `<path d="${HEAD.face}" fill="url(#skin)"/>`;
+// warm sunset rim on the front edge of the face
+g += `<g clip-path="url(#faceClip)"><path d="${HEAD.face}" fill="none" stroke="#ffe2b0" stroke-width="16" opacity=".8"/>`;
+// eye socket + under-nose shadows, then the hard shadow plane on the back of the head
+g += `<ellipse cx="478" cy="926" rx="34" ry="16" fill="#a8603e" opacity=".55"/>`;
+g += `<path d="${HEAD.shade}" fill="#8a4a36"/>`;
+g += `<path d="M 470 980 C 510 1010, 540 1030, 560 1060" stroke="#c07a50" stroke-width="6" fill="none" opacity=".6"/></g>`; // cheekbone plane
+// clothes
+g += `<path d="${HEAD.tunic}" fill="url(#tunicG)"/>`;
+g += `<path d="M 380 1500 C 440 1460, 500 1450, 560 1470 M 340 1620 C 420 1570, 500 1560, 580 1580" stroke="#b89a7a" stroke-width="5" fill="none"/>`;
+g += `<path d="${HEAD.cloak}" fill="url(#cloakG)"/>`;
+g += `<path d="M 700 1400 C 740 1500, 760 1620, 770 1770 M 800 1410 C 840 1520, 860 1640, 870 1770" stroke="#3e0c10" stroke-width="7" fill="none" opacity=".7"/>`;
+g += `<circle cx="652" cy="1396" r="20" fill="#e8b050" stroke="#7a4a1a" stroke-width="4"/>`;     // bronze brooch
+// ear
+g += `<path d="${HEAD.ear}" fill="#b06a46"/><path d="M 664 955 C 678 965, 680 990, 668 1002" stroke="#6a3020" stroke-width="4" fill="none"/>`;
+// hair with rows of art-deco curls
+g += `<path d="${HEAD.hair}" fill="url(#hairG)"/>`;
+g += `<g clip-path="url(#hairClip)" fill="none" stroke="#8a5434" stroke-width="3.5" stroke-linecap="round">`;
+scatterIn(HEAD.hair, 70, R, [460, 640, 870, 1160]).forEach(([x, y]) => { g += `<path d="M ${x} ${y} a 10 10 0 1 1 12 6" opacity="${x < 640 ? .9 : .45}"/>`; });
+g += `</g>`;
+// headband (the gold ribbon Greek men wore)
+g += `<path d="M 476 798 C 560 830, 680 850, 858 890" stroke="#e8b050" stroke-width="12" fill="none"/>`;
+// beard with flowing strands
+g += `<path d="${HEAD.beard}" fill="url(#hairG)"/>`;
+g += `<g clip-path="url(#beardClip)" fill="none" stroke="#8a5434" stroke-width="3" stroke-linecap="round">`;
+scatterIn(HEAD.beard, 60, R, [410, 1050, 700, 1320]).forEach(([x, y]) => { g += `<path d="M ${x} ${y} c 6 10, -6 18, 0 30" opacity="${x < 560 ? .9 : .45}"/>`; });
+g += `</g>`;
+// face details: eye, iris, brow, mouth
+g += `<path d="${HEAD.eye}" fill="#f6e4c8"/><circle cx="${HEAD.iris[0]}" cy="${HEAD.iris[1]}" r="6" fill="#2a1408"/>`;
+g += `<path d="M 450 928 C 466 917, 486 917, 500 927" stroke="#2a1408" stroke-width="4" fill="none"/>`;
+g += `<path d="${HEAD.brow}" stroke="#2a1408" stroke-width="7" fill="none" stroke-linecap="round"/>`;
+g += `<path d="${HEAD.mouth}" stroke="#4a1a10" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+add(`<g transform="translate(-120 -340) scale(1.32)">${g}</g>`);
+
+// ---------- title ----------
+add(`<g text-anchor="middle">
+  <text x="540" y="170" font-family="Cinzel, serif" font-weight="600" font-size="32" letter-spacing="14" fill="#ffe2c0">SALAMIS · 480 BC</text>
+  <text x="540" y="280" font-family="Anton, Impact" font-size="98" letter-spacing="3" fill="#fff2e0">THE MAN WHO</text>
+  <text x="540" y="395" font-family="Anton, Impact" font-size="112" letter-spacing="3" fill="#ffc058">TRICKED AN EMPIRE</text>
+</g>`);
+finish({ grain: .16, vignette: .6 });
+</script></body></html>

@@ -1,0 +1,29 @@
+{
+  "name": "amphora_neck_cleveland",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "museum_scan",
+  "builder": "scans_glb.load_glb('amphora_neck_cleveland', loc=(x, y, z), rot_z_deg=0)",
+  "scan": "library/scans/amphora_neck_cleveland/model.glb",
+  "object": "Attic black-figure neck-amphora, Painter of Berlin 1899: Herakles and the Nemean lion / Dionysos, satyrs, maenads",
+  "museum": "Cleveland Museum of Art 1970.16",
+  "date": "515-510 BC",
+  "real_size": "height 39.8 cm, diameter 29 cm",
+  "era_fit": "GOOD - made a generation before Salamis; fine ware still in use in 480 BC.",
+  "use_in": "rich houses, symposion, temple treasuries",
+  "licence": "CC0",
+  "author": "Cleveland Museum of Art",
+  "source": "https://sketchfab.com/3d-models/197016-neck-amphora-0bb2525bdd734bf69d5a7b2b051928ad",
+  "credit": "\"1970.16 Neck Amphora\" by Cleveland Museum of Art, https://sketchfab.com/3d-models/197016-neck-amphora-0bb2525bdd734bf69d5a7b2b051928ad (CC0)",
+  "facts_from": "museum open-access records (openaccess-api.clevelandart.org / collectionapi.metmuseum.org), 2026-11-19",
+  "self_rating": {
+    "shape": 9,
+    "surface": 8,
+    "era": 8,
+    "notes": "look 83"
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws7/pottery_v3.png"
+  ]
+}

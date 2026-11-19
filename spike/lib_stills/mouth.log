@@ -1,0 +1,40 @@
+00:09.703  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mouth\rest.png'
+00:12.297  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mouth\jaw+12.png'
+00:14.859  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mouth\jaw-12.png'
+00:17.390  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mouth\ris_X+15.png'
+00:20.000  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mouth\ris_Z+15.png'
+00:22.672  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mouth\ris_Y+15.png'
+00:25.359  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mouth\lev05_X+20.png'
+00:28.047  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mouth\oris07_X+20.png'
+00:30.640  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mouth\oris03_X+20.png'
+00:33.469  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mouth\oculi02_X+15.png'
+00:36.031  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mouth\oculi02_Z+15.png'
+00:38.531  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\mouth\temporalis02_X+15.png'
+[INFO ] services.locationservice ...............: Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.
+[INFO ] mpfb.init ..............................: Build info 20261010
+[INFO ] mpfb.init ..............................: Online access preference is not enabled. Not checking if MakeHuman is online.
+[INFO ] mpfb.init ..............................: MPFB initialization has finished.
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+saved C:/Users/User/timeless-compass/spike/lib_stills/mouth\rest.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/mouth\jaw+12.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/mouth\jaw-12.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/mouth\ris_X+15.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/mouth\ris_Z+15.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/mouth\ris_Y+15.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/mouth\lev05_X+20.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/mouth\oris07_X+20.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/mouth\oris03_X+20.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/mouth\oculi02_X+15.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/mouth\oculi02_Z+15.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/mouth\temporalis02_X+15.png
+LID DONE
+Blender 5.3.0 (hash 02f0899d78e3 built 2026-11-10 01:33:43)
+OBJ import of 'base.obj' took 31.01 ms
+OBJ import of 'high-poly.obj' took 4.93 ms
+OBJ import of 'eyebrow001.obj' took 1.58 ms
+OBJ import of 'eyelashes01.obj' took 1.73 ms
+OBJ import of 'teeth_base.obj' took 8.88 ms
+
+Blender quit

@@ -1,0 +1,152 @@
+<!doctype html>
+<!--
+  ART DIRECTION 3: PAPER-CUT DIORAMA.
+  The Trojan Horse outside the gates of Troy at night. Every element is a layer of cut paper
+  with a soft drop shadow, so the scene has real depth (and each layer can slide for parallax in video).
+-->
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Cinzel:wght@600;800&display=block" rel="stylesheet">
+<style>html,body{margin:0;width:1080px;height:1920px;background:#000;overflow:hidden}svg{display:block}</style>
+</head><body>
+<svg id="s" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg"></svg>
+<script src="common.js"></script>
+<script>
+const R = rng(1184);
+add(`<defs>
+  <!-- each paper layer casts a soft shadow onto the one behind it -->
+  <filter id="paper" filterUnits="userSpaceOnUse" x="-200" y="-200" width="1480" height="2320">
+    <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000510" flood-opacity=".75"/>
+  </filter>
+  <filter id="paperSm" filterUnits="userSpaceOnUse" x="-200" y="-200" width="1480" height="2320">
+    <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#000510" flood-opacity=".7"/>
+  </filter>
+  <!-- paper fibre texture laid over everything -->
+  <filter id="fibre" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.035 0.5" numOctaves="3" seed="12"/>
+    <feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .7 0"/>
+  </filter>
+  <filter id="windowGlow" filterUnits="userSpaceOnUse" x="-200" y="-200" width="1480" height="2320">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="a"/><feMerge><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#070d22"/><stop offset=".6" stop-color="#142650"/><stop offset="1" stop-color="#2a4478"/></linearGradient>
+  <radialGradient id="moonG" cx="40%" cy="38%"><stop offset="0" stop-color="#fff8e4"/><stop offset="1" stop-color="#e8d8b0"/></radialGradient>
+  <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8804a"/><stop offset="1" stop-color="#6a3e22"/></linearGradient>
+  <linearGradient id="woodDark" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5a34"/><stop offset="1" stop-color="#4a2a16"/></linearGradient>
+  <linearGradient id="torch" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff7a20" stop-opacity=".0"/><stop offset="1" stop-color="#ffb050" stop-opacity=".35"/></linearGradient>
+</defs>`);
+
+// ---------- layer 0: night sky, stars, paper moon ----------
+add(`<rect width="${W}" height="${H}" fill="url(#sky)"/>`);
+for (let i = 0; i < 160; i++) { const r = R() > .93 ? 2.6 : .8 + R() * 1.3;
+  add(`<circle cx="${R()*W}" cy="${R()*1100}" r="${r}" fill="#fff6dc" opacity="${.4 + R()*.6}"/>`); }
+add(`<g filter="url(#paper)"><circle cx="790" cy="620" r="150" fill="url(#moonG)"/>
+  <circle cx="740" cy="580" r="22" fill="#d8c69a" opacity=".55"/><circle cx="830" cy="670" r="30" fill="#d8c69a" opacity=".45"/><circle cx="820" cy="560" r="12" fill="#d8c69a" opacity=".5"/></g>`);
+add(`<circle cx="790" cy="620" r="320" fill="#fff0c8" opacity=".08" ${blur(40)}/>`);
+// paper clouds
+[[180,700,1],[560,760,.8],[960,820,.9]].forEach(([x,y,s])=>add(`<g filter="url(#paperSm)" opacity=".9">
+  <path d="M${x-150*s} ${y} C ${x-150*s} ${y-50*s}, ${x-80*s} ${y-60*s}, ${x-50*s} ${y-40*s} C ${x-30*s} ${y-90*s}, ${x+60*s} ${y-90*s}, ${x+70*s} ${y-40*s} C ${x+110*s} ${y-60*s}, ${x+160*s} ${y-30*s}, ${x+150*s} ${y} Z" fill="#3a5288"/></g>`));
+
+// ---------- layer 1: far hills ----------
+add(`<g filter="url(#paper)"><path d="M0 1080 C 150 980, 300 1010, 420 960 C 560 900, 700 960, 820 930 C 920 905, 1000 940, 1080 920 L1080 1300 L0 1300 Z" fill="#1c3060"/></g>`);
+
+// ---------- layer 2: the walls of Troy ----------
+let walls = `<rect x="0" y="1010" width="${W}" height="300" fill="#2c4478"/>`;
+// crenellations along the top
+for (let x = 0; x < W; x += 44) walls += `<rect x="${x}" y="990" width="26" height="24" fill="#2c4478"/>`;
+// towers
+[[90,860,150],[340,900,120],[740,900,120],[990,860,150]].forEach(([x,y,wd])=>{
+  walls += `<rect x="${x-wd/2}" y="${y}" width="${wd}" height="${1310-y}" fill="#34508a"/>`;
+  for (let k = 0; k < 4; k++) walls += `<rect x="${x-wd/2 + k*wd/4 + 4}" y="${y-26}" width="${wd/4-8}" height="28" fill="#34508a"/>`;
+  // lit windows
+  for (let k = 0; k < 3; k++) walls += `<rect x="${x-10}" y="${y+40+k*70}" width="20" height="34" rx="10" fill="#ffc860" filter="url(#windowGlow)"/>`;
+});
+// the gate: big arch, dark, with a sliver of torchlight inside
+walls += `<path d="M450 1310 L450 1100 C 450 1010, 630 1010, 630 1100 L630 1310 Z" fill="#0a1226"/>`;
+walls += `<path d="M470 1310 L470 1110 C 470 1040, 610 1040, 610 1110 L610 1310 Z" fill="url(#torch)"/>`;
+// stone block lines on the wall
+for (let y = 1040; y < 1310; y += 34) for (let x = (y/34 % 2) * 40; x < W; x += 80)
+  walls += `<rect x="${x}" y="${y}" width="78" height="32" fill="none" stroke="#1c3060" stroke-width="2" opacity=".5"/>`;
+add(`<g filter="url(#paper)">${walls}</g>`);
+// guards on the wall (tiny silhouettes with spears) — asleep after the victory party
+[[250,990],[870,990],[600,990]].forEach(([x,y])=>add(`<g fill="#0c1630"><circle cx="${x}" cy="${y-38}" r="8"/><rect x="${x-7}" y="${y-30}" width="14" height="30" rx="5"/><line x1="${x+10}" y1="${y}" x2="${x+16}" y2="${y-70}" stroke="#0c1630" stroke-width="3"/></g>`));
+
+// ---------- layer 3: ground in front of the walls ----------
+add(`<g filter="url(#paper)"><path d="M0 1290 C 300 1270, 700 1300, 1080 1280 L1080 1500 L0 1500 Z" fill="#22385e"/></g>`);
+
+// ---------- layer 4: THE HORSE ----------
+// Built from wooden planks like a real siege toy: body, neck, head, straight plank legs, on a wheeled platform.
+let hz = '';
+const HX = 540, HY = 1120;   // middle of the body
+// platform + wheels
+hz += `<rect x="${HX-270}" y="1440" width="540" height="40" rx="6" fill="url(#woodDark)"/>`;
+[-200,-70,70,200].forEach(dx=>{ hz += `<circle cx="${HX+dx}" cy="1490" r="40" fill="#5a3418"/><circle cx="${HX+dx}" cy="1490" r="12" fill="#2a160a"/>`;
+  for (let k = 0; k < 6; k++) { const a = k*Math.PI/3; hz += `<line x1="${HX+dx}" y1="1490" x2="${HX+dx+Math.cos(a)*36}" y2="${1490+Math.sin(a)*36}" stroke="#2a160a" stroke-width="5"/>`; } });
+// legs (far legs darker, near legs lighter)
+[[-180,'woodDark'],[150,'woodDark'],[-130,'wood'],[200,'wood']].forEach(([dx,g])=>{
+  hz += `<path d="M${HX+dx-26} ${HY+70} L${HX+dx+26} ${HY+70} L${HX+dx+20} 1440 L${HX+dx-20} 1440 Z" fill="url(#${g})"/>`;
+  hz += `<rect x="${HX+dx-24}" y="1405" width="48" height="35" fill="#3a2010"/>`;   // hoof
+});
+// body
+const body = `M${HX-250} ${HY-40} C ${HX-260} ${HY-130}, ${HX+230} ${HY-140}, ${HX+250} ${HY-50} C ${HX+270} ${HY+40}, ${HX+240} ${HY+110}, ${HX+180} ${HY+120}
+  L ${HX-200} ${HY+120} C ${HX-260} ${HY+110}, ${HX-270} ${HY+40}, ${HX-250} ${HY-40} Z`;
+hz += `<path d="${body}" fill="url(#wood)"/>`;
+// tail
+hz += `<path d="M${HX+245} ${HY-60} C ${HX+330} ${HY-40}, ${HX+330} ${HY+80}, ${HX+300} ${HY+200} L ${HX+270} ${HY+200} C ${HX+290} ${HY+90}, ${HX+280} ${HY}, ${HX+240} ${HY-20} Z" fill="#5a3418"/>`;
+// neck + head, reaching up toward the moon
+const neck = `M${HX-250} ${HY-30} L ${HX-150} ${HY-80} L ${HX-210} ${HY-420} L ${HX-330} ${HY-380} Z`;
+hz += `<path d="${neck}" fill="url(#wood)"/>`;
+// mane: notched plank teeth along the back of the neck
+for (let k = 0; k < 8; k++) { const t = k/8, x = HX-150 - t*60, y = HY-80 - t*340;
+  hz += `<path d="M${x} ${y} l 34 -10 l -14 -34 Z" fill="#5a3418"/>`; }
+const head = `M${HX-210} ${HY-420} L ${HX-330} ${HY-380} L ${HX-450} ${HY-300} C ${HX-480} ${HY-280}, ${HX-470} ${HY-245}, ${HX-440} ${HY-245} L ${HX-330} ${HY-280} Z`;
+hz += `<path d="${head}" fill="url(#wood)"/>`;
+hz += `<path d="M${HX-230} ${HY-410} l 10 -70 l 30 60 Z M${HX-270} ${HY-400} l -4 -66 l 34 50 Z" fill="url(#wood)"/>`;      // ears
+hz += `<circle cx="${HX-320}" cy="${HY-345}" r="11" fill="#1a0c04"/><circle cx="${HX-323}" cy="${HY-348}" r="3" fill="#ffe0a0"/>`;   // eye
+hz += `<circle cx="${HX-448}" cy="${HY-268}" r="6" fill="#1a0c04"/>`;   // nostril
+// plank seams + pegs across the body and neck
+for (let k = 1; k < 7; k++) hz += `<path d="M${HX-255} ${HY-110 + k*34} C ${HX-100} ${HY-125 + k*34}, ${HX+100} ${HY-125 + k*34}, ${HX+255} ${HY-110 + k*34}" stroke="#4a2814" stroke-width="3" fill="none" opacity=".7"/>`;
+for (let k = 1; k < 6; k++) { const t = k/6;
+  hz += `<line x1="${HX-250 + t*100 - 0}" y1="${HY-30 - t*50}" x2="${HX-330 + t*120}" y2="${HY-380 + t*0}" stroke="#4a2814" stroke-width="3" opacity=".6"/>`; }
+for (let k = 0; k < 18; k++) hz += `<circle cx="${HX-230 + (k%9)*55}" cy="${HY-60 + Math.floor(k/9)*130}" r="4" fill="#3a1c0a"/>`;
+// the trapdoor in the belly is open... and a rope ladder hangs down
+hz += `<rect x="${HX-40}" y="${HY+118}" width="110" height="16" fill="#1a0c04"/>`;
+hz += `<path d="M${HX-40} ${HY+120} L ${HX-110} ${HY+190} L ${HX-100} ${HY+200} L ${HX-30} ${HY+132} Z" fill="url(#woodDark)"/>`;
+hz += `<line x1="${HX}" y1="${HY+130}" x2="${HX-6}" y2="1430" stroke="#c8a070" stroke-width="3"/><line x1="${HX+34}" y1="${HY+130}" x2="${HX+30}" y2="1430" stroke="#c8a070" stroke-width="3"/>`;
+for (let y = HY + 160; y < 1430; y += 30) hz += `<line x1="${HX-3}" y1="${y}" x2="${HX+32}" y2="${y}" stroke="#c8a070" stroke-width="3"/>`;
+add(`<g filter="url(#paper)">${hz}</g>`);
+// moonlight rim along the top of the horse (the moon is upper right)
+add(`<path d="M${HX-250} ${HY-40} C ${HX-260} ${HY-130}, ${HX+230} ${HY-140}, ${HX+250} ${HY-50}" stroke="#fff0c8" stroke-width="4" fill="none" opacity=".45"/>`);
+
+// ---------- layer 5: Greek soldiers sneaking out (paper silhouettes) ----------
+function soldier(x, y, s, climb) {
+  const c = '#0a1020';
+  let g = `<g fill="${c}">`;
+  g += `<circle cx="${x}" cy="${y-118*s}" r="${13*s}"/>`;                                                     // head
+  g += `<path d="M${x-6*s} ${y-132*s} C ${x-10*s} ${y-160*s}, ${x-40*s} ${y-150*s}, ${x-42*s} ${y-126*s} Z"/>`; // crest
+  g += capsule([x, y-100*s], 14*s, [x+(climb?0:6*s), y-55*s], 12*s, c);                                       // torso
+  g += capsule([x, y-55*s], 9*s, [x-(climb?6:18)*s, y-20*s], 7*s, c) + capsule([x-(climb?6:18)*s, y-20*s], 7*s, [x-(climb?4:24)*s, y], 5*s, c);
+  g += capsule([x+4*s, y-55*s], 9*s, [x+(climb?14:20)*s, y-26*s], 7*s, c) + capsule([x+(climb?14:20)*s, y-26*s], 7*s, [x+(climb?10:30)*s, y], 5*s, c);
+  g += `<ellipse cx="${x+18*s}" cy="${y-80*s}" rx="${18*s}" ry="${28*s}"/>`;                                   // shield
+  if (!climb) g += `<line x1="${x-14*s}" y1="${y-20*s}" x2="${x+20*s}" y2="${y-190*s}" stroke="${c}" stroke-width="${4*s}"/>`;  // spear
+  g += `</g>`;
+  return g;
+}
+add(`<g filter="url(#paperSm)">${soldier(HX+14, 1340, 0.9, true)}${soldier(330, 1520, 1.2, false)}${soldier(220, 1545, 1.25, false)}${soldier(800, 1530, 1.2, false)}</g>`);
+
+// ---------- layer 6: foreground paper — rocks, grass tufts, broken spears ----------
+add(`<g filter="url(#paper)"><path d="M0 1560 C 200 1520, 380 1600, 540 1580 C 720 1555, 880 1610, 1080 1560 L1080 ${H} L0 ${H} Z" fill="#101c3a"/>
+  ${Array.from({length:22},(_,i)=>{const x=i*52+R()*20, y=1580+R()*20;return `<path d="M${x} ${y} l 8 -46 l 6 44 l 10 -34 l 4 36 Z" fill="#101c3a"/>`}).join('')}
+  <line x1="120" y1="1700" x2="360" y2="1560" stroke="#101c3a" stroke-width="8"/><line x1="900" y1="1690" x2="1040" y2="1540" stroke="#101c3a" stroke-width="8"/>
+</g>`);
+add(`<g filter="url(#paper)"><path d="M0 1720 C 240 1680, 460 1760, 700 1730 C 860 1710, 980 1740, 1080 1720 L1080 ${H} L0 ${H} Z" fill="#070e22"/></g>`);
+
+// ---------- title: cut-paper letters ----------
+add(`<g text-anchor="middle" filter="url(#paperSm)">
+  <text x="540" y="190" font-family="Cinzel, serif" font-weight="600" font-size="32" letter-spacing="14" fill="#d8c8a0">TROY · THE LAST NIGHT</text>
+  <text x="540" y="300" font-family="Anton, Impact" font-size="96" letter-spacing="3" fill="#f4ead2">THE GIFT THAT</text>
+  <text x="540" y="420" font-family="Anton, Impact" font-size="118" letter-spacing="3" fill="#e8483a">DESTROYED TROY</text>
+</g>`);
+// paper fibre over the whole frame
+add(`<rect width="${W}" height="${H}" filter="url(#fibre)" opacity=".14" style="mix-blend-mode:overlay"/>`);
+finish({ grain: .12, vignette: .75 });
+</script></body></html>

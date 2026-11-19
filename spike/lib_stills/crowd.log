@@ -1,0 +1,96 @@
+17:28.000  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\crowd2\from_speaker.png'
+18:04.437  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\crowd2\side.png'
+[INFO ] services.locationservice ...............: Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.
+[INFO ] mpfb.init ..............................: Build info 20261010
+[INFO ] mpfb.init ..............................: Online access preference is not enabled. Not checking if MakeHuman is online.
+[INFO ] mpfb.init ..............................: MPFB initialization has finished.
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+FBX version: 7700
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+FBX version: 7700
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+FBX version: 7700
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+FBX version: 7700
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+FBX version: 7700
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+FBX version: 7700
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+FBX version: 7700
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+FBX version: 7700
+saved C:/Users/User/timeless-compass/spike/lib_stills/crowd2\from_speaker.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/crowd2\side.png
+CROWD DONE
+Blender 5.3.0 (hash 02f0899d78e3 built 2026-11-10 01:33:43)
+OBJ import of 'base.obj' took 39.07 ms
+OBJ import of 'high-poly.obj' took 5.19 ms
+OBJ import of 'eyebrow001.obj' took 1.80 ms
+OBJ import of 'eyelashes01.obj' took 1.82 ms
+OBJ import of 'teeth_base.obj' took 10.05 ms
+OBJ import of 'base.obj' took 23.99 ms
+OBJ import of 'high-poly.obj' took 3.27 ms
+OBJ import of 'eyebrow001.obj' took 1.12 ms
+OBJ import of 'eyelashes01.obj' took 1.40 ms
+OBJ import of 'teeth_base.obj' took 5.30 ms
+OBJ import of 'base.obj' took 38.14 ms
+OBJ import of 'high-poly.obj' took 4.19 ms
+OBJ import of 'eyebrow001.obj' took 1.89 ms
+OBJ import of 'eyelashes01.obj' took 1.91 ms
+OBJ import of 'teeth_base.obj' took 7.94 ms
+OBJ import of 'base.obj' took 21.09 ms
+OBJ import of 'high-poly.obj' took 3.83 ms
+OBJ import of 'eyebrow001.obj' took 1.33 ms
+OBJ import of 'eyelashes01.obj' took 1.32 ms
+OBJ import of 'teeth_base.obj' took 5.12 ms
+OBJ import of 'base.obj' took 29.98 ms
+OBJ import of 'high-poly.obj' took 3.89 ms
+OBJ import of 'eyebrow001.obj' took 1.31 ms
+OBJ import of 'eyelashes01.obj' took 1.83 ms
+OBJ import of 'teeth_base.obj' took 6.10 ms
+OBJ import of 'base.obj' took 38.19 ms
+OBJ import of 'high-poly.obj' took 5.15 ms
+OBJ import of 'eyebrow001.obj' took 2.19 ms
+OBJ import of 'eyelashes01.obj' took 1.95 ms
+OBJ import of 'teeth_base.obj' took 10.15 ms
+OBJ import of 'base.obj' took 28.91 ms
+OBJ import of 'high-poly.obj' took 4.03 ms
+OBJ import of 'eyebrow001.obj' took 1.22 ms
+OBJ import of 'eyelashes01.obj' took 1.37 ms
+OBJ import of 'teeth_base.obj' took 6.91 ms
+OBJ import of 'base.obj' took 29.77 ms
+OBJ import of 'high-poly.obj' took 4.16 ms
+OBJ import of 'eyebrow001.obj' took 1.30 ms
+OBJ import of 'eyelashes01.obj' took 1.45 ms
+OBJ import of 'teeth_base.obj' took 6.31 ms
+
+Blender quit
+
+real	18m17.532s
+user	0m0.046s
+sys	0m0.076s

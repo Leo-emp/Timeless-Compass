@@ -1,0 +1,138 @@
+<!doctype html>
+<!--
+  ART DIRECTION 4: NOIR WOODCUT.
+  Athens, 399 BC. Socrates in his prison cell raises the cup of hemlock, lit by one shaft of moonlight.
+  Two inks (black + bone) + one accent colour, hatching lines and gouge marks like a carved woodblock print.
+-->
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Cinzel:wght@600;800&display=block" rel="stylesheet">
+<style>html,body{margin:0;width:1080px;height:1920px;background:#000;overflow:hidden}svg{display:block}</style>
+</head><body>
+<svg id="s" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg"></svg>
+<script src="common.js"></script>
+<script>
+const R = rng(399);
+const INK = '#0b0908', BONE = '#ece2cb', RED = '#c8281e';
+add(`<defs>
+  <!-- hatching = rows of fine diagonal lines, used to shade the lit areas -->
+  <pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)"><rect width="9" height="3.2" fill="${INK}"/></pattern>
+  <pattern id="hatchFine" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)"><rect width="7" height="1.6" fill="${INK}"/></pattern>
+  <pattern id="cross" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(40)"><rect width="10" height="2.4" fill="${INK}"/></pattern>
+  <!-- the hatching gets denser away from the window: masks fade it -->
+  <linearGradient id="fadeH" x1="1" y1="0" x2="0" y2="1"><stop offset=".25" stop-color="#000"/><stop offset=".75" stop-color="#fff"/></linearGradient>
+  <mask id="hatchMask"><rect width="${W}" height="${H}" fill="url(#fadeH)"/></mask>
+  <radialGradient id="cupGlow"><stop offset="0" stop-color="#9ac870" stop-opacity=".8"/><stop offset="1" stop-color="#9ac870" stop-opacity="0"/></radialGradient>
+  <!-- rough woodblock edges: wobble every shape a little -->
+  <filter id="rough" filterUnits="userSpaceOnUse" x="-100" y="-100" width="1280" height="2120">
+    <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="5" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="5"/>
+  </filter>
+  <filter id="paperTex" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3" seed="2"/>
+    <feColorMatrix values="0 0 0 0 .1 0 0 0 0 .08 0 0 0 0 .06 0 0 0 1.2 -.55"/>
+  </filter>
+</defs>`);
+
+const art = [];  // everything gets the rough woodblock filter at the end
+const a = s => art.push(s);
+
+// ---------- the cell: black, with one shaft of moonlight from the barred window ----------
+a(`<rect width="${W}" height="${H}" fill="${INK}"/>`);
+const shaft = `M620 470 L840 470 L 900 1720 L -180 1720 Z`;
+a(`<path d="${shaft}" fill="${BONE}"/>`);
+// stone blocks on the lit wall
+let stones = '';
+for (let y = 420; y < 1340; y += 62) for (let x = ((y / 62) % 2) * 70 - 70; x < W; x += 140)
+  stones += `<rect x="${x}" y="${y}" width="138" height="60" fill="none" stroke="${INK}" stroke-width="3.5"/>`;
+a(`<clipPath id="shaftClip"><path d="${shaft}"/></clipPath>`);
+a(`<g clip-path="url(#shaftClip)">${stones}
+  <rect width="${W}" height="${H}" fill="url(#hatchFine)" mask="url(#hatchMask)" opacity=".55"/>
+</g>`);
+// shadows of the window bars thrown across the floor and wall (long black stripes)
+for (let i = 0; i < 4; i++) { const t = (i + 1) / 5;
+  const x1 = 620 + 220 * t, y1 = 470, x2 = -180 + 1080 * t;
+  a(`<g clip-path="url(#shaftClip)"><path d="M${x1-6} ${y1} L${x1+6} ${y1} L${x2+28} 1720 L${x2-28} 1720 Z" fill="${INK}"/></g>`); }
+// floor line
+a(`<rect x="0" y="1340" width="${W}" height="8" fill="${INK}"/>`);
+a(`<g clip-path="url(#shaftClip)"><rect x="0" y="1348" width="${W}" height="400" fill="url(#hatch)" opacity=".55"/></g>`);
+
+// ---------- the barred window (high on the right wall) ----------
+a(`<rect x="590" y="300" width="280" height="190" fill="${INK}"/>`);
+a(`<rect x="620" y="320" width="220" height="150" fill="${BONE}"/>`);
+for (let i = 0; i < 5; i++) a(`<rect x="${650 + i*44}" y="318" width="12" height="154" fill="${INK}"/>`);
+a(`<rect x="618" y="390" width="224" height="10" fill="${INK}"/>`);
+a(`<circle cx="930" cy="360" r="26" fill="${INK}" opacity=".0"/>`);
+// moon glimpsed through the bars
+a(`<circle cx="790" cy="362" r="24" fill="#fff8e6"/>`);
+
+// gouge marks: short carved strokes in the dark around the light
+for (let i = 0; i < 140; i++) { const x = R() * W, y = 300 + R() * 1450;
+  const inShaft = document.createElement('canvas').getContext('2d').isPointInPath(new Path2D(shaft), x, y);
+  if (inShaft) continue;
+  const len = 14 + R() * 40, ang = -0.6 + (R() - .5) * .4;
+  a(`<path d="M${x} ${y} q ${len/2} ${-4} ${Math.cos(ang)*len} ${Math.sin(ang)*len}" stroke="${BONE}" stroke-width="${1 + R()*1.8}" fill="none" opacity="${.15 + R()*.3}"/>`); }
+
+// ---------- Socrates, seated on a stone bench, raising the cup ----------
+// bench
+a(`<rect x="250" y="1300" width="330" height="60" fill="${INK}"/><rect x="250" y="1300" width="330" height="8" fill="${BONE}"/>`);
+a(`<rect x="270" y="1360" width="40" height="160" fill="${INK}"/><rect x="520" y="1360" width="40" height="160" fill="${INK}"/>`);
+// body in a heavy cloak (himation): one black shape, with bone rim light where moonlight hits
+const cloak = `M395 1060 C 360 1080, 320 1130, 310 1210 C 300 1280, 300 1320, 320 1340 L 610 1350 C 640 1352, 660 1370, 660 1400
+  L 650 1580 L 600 1580 L 596 1420 L 470 1400 C 420 1395, 380 1380, 360 1350 L 330 1350 C 320 1300, 330 1200, 360 1140 Z`;
+a(`<path d="${cloak}" fill="${INK}"/>`);
+// cloak folds carved out in bone lines
+for (let i = 0; i < 6; i++) a(`<path d="M${350 + i*14} ${1130 + i*30} C ${400 + i*20} ${1200 + i*20}, ${470 + i*18} ${1300 + i*6}, ${560 + i*14} ${1350}" stroke="${BONE}" stroke-width="2.2" fill="none" opacity=".7"/>`);
+a(`<path d="M610 1355 C 640 1360, 655 1380, 655 1410 L 648 1575" stroke="${BONE}" stroke-width="4" fill="none"/>`);   // knee + shin lit edge
+// feet (sandals)
+a(`<path d="M598 1578 L 690 1586 L 690 1600 L 596 1600 Z" fill="${INK}"/><path d="M600 1578 L 688 1586" stroke="${BONE}" stroke-width="3"/>`);
+// the raised arm: from shoulder up to the cup in front of his face
+a(capsule([470, 1130], 30, [590, 1170], 24, INK) + capsule([590, 1170], 22, [600, 1020], 18, INK));
+a(`<path d="M495 1105 C 540 1110, 580 1130, 612 1165 L 615 1030" stroke="${BONE}" stroke-width="3.5" fill="none"/>`);
+// head in profile: high bald dome, snub nose, big curly beard (how ancient busts show him)
+const head = `M392 905 C 410 850, 490 840, 520 890 C 530 905, 532 925, 528 940 L 552 968 L 536 978 L 542 994 L 532 1004
+  C 562 1040, 552 1104, 508 1132 C 476 1150, 438 1130, 418 1096 L 396 1062 C 366 1010, 368 950, 392 905 Z`;
+a(`<path d="${head}" fill="${INK}"/>`);
+// moonlight along his face: forehead, nose, lips, beard edge (light comes from the upper right)
+a(`<path d="M505 868 C 520 885, 530 905, 528 940 L 552 968 L 536 978 L 542 994 L 532 1004 C 562 1040, 552 1104, 508 1132" stroke="${BONE}" stroke-width="5" fill="none" stroke-linejoin="round"/>`);
+// beard curls carved in
+for (let i = 0; i < 16; i++) { const x = 440 + R() * 100, y = 1010 + R() * 110;
+  a(`<path d="M${x} ${y} q 8 -10 14 0 q 4 10 -6 12" stroke="${BONE}" stroke-width="2" fill="none" opacity=".8"/>`); }
+// closed eye + brow line
+a(`<path d="M498 935 q 12 6 22 0" stroke="${BONE}" stroke-width="3" fill="none"/><path d="M492 918 q 16 -8 32 2" stroke="${BONE}" stroke-width="2.5" fill="none" opacity=".7"/>`);
+// ear
+a(`<path d="M430 960 q -12 10 -4 30" stroke="${BONE}" stroke-width="2.5" fill="none" opacity=".7"/>`);
+// the cup (kylix) of hemlock, held up — the only colour in the cell
+a(`<ellipse cx="604" cy="1010" rx="120" ry="80" fill="url(#cupGlow)"/>`);
+a(`<path d="M548 990 Q 604 1050 660 990 Z" fill="${INK}" stroke="${BONE}" stroke-width="4"/>`);
+a(`<ellipse cx="604" cy="990" rx="56" ry="9" fill="#6a9a48" stroke="${BONE}" stroke-width="3"/>`);
+a(`<rect x="600" y="1030" width="8" height="18" fill="${INK}"/>`);
+// wisps of vapour rising from the cup
+for (let i = 0; i < 3; i++) a(`<path d="M${590 + i*12} 975 C ${570 + i*12} 940, ${620 + i*12} 920, ${600 + i*10} 880" stroke="#a8d080" stroke-width="2" fill="none" opacity=".5"/>`);
+
+// ---------- his friends, weeping in the dark on the right; the jailer at the door ----------
+function mourner(x, y, s, bow) {
+  return `<path d="M${x-48*s} ${y} C ${x-56*s} ${y-180*s}, ${x-40*s} ${y-300*s}, ${x-6*s} ${y-330*s} C ${x+4*s+bow} ${y-360*s}, ${x+40*s+bow} ${y-360*s}, ${x+40*s+bow} ${y-320*s}
+    C ${x+46*s+bow} ${y-290*s}, ${x+30*s} ${y-280*s}, ${x+44*s} ${y-250*s} C ${x+60*s} ${y-150*s}, ${x+60*s} ${y-60*s}, ${x+54*s} ${y} Z" fill="${INK}"/>
+    <path d="M${x+40*s+bow} ${y-320*s} C ${x+46*s+bow} ${y-290*s}, ${x+30*s} ${y-280*s}, ${x+44*s} ${y-250*s}" stroke="${BONE}" stroke-width="${2.5*s}" fill="none" opacity=".75"/>
+    <path d="M${x+36*s} ${y-240*s} C ${x+50*s} ${y-150*s}, ${x+52*s} ${y-70*s}, ${x+48*s} ${y}" stroke="${BONE}" stroke-width="${2*s}" fill="none" opacity=".5"/>`;
+}
+a(mourner(800, 1600, 1.0, 14));
+a(mourner(930, 1640, 1.15, 22));
+a(mourner(690, 1660, .8, 10));
+// the jailer in the doorway on the far left, holding a lamp
+a(`<rect x="0" y="560" width="150" height="800" fill="${INK}"/><rect x="150" y="560" width="10" height="800" fill="${BONE}" opacity=".5"/>`);
+a(`<path d="M40 1340 C 30 1150, 50 980, 90 940 C 100 900, 140 900, 146 940 C 150 980, 140 1000, 150 1040 L 160 1340 Z" fill="${INK}"/>`);
+a(`<circle cx="165" cy="1120" r="60" fill="#e8a040" opacity=".25" ${blur(20)}/><rect x="152" y="1100" width="24" height="34" rx="6" fill="#f2c060"/>`);
+
+add(`<g filter="url(#rough)">${art.join('')}</g>`);
+// printed-paper texture over the print
+add(`<rect width="${W}" height="${H}" filter="url(#paperTex)" opacity=".5" style="mix-blend-mode:multiply"/>`);
+
+// ---------- titles (set like a printed broadsheet) ----------
+add(`<g text-anchor="middle">
+  <text x="540" y="150" font-family="Cinzel, serif" font-weight="600" font-size="32" letter-spacing="14" fill="${BONE}">ATHENS · 399 BC</text>
+  <text x="540" y="250" font-family="Anton, Impact" font-size="88" letter-spacing="4" fill="${BONE}">HE CHOSE</text>
+  <text x="540" y="1830" font-family="Anton, Impact" font-size="120" letter-spacing="4" fill="${RED}">THE POISON</text>
+</g>`);
+finish({ grain: .16, vignette: .6 });
+</script></body></html>

@@ -1,0 +1,151 @@
+# CPU RENDER SHARDS (WS9 task 2): render a job's light shots (landscapes, sea, wide shots) on up to 20 free GitHub
+# runners at once. Each runner renders the shots `tc render-plan` gave its shard, joins each finished shot into a
+# video, and uploads it as an artifact. Started BY HAND only (Actions tab -> render-shards -> Run workflow), after
+# the owner has pushed the branch with the job's bundle (cloud/bundles/<job>.json, made by `tc render-bundle <job>`).
+#
+# Free: public repos get unlimited Actions minutes on standard runners (4 CPU, 16 GB RAM, 6 h max per job).
+# No secrets are used. The optional repo VARIABLE (not secret) TC_R2_PUBLIC_URL points at the public asset cache;
+# without it, Poly Haven scans are downloaded straight from Poly Haven.
+#
+# After it finishes, on the laptop:
+#   gh run download <run id> -D jobs/<job>/render      (each artifact lands as render/github-<N>/)
+#   python -m tc frames check <job>                    (missing / black frames)
+#   python -m tc frames requeue <job>                  (what must be rendered again)
+#   python -m tc frames join <job>                     (one video per shot in jobs/<job>/shots/)
+name: render-shards
+on:
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "job id (cloud/bundles/<job>.json must be in the repo)"
+        required: true
+      resume_run_id:
+        description: "optional: run id of an earlier render-shards run to continue from (keeps its finished shots)"
+        default: ""
+      budget_hours:
+        description: "stop starting new shots after this many hours (GitHub kills a job at 6 h)"
+        default: "5.5"
+
+permissions:
+  contents: read
+  actions: read          # needed to download artifacts of an earlier run (resume)
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.m.outputs.shards }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: m
+        name: Which github shards does the bundle have?
+        env:
+          JOB: ${{ inputs.job }}           # passed as an env var, never pasted into the script (injection-safe)
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_OUTPUT"
+          import json, os
+          b = json.load(open(f"cloud/bundles/{os.environ['JOB']}.json"))
+          n = min(len(b["plan"]["github"]), 20)
+          print("shards=" + json.dumps(list(range(n))))
+          EOF
+
+  render:
+    needs: plan
+    if: needs.plan.outputs.shards != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    strategy:
+      fail-fast: false                 # one broken shard must not cancel the other 19
+      max-parallel: 20
+      matrix:
+        shard: ${{ fromJson(needs.plan.outputs.shards) }}
+    env:
+      JOB: ${{ inputs.job }}
+      SHARD: github-${{ matrix.shard }}
+      TC_R2_PUBLIC_URL: ${{ vars.TC_R2_PUBLIC_URL }}
+      TC_SCANS_CAP_GB: "12"            # runners have ~14 GB free disk
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Python packages + software OpenGL (Eevee needs OpenGL; runners have no GPU)
+        run: |
+          pip install -q numpy pillow
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb libegl1 libgl1 libglx-mesa0 mesa-utils libxi6 libxxf86vm1 libxfixes3 \
+            libxrender1 libxkbcommon0 libsm6 ffmpeg > /dev/null
+      - name: Cache Blender + MPFB (saves ~3 min per runner)
+        uses: actions/cache@v4
+        with:
+          path: ~/tools
+          key: blender-5.3.0-mpfb-${{ hashFiles('cloud/setup_blender_linux.sh') }}
+      - name: Install Blender 5.3 + MPFB (free, CC0)
+        run: echo "BLENDER=$(bash cloud/setup_blender_linux.sh $HOME/tools | tail -1)" >> "$GITHUB_ENV"
+      - name: Resume - get this shard's results from an earlier run
+        if: inputs.resume_run_id != ''
+        continue-on-error: true        # no artifact for this shard yet = start fresh
+        uses: actions/download-artifact@v4
+        with:
+          name: shard-github-${{ matrix.shard }}
+          path: out/github-${{ matrix.shard }}
+          run-id: ${{ inputs.resume_run_id }}
+          github-token: ${{ github.token }}
+      - name: Download only the scans this shard needs
+        run: python -m tc cache fetch --bundle "cloud/bundles/$JOB.json" --shard "github:${{ matrix.shard }}"
+      - name: Render (Cycles on CPU, Eevee on software OpenGL)
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a -s "-screen 0 1920x1080x24" python -m tc render-shard "cloud/bundles/$JOB.json" \
+            --where github --index ${{ matrix.shard }} --out "out/$SHARD" --blender "$BLENDER" \
+            --budget-h "${{ inputs.budget_hours }}" --join
+      - name: Keep videos + progress + logs, drop frames of joined shots
+        if: always()
+        run: |
+          python3 - <<'EOF'
+          import json, os, shutil
+          d = f"out/{os.environ['SHARD']}"
+          p = json.load(open(f"{d}/progress.json")) if os.path.exists(f"{d}/progress.json") else {}
+          for sid, e in p.items():
+              if e.get("status") == "done" and os.path.exists(f"{d}/{sid}.mp4"):
+                  shutil.rmtree(f"{d}/{sid}/frames", ignore_errors=True)
+          print({s: e["status"] for s, e in p.items()})
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()                   # upload even after a failure: finished shots are kept
+        with:
+          name: shard-github-${{ matrix.shard }}
+          path: out/github-${{ matrix.shard }}
+          retention-days: 7
+          if-no-files-found: ignore
+
+  report:
+    needs: render
+    if: always() && needs.render.result != 'skipped'
+    runs-on: ubuntu-latest
+    env:
+      JOB: ${{ inputs.job }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -q numpy pillow
+      - uses: actions/download-artifact@v4
+        with:
+          path: render
+          pattern: shard-github-*
+      - name: Which shots are missing or broken?
+        run: |
+          for d in render/shard-github-*; do [ -d "$d" ] && mv "$d" "render/${d#render/shard-}"; done
+          python3 - <<'EOF' | tee -a "$GITHUB_STEP_SUMMARY"
+          import json, os
+          from tc import render_farm as rf
+          b = json.load(open(f"cloud/bundles/{os.environ['JOB']}.json"))
+          gh = [s for g in b["plan"]["github"] for s in g["shots"]]
+          todo = [s for s in rf.requeue(b, "render") if s in gh]
+          print(f"### render-shards: {len(gh) - len(todo)} of {len(gh)} github shots OK")
+          if todo:
+              print("Re-run with resume_run_id = this run's id. Not OK yet: " + ", ".join(todo))
+          EOF

@@ -1,0 +1,110 @@
+<!doctype html>
+<!--
+  ART DIRECTION 2: CINEMATIC SILHOUETTE.
+  Thermopylae, 480 BC. The Spartan line on the ridge, a sky full of Persian arrows, a giant setting sun.
+  People are pure silhouettes against strong light, so their shapes read as real and epic.
+-->
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Cinzel:wght@600;800&display=block" rel="stylesheet">
+<style>html,body{margin:0;width:1080px;height:1920px;background:#000;overflow:hidden}svg{display:block}</style>
+</head><body>
+<svg id="s" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg"></svg>
+<script src="common.js"></script>
+<script>
+const R = rng(300);
+const SUN = [560, 1230], INK = '#0b0604';
+
+add(`<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#1a0606"/><stop offset=".3" stop-color="#5a120a"/><stop offset=".55" stop-color="#c0360e"/>
+    <stop offset=".72" stop-color="#f07a1a"/><stop offset="1" stop-color="#ffc060"/>
+  </linearGradient>
+  <radialGradient id="sun"><stop offset="0" stop-color="#fff6d8"/><stop offset=".55" stop-color="#ffd890"/><stop offset=".85" stop-color="#ffa040"/><stop offset="1" stop-color="#ff7a20"/></radialGradient>
+  <radialGradient id="sunHalo"><stop offset="0" stop-color="#ffb050" stop-opacity=".9"/><stop offset=".4" stop-color="#ff6a20" stop-opacity=".35"/><stop offset="1" stop-color="#ff3a10" stop-opacity="0"/></radialGradient>
+  <linearGradient id="dust" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a40" stop-opacity="0"/><stop offset=".5" stop-color="#ff8a30" stop-opacity=".45"/><stop offset="1" stop-color="#3a0a04" stop-opacity="0"/></linearGradient>
+  <linearGradient id="titleFire" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0d0"/><stop offset=".5" stop-color="#ffb040"/><stop offset="1" stop-color="#d0400c"/></linearGradient>
+  <filter id="glow" filterUnits="userSpaceOnUse" x="-200" y="-200" width="1480" height="2320"><feGaussianBlur in="SourceGraphic" stdDeviation="12" result="a"/><feMerge><feMergeNode in="a"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>`);
+
+// ---------- sky + sun ----------
+add(`<rect width="${W}" height="${H}" fill="url(#sky)"/>`);
+add(`<circle cx="${SUN[0]}" cy="${SUN[1]}" r="720" fill="url(#sunHalo)"/>`);
+add(`<circle cx="${SUN[0]}" cy="${SUN[1]}" r="330" fill="url(#sun)"/>`);
+// thin cloud bands crossing the sun
+for (let i = 0; i < 6; i++) { const y = 1000 + i * 70 + R() * 30;
+  add(`<ellipse cx="${300 + R() * 500}" cy="${y}" rx="${300 + R() * 300}" ry="${5 + R() * 8}" fill="#7a1a08" opacity="${.12 + R() * .12}" ${blur(4)}/>`); }
+
+// ---------- the pass: cliffs on the left, the sea on the right ----------
+add(`<path d="M0 1700 L0 520 C 60 560, 90 640, 150 700 C 200 760, 210 900, 280 980 C 330 1040, 360 1120, 420 1180 L 420 1700 Z" fill="#2a0a06"/>`);
+add(`<path d="M0 1700 L0 760 C 50 800, 120 880, 170 960 C 220 1040, 250 1120, 320 1200 L 320 1700 Z" fill="#140504"/>`);
+// cliff ledges catching the light
+for (let i = 0; i < 8; i++) { const y = 620 + i * 70; add(`<path d="M${20 + i*30} ${y} l ${40 + R()*50} ${20}" stroke="#ff7a30" stroke-width="2" opacity=".35"/>`); }
+// ---------- the arrow storm ("then we will fight in the shade") ----------
+let arrows = '';
+for (let i = 0; i < 520; i++) {
+  const x = R() * 1300 - 100, y = 160 + R() * 900, len = 34 + R() * 26, ang = 2.55 + R() * 0.18; // flying down-left
+  const x2 = x + Math.cos(ang) * len, y2 = y + Math.sin(ang) * len;
+  const fx = Math.cos(ang + 0.45) * 7, fy = Math.sin(ang + 0.45) * 7, gx = Math.cos(ang - 0.45) * 7, gy = Math.sin(ang - 0.45) * 7;
+  const op = .5 + R() * .5, sw = 1.2 + R() * 1.4;
+  arrows += `<g opacity="${op}" stroke="${INK}" stroke-width="${sw}"><line x1="${x}" y1="${y}" x2="${x2}" y2="${y2}"/>
+    <line x1="${x}" y1="${y}" x2="${x - fx}" y2="${y - fy}"/><line x1="${x}" y1="${y}" x2="${x - gx}" y2="${y - gy}"/></g>`;
+}
+add(arrows);
+
+// ---------- the ridge ----------
+add(`<path d="M0 1640 C 200 1560, 400 1520, 620 1515 C 820 1510, 980 1540, 1080 1560 L1080 ${H} L0 ${H} Z" fill="${INK}"/>`);
+
+// ---------- Spartan silhouettes ----------
+// One hoplite in profile, facing right. x,y = feet, s = scale, v = variation (pose)
+function hoplite(x, y, s, v) {
+  const P = (px, py) => [x + px * s, y + py * s];
+  let g = '';
+  // red cloak flowing back (dark red so it reads against the sky only at the edges)
+  g += `<path d="M${P(-4,-228)} C ${P(-40,-200)} ${P(-70 - v*20,-120)} ${P(-80 - v*30,-60)} L ${P(-40,-70)} C ${P(-30,-120)} ${P(-14,-180)} ${P(4,-222)} Z" fill="#160403"/>`;
+  // legs
+  g += capsule(P(-6,-150), 12*s, P(-30 - v*10,-78), 9*s, INK) + capsule(P(-30 - v*10,-78), 9*s, P(-46 - v*12, 0), 6*s, INK);
+  g += capsule(P(8,-150), 12*s, P(28,-80), 9*s, INK) + capsule(P(28,-80), 9*s, P(32, 0), 6*s, INK);
+  g += `<path d="M${P(-46 - v*12, -4)} L ${P(-24 - v*12, 0)} L ${P(-48 - v*12, 2)} Z" fill="${INK}" stroke="${INK}" stroke-width="${4*s}"/>`;
+  g += `<path d="M${P(32, -4)} L ${P(54, 0)} L ${P(30, 2)} Z" fill="${INK}" stroke="${INK}" stroke-width="${4*s}"/>`;
+  // torso + skirt
+  g += capsule(P(0,-150), 19*s, P(4,-222), 23*s, INK);
+  g += `<path d="M${P(-20,-160)} L ${P(22,-160)} L ${P(26,-122)} L ${P(-24,-122)} Z" fill="${INK}"/>`;
+  // spear arm raised overhand + spear
+  g += capsule(P(-2,-222), 9*s, P(-26,-250), 7*s, INK) + capsule(P(-26,-250), 7*s, P(-6,-284), 6*s, INK);
+  const sa = -0.22 - v * 0.12;           // spear angle
+  const back = P(-6 - Math.cos(sa) * 130, -284 - Math.sin(sa) * 130), tip = P(-6 + Math.cos(sa) * 150, -284 + Math.sin(sa) * 150);
+  g += `<line x1="${back[0]}" y1="${back[1]}" x2="${tip[0]}" y2="${tip[1]}" stroke="${INK}" stroke-width="${3.2*s}" stroke-linecap="round"/>`;
+  g += `<path d="M${tip[0]} ${tip[1]} l ${-16*s} ${-2*s} l ${2*s} ${6*s} Z" fill="${INK}" stroke="${INK}" stroke-width="${3*s}"/>`;
+  // head + Corinthian helmet + tall transverse crest
+  g += `<circle cx="${P(10,-262)[0]}" cy="${P(10,-262)[1]}" r="${17*s}" fill="${INK}"/>`;
+  g += `<path d="M${P(26,-256)} L ${P(30,-238)} L ${P(16,-236)} Z" fill="${INK}"/>`;       // cheek guard
+  g += `<path d="M${P(18,-276)} C ${P(14,-318)} ${P(-36,-322)} ${P(-48,-270)} C ${P(-36,-288)} ${P(-14,-292)} ${P(0,-278)} Z" fill="${INK}"/>`;
+  // big round shield (aspis) in front, slightly turned, with a lambda rim catching light
+  const sc = P(40,-196);
+  g += `<ellipse cx="${sc[0]}" cy="${sc[1]}" rx="${30*s}" ry="${50*s}" fill="${INK}" transform="rotate(-6 ${sc[0]} ${sc[1]})"/>`;
+  g += `<ellipse cx="${sc[0]}" cy="${sc[1]}" rx="${30*s}" ry="${50*s}" fill="none" stroke="#ff8a30" stroke-width="${1.6*s}" opacity=".55" transform="rotate(-6 ${sc[0]} ${sc[1]})" stroke-dasharray="${40*s} ${300*s}" stroke-dashoffset="${-30*s}"/>`;
+  return g;
+}
+// the phalanx along the ridge: back rank smaller, front rank bigger
+for (let i = 0; i < 10; i++) { const x = 470 + i * 64 + R() * 8, y = 1522 + (x > 620 ? (x - 620) * 0.06 : 0);
+  add(hoplite(x, y - 4, 0.5 + R() * .04, R())); }
+for (let i = 0; i < 7; i++) { const x = 520 + i * 92 + R() * 10, y = 1548 + (x > 620 ? (x - 620) * 0.05 : 0);
+  add(hoplite(x, y + 26, 0.74 + R() * .05, R())); }
+// a fallen Persian banner in the foreground dirt
+add(``);
+// the hero in the foreground (King Leonidas), huge, cropped at the bottom
+
+// rim light along the ridge top
+add(`<path d="M0 1640 C 200 1560, 400 1520, 620 1515 C 820 1510, 980 1540, 1080 1560" stroke="#ff9a40" stroke-width="3" fill="none" opacity=".55"/>`);
+// floating embers + dust in the air
+for (let i = 0; i < 90; i++) add(`<circle cx="${R()*W}" cy="${900 + R()*900}" r="${.8 + R()*2.4}" fill="#ffb060" opacity="${.2 + R()*.6}"/>`);
+add(`<rect y="1420" width="${W}" height="160" fill="#ffb060" opacity=".12" ${blur(30)}/>`);
+
+// ---------- titles ----------
+add(`<g text-anchor="middle">
+  <text x="540" y="200" font-family="Cinzel, serif" font-weight="600" font-size="32" letter-spacing="14" fill="#ffd8b0" opacity=".9">THERMOPYLAE · 480 BC</text>
+  <text x="540" y="320" font-family="Anton, Impact" font-size="104" letter-spacing="3" fill="#fff0dc">THEY HELD</text>
+  <text x="540" y="440" font-family="Anton, Impact" font-size="124" letter-spacing="3" fill="url(#titleFire)" filter="url(#glow)">THE PASS</text>
+</g>`);
+finish({ grain: .2, vignette: .8 });
+</script></body></html>

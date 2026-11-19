@@ -1,0 +1,20 @@
+{
+  "name": "brazier",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.brazier(loc, kind='bronze'|'clay', lit, power, flames)",
+  "contents": "bronze tripod brazier (0.8 m) or clay eschara (0.3 m); glowing charcoal heap, volume flames (fx.flames), flickering light",
+  "design_source": "sanctuary + Agora finds",
+  "licence": "our own code",
+  "self_rating": {
+    "shape": 7,
+    "surface": 5,
+    "era": 8,
+    "notes": "flame volume reads as white haze, not fire - needs fix"
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws7/furniture_v3.png"
+  ]
+}

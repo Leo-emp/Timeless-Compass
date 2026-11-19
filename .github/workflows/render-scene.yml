@@ -1,0 +1,67 @@
+# RENDER ONE SCENE IN THE CLOUD (free GitHub runner, CPU): stills / test scenes, so the laptop stays free.
+# Trigger: push a change to cloud/render_request.json on branch cinematic-agent (script + args + the free CC0 scans it
+# needs). Output: the rendered (and film-finished) images as a downloadable artifact. No secrets are used.
+name: render-scene
+on:
+  push:
+    branches: [cinematic-agent]
+    paths: [cloud/render_request.json]
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Python packages + libraries Blender needs
+        run: |
+          pip install -q numpy pillow
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libxi6 libxxf86vm1 libxfixes3 libxrender1 libxkbcommon0 libsm6 ffmpeg > /dev/null
+      - name: Cache Blender + MPFB
+        uses: actions/cache@v4
+        with:
+          path: ~/tools
+          key: blender-5.3.0-mpfb-${{ hashFiles('cloud/setup_blender_linux.sh') }}
+      - name: Install Blender 5.3 + MPFB (free, CC0)
+        run: echo "BLENDER=$(bash cloud/setup_blender_linux.sh $HOME/tools | tail -1)" >> "$GITHUB_ENV"
+      - name: Download the free scans this scene needs (Poly Haven CC0)
+        run: |
+          python3 - <<'PY'
+          import json, subprocess
+          r = json.load(open('cloud/render_request.json'))
+          for kind, ids in r.get('scans', {}).items():
+              if ids:
+                  subprocess.run(['python', '-m', 'tc', 'assets', 'fetch', *ids, '--kind', kind], check=False)
+          PY
+      - name: Render
+        env:
+          TC_MOCAP: ${{ github.workspace }}/mocap
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess, sys
+          r = json.load(open('cloud/render_request.json'))
+          os.makedirs('out', exist_ok=True)
+          cmd = [os.environ['BLENDER'], '-b', '--python', r['script'], '--'] + r['args']
+          print(' '.join(cmd), flush=True)
+          sys.exit(subprocess.run(cmd).returncode)
+          PY
+      - name: Film finish
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess
+          f = json.load(open('cloud/render_request.json')).get('finish')
+          if f and os.path.exists(f['in']):
+              subprocess.run(['python', '-m', 'tc', 'finish', f['in'], f['out'], '--look', f.get('look', 'dusk')])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: render-${{ github.run_id }}
+          path: out/
+          retention-days: 14

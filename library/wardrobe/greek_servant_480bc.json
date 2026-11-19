@@ -1,0 +1,29 @@
+{
+  "name": "greek_servant_480bc",
+  "version": 1,
+  "era": "greece_480bc",
+  "pieces": {
+    "exomis": {
+      "builder": "wardrobe.exomis",
+      "material": "wardrobe.crowd_cloth(rank poor): hessian scan, patched, frayed, dirty"
+    },
+    "belt": {
+      "builder": "wardrobe.belt(kind='cord')",
+      "material": "rope"
+    }
+  },
+  "design_source": "Attic vases with craftsmen, smiths and potters at work (exomis fastened on the left shoulder, right shoulder bare); Hephaistos in the exomis",
+  "scene": "blender/scenes/ws3_wardrobe.py servant",
+  "used_for": "servants, rowers, fishermen, craftsmen (tc/crowd.py roles)",
+  "licence": "our own code (Blender cloth simulation); scanned fabrics CC0 Poly Haven (rough_linen, caban, hessian_230); MakeHuman body CC0",
+  "self_rating": {
+    "shape": 7,
+    "surface": 6,
+    "era": 8,
+    "notes": "right shoulder bare, fastened left, rope belt, worn poor cloth (look 100). Patches were too big and read as red stripes: made smaller + browner since (not re-rendered)."
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws3/servant_v1.png"
+  ]
+}

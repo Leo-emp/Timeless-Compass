@@ -1,0 +1,24 @@
+{
+  "name": "wear_by_rank",
+  "version": 1,
+  "era": "all",
+  "pieces": {
+    "worn_cloth": "wardrobe.worn_cloth: dinginess, crease dirt (AO), stains, sewn patches with stitched seams, frayed hem (transparency)",
+    "crowd_cloth": "wardrobe.crowd_cloth(name, person['dye']): rank -> cloth scan + fray; grime + patched from tc/crowd.py"
+  },
+  "design_source": "how real cloth ages (patched work clothes on vases of craftsmen and slaves); our own shader design",
+  "scene": "blender/scenes/ws3_wardrobe.py swatches [close]",
+  "licence": "our own code (Blender cloth simulation); scanned fabrics CC0 Poly Haven (rough_linen, caban, hessian_230); MakeHuman body CC0",
+  "self_rating": {
+    "shape": 6,
+    "surface": 7,
+    "era": 7,
+    "notes": "ranks read clearly: borders royal/rich, stains + patches + frayed threads on poor (look 100). Patches a bit flat."
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws3/wear_swatches_v3.png",
+    "spike/lib_stills/ws3/wear_close_v1.png",
+    "spike/lib_stills/ws3/servant_v1.png"
+  ]
+}

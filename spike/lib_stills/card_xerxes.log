@@ -1,0 +1,28 @@
+01:10.313  render           | Saved: 'C:\Users\User\timeless-compass\spike\cards2\xerxes_front.png'
+01:34.828  render           | Saved: 'C:\Users\User\timeless-compass\spike\cards2\xerxes_three_quarter.png'
+02:00.141  render           | Saved: 'C:\Users\User\timeless-compass\spike\cards2\xerxes_profile.png'
+02:14.000  render           | Saved: 'C:\Users\User\timeless-compass\spike\cards2\xerxes_body.png'
+[INFO ] services.locationservice ...............: Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.
+[INFO ] mpfb.init ..............................: Build info 20261010
+[INFO ] mpfb.init ..............................: Online access preference is not enabled. Not checking if MakeHuman is online.
+[INFO ] mpfb.init ..............................: MPFB initialization has finished.
+[WARN ] material.mhmaterial ....................: Patching input material line to cater for non-normalized key ('bumpTexture', 'bumpmapTexture')
+Info: Applied modifier was not first, result may not be as expected
+Info: Applied modifier was not first, result may not be as expected
+saved C:/Users/User/timeless-compass/spike/cards2\xerxes_front.png
+saved C:/Users/User/timeless-compass/spike/cards2\xerxes_three_quarter.png
+saved C:/Users/User/timeless-compass/spike/cards2\xerxes_profile.png
+saved C:/Users/User/timeless-compass/spike/cards2\xerxes_body.png
+CARD DONE C:/Users/User/timeless-compass/spike/cards2\xerxes_card.jpg
+Blender 5.3.0 (hash 02f0899d78e3 built 2026-11-10 01:33:43)
+OBJ import of 'base.obj' took 51.30 ms
+OBJ import of 'high-poly.obj' took 5.47 ms
+OBJ import of 'eyebrow001.obj' took 1.85 ms
+OBJ import of 'eyelashes01.obj' took 1.30 ms
+OBJ import of 'teeth_base.obj' took 8.73 ms
+
+Blender quit
+
+real	2m19.383s
+user	0m0.030s
+sys	0m0.077s

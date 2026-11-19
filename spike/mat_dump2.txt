@@ -1,0 +1,40 @@
+MAT Human.eyebrow001 Human.eyebrow001
+   OUTPUT_MATERIAL Material Output  
+   BSDF_PRINCIPLED Principled BSDF  Roughness=0.7 IOR=1.45 Subsurface Weight=0.0 Subsurface Radius=(1.0, 0.2, 0.1) Subsurface Scale=0.005 Specular IOR Level=0.5 Coat Weight=0.0 Sheen Weight=0.0
+   BUMP bumpmap  Strength=1.0 Distance=1.0
+   TEX_IMAGE bumpmapTexture eyebrow001.png sRGB 
+   MIX_RGB diffuseIntensity  Factor=1.0
+   TEX_IMAGE diffuseTexture eyebrow001.png sRGB 
+     LINK Principled BSDF BSDF -> Material Output Surface
+     LINK diffuseTexture Color -> diffuseIntensity Color2
+     LINK diffuseIntensity Color -> Principled BSDF Base Color
+     LINK diffuseTexture Alpha -> Principled BSDF Alpha
+     LINK bumpmap Normal -> Principled BSDF Normal
+     LINK bumpmapTexture Color -> bumpmap Height
+MAT Human.eyelashes01 Human.eyelashes01
+   OUTPUT_MATERIAL Material Output  
+   BSDF_PRINCIPLED Principled BSDF  Roughness=0.7 IOR=1.45 Subsurface Weight=0.0 Subsurface Radius=(1.0, 0.2, 0.1) Subsurface Scale=0.005 Specular IOR Level=0.5 Coat Weight=0.0 Sheen Weight=0.0
+   MIX_RGB diffuseIntensity  Factor=1.0
+   TEX_IMAGE diffuseTexture eyelashes01.png sRGB 
+     LINK Principled BSDF BSDF -> Material Output Surface
+     LINK diffuseTexture Color -> diffuseIntensity Color2
+     LINK diffuseIntensity Color -> Principled BSDF Base Color
+     LINK diffuseTexture Alpha -> Principled BSDF Alpha
+MAT Human.high-poly Human.high-poly
+   OUTPUT_MATERIAL Material Output  
+   BSDF_PRINCIPLED Principled BSDF  Roughness=0.7 IOR=1.45 Subsurface Weight=0.0 Subsurface Radius=(1.0, 0.2, 0.1) Subsurface Scale=0.005 Specular IOR Level=0.5 Coat Weight=0.0 Sheen Weight=0.0
+   MIX_RGB diffuseIntensity  Factor=1.0
+   TEX_IMAGE diffuseTexture brown_eye.png sRGB 
+     LINK Principled BSDF BSDF -> Material Output Surface
+     LINK diffuseTexture Color -> diffuseIntensity Color2
+     LINK diffuseIntensity Color -> Principled BSDF Base Color
+     LINK diffuseTexture Alpha -> Principled BSDF Alpha
+MAT Human.teeth_base Human.teeth_base
+   OUTPUT_MATERIAL Material Output  
+   BSDF_PRINCIPLED Principled BSDF  Roughness=0.7 IOR=1.45 Subsurface Weight=0.0 Subsurface Radius=(1.0, 0.2, 0.1) Subsurface Scale=0.005 Specular IOR Level=0.5 Coat Weight=0.0 Sheen Weight=0.0
+   MIX_RGB diffuseIntensity  Factor=1.0
+   TEX_IMAGE diffuseTexture teeth.png sRGB 
+     LINK Principled BSDF BSDF -> Material Output Surface
+     LINK diffuseTexture Color -> diffuseIntensity Color2
+     LINK diffuseIntensity Color -> Principled BSDF Base Color
+     LINK diffuseTexture Alpha -> Principled BSDF Alpha

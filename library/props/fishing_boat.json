@@ -1,0 +1,21 @@
+{
+  "name": "fishing_boat",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.fishing_boat(loc, heading_deg, L=6.6, oars='rest'|'down'|'in', mast, nets, cargo)",
+  "contents": "6.6 m open boat: pitched hull, coloured wale, stem + curling stern post, eyes, thwarts, 2 oar pairs on tholes, mast + furled yard, net heap, catch basket, rope, stone anchor",
+  "design_source": "Attic vases with fishermen; Kyrenia and Ma'agan Mikhael wrecks",
+  "licence": "our own code",
+  "self_rating": {
+    "shape": 7,
+    "surface": 6,
+    "era": 8,
+    "notes": "v2: wale/eyes/oars fitted to the hull; look 100; nets/catch hidden below the gunwale in this angle"
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws7/boat_v2.png",
+    "spike/lib_stills/ws7/fleet_v1.png"
+  ]
+}

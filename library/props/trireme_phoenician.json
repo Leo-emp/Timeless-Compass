@@ -1,0 +1,20 @@
+{
+  "name": "trireme_phoenician",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.trireme_phoenician(loc, heading_deg, oars_down, hull, shields, admiral)",
+  "contents": "Athenian hull re-dressed: red-ochre hull, high deck + bulwark with round shields, conical ram, pataikos on the prow, optional admiral standard",
+  "design_source": "Herodotus 3.37, 3.58, 7.184; Plutarch Themistocles 14; Assyrian relief of Sidonian galleys (Nineveh, c. 700 BC)",
+  "licence": "our own code",
+  "self_rating": {
+    "shape": 6,
+    "surface": 5,
+    "era": 7,
+    "notes": "shield row + red hull read at distance; look 100; no close render yet"
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws7/fleet_v1.png"
+  ]
+}

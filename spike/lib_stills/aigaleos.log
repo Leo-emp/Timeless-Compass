@@ -1,0 +1,20 @@
+C:\Users\User\timeless-compass\blender\scenes\..\lib\sets.py:255: RuntimeWarning: invalid value encountered in power
+  Z = np.where(inland > 0, 0.35 + 0.14 * inland ** 1.05 + bumps * np.clip(inland / 8, 0, 1), -0.8 + inland * 0.3)
+00:54.360  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\aigaleos2\behind_king.png'
+01:30.953  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\aigaleos2\throne.png'
+02:05.969  render           | Saved: 'C:\Users\User\timeless-compass\spike\lib_stills\aigaleos2\camp.png'
+[INFO ] services.locationservice ...............: Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.
+[INFO ] mpfb.init ..............................: Build info 20261010
+[INFO ] mpfb.init ..............................: Online access preference is not enabled. Not checking if MakeHuman is online.
+[INFO ] mpfb.init ..............................: MPFB initialization has finished.
+saved C:/Users/User/timeless-compass/spike/lib_stills/aigaleos2\behind_king.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/aigaleos2\throne.png
+saved C:/Users/User/timeless-compass/spike/lib_stills/aigaleos2\camp.png
+AIGALEOS DONE
+Blender 5.3.0 (hash 02f0899d78e3 built 2026-11-10 01:33:43)
+
+Blender quit
+
+real	2m9.028s
+user	0m0.031s
+sys	0m0.015s

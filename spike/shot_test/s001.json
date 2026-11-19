@@ -1,0 +1,29 @@
+{
+  "shot": "s001",
+  "fps": 24,
+  "frames": 72,
+  "at": 0.0,
+  "era": "greece_480bc",
+  "cast": [
+    {
+      "name": "themistocles",
+      "wardrobe": "greek_civilian_480bc"
+    }
+  ],
+  "set": {
+    "name": "salamis_strait_dusk",
+    "builder": "sets.salamis_dusk"
+  },
+  "motion": {
+    "clip": "16_15"
+  },
+  "camera": {
+    "move": "track",
+    "from": "three_quarter",
+    "dist": 3.4
+  },
+  "expression": {
+    "themistocles": "resolve"
+  },
+  "missing": []
+}

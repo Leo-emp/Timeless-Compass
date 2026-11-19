@@ -1,0 +1,29 @@
+{
+  "name": "krater_bell_met",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "museum_scan",
+  "builder": "scans_glb.load_glb('krater_bell_met', loc=(x, y, z), rot_z_deg=0)",
+  "scan": "library/scans/krater_bell_met/model.glb",
+  "object": "South Italian (Lucanian) red-figure bell-krater, Pisticci Painter",
+  "museum": "The Metropolitan Museum of Art 246575",
+  "date": "c. 430-410 BC",
+  "real_size": "height 31.3 cm",
+  "era_fit": "NOT FOR 480 BC CLOSE-UPS - 50-70 years too late and made in southern Italy. The bell-krater SHAPE was already used in Athens by c. 490 BC, so it may stand far in the background as a silhouette; never in focus in a Salamis film. Fine for 430-400 BC stories (Peloponnesian War, Socrates).",
+  "use_in": "background only for 480 BC; foreground for late-5th-century films",
+  "licence": "CC BY 4.0",
+  "author": "OpenArchaeology3D",
+  "source": "https://sketchfab.com/3d-models/terracotta-bell-krater-met-object-id-246575-675a1b32830f4108bc394502e41c9838",
+  "credit": "\"Terracotta Bell-Krater (Met Object ID 246575)\" by OpenArchaeology3D, https://sketchfab.com/3d-models/terracotta-bell-krater-met-object-id-246575-675a1b32830f4108bc394502e41c9838 (CC BY 4.0)",
+  "facts_from": "museum open-access records (openaccess-api.clevelandart.org / collectionapi.metmuseum.org), 2026-11-19",
+  "self_rating": {
+    "shape": 9,
+    "surface": 8,
+    "era": 3,
+    "notes": "430-410 BC Lucanian: background only for 480 BC"
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws7/pottery_v3.png"
+  ]
+}

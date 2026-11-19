@@ -1,0 +1,146 @@
+<!doctype html>
+<!--
+  3D TEST (spike, throwaway). Can rigged 3D people + motion capture, rendered with a painted (toon) look,
+  give "proper faces + realistic movement" inside our dusk Salamis world?
+  Shot 1 (0-4 s): a mocap-animated human walks along the dock at dusk, camera tracks him.
+  Shot 2 (4-8 s): close-up of a captured human face performing expressions, sunset rim light, slow push-in.
+  Models are Three.js example assets (Soldier.glb, facecap.glb), used ONLY to judge quality.
+  window.draw(t) renders the frame at time t; window.ready = true once everything is loaded.
+-->
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=block" rel="stylesheet">
+<style>
+  html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#000}
+  canvas{display:block}
+  /* film look painted on top of the 3D: vignette, letterbox, caption */
+  #vig{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 48%,transparent 55%,rgba(0,0,0,.65) 100%);pointer-events:none}
+  .bar{position:fixed;left:0;right:0;height:70px;background:#000}
+  #cap{position:fixed;left:110px;bottom:110px;font:600 30px Cinzel,serif;letter-spacing:8px;color:#f4dcb4;opacity:.85}
+</style>
+<script type="importmap">{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head><body>
+<div id="vig"></div><div class="bar" style="top:0"></div><div class="bar" style="bottom:0"></div>
+<div id="cap">SALAMIS · SEPTEMBER 480 BC</div>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
+
+const W = 1920, H = 1080, BASE = 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r160/examples/models/gltf/';
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H); renderer.setPixelRatio(1);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
+renderer.shadowMap.enabled = true;
+document.body.prepend(renderer.domElement);
+
+// painted look: 4 flat tones instead of smooth shading
+const tones = new Uint8Array([40, 110, 190, 255]);
+const gradientMap = new THREE.DataTexture(tones, 4, 1, THREE.RedFormat);
+gradientMap.minFilter = gradientMap.magFilter = THREE.NearestFilter; gradientMap.needsUpdate = true;
+const toon = (m) => new THREE.MeshToonMaterial({ map: m.map || null, color: m.color || 0xffffff, gradientMap });
+
+// ===================== SHOT 1 WORLD: dusk dock =====================
+const world = new THREE.Scene();
+world.fog = new THREE.Fog(0x4a2a4a, 18, 90);
+// sky dome: dusk gradient + glow where the sun went down
+world.add(new THREE.Mesh(new THREE.SphereGeometry(200, 32, 16), new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, fog: false,
+  vertexShader: `varying vec3 v; void main(){ v = normalize(position); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+  fragmentShader: `varying vec3 v; void main(){
+    float y = clamp(v.y*3.0, 0., 1.);
+    vec3 c = mix(vec3(1.0,.62,.32), vec3(.55,.22,.32), smoothstep(0.,.25,y));
+    c = mix(c, vec3(.16,.12,.30), smoothstep(.2,.7,y)); c = mix(c, vec3(.04,.06,.16), smoothstep(.6,1.,y));
+    float sun = pow(max(dot(v, normalize(vec3(-.3,.02,-1.))),0.), 40.);
+    gl_FragColor = vec4(c + vec3(1.,.6,.3)*sun*.9, 1.); }` })));
+// the strait: dark water with a moving sunset streak
+const sea = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.ShaderMaterial({ fog: false, uniforms: { t: { value: 0 } },
+  vertexShader: `varying vec3 w; void main(){ vec4 p = modelMatrix*vec4(position,1.); w = p.xyz; gl_Position = projectionMatrix*viewMatrix*p; }`,
+  fragmentShader: `uniform float t; varying vec3 w; void main(){
+    float d = clamp(-w.z/120., 0., 1.);
+    vec3 c = mix(vec3(.05,.05,.12), vec3(.45,.2,.28), d);
+    float streak = exp(-pow((w.x + w.z*.3)/ (3.+(-w.z)*.25), 2.)) * step(w.z, 0.);
+    float rip = .5 + .5*sin(w.z*2.2 + t*2. + sin(w.x*.7)*2.);
+    c += vec3(1.,.55,.25) * streak * rip * .8 * d;
+    gl_FragColor = vec4(c, 1.); }` }));
+sea.rotation.x = -Math.PI / 2; sea.position.y = -0.6; world.add(sea);
+// far island of Salamis + Athens' hill (low dark shapes on the horizon)
+const hillMat = new THREE.MeshBasicMaterial({ color: 0x24182e });
+[[30, -110, 60, 9], [-40, -120, 40, 6], [70, -100, 50, 7]].forEach(([x, z, r, h]) => {
+  const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 24), hillMat); m.position.set(x, -0.6 + h / 2, z); m.scale.z = .3; world.add(m); });
+// Persian lanterns across the water
+const pts = new Float32Array(600); for (let i = 0; i < 200; i++) { pts[i * 3] = -20 + Math.random() * 120; pts[i * 3 + 1] = -0.2; pts[i * 3 + 2] = -60 - Math.random() * 30; }
+const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.BufferAttribute(pts, 3));
+world.add(new THREE.Points(lg, new THREE.PointsMaterial({ color: 0xffc060, size: 2.2, sizeAttenuation: false, fog: false })));
+// stone dock
+const dock = new THREE.Mesh(new THREE.BoxGeometry(14, 1, 4), new THREE.MeshToonMaterial({ color: 0x5a4444, gradientMap }));
+dock.position.set(0, -0.5, 0); dock.receiveShadow = true; world.add(dock);
+for (let i = 0; i < 14; i++) { const s = new THREE.Mesh(new THREE.BoxGeometry(.02, .01, 4), new THREE.MeshBasicMaterial({ color: 0x2a1c1c })); s.position.set(-7 + i, .005, 0); world.add(s); }
+// lantern on a post at the end of the dock
+const post = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, 1.6), new THREE.MeshToonMaterial({ color: 0x2a1a14, gradientMap })); post.position.set(4.5, .8, -1.2); world.add(post);
+const lamp = new THREE.Mesh(new THREE.BoxGeometry(.22, .3, .22), new THREE.MeshBasicMaterial({ color: 0xffd890 })); lamp.position.set(4.5, 1.7, -1.2); world.add(lamp);
+const lampLight = new THREE.PointLight(0xffa850, 12, 9, 1.6); lampLight.position.copy(lamp.position); world.add(lampLight);
+// lights: cool sky fill, warm sunset BEHIND the character (rim light), small front fill
+world.add(new THREE.HemisphereLight(0x6a5a9a, 0x1a1010, 1.2));
+const rimSun = new THREE.DirectionalLight(0xff9a50, 4.5); rimSun.position.set(-6, 3, -12); world.add(rimSun);
+const front = new THREE.DirectionalLight(0x8a90ff, .6); front.position.set(4, 4, 8); front.castShadow = true; world.add(front);
+
+let mixer1, walker;
+// ===================== SHOT 2 WORLD: face close-up =====================
+const faceScene = new THREE.Scene();
+faceScene.background = new THREE.Color(0x140c1a);
+faceScene.add(new THREE.HemisphereLight(0x5a4a8a, 0x100808, .9));
+const faceRim = new THREE.DirectionalLight(0xff9a50, 6); faceRim.position.set(-3, 1.5, -3); faceScene.add(faceRim);
+const faceKey = new THREE.DirectionalLight(0xffc890, 2.2); faceKey.position.set(2.5, 1, 3); faceScene.add(faceKey);
+let mixer2, face, faceCenter = new THREE.Vector3(), faceSize = 1;
+
+const cam = new THREE.PerspectiveCamera(32, W / H, .01, 500);
+const loader = new GLTFLoader();
+const ktx2 = new KTX2Loader().setTranscoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/basis/').detectSupport(renderer);
+loader.setKTX2Loader(ktx2); loader.setMeshoptDecoder(MeshoptDecoder);
+
+const [soldier, cap] = await Promise.all([loader.loadAsync(BASE + 'Soldier.glb'), loader.loadAsync(BASE + 'facecap.glb')]);
+// the walker: mocap walk cycle, painted materials
+walker = SkeletonUtils.clone(soldier.scene);
+walker.traverse(o => { if (o.isMesh) { o.material = toon(o.material); o.castShadow = true; } });
+walker.rotation.y = Math.PI / 2;           // walk to the right across the frame
+world.add(walker);
+mixer1 = new THREE.AnimationMixer(walker);
+mixer1.clipAction(soldier.animations.find(a => a.name === 'Walk')).play();
+// the face: captured expressions (morph targets), painted materials
+face = cap.scene.children[0];
+// keep the face's realistic materials (flat toon tones made skin blotchy)
+faceScene.add(face);
+mixer2 = new THREE.AnimationMixer(face);
+mixer2.clipAction(cap.animations[0]).play();
+const box = new THREE.Box3().setFromObject(face); box.getCenter(faceCenter); faceSize = box.getSize(new THREE.Vector3()).length();
+
+const ease = x => x * x * (3 - 2 * x);
+window.draw = (t) => {
+  if (t < 4) {
+    // SHOT 1: he walks from left to right; camera trails him and slowly pushes in
+    const k = t / 4, x = -3 + t * 1.15;
+    walker.position.set(x, 0, .3);
+    mixer1.setTime(t);
+    sea.material.uniforms.t.value = t;
+    cam.fov = 32 - ease(k) * 6; cam.updateProjectionMatrix();
+    cam.position.set(x - 1.2 + ease(k) * .6, 1.35, 7.5 - ease(k) * 1.5);
+    cam.lookAt(x + .3, 1.0, -2);
+    renderer.render(world, cam);
+  } else {
+    // SHOT 2: close-up; slow push-in while the face performs
+    const k = (t - 4) / 4;
+    mixer2.setTime(1.5 + (t - 4));
+    cam.fov = 26 - ease(k) * 4; cam.updateProjectionMatrix();
+    const d = faceSize * 2.1 - ease(k) * faceSize * .35;
+    cam.position.set(faceCenter.x + d * .35, faceCenter.y + faceSize * .02, faceCenter.z + d);
+    cam.lookAt(faceCenter.x, faceCenter.y + faceSize * .02, faceCenter.z);
+    renderer.render(faceScene, cam);
+  }
+};
+window.draw(+location.hash.slice(1) || 0);
+await document.fonts.ready;
+window.ready = true;
+</script></body></html>

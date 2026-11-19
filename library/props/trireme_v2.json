@@ -1,0 +1,22 @@
+{
+  "name": "trireme_v2",
+  "version": 1,
+  "era": "greece_480bc",
+  "kind": "code",
+  "builder": "props.trireme_v2(loc, heading_deg, oars='row'|'rest'|None, stroke_frames=34, sail='set'|None, crew='markers'|'proxies', speed_mps, bob, phoenician)",
+  "contents": "170 pivoted oars with a looping 4-phase stroke (~42/min), steering oars, square brailed linen sail, crew markers (helmsman, keleustes, bow officer, piper, 14/30 marines, 4 archers, deckhands, 170 rower seats), low-poly crew proxies for wide shots, forward motion + swell",
+  "design_source": "Olympias trials (Morrison, Coates & Rankov); Xenophon Hell. 6.2.27 (sails left ashore before battle); Thucydides/Herodotus crew numbers",
+  "licence": "our own code",
+  "self_rating": {
+    "shape": 7,
+    "surface": 5,
+    "era": 8,
+    "notes": "stroke verified catch (f1) vs finish (f16), loops exactly; look 100; SAIL not yet seen in a render (fleet_v2 stopped: low memory); crew proxies = far shots only; building is slow (~100-150 s, old trireme() makes 340 objects)"
+  },
+  "owner_rating": null,
+  "renders": [
+    "spike/lib_stills/ws7/oars_f1_v1.png",
+    "spike/lib_stills/ws7/oars_f16_v1.png",
+    "spike/lib_stills/ws7/fleet_v1.png"
+  ]
+}
