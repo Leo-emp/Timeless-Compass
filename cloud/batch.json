@@ -1,8 +1,7 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "d-verify-13",
+  "batch": "d-verify-14",
   "run": [
-    "d_crowd_villager",
-    "d_dress_village"
+    "d_traveller"
   ]
 }
