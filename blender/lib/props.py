@@ -3550,7 +3550,7 @@ def place_persian_flagship(loc=(0, 0, 0), heading_deg=0.0, frames=(1, 240), seed
             trireme_v3(tuple(p_), rnd.uniform(0, 360), oars=None, crew=None, phoenician=True, bob=False,
                              seed=seed + 50 + i, name=f'{name}_fleet{i}')
         l = bpy.data.lights.new(f'{name}_far_lantern', 'POINT'); l.energy = rnd.uniform(400, 1200)
-        l.color = (1.0, 0.62, 0.3); l.shadow_soft_size = 0.2
+        l.color = (1.0, 0.78, 0.58); l.shadow_soft_size = 0.2      # lantern light, warm but not orange paint
         o = link(bpy.data.objects.new(f'{name}_far_lantern', l)); o.location = (p_.x, p_.y, rnd.uniform(3.0, 6.0))
         bpy.ops.mesh.primitive_uv_sphere_add(segments=8, ring_count=6, radius=0.35, location=o.location)   # visible far off
         bpy.context.object.data.materials.append(flame_glow('far_lantern_glow', strength=40.0))
