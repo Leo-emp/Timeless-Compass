@@ -114,3 +114,81 @@ def test_working_people_of_480bc_have_their_own_roles_and_clothes():
         assert p["wardrobe"] in ("greek_civilian_480bc", "greek_woman_480bc")
     assert crowd.person(5, "trader", "persia_480bc")["wardrobe"] == "persian_court_480bc"
     assert crowd.person(6, "farmer", "persia_480bc")["wardrobe"] == "persian_servant_480bc"
+
+
+# ---- WS17 modern era (Session F): Manhattan Project 1945, Cold War USA 1960, USSR 1960 -------------------------
+MODERN_ROLES = ("scientist", "general", "soldier", "agent", "secretary", "test_subject", "journalist", "worker")
+
+
+def test_new_modern_eras_have_every_secret_project_role():
+    for era in ("usa_1945", "usa_1960", "ussr_1960"):
+        for role in MODERN_ROLES:
+            p = crowd.person(1, role, era)
+            assert p["era"] == era and p["mpfb_clothes"], (era, role)   # dressed in MakeHuman's modern clothes
+            assert p["wardrobe"] is None                               # never the ancient wardrobe
+
+
+def test_modern_men_are_clean_shaven_with_short_hair():
+    for era in ("usa_1945", "usa_1960", "ussr_1960"):
+        ppl = [crowd.person(s, r, era) for s in range(10) for r in ("scientist", "soldier", "agent")]
+        men = [p for p in ppl if p["macro"]["gender"] > 0.5]       # women scientists too (Leona Woods, 1942 pile)
+        assert sum(1 for p in men if p.get("beard")) <= 3, era
+        assert all(p["hair"]["length"] <= 0.02 for p in men), era   # short back-and-sides / crew cuts
+
+
+def test_scientists_and_doctors_wear_lab_coats_and_test_subjects_hospital_gowns():
+    sci = [crowd.person(s, "scientist", "usa_1945") for s in range(20)]
+    assert sum(1 for p in sci if "lab_coat" in p["overlays"]) >= 10   # most, not all (some in a suit at a desk)
+    doc = [crowd.person(s, "doctor", "usa_1960") for s in range(8)]
+    assert all("lab_coat" in p["overlays"] for p in doc)
+    sub = [crowd.person(s, "test_subject", "usa_1960") for s in range(8)]
+    assert all("hospital_gown" in p["overlays"] for p in sub)
+
+
+def test_soldiers_wear_their_armys_uniform_and_cap():
+    us = crowd.person(2, "soldier", "usa_1945"); su = crowd.person(2, "soldier", "ussr_1960")
+    assert any(o.startswith("cap_") for o in us["overlays"]) and any(o.startswith("cap_") for o in su["overlays"])
+    assert us["overlays"] != su["overlays"] or us["mpfb_clothes"] != su["mpfb_clothes"]
+    gen = crowd.person(4, "general", "usa_1945")
+    assert "cap_peaked" in gen["overlays"]
+
+
+def test_more_men_wear_hats_in_1945_than_in_1960():
+    def hats(era):
+        ps = [crowd.person(s, r, era) for s in range(30) for r in ("agent", "journalist")]
+        return sum(1 for p in ps for c in p["mpfb_clothes"] if c[0].startswith("fedora"))
+    assert hats("usa_1945") > hats("usa_1960")
+
+
+def test_modern_extras_never_look_alike():
+    ppl = crowd.cast(8, "agent", "usa_1960", seed=5)
+    assert len(ppl) == 8
+    assert all(crowd.distance(a, b) >= crowd.MIN_DISTANCE for i, a in enumerate(ppl) for b in ppl[i + 1:])
+
+
+def test_old_1950s_eras_are_unchanged_by_the_new_ones():
+    p = crowd.person(3, "scientist", "usa_1950s")
+    assert p["mpfb_clothes"] and "overlays" not in p
+
+
+def test_modern_clothes_match_the_persons_sex_and_the_period():
+    for era in ("usa_1945", "usa_1960", "ussr_1960"):
+        for role in MODERN_ROLES + ("doctor", "nurse"):
+            for s in range(8):
+                p = crowd.person(s, role, era)
+                names = [c[0] for c in p["mpfb_clothes"]]
+                male = p["macro"]["gender"] > 0.5
+                assert all(not n.startswith("female_") for n in names) if male else \
+                    all(not n.startswith("male_") for n in names), (era, role, names)
+                assert not any(n in ("female_casualsuit02", "female_sportsuit01") for n in names)   # shorts / crop top
+    sol = crowd.person(1, "soldier", "usa_1945")
+    assert sol["mpfb_clothes"][0][0] == "male_casualsuit05"              # field jacket, not overalls
+
+
+def test_modern_adults_are_adults():
+    # MakeHuman age: 0.1875 = 11 y, 0.5 = 25 y (linear between), 1.0 = 90 y  ->  18 y ~ 0.344
+    for era in ("usa_1945", "usa_1960", "ussr_1960"):
+        for role in MODERN_ROLES + ("doctor", "nurse"):
+            ages = [crowd.person(s, role, era)["macro"]["age"] for s in range(20)]
+            assert min(ages) >= 0.36, (era, role, min(ages))
+    assert min(crowd.person(s, "general", "usa_1945")["macro"]["age"] for s in range(20)) >= 0.6   # 40+
