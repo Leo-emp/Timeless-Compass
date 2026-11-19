@@ -3451,7 +3451,7 @@ def place_trireme_rowing_hold(loc=(0, 0, 0), heading_deg=0.0, rowers=24, built=8
     for k in range(10):
         x = L * 0.25 + (L * 0.55) * k / 9
         for sgn in (-1, 1):
-            sp = bpy.data.lights.new(f'{name}_port_light', 'SPOT'); sp.energy = 260.0; sp.spot_size = math.radians(16)
+            sp = bpy.data.lights.new(f'{name}_port_light', 'SPOT'); sp.energy = 520.0; sp.spot_size = math.radians(18)
             sp.color = (1.0, 0.9, 0.75); sp.shadow_soft_size = 0.05
             o = link(bpy.data.objects.new(f'{name}_port_light', sp)); o.parent = ship
             o.location = (x, sgn * 2.4, 1.6); o.rotation_euler = (math.radians(-sgn * 65), 0, 0)
@@ -3461,7 +3461,7 @@ def place_trireme_rowing_hold(loc=(0, 0, 0), heading_deg=0.0, rowers=24, built=8
         sp.color = (1.0, 0.92, 0.8)
         o = link(bpy.data.objects.new(f'{name}_seam_light', sp)); o.parent = ship
         o.location = (x, rnd.uniform(-0.4, 0.4), 2.36); o.rotation_euler = (math.radians(rnd.uniform(-8, 8)), math.radians(rnd.uniform(-10, 10)), 0)
-    common_bounce = bpy.data.lights.new(f'{name}_gangway_bounce', 'AREA'); common_bounce.energy = 60.0; common_bounce.size = 6.0
+    common_bounce = bpy.data.lights.new(f'{name}_gangway_bounce', 'AREA'); common_bounce.energy = 220.0; common_bounce.size = 8.0
     common_bounce.color = (1.0, 0.82, 0.6)                 # sunlight bouncing off the gangway onto the rowers' faces
     ob_ = link(bpy.data.objects.new(f'{name}_gangway_bounce', common_bounce)); ob_.parent = ship
     ob_.location = (L * 0.55, 0, 1.0); ob_.rotation_euler = (math.pi, 0, 0)
@@ -3525,7 +3525,7 @@ def place_trireme_deck(loc=(0, 0, 0), heading_deg=0.0, frames=(1, 240), seed=0, 
     M = ship.matrix_world
     return {'root': ship, 'commander': M @ Vector((L * 0.16, 0.45, dz)), 'helmsman': M @ Vector((L * 0.11, 0, dz)),
             'hatch': M @ Vector((L * 0.42, 0, dz)), 'marines': [M @ Vector((L * 0.62 + k * 0.9, (-0.7 if k % 2 else 0.7), dz)) for k in range(8)],
-            'cam_low_deck': M @ Vector((L * 0.3, -0.7, dz + 0.45)), 'cam_low_target': M @ Vector((L * 0.16, 0.45, dz + 1.7)),
+            'cam_low_deck': M @ Vector((L * 0.32, -0.9, dz + 0.7)), 'cam_low_target': M @ Vector((L * 0.16, 0.4, dz + 1.25)),
             'cam_close': M @ Vector((L * 0.19, -0.3, dz + 1.6)), 'cam_close_target': M @ Vector((L * 0.16, 0.45, dz + 1.62))}
 
 

@@ -1,13 +1,8 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "b7-fixes",
+  "batch": "ws7-24",
   "run": [
-    "places",
-    "places2",
-    "aigaleos",
-    "card_leonidas",
-    "card_eurybiades",
-    "card_aristonice",
-    "card_ameinias"
+    "ws7_place_hold",
+    "ws7_place_deck"
   ]
 }
