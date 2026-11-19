@@ -2026,7 +2026,7 @@ def trireme_sail_mesh(name='tri4_sail', W=10.2, Ht=7.0, belly=1.45, folds=10):
     return me
 
 
-def trireme_sail_cloth(name='tri6_sail_cloth', W=10.2, Ht=7.0, frames=60, wind=300.0, res=(44, 32)):
+def trireme_sail_cloth(name='tri7_sail_cloth', W=10.2, Ht=7.0, frames=60, wind=700.0, res=(44, 32)):
     # wind 300 / 60 frames -> ~1.4 m belly on a 10 m sail (~14 %, a real square sail); 9 gave only 0.3 m (tested on CI)
     """The SET SAIL as REAL CLOTH: a Blender cloth simulation, run once and frozen (cached per Blender session).
       - pinned along the whole top edge (laced to the yard) and at the two bottom corners (the sheets);
@@ -2088,7 +2088,7 @@ def trireme_sail_cloth(name='tri6_sail_cloth', W=10.2, Ht=7.0, frames=60, wind=3
     for v in me.vertices:
         i, j = divmod(v.index, nv + 1)
         fu, fv = (i % cu) / cu, (j % cv) / cv
-        puff = 0.12 * math.sin(math.pi * fu) * math.sin(math.pi * fv)
+        puff = 0.2 * math.sin(math.pi * fu) * math.sin(math.pi * fv)
         n = v.normal if v.normal.x >= 0 else -v.normal               # always push forward (downwind side)
         v.co += n * puff
     me.update()
@@ -2945,6 +2945,255 @@ def dress_andron(loc=(0, 0, 0), heading_deg=0.0, lit=True, couches=3, seed=0, fr
         for j, dx in enumerate((-0.45, 0.35)):
             m = bpy.data.objects.new(f'{name}_guest_{i}{j}', None); link(m)
             m.parent = mk_; m.location = (dx, 0.05, 0.75); m['role'] = 'symposion_guest'; m.empty_display_size = 0.2
+    return _place(root, loc, heading_deg)
+
+
+# ------------------------------------------------------------------ RICH EXTERIORS (owner 2026-11-20: no plain backgrounds)
+# Every exterior kit fills its ground densely and in layers (front clutter / mid working area / back buildings) and
+# leaves 'worker' markers where the crowd system (WS2) puts people at work. Session D's market + tools pieces and
+# Session G's animals are reused read-only.
+def amphora_rack(loc=(0, 0, 0), heading_deg=0.0, rows=2, per_row=8, seed=0, name='amphora_rack'):
+    """Transport amphorae stacked the way they were stored and shipped: leaning in rows against a wooden rail, the
+    second row resting in the gaps of the first (harbour warehouses, wreck cargoes)."""
+    rnd = _random.Random(seed)
+    root = _root(name)
+    w = old_wood(f'{name}_wood', (0.24, 0.16, 0.09))
+    _box(f'{name}_rail', (0, 0.25, 0.55), (per_row * 0.34 + 0.2, 0.08, 0.08), w, parent=root)
+    for sx in (-1, 1):
+        _box(f'{name}_post', (sx * (per_row * 0.17 + 0.05), 0.25, 0.3), (0.08, 0.08, 0.6), w, parent=root)
+    for r in range(rows):
+        for k in range(per_row - r):
+            x = (k - (per_row - r - 1) / 2) * 0.34
+            a = amphora((0, 0, 0), height=rnd.uniform(0.66, 0.74), seed=seed * 100 + r * 20 + k, name=f'{name}_jar{r}{k}')
+            a.parent = root; a.location = (x, 0.05 - r * 0.32, 0.02 + r * 0.18)
+            a.rotation_euler = (math.radians(-22 - 6 * r), rnd.uniform(-0.05, 0.05), rnd.uniform(0, 6.28))   # lean on the rail
+    return _place(root, loc, heading_deg)
+
+
+def bollard(loc=(0, 0, 0), heading_deg=0.0, name='bollard'):
+    """Stone mooring post on the quay edge, with a rope worn into it."""
+    root = _root(name)
+    st = bpy.data.materials.get('anchor_stone') or principled('anchor_stone', (0.30, 0.28, 0.25), rough=0.95, bump=0.6, bump_scale=25)
+    _cyl(f'{name}_post', (0, 0, 0.35), 0.16, 0.7, st, verts=12, parent=root, r2=0.13)
+    bpy.ops.mesh.primitive_torus_add(major_radius=0.16, minor_radius=0.025, location=(0, 0, 0.5))
+    t = bpy.context.object; t.name = f'{name}_rope'; t.data.materials.append(rope_fibre()); t.parent = root
+    return _place(root, loc, heading_deg)
+
+
+def gangplank(loc=(0, 0, 0), heading_deg=0.0, length=3.0, rise=1.2, name='gangplank'):
+    """The boarding ladder / plank (apobathra) from the quay up to a ship's stern: a plank with cleats."""
+    root = _root(name)
+    w = old_wood(f'{name}_wood', (0.27, 0.18, 0.1))
+    ang = math.atan2(rise, length)
+    pl = _box(f'{name}_plank', (length / 2, 0, rise / 2), (math.hypot(length, rise), 0.45, 0.05), w, parent=root)
+    pl.rotation_euler.y = -ang
+    for k in range(7):
+        t = (k + 0.5) / 7
+        c = _box(f'{name}_cleat', (t * length, 0, t * rise + 0.04), (0.04, 0.42, 0.03), w, parent=root)
+        c.rotation_euler.y = -ang
+    return _place(root, loc, heading_deg)
+
+
+def dress_harbour(loc=(0, 0, 0), heading_deg=0.0, length=40.0, ships=2, seed=0, name='harbour'):
+    """A RICH harbour front (Piraeus / Phaleron, c. 480 BC) in one call, laid out along +X with the water on -Y:
+      - water: triremes moored STERN-TO the quay (Greek warships were moored and beached stern-first), gangplanks,
+        fishing boats tied up between them
+      - quay edge: stone bollards, rope coils, stone anchors, nets drying on poles
+      - working strip: amphora racks, sacks, wool bales, baskets of fish, carts, stalls (Session D's market pieces)
+      - back: workshop sheds and a stoa closing the view (no empty horizon behind the action)
+      - 'worker' markers (porters, fishermen, sailors) for the crowd system.
+    loc = the quay edge centre at quay height; the quay itself (wall/ground) comes from the set (WS6) or sets.stone_wall."""
+    from lib import market, tools
+    rnd = _random.Random(seed)
+    root = _root(name)
+    L = length
+    # back buildings
+    _put(market.stoa((0, 0, 0), 0, columns=10, spacing=3.2, name=f'{name}_stoa'), root, (-L * 0.15, 15.0, 0), 180)
+    for k, x in enumerate((L * 0.22, L * 0.38)):
+        _put(market.workshop_shed((0, 0, 0), 0, w=6.5, d=4.0, h=3.0, name=f'{name}_shed{k}'), root, (x, 12.0, 0), 180)
+    # working strip
+    for k, x in enumerate(range(int(-L / 2) + 3, int(L / 2) - 3, 7)):
+        kind = k % 5
+        if kind == 0:
+            _put(amphora_rack((0, 0, 0), 0, rows=2, per_row=rnd.randint(6, 9), seed=seed + k, name=f'{name}_rack{k}'), root,
+                 (x, rnd.uniform(5.5, 7.5), 0), rnd.uniform(-8, 8))
+        elif kind == 1:
+            for j in range(rnd.randint(4, 8)):
+                market.grain_sack((x + rnd.uniform(-1.2, 1.2), rnd.uniform(4.0, 6.0), 0), h=rnd.uniform(0.45, 0.6),
+                                  parent=root, seed=seed + k * 10 + j, name=f'{name}_sack{k}{j}')
+        elif kind == 2:
+            _put(tools.cart((0, 0, 0), 0, load=rnd.choice(('amphorae', 'sacks')), seed=seed + k, name=f'{name}_cart{k}'), root,
+                 (x, rnd.uniform(5.0, 7.0), 0), rnd.uniform(60, 120))
+        elif kind == 3:
+            _put(market.stall((0, 0, 0), 0, trade='fish', seed=seed + k, name=f'{name}_stall{k}'), root, (x, 7.5, 0), 180)
+        else:
+            for j in range(3):
+                market.wool_bale((x + j * 0.8 - 0.8, rnd.uniform(5.0, 6.5), 0), parent=root, seed=seed + k + j, name=f'{name}_bale{k}{j}')
+        if rnd.random() < 0.6:                            # baskets everywhere people work
+            _put(basket((0, 0, 0), 0, kind='carry', fill=(0.55, 0.58, 0.6) if rnd.random() < 0.5 else None,
+                        name=f'{name}_basket{k}'), root, (x + rnd.uniform(1.5, 2.5), rnd.uniform(2.5, 4.0), 0))
+    # quay edge
+    for k, x in enumerate(range(int(-L / 2) + 2, int(L / 2) - 1, 4)):
+        _put(bollard((0, 0, 0), 0, name=f'{name}_bollard{k}'), root, (x, 0.5, 0))
+        if k % 2 == 0:
+            _put(rope_coil((0, 0, 0), 0, radius=rnd.uniform(0.22, 0.34), strands=False, name=f'{name}_rope{k}'), root,
+                 (x + 1.3, 1.1, 0), rnd.uniform(0, 360))
+        if k % 3 == 1:
+            _put(stone_anchor((0, 0, 0), 0, name=f'{name}_anchor{k}'), root, (x + 1.6, 1.6, 0), rnd.uniform(0, 360))
+    for k, x in enumerate((-L * 0.35, L * 0.3)):
+        _put(market.net((0, 0, 0), size=(3.2, 1.7), name=f'{name}_net{k}'), root, (x, 2.6, 0), rnd.uniform(-5, 5))
+    # water: triremes moored stern-to, with gangplanks; fishing boats between them
+    for k in range(ships):
+        x = -L * 0.3 + k * (L * 0.6 / max(ships - 1, 1))
+        sh = trireme_v3((0, 0, 0), 0, oars='rest', crew='proxies', bob=True, seed=seed + k, name=f'{name}_ship{k}')
+        sh.parent = root; sh.location = (x, -1.2, -1.0); sh.rotation_euler.z = math.radians(-90)   # stern at the quay
+        _put(gangplank((0, 0, 0), 0, length=2.2, rise=0.9, name=f'{name}_plank{k}'), root, (x, -1.0, -0.15), -90)
+    for k in range(ships + 1):
+        x = -L * 0.45 + k * (L * 0.9 / max(ships, 1))
+        _put(fishing_boat((0, 0, 0), 0, oars='in', seed=seed + 20 + k, name=f'{name}_boat{k}'), root, (x, -2.0, -1.0),
+             rnd.choice((-90, 90)) + rnd.uniform(-10, 10))
+    # people at work (crowd fills these)
+    for k in range(18):
+        m = bpy.data.objects.new(f'{name}_worker{k:02d}', None); link(m); m.parent = root
+        m.location = (rnd.uniform(-L / 2 + 2, L / 2 - 2), rnd.uniform(1.0, 8.0), 0)
+        m['role'] = rnd.choice(('porter', 'porter', 'fisherman', 'sailor', 'merchant', 'boy')); m.empty_display_size = 0.3
+    return _place(root, loc, heading_deg)
+
+
+def cauldron_fire(loc=(0, 0, 0), heading_deg=0.0, lit=True, frames=(1, 240), seed=0, name='campfire'):
+    """Camp cooking fire: a ring of stones, burning logs, a bronze cauldron hung from an iron tripod."""
+    rnd = _random.Random(seed)
+    root = _root(name)
+    st = bpy.data.materials.get('anchor_stone') or principled('anchor_stone', (0.30, 0.28, 0.25), rough=0.95, bump=0.6, bump_scale=25)
+    for k in range(11):
+        a = 2 * math.pi * k / 11
+        bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1, radius=rnd.uniform(0.08, 0.13), location=(0.45 * math.cos(a), 0.45 * math.sin(a), 0.05))
+        o = bpy.context.object; o.name = f'{name}_stone'; o.scale = (1.2, 1.0, 0.7); o.data.materials.append(st); o.parent = root
+    logw = old_wood('log_wood', (0.18, 0.12, 0.07))
+    for k in range(5):
+        a = 2 * math.pi * k / 5 + rnd.uniform(-0.2, 0.2)
+        _tube(f'{name}_log', [(0.32 * math.cos(a), 0.32 * math.sin(a), 0.05), (0.0, 0.0, 0.18)], 0.04, logw, root, poly=True)
+    iron = principled('camp_iron', (0.08, 0.07, 0.065), metal=0.8, rough=0.6)
+    for k in range(3):
+        a = 2 * math.pi * k / 3
+        _tube(f'{name}_tripod', [(0.65 * math.cos(a), 0.65 * math.sin(a), 0.0), (0, 0, 1.25)], 0.015, iron, root, poly=True)
+    _tube(f'{name}_chain', [(0, 0, 1.25), (0, 0, 0.78)], 0.006, iron, root, poly=True)
+    _lathe(f'{name}_cauldron', [(0.45, 0.0), (0.46, 0.14), (0.55, 0.22), (0.68, 0.25), (0.72, 0.23)],
+           bpy.data.materials.get('bronze') or aged_bronze('bronze'), seg=32, parent=root, thick=0.006, smooth=1)
+    if lit:
+        flame_tongues(root, (0, 0, 0.1), height=0.55, width=0.45, n=6, frames=frames, seed=seed, name=f'{name}_fire', strength=3.5)
+        _flicker_light((0, 0, 0.5), 400.0, root, f'{name}_light', frames, seed, radius=0.3, color=(1.0, 0.6, 0.32))
+    return _place(root, loc, heading_deg)
+
+
+def spear_stack(loc=(0, 0, 0), heading_deg=0.0, n=9, name='spear_stack'):
+    """Spears stood together in a cone, points up, butts on the ground (an army camp at rest)."""
+    root = _root(name)
+    shaft = old_wood('spear_shaft', (0.3, 0.2, 0.11), grain=5)
+    br = bpy.data.materials.get('bronze') or aged_bronze('bronze')
+    for k in range(n):
+        a = 2 * math.pi * k / n
+        base = Vector((0.5 * math.cos(a), 0.5 * math.sin(a), 0)); top = Vector((0.04 * math.cos(a), 0.04 * math.sin(a), 2.3))
+        _tube(f'{name}_shaft', [tuple(base), tuple(top)], 0.016, shaft, root, poly=True, res=2)
+        d = (top - base).normalized()
+        _cyl(f'{name}_head', tuple(top + d * 0.14), 0.024, 0.28, br, rot=d.to_track_quat('Z', 'Y').to_euler(), verts=6, parent=root, r2=0.002)
+    return _place(root, loc, heading_deg)
+
+
+def dress_persian_camp(loc=(0, 0, 0), heading_deg=0.0, size=(40.0, 28.0), seed=0, frames=(1, 240), name='persian_camp'):
+    """A RICH Persian army camp (Xerxes' host, 480 BC): the king's pavilion on a carpet at the head of the camp, rows of
+    tents, standards, cooking fires with cauldrons, stacked spears, baggage (chests, sacks, amphorae), a camel line
+    (Herodotus 7.86: Arabian camel riders in the army) and tethered horses in saddle cloths. 'soldier' markers for
+    the crowd. Built on the ground plane at loc."""
+    from lib import market, animals
+    rnd = _random.Random(seed)
+    root = _root(name)
+    W_, D_ = size
+    _put(carpet((0, 0, 0), 0, size=(6.0, 5.0), name=f'{name}_royal_carpet'), root, (0, D_ / 2 - 4, 0))
+    _put(pavilion((0, 0, 0), w=6.0, d=5.0, h=3.6, name=f'{name}_king'), root, (0, D_ / 2 - 4, 0))
+    for x in (-3.8, 3.8):
+        _put(banner((0, 0, 0), color=(0.5, 0.08, 0.06), height=5.0, name=f'{name}_standard'), root, (x, D_ / 2 - 6.5, 0))
+        _put(incense_burner((0, 0, 0), 0, smoke=False, name=f'{name}_incense'), root, (x * 0.55, D_ / 2 - 7, 0))
+    cols = [(0.55, 0.47, 0.36), (0.48, 0.40, 0.30), (0.42, 0.33, 0.24), (0.36, 0.22, 0.14)]
+    k = 0
+    for row in range(3):                                 # tent rows down both sides of the camp street
+        for i in range(6):
+            for sgn in (-1, 1):
+                x = sgn * (5.5 + row * 5.0 + rnd.uniform(-0.6, 0.6)); y = D_ / 2 - 10 - i * 4.2 + rnd.uniform(-0.6, 0.6)
+                _put(tent((0, 0, 0), r=rnd.uniform(1.8, 2.4), h=rnd.uniform(2.3, 2.9), color=rnd.choice(cols), name=f'{name}_tent{k}'),
+                     root, (x, y, 0), rnd.uniform(0, 360))
+                k += 1
+                if rnd.random() < 0.45:                  # baggage in front of the tents
+                    j = rnd.random()
+                    if j < 0.35:
+                        _put(chest((0, 0, 0), 0, size=(0.8, 0.45, 0.42), paint=(0.25, 0.08, 0.05), name=f'{name}_chest{k}'), root,
+                             (x - sgn * 2.6, y, 0), rnd.uniform(0, 360))
+                    elif j < 0.7:
+                        market.grain_sack((x - sgn * 2.6, y + rnd.uniform(-0.6, 0.6), 0), parent=root, seed=seed + k, name=f'{name}_sack{k}')
+                    else:
+                        _put(amphora_stand((0, 0, 0), 0, name=f'{name}_wine{k}'), root, (x - sgn * 2.5, y, 0))
+    for i in range(4):                                   # cooking fires along the camp street, spears stacked nearby
+        y = D_ / 2 - 12 - i * 6.0
+        _put(cauldron_fire((0, 0, 0), 0, frames=frames, seed=seed + i, name=f'{name}_fire{i}'), root, (rnd.uniform(-1.5, 1.5), y, 0))
+        _put(spear_stack((0, 0, 0), 0, n=rnd.randint(7, 11), name=f'{name}_spears{i}'), root, (rnd.choice((-3.0, 3.0)), y + 2.0, 0))
+    for i in range(3):                                   # camel line at the back
+        try:
+            c = animals.load('camel', (0, 0, 0), heading_deg=90, name=f'{name}_camel{i}')
+            _put(c, root, (-W_ / 2 + 4 + i * 2.6, -D_ / 2 + 3, 0), 90)
+        except Exception as ex:                           # the camel scan may be missing on cloud machines
+            print('WARNING persian camp: no camel', ex)
+    for i in range(2):                                   # tethered horses with Persian saddle cloths
+        try:
+            from lib import scans_glb
+            h = scans_glb.load_glb('horse_akhalteke', loc=(W_ / 2 - 5 - i * 2.4, -D_ / 2 + 4, 0), rot_z_deg=0)
+            if h.type == 'EMPTY' and scans_glb.rig_of(h) is not None:
+                scans_glb.play(h, 'Chewing', frame_start=1 + i * 30)
+                horse_tack(h, cloth='persian')
+            h.parent = root
+        except Exception as ex:
+            print('WARNING persian camp: no horse', ex)
+    for i in range(30):
+        m = bpy.data.objects.new(f'{name}_soldier{i:02d}', None); link(m); m.parent = root
+        m.location = (rnd.uniform(-W_ / 2 + 2, W_ / 2 - 2), rnd.uniform(-D_ / 2 + 2, D_ / 2 - 8), 0)
+        m['role'] = rnd.choice(('immortal', 'archer', 'cook', 'groom', 'servant', 'scribe')); m.empty_display_size = 0.3
+    return _place(root, loc, heading_deg)
+
+
+def dress_beach_camp(loc=(0, 0, 0), heading_deg=0.0, ships=4, seed=0, frames=(1, 240), name='beach_camp'):
+    """The Greek fleet's beach on Salamis the night before the battle: triremes hauled up STERN-FIRST on the sand
+    (bows to the sea, ready to launch), boarding ladders at the sterns, MAIN SAILS AND MASTS LEFT ASHORE in piles
+    (warships fought without them; Xenophon Hell. 6.2.27), oar racks, sailcloth shelters, campfires, water jars.
+    Sea on -Y; loc = the waterline centre. 'sailor' / 'hoplite' markers for the crowd."""
+    rnd = _random.Random(seed)
+    root = _root(name)
+    for k in range(ships):
+        x = (k - (ships - 1) / 2) * 9.0
+        sh = trireme_v3((0, 0, 0), 0, oars=None, crew=None, bob=False, seed=seed + k, name=f'{name}_ship{k}')
+        sh.parent = root
+        sh.location = (x, 16.0, 0.75); sh.rotation_euler = (0, math.radians(-3), math.radians(-90))   # stern up the beach
+        _put(gangplank((0, 0, 0), 0, length=2.2, rise=1.9, name=f'{name}_ladder{k}'), root, (x, 17.8, 0), 90)
+    sail = wool('ashore_sail', (0.72, 0.64, 0.5), tile=0.8)
+    for k in range(ships):                               # sails folded in big bundles + masts laid on trestles ashore
+        x = (k - (ships - 1) / 2) * 9.0 + 3.5
+        b = _box(f'{name}_sailbundle{k}', (x, 22.5, 0.35), (3.4, 1.1, 0.7), sail, bevel=0.25, parent=root)
+        b.modifiers['bevel'].segments = 4
+        _cyl(f'{name}_mast{k}', (x, 24.0, 0.25), 0.15, 9.0, old_wood('mast_wood', (0.3, 0.2, 0.11)), rot=(0, math.radians(90), 0), verts=12, parent=root)
+        for j in range(2):
+            _put(trapeza((0, 0, 0), 0, name=f'{name}_trestle{k}{j}'), root, (x - 2.5 + j * 5.0, 24.0, -0.27), 0)
+    for k in range(ships):                               # oar racks
+        x = (k - (ships - 1) / 2) * 9.0 - 3.0
+        for j in range(12):
+            _tube(f'{name}_oar{k}{j}', [(x - 0.6 + j * 0.1, 21.0, 0.0), (x - 0.4 + j * 0.1, 21.6, 3.6)], 0.04,
+                  old_wood('tri3_oarwood', (0.40, 0.29, 0.17)), root, poly=True)
+    for k in range(ships + 2):                           # sailcloth shelters, campfires, water jars
+        x = (k - (ships + 1) / 2) * 7.0
+        _put(tent((0, 0, 0), r=1.9, h=2.0, color=(0.6, 0.53, 0.42), name=f'{name}_shelter{k}'), root, (x, 30.0 + rnd.uniform(-1, 1), 0))
+        _put(cauldron_fire((0, 0, 0), 0, frames=frames, seed=seed + k, name=f'{name}_fire{k}'), root, (x + 2.5, 27.0, 0))
+        _put(amphora_stand((0, 0, 0), 0, name=f'{name}_water{k}'), root, (x - 2.0, 28.0, 0))
+    for i in range(36):
+        m = bpy.data.objects.new(f'{name}_man{i:02d}', None); link(m); m.parent = root
+        m.location = (rnd.uniform(-ships * 4.5, ships * 4.5), rnd.uniform(18.0, 32.0), 0)
+        m['role'] = rnd.choice(('sailor', 'rower', 'hoplite', 'archer', 'cook')); m.empty_display_size = 0.3
     return _place(root, loc, heading_deg)
 
 
