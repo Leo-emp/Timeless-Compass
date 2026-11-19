@@ -7,8 +7,13 @@
   "contents": "boats pulled up on the beach (props.fishing_boat), nets drying on poles (wireframe cord), fish baskets, split-fish drying rack",
   "design_source": "Attic vases with fishermen",
   "licence": "our own code (Blender); scanned textures/models CC0 Poly Haven + main session's CC0/CC-BY scans (see library/scans/<id>/asset.json)",
-  "self_rating": null,
+  "self_rating": {
+    "overall": 6,
+    "notes": "boats drawn up, island across the strait, rocky shore; sand tint brightened"
+  },
   "owner_rating": null,
-  "status": "written, first render pending",
-  "renders": []
+  "status": "rendered + reviewed (Session D, overnight 2026-11-20)",
+  "renders": [
+    "spike/lib_stills/cloud_d6/d_dress_beach/beach_dressed.png"
+  ]
 }

@@ -7,8 +7,13 @@
   "contents": "camel caravan (main session's camel scan) with saddle cloths, slung bales/sacks/amphorae, lead ropes",
   "design_source": "Herodotus 5.52-54 (Royal Road), 7.86-87 (Arabian camel corps)",
   "licence": "our own code (Blender); scanned textures/models CC0 Poly Haven + main session's CC0/CC-BY scans (see library/scans/<id>/asset.json)",
-  "self_rating": null,
+  "self_rating": {
+    "overall": 3,
+    "notes": "loads, saddle cloths, ropes, trader work; camels now via Session G animals.py (re-render pending)"
+  },
   "owner_rating": null,
-  "status": "written, first render pending",
-  "renders": []
+  "status": "rendered + reviewed (Session D, overnight 2026-11-20)",
+  "renders": [
+    "spike/lib_stills/ws16/caravan_v2.png"
+  ]
 }

@@ -7,8 +7,13 @@
   "contents": "ard plough + yoke, ox team (cow scan), cart with cross-bar wheels, sickle, mattock, winnowing shovel, pruning hook, crook, trident, rod, fish trap, carrying pole; hold() into a hand",
   "design_source": "Hesiod WD 427-436 (the ard); Attic vases (carts, tools, herdsmen)",
   "licence": "our own code (Blender); scanned textures/models CC0 Poly Haven + main session's CC0/CC-BY scans (see library/scans/<id>/asset.json)",
-  "self_rating": null,
+  "self_rating": {
+    "overall": 5,
+    "notes": "cart with cross-bar wheels; ox team via animals.py on the laptop render"
+  },
   "owner_rating": null,
-  "status": "written, first render pending",
-  "renders": []
+  "status": "rendered + reviewed (Session D, overnight 2026-11-20)",
+  "renders": [
+    "spike/lib_stills/cloud_d6/d_country_floor/country_floor.png"
+  ]
 }

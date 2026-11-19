@@ -34,13 +34,14 @@
   "replaces": "v1: Greek chiton + himation in purple + paper-bucket crown (xerxes_test.py)",
   "licence": "our own code (Blender cloth simulation); scanned fabrics CC0 Poly Haven (rough_linen, caban, hessian_230); MakeHuman body CC0",
   "self_rating": {
-    "shape": 7,
+    "shape": 8,
     "surface": 7,
     "era": 8,
-    "notes": "v2 (scene xerxes_v2.py): tall upright tiara with gold rosette band, pleated robe with side-hitched hem, wide sleeves hanging from the raised forearms with gold borders, gold belt, crimson trousers hidden underneath (look 100). Still: beard should be squared with rows of curls (WS1), no sceptre/lotus props yet (WS7), pleats could be deeper."
+    "notes": "candys works in ANY pose: wide sleeves from raised forearms (audience) or bell sleeves (arms hanging), robe passes over hanging arms, closed neckline, upright tiara with rosettes (main session's finer fluting kept). Beard style = WS1."
   },
   "owner_rating": null,
   "renders": [
-    "spike/lib_stills/ws3/xerxes_king_v3.png"
+    "spike/lib_stills/cloud_d6/d_king_audience/king_audience.png",
+    "spike/lib_stills/cloud_d6/d_king_hanging/king_arms_hanging.png"
   ]
 }

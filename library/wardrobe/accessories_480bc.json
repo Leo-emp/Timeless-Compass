@@ -15,16 +15,14 @@
   "scene": "blender/scenes/ws3_wardrobe.py (woman_pins, priestess, priest)",
   "licence": "our own code (Blender cloth simulation); scanned fabrics CC0 Poly Haven (rough_linen, caban, hessian_230); MakeHuman body CC0",
   "self_rating": {
-    "shape": 6,
-    "surface": 6,
+    "shape": 7,
+    "surface": 7,
     "era": 8,
-    "notes": "belts, sandals, earrings, necklace, fillet, stephane, gold rosette band render; dress pins exist but read poorly at full-shot distance; fibula coded, not yet rendered."
+    "notes": "fine diadem (4.5 mm band, granulated edge), earrings, bead necklace, sandals, perone + fibula pins, cord/strap belts, hydria on a head pad, purse, tools of the trade in hand."
   },
   "owner_rating": null,
   "renders": [
-    "spike/lib_stills/ws3/woman_pins_v2.png",
-    "spike/lib_stills/ws3/priest_v1.png",
-    "spike/lib_stills/ws3/priestess_v2.png",
-    "spike/lib_stills/ws3/xerxes_king_v3.png"
+    "spike/lib_stills/cloud_d6/d_diadem_head/diadem_head.png",
+    "spike/lib_stills/cloud_d4/d_crowd_villager/crowd_villager.png"
   ]
 }

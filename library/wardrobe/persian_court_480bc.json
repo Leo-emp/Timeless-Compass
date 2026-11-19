@@ -32,13 +32,14 @@
   "scene": "blender/scenes/xerxes_v2.py median",
   "licence": "our own code (Blender cloth simulation); scanned fabrics CC0 Poly Haven (rough_linen, caban, hessian_230); MakeHuman body CC0",
   "self_rating": {
-    "shape": 6,
+    "shape": 7,
     "surface": 6,
-    "era": 7,
-    "notes": "rounded felt cap with flaps, ochre sleeved tunic with woad hem, belt (look 83+). Trousers: simulated tubes collapsed into rings (thin body slices) -> now a fitted folded mesh, loose and gathered at the ankle; top still shows a little at the left hip."
+    "era": 8,
+    "notes": "soft felt cap with one continuous ear/neck flap (no helmet lip), closed round neckline, tight sleeves, gathered trousers (fitted mesh). Cap still sits a little high."
   },
   "owner_rating": null,
   "renders": [
-    "spike/lib_stills/ws3/median_v5.png"
+    "spike/lib_stills/cloud_d6/d_median_full/median_full.png",
+    "spike/lib_stills/cloud_d6/d_median_cap/median_head.png"
   ]
 }
