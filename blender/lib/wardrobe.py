@@ -682,12 +682,14 @@ def peplos(human, rig, pos, material, overfold=None, belt_over=True, frames=45, 
     ofl = overfold if overfold is not None else (M['shoulder_z'] - M['waist_z']) + 0.13
     R2, Y2 = rx + 0.012, ry + 0.012
     def over_skirt(a, z, t):
-        return ((wrx + 0.03 + 0.03 * t) * math.cos(a), cy + (wry + 0.03 + 0.03 * t) * math.sin(a))
+        # below the belt the overfold falls nearly STRAIGHT (a hem wider than the belt was held out flat by the
+        # pinned belt ring: a stiff horizontal flare, d-verify-7/8 stills)
+        return ((wrx + 0.022 + 0.012 * t) * math.cos(a), cy + (wry + 0.022 + 0.012 * t) * math.sin(a))
     over = _column_tube('peplos_overfold', seg, _seam_top(pos, M, R2, Y2, top_z, pinned, neck_w=0.12,
                                                           seam_lo=0.42 * s, lift=0.01),
                         M['waist_z'], lambda a: top_z - ofl, ring(R2, Y2), over_skirt,
                         belt(0.03) if belt_over else None, ring_h, material, slit_z=armpit_z)
-    cm = _cloth(over, 'pin', mass=0.32, tension=14, bending=0.08)    # heavier, softer: droops beside the arms
+    cm = _cloth(over, 'pin', mass=0.32, tension=12, bending=0.04)    # heavier, softer: droops beside the arms
     cm.settings.quality = 10; cm.collision_settings.distance_min = 0.006; cm.collision_settings.collision_quality = 4
     cm.settings.air_damping = 0.8
     _finish(over, 0.003)
@@ -1826,7 +1828,7 @@ def ornament_for(rank, seed, wardrobe=''):
 
 
 # ------------------------------------------------------------------ more Greek garments + hats
-def chlamys(human, rig, material, length=0.85, frames=90, seg=112, ring_h=0.016, sim=True):
+def chlamys(human, rig, material, length=0.78, frames=90, seg=112, ring_h=0.016, sim=True):
     """The CHLAMYS: a short wool cloak, a rectangle fastened with a brooch on the RIGHT shoulder, covering the left
     arm and the back and hanging open down the right side (travellers, riders, hunters, heralds, ephebes; Hermes
     and the Parthenon frieze horsemen, Attic vases). Built as a cape around the shoulders whose top edge lies on
@@ -1865,7 +1867,9 @@ def chlamys(human, rig, material, length=0.85, frames=90, seg=112, ring_h=0.016,
                 # hard pin at the brooch; the top edge rests on the shoulders (soft) but hangs free across the
                 # front of the chest, so the open side can fall away from the right arm
                 front = y < cy - 0.02 and abs(x) < 0.12
-                w = 1.0 if frac < 0.05 else (0.08 if front else 0.4)
+                # (0.08 across the front let the whole front panel slide down and pile up at the waist: a poncho
+                # bib in every still - held at 0.45 it hangs from the chest in a shallow swag instead)
+                w = 1.0 if frac < 0.05 else (0.45 if front else 0.5)
             verts.append((x, y, z)); pins.append(w)
     faces = [(r * seg + k, r * seg + k + 1, (r + 1) * seg + k + 1, (r + 1) * seg + k)
              for r in range(rows - 1) for k in range(seg - 1)]       # no face across the opening

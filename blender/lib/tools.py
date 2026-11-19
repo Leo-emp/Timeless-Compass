@@ -250,7 +250,7 @@ def cart(loc=(0, 0, 0), heading_deg=0.0, load='amphorae', seed=0, name='cart'):
         # the harvest load: BOUND SHEAVES of wheat stacked on the bed, ears outward, in three courses narrowing to
         # the top (how a sheaf cart is loaded so it rides without spilling) - real stalks and ears, not a mound
         from lib import countryside
-        countryside.sheaf_heap((0, 0, -50), n=0, seed=seed, name=f'{name}_sheaf')   # builds the sheaf prototype only
+        countryside.sheaf_heap((0, 0, -50), n=0, seed=seed, name=f'{name}_sheaf', stalks=95)   # builds the sheaf prototype only
         col = bpy.data.collections[f'{name}_sheaf_src']
         rnd = random.Random(seed)
         k = 0

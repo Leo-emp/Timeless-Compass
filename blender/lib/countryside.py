@@ -631,11 +631,12 @@ def threshing_floor(loc=(0, 0, 0), radius=6.5, seed=0, name='threshing_floor', w
     return parts
 
 
-def sheaf_heap(loc, n=26, seed=0, name='sheaves'):
-    """A heap of bound sheaves waiting to be threshed: each sheaf = a bundle of stalks tied in the middle."""
+def sheaf_heap(loc, n=26, seed=0, name='sheaves', stalks=30):
+    """A heap of bound sheaves waiting to be threshed: each sheaf = a bundle of stalks tied in the middle.
+    stalks: how full each sheaf is (a real sheaf is an armful, ~80-120 stalks; 30 keeps big heaps light)."""
     rnd = random.Random(seed)
     col = _hidden_collection(name + '_src')
-    sheaf = grain_clump(name + '_sheaf', 'wheat', height=0.9, stalks=30, ripe=1.0, seed=seed + 99, hair_axis=False)
+    sheaf = grain_clump(name + '_sheaf', 'wheat', height=0.9, stalks=stalks, ripe=1.0, seed=seed + 99, hair_axis=False)
     # squeeze the clump into a bundle (tied in the middle)
     for v in sheaf.data.vertices:
         z = v.co.z
@@ -978,9 +979,11 @@ def mountain(name='mountain', loc=(0, 0, 0), size=(900.0, 500.0), height=260.0, 
     from mathutils import noise
     rnd = random.Random(seed)
     W, D = size
-    bpy.ops.mesh.primitive_grid_add(x_subdivisions=res, y_subdivisions=int(res * D / W), size=1, location=loc)
+    # built at the ORIGIN, moved into place afterwards: in Blender 5.3 transform_apply also baked the location into
+    # the vertices, so the height maths saw coordinates 470 m off and left the whole mountain flat (2026-11-20)
+    bpy.ops.mesh.primitive_grid_add(x_subdivisions=res, y_subdivisions=int(res * D / W), size=1, location=(0, 0, 0))
     o = bpy.context.object; o.name = name; o.scale = (W, D, 1)
-    bpy.ops.object.transform_apply(scale=True)
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
     off = Vector((seed * 13.1, seed * 7.7, 0))
     summits = [(rnd.uniform(-0.25, 0.25) + (k - (peaks - 1) / 2) * 0.6 / max(1, peaks - 1) * (peaks > 1),
                 rnd.uniform(-0.08, 0.08), rnd.uniform(0.75, 1.0)) for k in range(peaks)]
@@ -1021,6 +1024,7 @@ def mountain(name='mountain', loc=(0, 0, 0), size=(900.0, 500.0), height=260.0, 
         dens = (f / cnt[vi]) * max(0.0, 1.0 - z * 1.1)                 # scrub thins out towards the summit
         if dens > 0.02:
             vg.add([vi], dens, 'REPLACE')
+    o.location = loc
     if scrub:
         try:
             from lib import scatter
@@ -1119,7 +1123,7 @@ def persian_garden(loc=(0, 0, 0), size=(80.0, 60.0), seed=0, name='paradeisos'):
     # the ground: a grid carrying a 'density' map for the lawn - 0 on the walks beside the channels, 1 in the beds
     bpy.ops.mesh.primitive_grid_add(x_subdivisions=120, y_subdivisions=100, size=1, location=(loc[0], loc[1], loc[2]))
     g = bpy.context.object; g.name = name + '_ground'; g.scale = (W + 20, D + 20, 1)
-    bpy.ops.object.transform_apply(scale=True)
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)   # vertices stay local to the garden
     vg = g.vertex_groups.new(name='density')
     for v in g.data.vertices:
         off = min(abs(v.co.x), abs(v.co.y))                          # distance to the nearest channel axis

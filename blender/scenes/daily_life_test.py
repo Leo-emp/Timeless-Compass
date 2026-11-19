@@ -57,9 +57,15 @@ elif VIEW == 'village':
     market.village((0, 0, 0), n=9, seed=3)
     cs.grain_field('village_field', size=(50.0, 30.0), loc=(0, -62, 0), state='ripe', density=18, seed=5)
     cs.olive_grove(g, (-90, -40, -40, 40), spacing=10, seed=6)
-    sets.land('village_hills', (0, 520, -2), (900, 260), 220, rough=24, noise=40, seed=4)
+    cs.mountain('village_hills', (0, 560, -2), (1100.0, 420.0), 280.0, seed=4, peaks=2)   # ridged limestone + scrub
     # eye level in the village street (the dressing, animals and people read at this height; an aerial view hid them)
-    cam, tgt, lens = Vector((6.0, -44.0, 1.65)), Vector((-1.0, 0.0, 2.2)), 32       # at the village edge, eye level
+    cam, tgt, lens = Vector((3.0, -9.0, 1.65)), Vector((-2.0, 14.0, 2.4)), 30        # in the square, eye level, gates near
+    if PEOPLE:                                                         # village life in the square, by the well
+        from tc import crowd
+        folk = [('villager', 22, (-1.2, -1.6), 200), ('farmer', 23, (2.4, -0.6), 150), ('shepherd', 24, (-3.6, 2.5), 110),
+                ('villager', 26, (0.6, 2.8), 260)][:PEOPLE]
+        for role, sd, (x, y), hd in folk:
+            place_person(crowd.person(sd, role, 'greece_480bc'), (x, y, 0), hd)
     common.hdri_sky('kloofendal_48d_partly_cloudy_puresky', background=0.85, lighting=0.3, rotate_deg=200)
     common.sun_light('sun', 4.6, (1.0, 0.75, 0.5), 24, 35)               # front-side key for a camera looking +y
     sets.haze(size=(3000, 3000, 400), density=0.0002, color=(1.0, 0.8, 0.6))
