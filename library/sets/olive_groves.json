@@ -1,0 +1,17 @@
+{
+  "name": "olive_groves",
+  "workstream": "WS16",
+  "owner": "Session D",
+  "era": "Greece / Persia c. 480 BC",
+  "renders": [
+    "spike/lib_stills/cloud_d10/render-d_country_terr/country_terraces.png",
+    "spike/lib_stills/ws16/olive_v2.png"
+  ],
+  "self_rating": {
+    "overall": 8,
+    "notes": "code-built old olives (countryside.olive_tree): split gnarled trunk, dense two-tone crown (silver undersides), wind sway; the Zakynthos photogrammetry scan is retired (sky baked into its crown)"
+  },
+  "status": "rendered + reviewed (Session D, overnight 2026-11-20)",
+  "api": "countryside.olive_tree(name, seed, height, age) -> hidden collection; olive_grove(ground, area, spacing, seed)",
+  "cloud": true
+}

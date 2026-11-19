@@ -8,13 +8,13 @@
   "design_source": "excavated Attic field walls + terraces; Xenophon Oec. 18 (threshing)",
   "licence": "our own code (Blender); scanned textures/models CC0 Poly Haven + main session's CC0/CC-BY scans (see library/scans/<id>/asset.json)",
   "self_rating": {
-    "overall": 6,
-    "notes": "coursed dry-stone walls (running bond); terraces fast now (one-faced); threshing floor paved; hay load rebuilt (d-verify-7)"
+    "overall": 8,
+    "notes": "planted terraces (olive rows + weeds over the wall tops), coursed dry-stone walls, threshing floor, cart with bound sheaves"
   },
   "owner_rating": null,
   "status": "rendered + reviewed (Session D, overnight 2026-11-20)",
   "renders": [
-    "spike/lib_stills/cloud_d6/d_country_terr/country_terraces.png",
-    "spike/lib_stills/cloud_d6/d_country_floor/country_floor.png"
+    "spike/lib_stills/cloud_d10/render-d_country_terr/country_terraces.png",
+    "spike/lib_stills/cloud_d10/render-d_country_floor/country_floor.png"
   ]
 }

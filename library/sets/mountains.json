@@ -1,0 +1,16 @@
+{
+  "name": "mountains",
+  "workstream": "WS16",
+  "owner": "Session D",
+  "era": "Greece / Persia c. 480 BC",
+  "renders": [
+    "spike/lib_stills/cloud_d10/render-d_country_wide/country_wide.png"
+  ],
+  "self_rating": {
+    "overall": 6,
+    "notes": "countryside.mountain: ridged + warped noise, grey limestone on cliffs blended by slope into scrub ground, maquis bush stipple, broad tone patches (d-verify-11). Replaces the soft sets.land hills in Session D scenes only"
+  },
+  "status": "rendered + reviewed (Session D, overnight 2026-11-20)",
+  "api": "countryside.mountain(name, loc, size, height, seed, peaks, scrub, rock_tint, scrub_tint)",
+  "cloud": true
+}

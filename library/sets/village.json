@@ -8,12 +8,12 @@
   "design_source": "Attic demes; excavated rural houses",
   "licence": "our own code (Blender); scanned textures/models CC0 Poly Haven + main session's CC0/CC-BY scans (see library/scans/<id>/asset.json)",
   "self_rating": {
-    "overall": 5,
-    "notes": "houses + yards + meadow; eye-level camera + animals in d-verify-7 / laptop"
+    "overall": 6,
+    "notes": "market.farmhouse (real pan/cover/ridge tiles, rafters, door ajar, shutters, walled yard + gate, pithos, bench, ladder, firewood); villagers at the well; dressing now sees the real camera"
   },
   "owner_rating": null,
   "status": "rendered + reviewed (Session D, overnight 2026-11-20)",
   "renders": [
-    "spike/lib_stills/cloud_d6/d_dress_village/village_dressed.png"
+    "spike/lib_stills/cloud_d10/render-d_dress_village/village_dressed.png"
   ]
 }
