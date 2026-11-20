@@ -305,6 +305,48 @@ range. **Bar: all items pass and ≥ 90/100**, else the agent rewrites (up to 3 
 **Learning:** retention dips from the results loop are mapped back to the beat and line; the bible gains rules
 (e.g. "slow 'world' sections lose viewers at 1:40 → keep them under 45 s").
 
+### 6.15 Cinematography, colour grading and editing (r34) — what makes it a film
+
+Every shot plan names its **shot size, angle, camera move, grade and transition**, each chosen for the beat's meaning.
+
+**Shot sizes + angles:** extreme wide (scale, the army, the city) → wide → medium → close-up (emotion) → extreme
+close-up (eyes, a hand on a sword, the letter); low angle = power, high angle = weakness, over-the-shoulder for
+confrontations, POV for discovery.
+
+**Camera vocabulary** (all eased in and out, r29; zoom in/out allowed — CapitalCode's no-zoom rule does not apply):
+
+| Move | Used for |
+|---|---|
+| Slow push-in / zoom in | Tension building, a realisation, a reveal landing |
+| Pull-out / zoom out | Scale ("he was not alone…" → reveal the whole army), loneliness, aftermath |
+| Pan / tilt | Following action, revealing a place, looking up at a god or a wall |
+| Track | Moving with marching troops, ships, a running messenger |
+| Crane up / down | Openings, endings, the big establishing shot |
+| Gentle handheld shake | Battle, chaos, an earthquake |
+| Rack focus (blur shift between layers) | Moving attention from one character to another |
+| Parallax depth | Every move: near layers move more than far layers |
+
+**Colour grading** (applied in the renderer over each shot; one grade plan per video from the art direction):
+- **Per time of day:** dawn gold, harsh noon, dusk orange-purple, cold blue night, grey storm, warm lamp-lit interiors.
+- **Per act and mood:** warm and hopeful in the world-building, desaturated and darker as stakes rise, high-contrast
+  red/black in battle, cool and drained in loss, golden in triumph.
+- **Per era:** a subtle signature tint (e.g. bronze-age warmth for Greece, sandy ochre for Egypt, cold steel for
+  Cold War secret projects).
+- **Film finish:** soft vignette, light film grain, gentle bloom on light sources, optional 2.39:1 letterbox for big
+  cinematic sequences.
+
+**Editing:**
+- **Rhythm:** establishing wide → medium → close on the emotion; faster cuts in action, longer holds in dread and
+  grief; a visual change every ~1–3 s (r30).
+- **Transitions with meaning:** straight cuts by default; **match cuts** (Kronos' mouth → a dark cave); dissolves for
+  time passing; whip pans between simultaneous places; **fade to black** between acts; flash-white for lightning
+  or a divine moment.
+- **Montage** for long journeys or years passing; **cross-cutting** between two sides before they clash.
+- **Sound in the edit:** J/L cuts, a held silence before reveals, music entering and leaving on story beats.
+
+**Check:** the shot-plan check fails a video whose shot sizes, moves or transitions repeat too much (variety
+measured per act); the motion check fails snaps and jerks; the grade is checked against the art direction's range.
+
 ### 6.13 What is removed / rewritten
 
 - Tag `old-3d-pipeline-final`, then remove `blender/`, the 3D cloud workflows, and the Blender-based `tc` modules
