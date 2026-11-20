@@ -95,7 +95,12 @@
       "applies_to": [
         "all"
       ],
-      "date": "2026-11-19"
+      "date": "2026-11-19",
+      "retired": {
+        "date": "2026-11-21",
+        "why": "3D look metric vs Heroes of Bronze; 2D uses the spec 6.6 still bar",
+        "replaced_by": null
+      }
     },
     {
       "id": "r11",
@@ -124,7 +129,12 @@
       "applies_to": [
         "render"
       ],
-      "date": "2026-11-19"
+      "date": "2026-11-19",
+      "retired": {
+        "date": "2026-11-21",
+        "why": "3D library gate; replaced by the spec 6.6 still bar",
+        "replaced_by": null
+      }
     },
     {
       "id": "r14",
@@ -133,7 +143,12 @@
       "applies_to": [
         "shots"
       ],
-      "date": "2026-11-20"
+      "date": "2026-11-20",
+      "retired": {
+        "date": "2026-11-21",
+        "why": "Blender maps; same look drawn in 2D",
+        "replaced_by": "r35"
+      }
     },
     {
       "id": "r15",

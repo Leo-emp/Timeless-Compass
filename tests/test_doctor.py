@@ -28,7 +28,7 @@ def test_http_error_raises():
 def _env(**over):
     base = dict(cfg=Config(azure_key="k", azure_region="eastus"), which=lambda name: f"/bin/{name}",
                 disk_free_gb=lambda: 50.0, can_import=lambda mod: True, exists=lambda p: True,
-                azure_ok=lambda cfg: True)
+                azure_ok=lambda cfg: True, node_version=lambda: "v24.14.0", gh_ok=lambda: True)
     base.update(over)
     return base
 
@@ -50,3 +50,16 @@ def test_low_disk_warns_not_fails():
     disk = next(c for c in checks if "disk" in c.name.lower())
     assert disk.ok is False and disk.required is False
     assert doctor.exit_code(checks) == 0
+
+
+def test_doctor_checks_node_and_gh_not_blender():
+    names = [c.name for c in doctor.run_checks(**_env())]
+    for want in ("node >= 22", "npm on PATH", "gh CLI logged in", "film engine installed", "kaggle credentials"):
+        assert want in names, want
+    assert not any("Blender" in n or "MPFB" in n for n in names)
+
+
+def test_old_node_fails_required():
+    checks = doctor.run_checks(**_env(node_version=lambda: "v20.11.0"))
+    node = next(c for c in checks if c.name == "node >= 22")
+    assert node.ok is False and node.required is True

@@ -40,8 +40,23 @@ def add_rule(text: str, why: str = "", applies_to: list[str] | None = None, now:
     return rule
 
 
-def list_rules(stage: str | None = None) -> list[dict]:
-    rules = _load()["rules"]
+def retire_rule(rule_id: str, why: str, replaced_by: str | None = None, now: datetime | None = None) -> dict:
+    """Retire a rule that no longer applies (e.g. 3D-only rules after the switch to 2D).
+    The rule keeps its id (so numbering never changes) and gains a "retired" block; stage lists skip it."""
+    data = _load()
+    rule = next((r for r in data["rules"] if r["id"] == rule_id), None)
+    if rule is None:
+        raise ValueError(f"no rule {rule_id}")
+    date = (now or datetime.now()).strftime("%Y-%m-%d")
+    rule["retired"] = {"date": date, "why": why.strip(), "replaced_by": replaced_by}
+    (paths.TASTE / "learning.json").write_text(json.dumps(data, indent=2), encoding="utf-8")
+    with (paths.TASTE / "rules.md").open("a", encoding="utf-8") as f:       # humans see the retirement too
+        f.write(f"\n## {rule_id} RETIRED ({date})\n- **Why:** {why.strip()}\n- **Replaced by:** {replaced_by or '-'}\n")
+    return rule
+
+
+def list_rules(stage: str | None = None, include_retired: bool = False) -> list[dict]:
+    rules = [r for r in _load()["rules"] if include_retired or "retired" not in r]   # retired rules are history only
     if stage is None:
         return rules
     return [r for r in rules if stage in r["applies_to"] or "all" in r["applies_to"]]
@@ -61,8 +76,26 @@ def _cmd_learn(args) -> int:
     return 0
 
 
-@register("rules", "list owner rules", lambda p: p.add_argument("--stage"))
+def _rules_args(p):
+    p.add_argument("--stage")
+    p.add_argument("--all", action="store_true", help="also show retired rules")
+
+
+@register("rules", "list owner rules", _rules_args)
 def _cmd_rules(args) -> int:
-    for r in list_rules(args.stage):
+    for r in list_rules(args.stage, include_retired=args.all):
         print(f"{r['id']} [{', '.join(r['applies_to'])}] {r['text']}" + (f"  (why: {r['why']})" if r["why"] else ""))
+    return 0
+
+
+def _retire_args(p):
+    p.add_argument("rule_id")
+    p.add_argument("--why", required=True)
+    p.add_argument("--by", default=None, help="the rule that replaces it")
+
+
+@register("retire", "retire an owner rule that no longer applies (kept as history)", _retire_args)
+def _cmd_retire(args) -> int:
+    r = retire_rule(args.rule_id, args.why, args.by)
+    print(f"retired {r['id']}: {r['text'][:80]}")
     return 0

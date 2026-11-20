@@ -176,3 +176,15 @@ Read before every stage (`python -m tc rules --stage <stage>`).
 - **Rule:** Maps stay in the Epic History look (docs/MAP_STYLE.md: aged parchment, tilted low camera with slow drift, territory fills with emblem patterns, serif labels, scroll city tags, banner armies, self-drawing arrows, spotlight, battle maps with unit blocks) but are DRAWN IN 2D CODE in the renderer (no Blender): the flat map is tilted with a 3D perspective transform, far edge blurred; little figures, ships and banners on the map use our cast style; maps alternate with scenes every 5-20 s. Replaces the Blender part of r14
 - **Why:** Owner 2026-11-21 asked 'what about maps' after dropping 3D
 - **Applies to:** shots, build
+
+## r10 RETIRED (2026-11-21)
+- **Why:** 3D look metric vs Heroes of Bronze; 2D uses the spec 6.6 still bar
+- **Replaced by:** -
+
+## r13 RETIRED (2026-11-21)
+- **Why:** 3D library gate; replaced by the spec 6.6 still bar
+- **Replaced by:** -
+
+## r14 RETIRED (2026-11-21)
+- **Why:** Blender maps; same look drawn in 2D
+- **Replaced by:** r35

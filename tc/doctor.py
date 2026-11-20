@@ -12,8 +12,9 @@ from tc import http
 from tc.cli import register
 from tc.config import Config, get_config
 
-BLENDER = Path("C:/Users/User/tools/blender-5.3.0-windows-x64/blender.exe")
-MPFB = Path.home() / "AppData/Roaming/Blender Foundation/Blender/5.3/extensions/blender_org/mpfb"
+REPO = Path(__file__).resolve().parent.parent
+FILM_ENGINE = REPO / "film" / "node_modules" / "remotion"          # installed by `npm install` in film/
+KAGGLE_CREDS = [Path.home() / ".kaggle" / "kaggle.json", Path.home() / ".kaggle" / "credentials.json"]
 MIN_DISK_GB = 10.0
 
 
@@ -44,8 +45,32 @@ def _azure_ok(cfg: Config) -> bool:
         return False
 
 
+def _node_version() -> str:
+    """'v24.14.0' from `node --version`, or '' if node is missing."""
+    try:
+        return subprocess.run(["node", "--version"], capture_output=True, text=True, timeout=20).stdout.strip()
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+
+
+def _gh_logged_in() -> bool:
+    """True when the GitHub CLI is logged in (needed to start cloud renders)."""
+    try:
+        return subprocess.run(["gh", "auth", "status"], capture_output=True, timeout=30).returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
+def _node_major(v: str) -> int:
+    try:
+        return int(v.lstrip("v").split(".")[0])
+    except ValueError:
+        return 0
+
+
 def run_checks(cfg: Config | None = None, which=shutil.which, disk_free_gb=_disk_free_gb,
-               can_import=_can_import, exists=lambda p: Path(p).exists(), azure_ok=_azure_ok) -> list[Check]:
+               can_import=_can_import, exists=lambda p: Path(p).exists(), azure_ok=_azure_ok,
+               node_version=_node_version, gh_ok=_gh_logged_in) -> list[Check]:
     cfg = cfg or get_config()
     v = sys.version_info
     checks = [
@@ -53,8 +78,14 @@ def run_checks(cfg: Config | None = None, which=shutil.which, disk_free_gb=_disk
         Check("ffmpeg on PATH", bool(which("ffmpeg")), which("ffmpeg") or "missing"),
         Check("curl on PATH", bool(which("curl")), which("curl") or "missing"),
         Check("faster-whisper importable", can_import("faster_whisper"), "word timings"),
-        Check("Blender 5.3 portable", exists(BLENDER), str(BLENDER), required=False),
-        Check("MPFB (MakeHuman) extension", exists(MPFB), str(MPFB), required=False),
+    ]
+    nv = node_version()
+    checks += [
+        Check("node >= 22", _node_major(nv) >= 22, nv or "missing"),                 # the 2D film engine runs on Node
+        Check("npm on PATH", bool(which("npm")), which("npm") or "missing"),
+        Check("gh CLI logged in", gh_ok(), "starts GitHub cloud renders"),
+        Check("film engine installed", exists(FILM_ENGINE), "run `npm install` in film/"),
+        Check("kaggle credentials", any(exists(p) for p in KAGGLE_CREDS), "second render farm", required=False),
     ]
     has_azure = bool(cfg.azure_key and cfg.azure_region)
     checks.append(Check("Azure Speech key + region", has_azure, cfg.azure_region or "missing in .env"))

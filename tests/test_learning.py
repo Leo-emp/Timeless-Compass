@@ -34,3 +34,26 @@ def test_filter_by_stage():
 def test_unknown_stage_rejected():
     with pytest.raises(ValueError):
         learning.add_rule("x", applies_to=["nonsense"])
+
+
+# ---- retiring rules (2026-11-21: 3D rules retired when the 2D film engine replaced Blender) ----
+def test_retired_rule_hidden_from_stage_lists():
+    learning.add_rule("old 3D gate", applies_to=["render"]); learning.add_rule("new 2D bar", applies_to=["render"])
+    learning.retire_rule("r1", why="3D dropped", replaced_by="r2")
+    assert [r["id"] for r in learning.list_rules("render")] == ["r2"]
+    assert learning.list_rules("render", include_retired=True)[0]["retired"]["replaced_by"] == "r2"
+
+
+def test_retire_unknown_rule_raises():
+    with pytest.raises(ValueError, match="r99"):
+        learning.retire_rule("r99", why="x")
+
+
+def test_retire_appends_note_to_rules_md():
+    learning.add_rule("old"); learning.retire_rule("r1", why="3D dropped")
+    assert "r1 RETIRED" in (paths.TASTE / "rules.md").read_text(encoding="utf-8")
+
+
+def test_new_ids_still_count_retired_rules():
+    learning.add_rule("a"); learning.retire_rule("r1", why="x")
+    assert learning.add_rule("b")["id"] == "r2"
