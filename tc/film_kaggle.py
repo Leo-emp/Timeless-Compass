@@ -63,7 +63,9 @@ def run(cmd):
     subprocess.run(cmd, shell=True, check=True)'''),
         _cell(f'''# 3. Node 22 + the libraries headless Chrome needs
 run("curl -fsSL https://deb.nodesource.com/setup_22.x | bash - > /dev/null")
-run("apt-get install -y -q nodejs {CHROME_LIBS} > /dev/null")
+run("apt-get install -y -q nodejs > /dev/null")
+for lib in "{CHROME_LIBS}".split():   # one by one: a name that differs on this Ubuntu must not stop the render
+    subprocess.run(f"apt-get install -y -q {{lib}} > /dev/null 2>&1", shell=True)
 run("node --version")'''),
         _cell(f'''# 4. the film engine at the exact commit branch we render from
 run("rm -rf /kaggle/working/tc && git clone --depth 1 --branch {ref} {repo} /kaggle/working/tc")

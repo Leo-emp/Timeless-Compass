@@ -1,14 +1,14 @@
 // Fonts bundled with the film (OFL licence, film/public/fonts/OFL.txt) so laptop, GitHub and Kaggle draw
-// identical text. Remotion waits (delayRender) until they are loaded before taking any frame.
-import { continueRender, delayRender, staticFile } from 'remotion';
+// identical text. Uses Remotion's official loader (@remotion/fonts): it holds every frame until the font is ready,
+// in every browser tab Remotion opens (a hand-made FontFace loader stalled mid-render on GitHub, 2026-11-21).
+import { loadFont } from '@remotion/fonts';
+import { staticFile } from 'remotion';
 
-let loaded: Promise<void> | null = null;
+let started = false;
 
-/** Load every bundled font once per render process. */
-export function loadFonts(): Promise<void> {
-  if (loaded) return loaded;
-  const handle = delayRender('loading fonts');
-  const cinzel = new FontFace('Cinzel', `url(${staticFile('fonts/Cinzel.ttf')})`, { weight: '400 900' });
-  loaded = cinzel.load().then((f) => { document.fonts.add(f); continueRender(handle); });
-  return loaded;
+/** Load every bundled font (safe to call many times). */
+export function loadFonts(): void {
+  if (started) return;
+  started = true;
+  loadFont({ family: 'Cinzel', url: staticFile('fonts/Cinzel.ttf'), weight: '700' });
 }

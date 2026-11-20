@@ -41,3 +41,8 @@ def test_unsafe_names_rejected():
     import pytest
     with pytest.raises(ValueError):
         fk.film_notebook("Fleet; rm -rf /", [(0, 1)])
+
+
+def test_chrome_libs_installed_one_by_one_without_stopping():
+    code = "\n".join(_code(fk.film_notebook("FleetTest", [(0, 1)])))
+    assert 'for lib in "' in code and "check=True" not in code.split("for lib in")[1].split("\n")[1]

@@ -27,13 +27,14 @@ const started = Date.now() / 1000;
 // 1. bundle the React project once (webpack) so headless Chrome can load it
 const serveUrl = await bundle({ entryPoint: path.join(here, 'src', 'index.ts'), publicDir: path.join(here, 'public') });
 // 2. look up the composition (size, fps, length)
-const composition = await selectComposition({ serveUrl, id: comp });
+const composition = await selectComposition({ serveUrl, id: comp, timeoutInMilliseconds: 120000 });
 // 3. render just our frame range
 const outFile = path.join(outDir, `part-${from}-${to}.mp4`);
 let lastPct = -10;
 await renderMedia({
   composition, serveUrl, codec: 'h264', crf: 18, pixelFormat: 'yuv420p', imageFormat: 'jpeg', jpegQuality: 95,
   frameRange: [from, to], outputLocation: outFile, concurrency,
+  timeoutInMilliseconds: 120000,                                   // slow cloud machines: wait up to 2 min per frame
   onProgress: ({ progress }) => {                                    // a line every 10% so logs show it's alive
     const pct = Math.floor(progress * 100);
     if (pct >= lastPct + 10) { lastPct = pct; console.log(`[${comp} ${from}-${to}] ${pct}%`); }
