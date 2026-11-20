@@ -141,13 +141,17 @@ def paint(name: str, path: Path, size: int = 512, seed: int = 0) -> Path:
     return path
 
 
+# Every shield device we can paint (moved here from the removed 3D crowd module, 2026-11-21).
+EMBLEMS = ["lambda", "gorgon", "owl", "trident", "scorpion", "bull", "lion", "boar", "eagle", "serpent", "pegasus",
+           "crab", "dolphin", "wheel", "tripod", "club", "triskeles", "cock", "horse", "star", "crescent", "eye"]
+
+
 def _args(p):
     p.add_argument("out_dir")
 
 
 @register("emblems", "paint every hoplite shield emblem (vase-painting style) for review", _args)
 def _cmd_emblems(args) -> int:
-    from tc import crowd
-    for n in crowd.EMBLEMS:
+    for n in EMBLEMS:
         print(paint(n, Path(args.out_dir) / f"{n}.png"))
     return 0

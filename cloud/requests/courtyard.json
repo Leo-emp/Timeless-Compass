@@ -1,9 +1,0 @@
-{
-  "name": "courtyard",
-  "active": true,
-  "script": "blender/scenes/courtyard_test.py",
-  "args": [
-    "out/courtyard",
-    "20"
-  ]
-}

@@ -1,6 +1,0 @@
-{
-  "name": "drawn_hoplites",
-  "active": true,
-  "script": "blender/scenes/drawn_test.py",
-  "args": ["out/drawn", "100", "32"]
-}

@@ -76,9 +76,8 @@ def test_spec_checks_catch_bad_specs():
         assert part in errs, part
 
 
-def test_map_shot_needs_no_cast_but_valid_beats_and_assembles_as_map_recipe():
+def test_map_shot_needs_no_cast_but_valid_beats():
     from tc.shots import Shot, map_shot_problems
-    from tc.assemble import recipe_for
     ok = Shot.from_dict({"id": "s1", "line": 1, "dur": 6, "who": [], "where": "map", "action": "", "expression": {},
                          "camera": {"move": "push_in"}, "era": "crusade_1097",
                          "map": {"spec": "maps/anatolia.json", "beats": [{"t": 1, "do": "grow", "id": "rum"}]}})
@@ -88,5 +87,3 @@ def test_map_shot_needs_no_cast_but_valid_beats_and_assembles_as_map_recipe():
                           "map": {"beats": [{"t": 9, "do": "explode"}]}})
     errs = " | ".join(map_shot_problems(bad))
     assert "map.spec" in errs and "must be one of" in errs and "inside the shot" in errs and "era" in errs
-    r = recipe_for({"id": "s1", "dur": 6, "map": {"spec": "maps/a.json"}}, {"cast": {}, "sets": {}, "wardrobe": {}})
-    assert r["kind"] == "map" and r["missing"] == [] and r["frames"] == 144

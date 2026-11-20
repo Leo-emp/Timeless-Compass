@@ -1,8 +1,8 @@
-from tc import crowd, emblems
+from tc import emblems
 
 
 def test_every_crowd_emblem_can_be_painted(tmp_path):
-    for name in crowd.EMBLEMS:
+    for name in emblems.EMBLEMS:
         f = emblems.paint(name, tmp_path / f"{name}.png", size=256, seed=1)
         assert f.exists() and f.stat().st_size > 500, name
 
