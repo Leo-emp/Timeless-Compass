@@ -2,10 +2,7 @@
 import React from 'react';
 import { useCurrentFrame, useVideoConfig } from 'remotion';
 import { SvgFrame } from '../SvgFrame';
-import { loadFonts } from '../kit/fonts';
 import { drawFleet } from './fleet';
-
-loadFonts();
 
 export const FleetTest: React.FC = () => {
   const frame = useCurrentFrame();

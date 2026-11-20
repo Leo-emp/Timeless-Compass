@@ -16,5 +16,5 @@ test('props carry their id', () => {
 });
 test('the card is a textbox with text inside', () => {
   const c = card(100, 50, 460, 62, 'THE GREEK FLEET · 480 BC');
-  expect(c).toContain('data-role="textbox"'); expect(c).toContain('data-role="text"'); expect(c).toContain('Cinzel');
+  expect(c).toContain('data-role="textbox"'); expect(c).toContain('data-role="text"'); expect(c).not.toContain('<text');
 });

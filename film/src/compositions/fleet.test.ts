@@ -5,8 +5,9 @@ import { drawFleet } from './fleet';
 test('same moment -> same picture (every machine renders identically)', () => {
   expect(drawFleet(4.0)).toBe(drawFleet(4.0));
 });
-test('the place + date card is there', () => {
-  expect(drawFleet(2)).toContain('THE GREEK FLEET · 480 BC');
+test('the place + date card is there (its letters are drawn as shapes)', () => {
+  expect(drawFleet(2)).toContain('data-role="textbox"');
+  expect(drawFleet(2)).toContain('data-role="text"');
 });
 test('it moves', () => {
   expect(drawFleet(0)).not.toBe(drawFleet(1));
