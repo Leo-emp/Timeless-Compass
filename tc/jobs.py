@@ -97,7 +97,7 @@ def _cmd_new(args) -> int:
 @register("status", "show a job's stages", lambda p: p.add_argument("job"))
 def _cmd_status(args) -> int:
     job = load_job(args.job)
-    print(f"{job.id}  ({job.kind})  next: {next_stage(job) or 'all Plan 1 stages done'}")
+    print(f"{job.id}  ({job.kind})  next: {next_stage(job) or 'all stages done'}")
     for s in STAGES:
         st = job.stages[s]
         print(f"  {s:<10} {st['status']:<7} {st['note']}")

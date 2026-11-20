@@ -46,7 +46,13 @@ jobs:
         run: npx remotion browser ensure
       - name: Render frames ${{ matrix.range[0] }}-${{ matrix.range[1] }}
         working-directory: film
-        run: node render-part.mjs "${{ inputs.comp }}" ${{ matrix.range[0] }} ${{ matrix.range[1] }} out/parts
+        env:                                  # inputs reach the shell as variables, never pasted into the script
+          COMP: ${{ inputs.comp }}
+          FROM: ${{ matrix.range[0] }}
+          TO: ${{ matrix.range[1] }}
+        run: |
+          [[ "$COMP" =~ ^[A-Za-z0-9_-]+$ && "$FROM" =~ ^[0-9]+$ && "$TO" =~ ^[0-9]+$ ]] || { echo "bad inputs"; exit 1; }
+          node render-part.mjs "$COMP" "$FROM" "$TO" out/parts
       - uses: actions/upload-artifact@v4
         with:
           name: part-${{ matrix.range[0] }}-${{ matrix.range[1] }}

@@ -60,7 +60,7 @@ print("internet ok")'''),
 import subprocess
 def run(cmd):
     print("$", cmd, flush=True)
-    subprocess.run(cmd, shell=True, check=True)'''),
+    subprocess.run(["bash", "-o", "pipefail", "-c", cmd], check=True)   # pipefail: a failed curl in "curl | bash" stops here'''),
         _cell(f'''# 3. Node 22 + the libraries headless Chrome needs
 run("curl -fsSL https://deb.nodesource.com/setup_22.x | bash - > /dev/null")
 run("apt-get install -y -q nodejs > /dev/null")

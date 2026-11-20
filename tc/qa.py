@@ -54,25 +54,35 @@ def _file(job_dir: Path, kind: str) -> Path:
     return Path(job_dir) / "qa" / f"{kind}.json"
 
 
-def record(job_dir: Path, kind: str, answers: dict, subject: str = "video") -> dict:
-    """Score and store one attempt for one subject; returns the stored entry (with its attempt count)."""
+def record(job_dir: Path, kind: str, answers: dict, subject: str = "video", content_hash: str | None = None) -> dict:
+    """Score and store one attempt for one subject; returns the stored entry (with its attempt count).
+    content_hash = sha256 of what was scored (story.md, the still png): a later edit makes the score stale."""
     result = score(kind, answers)
     f = _file(job_dir, kind)
     f.parent.mkdir(parents=True, exist_ok=True)
     data = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
     prev = data.get(subject, {})
-    entry = {**result, "attempts": prev.get("attempts", 0) + 1, "answers": answers,
+    entry = {**result, "attempts": prev.get("attempts", 0) + 1, "answers": answers, "content_hash": content_hash,
              "at": datetime.now().isoformat(timespec="seconds")}
     data[subject] = entry
     f.write_text(json.dumps(data, indent=2), encoding="utf-8")
     return entry
 
 
-def passed(job_dir: Path, kind: str, subject: str = "video") -> bool:
+def passed(job_dir: Path, kind: str, subject: str = "video", content_hash: str | None = None) -> bool:
+    """True when the last attempt passed - and, if a hash is given, was made on exactly that content."""
     f = _file(job_dir, kind)
     if not f.exists():
         return False
-    return bool(json.loads(f.read_text(encoding="utf-8")).get(subject, {}).get("passed"))
+    e = json.loads(f.read_text(encoding="utf-8")).get(subject, {})
+    if content_hash is not None and e.get("content_hash") != content_hash:
+        return False
+    return bool(e.get("passed"))
+
+
+def file_hash(path: Path) -> str:
+    import hashlib
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def _args(p):
@@ -80,6 +90,7 @@ def _args(p):
     p.add_argument("kind", help="story / still / motion / thumbnail, or 'status'")
     p.add_argument("answers", nargs="?", help="answers.json")
     p.add_argument("--subject", default="video")
+    p.add_argument("--of", default=None, help="the file that was scored (default for story: jobs/<id>/story.md)")
 
 
 @register("qa", "record a scored self-check (all items pass and total >= 90), or show the job's qa status", _args)
@@ -92,8 +103,15 @@ def _cmd_qa(args) -> int:
                     print(f"{f.stem:9} {subj:12} {'PASS' if e['passed'] else 'FAIL'} {e['total']:3}  attempts {e['attempts']}"
                           + (f"  failing: {', '.join(e['failing'])}" if e["failing"] else ""))
         return 0
-    answers = json.loads(Path(args.answers).read_text(encoding="utf-8"))
-    e = record(d, args.kind, answers, args.subject)
+    try:
+        answers = json.loads(Path(args.answers).read_text(encoding="utf-8"))
+        if not all(isinstance(v, dict) for v in answers.values()):
+            raise ValueError("every answer must be {\"pass\": bool, \"score\": int, \"note\": str}")
+        of = Path(args.of) if args.of else (d / "story.md" if args.kind == "story" else None)
+        e = record(d, args.kind, answers, args.subject, file_hash(of) if of else None)
+    except (ValueError, TypeError) as err:
+        print("problem:", err)
+        return 1
     print(f"{args.kind} {args.subject}: {'PASS' if e['passed'] else 'FAIL'} {e['total']}/100 (attempt {e['attempts']})"
           + (f"; failing: {', '.join(e['failing'])}" if e["failing"] else ""))
     return 0 if e["passed"] else 1

@@ -174,7 +174,7 @@ def _cmd_dialogue(args) -> int:
     job = jobs.load_job(args.job)
     d = jobs.job_dir(job.id)
     if not is_approved(d):
-        print("The script is not approved (or was edited after approval): show the owner, then tc script <id> --approve")
+        print("No fresh-viewer GO for this exact script (or it was edited after the GO): run tc viewer <id> --packet / --record")
         return 2
     lines = parse_script((d / "script.md").read_text(encoding="utf-8"))
     if not dialogue_lines(lines):

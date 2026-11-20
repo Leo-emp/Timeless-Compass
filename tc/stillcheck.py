@@ -43,7 +43,7 @@ def geometry_problems(elements: list[dict], w: int, h: int) -> list[str]:
             p = props.get(e["holds"])
             if p is None:
                 probs.append(f"hand holds unknown prop {e['holds']!r}")
-            elif _overlap(e["box"], p["box"]) <= 0:
+            elif e.get("grip") is False or (e.get("grip") is None and _overlap(e["box"], p["box"]) <= 0):
                 probs.append(f"hand does not touch the {e['holds']} it holds")
     # extras (crowd, crew behind a rail) are marked acting="false": they may be partly hidden; acting faces may not
     faces = [e for e in elements if e["role"] == "face" and e.get("acting") != "false"]
@@ -52,7 +52,8 @@ def geometry_problems(elements: list[dict], w: int, h: int) -> list[str]:
         if area <= 0:
             continue
         for e in elements:
-            if e["role"] in ("prop", "text", "textbox") and e["order"] > f["order"]:
+            # anything drawn later can cover: props, text, hands, another head, tagged foreground scenery (fg)
+            if e["role"] in ("prop", "text", "textbox", "hand", "face", "fg") and e["order"] > f["order"] and e is not f:
                 share = _overlap(e["box"], f["box"]) / area
                 if share > COVER_MAX:
                     probs.append(f"{e['role']} {e.get('id') or ''} covers face #{f['order']} ({share:.0%})".replace("  ", " "))

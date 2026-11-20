@@ -161,22 +161,30 @@ def _script_hash(job_dir: Path) -> str:
     return hashlib.sha256((job_dir / "script.md").read_bytes()).hexdigest()
 
 
+def script_hash(job_dir: Path) -> str:
+    return _script_hash(job_dir)
+
+
 def approve(job_dir: Path) -> None:
-    """Record the owner's approval OF THIS EXACT TEXT (any later edit voids it)."""
+    """Old owner approval (kept so older jobs still load). The autonomous flow uses the fresh viewer's GO (r20, r27)."""
     (job_dir / "script.approved").write_text(_script_hash(job_dir) + "\n", encoding="utf-8")
 
 
 def is_approved(job_dir: Path) -> bool:
-    f = job_dir / "script.approved"
-    return f.exists() and f.read_text(encoding="utf-8").strip() == _script_hash(job_dir)
+    """Ready to voice: a fresh viewer said GO to THIS EXACT script text (any later edit needs a new viewer)."""
+    f = job_dir / "qa" / "viewer.json"
+    if f.exists():
+        for v in reversed(json.loads(f.read_text(encoding="utf-8"))):
+            if v.get("script_hash") == _script_hash(job_dir):
+                return v.get("verdict") == "GO"
+    return False
 
 
 def _args(p):
     p.add_argument("job")
-    p.add_argument("--approve", action="store_true", help="record the owner's approval (needed before voice)")
 
 
-@register("script", "check jobs/<id>/script.md (and record owner approval)", _args)
+@register("script", "check jobs/<id>/script.md (format, sources, lengths, re-hooks)", _args)
 def _cmd_script(args) -> int:
     job = jobs.load_job(args.job)
     d = jobs.job_dir(job.id)
@@ -190,13 +198,9 @@ def _cmd_script(args) -> int:
         jobs.mark(job, "script", "failed", f"{len(problems)} problems"); jobs.save_job(job)
         return 1
     words = sum(len(l.spoken.split()) for l in lines)
-    was_approved = is_approved(d)
-    if args.approve:
-        approve(d)
-    approved = is_approved(d)
-    # an unchanged, already-approved script keeps the later stages; anything else resets them
-    jobs.mark(job, "script", "done", f"{words} words, {'approved' if approved else 'awaiting owner approval'}",
-              changed=not (was_approved and approved)); jobs.save_job(job)
+    go = is_approved(d)
+    # an unchanged script that already has a viewer GO keeps the later stages; anything else resets them
+    jobs.mark(job, "script", "done", f"{words} words" + (", viewer GO" if go else ""), changed=not go); jobs.save_job(job)
     print(f"script OK: {len(lines)} lines, {words} words, ~{words / 150:.1f} min. "
-          + ("Owner approved." if approved else "Ask the owner to approve, then: tc script <id> --approve"))
+          + ("Viewer GO on this text." if go else "Next: python -m tc viewer <id> --packet (fresh viewer, r27)"))
     return 0

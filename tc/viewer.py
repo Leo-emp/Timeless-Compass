@@ -54,6 +54,17 @@ def is_go(v: dict) -> bool:
     return not check_verdict(v) and v["verdict"] == "GO"
 
 
+def save_verdict(job_dir: Path, v: dict) -> None:
+    """Append a verdict, stamped with the hash of the script it judged (voice only runs on a GO for that text)."""
+    from tc.script import script_hash
+    qa_dir = Path(job_dir) / "qa"
+    qa_dir.mkdir(parents=True, exist_ok=True)
+    f = qa_dir / "viewer.json"
+    hist = json.loads(f.read_text(encoding="utf-8")) if f.exists() else []
+    hist.append({**v, "script_hash": script_hash(Path(job_dir))})
+    f.write_text(json.dumps(hist, indent=2), encoding="utf-8")
+
+
 def _args(p):
     p.add_argument("job")
     g = p.add_mutually_exclusive_group(required=True)
@@ -78,9 +89,7 @@ def _cmd_viewer(args) -> int:
         print("problem:", p)
     if probs:
         return 1
-    hist = json.loads((qa_dir / "viewer.json").read_text(encoding="utf-8")) if (qa_dir / "viewer.json").exists() else []
-    hist.append(v)
-    (qa_dir / "viewer.json").write_text(json.dumps(hist, indent=2), encoding="utf-8")
+    save_verdict(d, v)
     if is_go(v):
         jobs.save_job(jobs.mark(job, "viewer", "done", note="fresh viewer: GO"))
         print("viewer: GO")

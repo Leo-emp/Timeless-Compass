@@ -75,7 +75,7 @@ def _cmd_story(args) -> int:
         print("problem:", p)
     if probs:
         return 1
-    if not qa.passed(d, "story"):
+    if not qa.passed(d, "story", content_hash=qa.file_hash(f)):       # the score must be for THIS story page
         print("story page complete; now self-score it: python -m tc qa", job.id, "story <answers.json>")
         return 1
     jobs.save_job(jobs.mark(job, "story", "done", note="story page complete + story self-check passed"))

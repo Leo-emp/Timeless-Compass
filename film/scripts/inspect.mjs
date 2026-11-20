@@ -61,6 +61,27 @@ try {
       out.push({ role: el.getAttribute('data-role'), id: el.getAttribute('data-id'), holds: el.getAttribute('data-holds'), acting: el.getAttribute('data-acting'),
                  box: [r.x, r.y, r.width, r.height], order });
     });
+    // grip: does the hand really sit ON the prop's shape (stroke or fill), not just inside its bounding box?
+    // Test the hand centre and 8 points around it (within the fist) against every shape of the held prop.
+    const svg = document.getElementById('s');
+    out.forEach((e, i) => {
+      if (e.role !== 'hand' || !e.holds) return;
+      const prop = document.querySelector(`[data-role="prop"][data-id="${e.holds}"]`);
+      if (!prop) return;
+      const [x, y, w, h] = e.box, cx = x + w / 2, cy = y + h / 2, r = Math.min(w, h) * 0.4;
+      const shapes = prop.querySelectorAll('path, line, circle, ellipse, rect, polygon, polyline');
+      let hit = false;
+      for (let k = 0; k <= 8 && !hit; k++) {
+        const a = (k / 8) * Math.PI * 2, px = cx + (k ? r * Math.cos(a) : 0), py = cy + (k ? r * Math.sin(a) : 0);
+        for (const sh of shapes) {
+          const m = sh.getScreenCTM(); if (!m) continue;
+          const pt = svg.createSVGPoint(); pt.x = px; pt.y = py;
+          const local = pt.matrixTransform(m.inverse());               // screen point -> the shape's own units
+          if (sh.isPointInStroke(local) || sh.isPointInFill(local)) { hit = true; break; }
+        }
+      }
+      out[i].grip = hit;
+    });
     return out;
   });
   await page.screenshot({ path: outPng });

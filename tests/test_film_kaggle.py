@@ -51,3 +51,8 @@ def test_chrome_libs_installed_one_by_one_without_stopping():
 def test_clone_lives_outside_the_saved_output():
     code = "\n".join(_code(fk.film_notebook("FleetTest", [(0, 1)])))
     assert "/tmp/tc" in code and "/kaggle/working/tc" not in code
+
+
+def test_notebook_shell_uses_pipefail():
+    code = "\n".join(_code(fk.film_notebook("FleetTest", [(0, 1)])))
+    assert '"-o", "pipefail"' in code

@@ -43,7 +43,7 @@ def part_name(start: int, end: int) -> str:
     return f"part-{start}-{end}.mp4"
 
 
-def github_dispatch_args(comp: str, ranges: list[tuple[int, int]], ref: str = "main") -> list[str]:
+def github_dispatch_args(comp: str, ranges: list[tuple[int, int]], ref: str = "master") -> list[str]:
     """The `gh workflow run` command that starts one GitHub runner per range."""
     parts = json.dumps([list(r) for r in ranges], separators=(",", ":"))
     return ["gh", "workflow", "run", WORKFLOW, "--ref", ref, "-f", f"comp={comp}", "-f", f"parts={parts}"]
@@ -66,8 +66,8 @@ def find_parts(parts_dir: Path) -> list[Path]:
     return [p for p in parts_dir.rglob("part-*.mp4") if PART_RE.search(p.name)]
 
 
-def check_contiguous(parts: list[Path]) -> list[str]:
-    """Problems if the parts leave a gap or overlap (a missing part would make a jump in the video)."""
+def check_contiguous(parts: list[Path], total: int | None = None) -> list[str]:
+    """Problems if the parts leave a gap or overlap, or (when the video length is known) miss the last frames."""
     spans = sorted((int(m.group(1)), int(m.group(2))) for m in (PART_RE.search(p.name) for p in parts))
     probs = []
     if spans and spans[0][0] != 0:
@@ -75,15 +75,17 @@ def check_contiguous(parts: list[Path]) -> list[str]:
     for (a0, a1), (b0, b1) in zip(spans, spans[1:]):
         if b0 != a1 + 1:
             probs.append(f"gap or overlap between frames {a1} and {b0}")
+    if total is not None and spans and spans[-1][1] != total - 1:
+        probs.append(f"last part ends at frame {spans[-1][1]}, the video has {total} frames (a part is missing)")
     return probs
 
 
-def join_parts(parts_dir: Path, out: Path, runner=subprocess.run) -> Path:
+def join_parts(parts_dir: Path, out: Path, runner=subprocess.run, total: int | None = None) -> Path:
     """Join every part losslessly (stream copy) into `out`. Refuses if a part is missing."""
     parts = find_parts(parts_dir)
     if not parts:
         raise ValueError(f"no part files in {parts_dir}")
-    probs = check_contiguous(parts)
+    probs = check_contiguous(parts, total)
     if probs:
         raise ValueError("; ".join(probs))
     lst = parts_dir / "concat.txt"
@@ -112,12 +114,13 @@ def _args(p):
     a.add_argument("frames", type=int); a.add_argument("n", type=int)
     a = sub.add_parser("render", help="start a render on GitHub or Kaggle")
     a.add_argument("comp"); a.add_argument("--frames", type=int, required=True); a.add_argument("--parts", type=int, default=20)
-    a.add_argument("--on", choices=["github", "kaggle"], default="github"); a.add_argument("--ref", default="main")
+    a.add_argument("--on", choices=["github", "kaggle"], default="github"); a.add_argument("--ref", default="master")
     a.add_argument("--only", default="", help="render only these part indexes, e.g. 20-23 (for split farms)")
     a = sub.add_parser("fetch", help="download finished parts")
     a.add_argument("id", help="GitHub run id or Kaggle kernel slug"); a.add_argument("--on", choices=["github", "kaggle"], default="github")
     a.add_argument("--to", required=True)
     a = sub.add_parser("join", help="join parts into one video"); a.add_argument("dir"); a.add_argument("out")
+    a.add_argument("--frames", type=int, default=None, help="the video's frame count: refuse if the last part is missing")
     a = sub.add_parser("speed", help="render speed from the parts' timing files"); a.add_argument("dir")
 
 
@@ -135,6 +138,9 @@ def _cmd_film(args) -> int:
         return 0
     if args.action == "render":
         ranges = _pick(split_frames(args.frames, args.parts), args.only)
+        if not ranges:
+            print(f"--only {args.only} selects no parts (there are {min(args.parts, args.frames)})")
+            return 1
         if args.on == "github":
             subprocess.run(github_dispatch_args(args.comp, ranges, args.ref), check=True)
             print(f"started {len(ranges)} GitHub parts; find the run: gh run list --workflow {WORKFLOW} -L 1")
@@ -152,7 +158,7 @@ def _cmd_film(args) -> int:
         print(f"{len(find_parts(to))} parts in {to}")
         return 0
     if args.action == "join":
-        print(join_parts(Path(args.dir), Path(args.out)))
+        print(join_parts(Path(args.dir), Path(args.out), total=args.frames))
         return 0
     if args.action == "speed":
         print(json.dumps(speed_report(read_timings(Path(args.dir))), indent=2))
