@@ -11,8 +11,9 @@ from pathlib import Path
 from tc import paths
 from tc.cli import register
 
-# Plan 1 stages, in order. Later plans append: library, build, stills, render, edit, qa, package, archive.
-STAGES = ["topic", "packaging", "research", "script", "voice", "align", "shots"]
+# The autonomous 2D pipeline (spec 2026-11-21 section 6.2), in order. Every gate is automatic (rule r20).
+STAGES = ["topic", "packaging", "research", "story", "script", "viewer", "voice", "align", "artdir", "cast",
+          "shots", "draw", "stills", "motion", "thumbnail", "render", "mix", "pack", "archive", "results"]
 STATUSES = ("todo", "done", "failed")
 
 
@@ -20,7 +21,7 @@ STATUSES = ("todo", "done", "failed")
 class Job:
     id: str
     title: str                      # the seed topic text (the real title is picked in "packaging")
-    kind: str                       # "long" (10-12 min) or "short" (45-60 s)
+    kind: str                       # "long" (12-15 min) or "short" (2 to under 3 min)
     created: str
     stages: dict[str, dict] = field(default_factory=dict)
 

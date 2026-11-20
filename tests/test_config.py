@@ -12,7 +12,7 @@ def test_config_defaults(tmp_path, monkeypatch):
     monkeypatch.delenv("TC_VOICE", raising=False)
     cfg = get_config(env_file=tmp_path / "missing.env")
     assert cfg.voice == "en-US-LewisMultilingualNeural"
-    assert cfg.long_words == (1500, 1800)
+    assert cfg.long_words == (1900, 2300) and cfg.short_words == (300, 420)   # owner 2026-11-21
     assert cfg.azure_key is None
 
 

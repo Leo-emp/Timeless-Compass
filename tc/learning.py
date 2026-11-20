@@ -10,9 +10,9 @@ from tc import paths
 from tc.cli import register
 from tc.jobs import STAGES
 
-# Stages built in later plans also accept rules now, so feedback about rendering/editing isn't lost.
-LATER_STAGES = ["library", "build", "stills", "render", "edit", "qa", "package", "archive"]
-KNOWN = STAGES + LATER_STAGES + ["all"]
+# Older rule stage names (from the 3D plans) stay valid so earlier rules keep loading.
+OLD_STAGE_NAMES = ["library", "build", "edit", "qa", "package"]
+KNOWN = STAGES + [s for s in OLD_STAGE_NAMES if s not in STAGES] + ["all"]
 
 
 def _load() -> dict:

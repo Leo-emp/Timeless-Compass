@@ -77,7 +77,8 @@ def test_write_job_sheet_makes_facts_citable_by_the_script(tmp_path, monkeypatch
     # the script checker now accepts [src: f-sicinnus]
     line = " ".join(["w"] * 19) + ". [src: f-sicinnus]"
     script = "\n".join(["## hook", line, "## build", line, line, line, "## payoff", line, line])
-    assert check_script(parse_script(script), "short", src, Config()) == []
+    # (the length check uses old Short lengths here: this test is about citations, not length)
+    assert check_script(parse_script(script), "short", src, Config(short_words=(110, 150), short_rehook_max_s=600)) == []
 
 
 def test_write_job_sheet_refuses_a_bad_world(tmp_path, monkeypatch):

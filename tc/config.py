@@ -30,9 +30,10 @@ class Config:
     voice_rate: str = "-4%"                      # near-natural pace
     # ---- script length + retention rules (spec 6.0 / Global Constraints) ----
     words_per_min: int = 150
-    long_words: tuple[int, int] = (1500, 1800)  # 10-12 minute video
-    short_words: tuple[int, int] = (110, 150)   # 45-60 second Short
-    rehook_max_s: int = 90                      # an open loop / re-hook at least every 90 s
+    long_words: tuple[int, int] = (1900, 2300)  # 12-15 minute video (owner 2026-11-21)
+    short_words: tuple[int, int] = (300, 420)   # Short of 2 to under 3 minutes (owner 2026-11-21)
+    rehook_max_s: int = 90                      # long: an open loop / re-hook at least every 90 s
+    short_rehook_max_s: int = 30                # Shorts: a re-hook at least every 30 s (spec 6.14)
     # ---- pacing ----
     shot_s: tuple[float, float] = (3.0, 7.0)    # visual change every 3-7 s
     hold_max_s: float = 8.0                     # longer only if a shot is flagged "hold"

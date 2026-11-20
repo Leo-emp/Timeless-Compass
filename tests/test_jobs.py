@@ -52,3 +52,16 @@ def test_mark_command_marks_stage(capsys):
     job = jobs.create_job("x"); jobs.save_job(job)
     assert cli.main(["mark", job.id, "research", "--note", "12 sources"]) == 0
     assert jobs.load_job(job.id).stages["research"] == {**jobs.load_job(job.id).stages["research"], "status": "done", "note": "12 sources"}
+
+
+
+def test_old_job_gets_new_stages():
+    import json
+    old = {"id": "20261119-1824-x", "title": "x", "kind": "long", "created": "2026-11-19T18:24:00",
+           "stages": {s: {"status": "done", "at": None, "note": ""} for s in
+                      ["topic", "packaging", "research", "script", "voice", "align", "shots"]}}
+    d = paths.JOBS / old["id"]; d.mkdir(parents=True)
+    (d / "job.json").write_text(json.dumps(old), encoding="utf-8")
+    job = jobs.load_job(old["id"])
+    assert set(jobs.STAGES) <= set(job.stages)
+    assert jobs.next_stage(job) == "story"            # the first new stage that is not done

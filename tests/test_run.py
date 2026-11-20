@@ -21,15 +21,26 @@ def test_next_action_includes_stage_rules():
     learning.add_rule("hooks must be short", applies_to=["script"])
     learning.add_rule("about voices", applies_to=["voice"])
     job = jobs.create_job("x")
-    for s in ("topic", "packaging", "research"):
+    for s in ("topic", "packaging", "research", "story"):
         jobs.mark(job, s, "done")
     a = next_action(job)
     assert a["stage"] == "script" and a["rules"] == ["r1"]
 
 
-def test_done_job_says_finished_plan1():
+def test_done_job_says_finished():
     job = jobs.create_job("x")
     for s in jobs.STAGES:
         jobs.mark(job, s, "done")
     a = next_action(job)
-    assert a["stage"] is None and "Plan 2" in a["do"]
+    assert a["stage"] is None and "finished" in a["do"]
+
+
+def test_guide_covers_every_stage():
+    from tc.run import GUIDE
+    assert set(GUIDE) == set(jobs.STAGES)
+
+
+def test_guide_never_waits_for_owner():
+    from tc.run import GUIDE
+    for stage, (do, cmd) in GUIDE.items():
+        assert "owner" not in (do + cmd).lower(), stage

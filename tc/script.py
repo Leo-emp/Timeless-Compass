@@ -122,18 +122,19 @@ def check_script(lines: list[Line], kind: str, sources: dict, cfg: Config, secti
     lo, hi = cfg.long_words if kind == "long" else cfg.short_words
     if not lo <= words <= hi:
         problems.append(f"{words} words; a {kind} script needs {lo}-{hi}")
-    if kind == "long":
-        limit = cfg.rehook_max_s * cfg.words_per_min // 60          # 90 s at 150 wpm = 225 words
-        gap = 0
-        for l in lines:
-            if l.section == "cold_open":
-                continue
-            gap += len(l.spoken.split())
-            if l.loop:
-                gap = 0
-            elif gap > limit:
-                problems.append(f"line {l.index}: over {limit} words without a {{loop}} re-hook")
-                gap = 0
+    # re-hook spacing: long every 90 s (225 words), Shorts every 30 s (75 words); the opening hook itself is skipped
+    limit = (cfg.rehook_max_s if kind == "long" else cfg.short_rehook_max_s) * cfg.words_per_min // 60
+    opening = "cold_open" if kind == "long" else "hook"
+    gap = 0
+    for l in lines:
+        if l.section == opening:
+            continue
+        gap += len(l.spoken.split())
+        if l.loop:
+            gap = 0
+        elif gap > limit:
+            problems.append(f"line {l.index}: over {limit} words without a {{loop}} re-hook")
+            gap = 0
     # no fixed number of character lines (owner 2026-11-19): they go wherever they fit and boost the vibe (r1)
     for l in lines:
         if l.is_character:

@@ -2,7 +2,8 @@
 from tc.config import Config
 from tc.script import LONG_SECTIONS, check_script, parse_script
 
-CFG = Config()
+# These format tests were written for the old lengths; they pin them so they keep testing the format itself.
+CFG = Config(long_words=(1500, 1800), short_words=(110, 150), short_rehook_max_s=600)
 SOURCES = {"herodotus-8": {"title": "Histories VIII"}}
 
 
@@ -160,3 +161,17 @@ def test_speakers_helper_for_voice_and_shots():
 def test_curly_quotes_character_line():
     l = parse_script("## build\nXERXES: “Burn it.” [dramatised]\n")[0]
     assert l.speaker == "XERXES" and l.spoken == "Burn it."
+
+
+
+# ---------------- 2026-11-21 lengths: long 12-15 min, Shorts 2 to under 3 min ----------------
+def test_long_word_range():
+    probs = check_script(parse_script(make_script(words_per_section=290)), "long", SOURCES, Config())
+    assert not any("words; a long" in p for p in probs)
+
+
+def test_short_needs_rehook_every_30s():
+    narr = " ".join(["word"] * 20) + ". [src: herodotus-8]"
+    text = "\n".join(["## hook", narr + " {loop}", "## build"] + [narr] * 10 + ["## payoff"] + [narr] * 5)
+    probs = check_script(parse_script(text), "short", SOURCES, Config())
+    assert any("without a {loop} re-hook" in p for p in probs)
