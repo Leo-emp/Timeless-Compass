@@ -195,6 +195,17 @@ and expression starts on the word that names it ("he **raised** his spear" → t
 character mouths follow their own dialogue (Rhubarb mouth cues per Fish line); sound effects hit on their word.
 The shot plan stores these as word-anchored cues, and the self-check samples frames at those words to confirm.
 
+**Natural flow, never abrupt (r29).** Sync is the target, smoothness is the feel:
+- Actions use animation principles: anticipation (a wind-up before the throw), easing in and out, follow-through and
+  overlap (head turns first, body follows, cloak settles after). They start a few frames **before** their word so the
+  key pose **lands on** it.
+- Nobody freezes: characters breathe, blink and shift weight between beats; crowds and nature keep living.
+- Cuts are motivated: on a look, a movement or a sound; sound may lead into the next shot or trail out (J/L cuts);
+  slow scenes hold longer, battles cut faster.
+- Camera moves ease in and out; no sudden jumps or snaps. Music and sound effects fade and swell, never switch.
+- The motion check watches a short clip around each key word (not just one frame) and fails jerks, pops, snaps,
+  frozen characters and early or late actions.
+
 
 A motion vocabulary in the kit, used where the line calls for it (not everywhere): blink, talk (lip sync from the
 existing Rhubarb data for character lines), expression change, head turn, gestures (point, bow, raise weapon), walk
