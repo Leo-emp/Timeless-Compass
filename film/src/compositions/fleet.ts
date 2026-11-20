@@ -7,6 +7,7 @@
 // ============================================================================================================
 import { OUT, bg, ease, hand, limb, ln, resetIds, rng, sh, wrap } from '../kit/core';
 import { aspis, corinthClosed, corinthKingUp, hair, head, hopliteBody, pole } from '../kit/cast';
+import { card } from '../kit/tags';
 
 const T = 8; // the camera push takes 8 s (then holds) so the 15-min speed test keeps a steady frame
 
@@ -24,8 +25,8 @@ function commander(blink: boolean): string {
   const skin = '#dcae84';
   let s = `<ellipse cx="0" cy="-4" rx="80" ry="12" fill="rgba(0,0,0,.14)"/>` + hopliteBody(skin);
   s += sh('path', { d: 'M-46 -236 L-30 -222 L-46 -208 Z' }, '#d9b443');                     // cloak clasp
-  s += pole(-82, -470, -82, -6) + sh('path', { d: 'M-82 -520 L-92 -470 L-72 -470 Z' }, '#bdbdbd');
-  s += limb('M-44 -222 Q-80 -210 -82 -190', 20, skin) + hand(-82, -186, skin);              // hand over the spear = grip
+  s += pole(-82, -470, -82, -6, '#8b5a2b', 'cmd-spear') + sh('path', { d: 'M-82 -520 L-92 -470 L-72 -470 Z' }, '#bdbdbd');
+  s += limb('M-44 -222 Q-80 -210 -82 -190', 20, skin) + hand(-82, -186, skin, 'cmd-spear');  // hand over the spear = grip
   s += aspis(64, -160);
   return s + head(skin, 'stern', { beard: '#2a1d14', blink }) + corinthKingUp();
 }
@@ -128,6 +129,6 @@ export function drawFleet(t: number): string {
   });
   for (let i = 0; i < 30; i++) { const x = wrap(R() * 2200 + t * 60, 2300) - 200, y = 1000 + R() * 80; fore += `<path d="M${x} ${y} q14 -8 28 0" stroke="#e6f6f8" stroke-width="5" fill="none" stroke-linecap="round"/>`; }
   // place + date card: fixed to the screen (not the camera), fades in over the first second
-  const card = `<g transform="translate(1410 50)" opacity="${Math.min(1, t / 1)}"><rect width="460" height="62" rx="8" fill="#f4e6c6" stroke="${OUT}" stroke-width="4"/><text x="230" y="42" text-anchor="middle" font-family="Cinzel" font-size="27" font-weight="700" fill="${OUT}">THE GREEK FLEET · 480 BC</text></g>`;
-  return cam(t, 0.05, sky) + cam(t, 0.15, isl) + cam(t, 0.5, sea) + cam(t, 0.4, fleet) + cam(t, 1, hero) + cam(t, 1.2, fore) + card;
+  const label = card(1410, 50, 460, 62, 'THE GREEK FLEET · 480 BC', 27, Math.min(1, t / 1));
+  return cam(t, 0.05, sky) + cam(t, 0.15, isl) + cam(t, 0.5, sea) + cam(t, 0.4, fleet) + cam(t, 1, hero) + cam(t, 1.2, fore) + label;
 }

@@ -62,8 +62,10 @@ export function limb(d: string, w: number, col: string): string {
          `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
 }
 /** A fist. Draw it AFTER the prop it holds so the hand really wraps the spear/scroll (grip rule). */
-export function hand(x: number, y: number, skin: string): string {
-  return sh('circle', { cx: x, cy: y, r: 15 }, skin) + ln(`M${x - 8} ${y - 3} Q${x} ${y + 4} ${x + 8} ${y - 3}`, 3.5);
+export function hand(x: number, y: number, skin: string, holds?: string): string {
+  // data-role / data-holds let the still check see the hand on screen and test that it touches what it holds
+  const tag = `<g data-role="hand"${holds ? ` data-holds="${holds}"` : ''}>`;
+  return tag + sh('circle', { cx: x, cy: y, r: 15 }, skin) + ln(`M${x - 8} ${y - 3} Q${x} ${y + 4} ${x + 8} ${y - 3}`, 3.5) + '</g>';
 }
 /** Soft shade: a darker ellipse clipped to a shape (light comes from the upper left). */
 export function shade(clipInner: string, cx: number, cy: number, rx: number, ry: number, col = 'rgba(80,35,15,.16)'): string {

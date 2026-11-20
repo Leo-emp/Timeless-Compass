@@ -24,7 +24,7 @@ export interface HeadOpts {
 // ---------- head + face ----------
 /** The shared head: ears, round face, one soft shade, faint cheeks, the expression, optional wrinkles/beard/blink. */
 export function head(skin: string, ex: Expr = 'neutral', opt: HeadOpts = {}): string {
-  let s = '';
+  let s = '<g data-role="face">';   // one group = one face for the still check (nothing may cover it)
   s += sh('ellipse', { cx: -58, cy: -296, rx: 11, ry: 15 }, skin) + sh('ellipse', { cx: 58, cy: -296, rx: 11, ry: 15 }, skin); // ears first
   s += sh('ellipse', { cx: 0, cy: -300, rx: 60, ry: 63 }, skin);
   s += shade('<ellipse cx="0" cy="-300" rx="57" ry="60"/>', 52, -296, 42, 70);                    // shade on the right cheek
@@ -37,7 +37,7 @@ export function head(skin: string, ex: Expr = 'neutral', opt: HeadOpts = {}): st
   if (opt.age) s += ln('M-40 -322 Q-30 -326 -20 -322', 2.5) + ln('M20 -322 Q30 -326 40 -322', 2.5) +
                     ln('M-46 -284 Q-42 -276 -44 -268', 2.5) + ln('M46 -284 Q42 -276 44 -268', 2.5);
   if (opt.beard) s += sh('path', { d: 'M-50 -282 Q-48 -232 0 -226 Q48 -232 50 -282 Q40 -258 0 -256 Q-40 -258 -50 -282 Z' }, opt.beard);
-  return s;
+  return s + '</g>';
 }
 
 /** Eyes, brows, nose and mouth for one expression. */
@@ -171,15 +171,15 @@ export function gown(col: string, trim?: string): string {
 
 // ---------- weapons + soldier bodies ----------
 /** A held pole weapon (spear, trident, sceptre). Draw the shaft FIRST, then the hand on top (grip rule). */
-export const pole = (x1: number, y1: number, x2: number, y2: number, col = '#8b5a2b'): string =>
-  ln(`M${x1} ${y1} L${x2} ${y2}`, 10, OUT) + ln(`M${x1} ${y1} L${x2} ${y2}`, 5, col);
+export const pole = (x1: number, y1: number, x2: number, y2: number, col = '#8b5a2b', id?: string): string =>
+  `<g data-role="prop"${id ? ` data-id="${id}"` : ''}>` + ln(`M${x1} ${y1} L${x2} ${y2}`, 10, OUT) + ln(`M${x1} ${y1} L${x2} ${y2}`, 5, col) + '</g>';
 
 /** Greek bronze shield (aspis) with the Spartan lambda; the emblem scales with the radius. */
-export function aspis(cx: number, cy: number, r = 84): string {
+export function aspis(cx: number, cy: number, r = 84, id?: string): string {
   const k = r / 84;
-  return sh('circle', { cx, cy, r }, '#c99a45') + sh('circle', { cx, cy, r: r * 0.81 }, '#b23a2a') +
+  return `<g data-role="prop"${id ? ` data-id="${id}"` : ''}>` + sh('circle', { cx, cy, r }, '#c99a45') + sh('circle', { cx, cy, r: r * 0.81 }, '#b23a2a') +
     shade(`<circle cx="${cx}" cy="${cy}" r="${r}"/>`, cx + 56 * k, cy + 10 * k, 50 * k, 100 * k, 'rgba(70,30,10,.18)') +
-    ln(`M${cx - 30 * k} ${cy + 38 * k} L${cx} ${cy - 40 * k} L${cx + 30 * k} ${cy + 38 * k}`, 12 * k, '#efe0b8');
+    ln(`M${cx - 30 * k} ${cy + 38 * k} L${cx} ${cy - 40 * k} L${cx + 30 * k} ${cy + 38 * k}`, 12 * k, '#efe0b8') + '</g>';
 }
 
 /** Hoplite lower body + linothorax with pteruges strips, optional red cloak behind. */
