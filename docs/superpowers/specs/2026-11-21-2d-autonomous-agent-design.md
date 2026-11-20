@@ -108,6 +108,7 @@ costume + name card (no exact face copies), r7 zero spend, r8 laptop light, r11 
 | 2 | **research** | Sources for every fact; era sheet (costume, armour, buildings, ships, landscape) | every fact sourced |
 | 3a | **story design** *(new, r24)* | Before any line: the story page (6.14) — main character, want, fear, central question, beat sheet, twist, ending | story checklist passes |
 | 3b | **script** | Written from the story page, following `docs/SCRIPT_BIBLE.md`; loops every ~90 s; dramatised lines tagged | `tc script` passes + story self-check ≥ 90/100, else rewrite |
+| 3c | **viewer review** *(new, r27)* | A **separate, fresh viewer agent** (never saw the story page or the writing) reads the script as a first-time viewer: marks every moment it would click away, get bored or confused, notes what it feels, and says whether it would watch to the end and subscribe | **GO / NO-GO**; NO-GO notes go back to 3b; nothing is voiced or drawn before GO |
 | 4 | **voice + dialogue + align** | Existing Azure narrator, Fish character lines, word timings | existing checks |
 | 5 | **art direction** *(new)* | One page per video: palette per act, settings list, time-of-day plan, signature compositions; must differ from the last ~10 videos | sameness check (6.7) |
 | 6 | **cast** *(new)* | Every character needed: load the saved sheet, or create a new sheet and check it | character check (6.5) |
@@ -187,7 +188,13 @@ Each shot gets a fingerprint (setting type, composition type, camera move, palet
 last ~10 videos are kept in `taste/fingerprints.json`; the art direction and shot plan stages must avoid repeating
 recent combinations; the same character always appears in new settings and poses.
 
-### 6.8 Motion
+### 6.8 Motion — everything synced to the voiceover (r28)
+
+Word timings from the align stage drive every shot: cuts land on word or pause boundaries; each action, gesture
+and expression starts on the word that names it ("he **raised** his spear" → the spear rises on *raised*);
+character mouths follow their own dialogue (Rhubarb mouth cues per Fish line); sound effects hit on their word.
+The shot plan stores these as word-anchored cues, and the self-check samples frames at those words to confirm.
+
 
 A motion vocabulary in the kit, used where the line calls for it (not everywhere): blink, talk (lip sync from the
 existing Rhubarb data for character lines), expression change, head turn, gestures (point, bow, raise weapon), walk
