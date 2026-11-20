@@ -35,7 +35,7 @@ function deckSpartan(skin: string, helmetUp: boolean, blink: boolean): string {
   let s = hopliteBody(skin, true);
   s += pole(-60, -500, -60, -20) + sh('path', { d: 'M-60 -548 L-70 -500 L-50 -500 Z' }, '#cfcfcf');
   s += limb('M-44 -222 Q-60 -214 -60 -200', 20, skin) + hand(-60, -196, skin);
-  s += helmetUp ? head(skin, 'stern', { beard: '#2a1d14', blink }) + hair.corinthian() : head(skin, 'stern') + corinthClosed('fan');
+  s += helmetUp ? head(skin, 'stern', { beard: '#2a1d14', blink, extra: true }) + hair.corinthian() : head(skin, 'stern', { extra: true }) + corinthClosed('fan');
   return s;
 }
 

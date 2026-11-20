@@ -58,7 +58,7 @@ try {
     const out = [];
     document.querySelectorAll('[data-role]').forEach((el, order) => {
       const r = el.getBoundingClientRect();                 // screen box after all transforms
-      out.push({ role: el.getAttribute('data-role'), id: el.getAttribute('data-id'), holds: el.getAttribute('data-holds'),
+      out.push({ role: el.getAttribute('data-role'), id: el.getAttribute('data-id'), holds: el.getAttribute('data-holds'), acting: el.getAttribute('data-acting'),
                  box: [r.x, r.y, r.width, r.height], order });
     });
     return out;

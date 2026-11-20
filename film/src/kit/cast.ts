@@ -19,12 +19,14 @@ export interface HeadOpts {
   age?: boolean;   // forehead + cheek wrinkles for older characters
   beard?: string;  // colour of a short beard (big flowing beards use bigBeard)
   blink?: boolean; // eyelids closed this frame
+  extra?: boolean; // a background extra (crowd, crew behind a rail): may be partly hidden (still check)
 }
 
 // ---------- head + face ----------
 /** The shared head: ears, round face, one soft shade, faint cheeks, the expression, optional wrinkles/beard/blink. */
 export function head(skin: string, ex: Expr = 'neutral', opt: HeadOpts = {}): string {
-  let s = '<g data-role="face">';   // one group = one face for the still check (nothing may cover it)
+  // one group = one face for the still check; acting faces must never be covered, extras may be
+  let s = `<g data-role="face"${opt.extra ? ' data-acting="false"' : ''}>`;
   s += sh('ellipse', { cx: -58, cy: -296, rx: 11, ry: 15 }, skin) + sh('ellipse', { cx: 58, cy: -296, rx: 11, ry: 15 }, skin); // ears first
   s += sh('ellipse', { cx: 0, cy: -300, rx: 60, ry: 63 }, skin);
   s += shade('<ellipse cx="0" cy="-300" rx="57" ry="60"/>', 52, -296, 42, 70);                    // shade on the right cheek
