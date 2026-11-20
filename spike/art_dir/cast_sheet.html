@@ -1,0 +1,264 @@
+<!doctype html>
+<!--
+  Timeless Compass — 2D cast style sheet v1 (art-direction proposal, spike only).
+  Everything here is drawn in code (SVG built by JavaScript). No images, no AI.
+  Construction copied as an IDEA from the owner's reference video (Japan history explainer):
+    - big round head (~40% of body height), small solid dot eyes, short thick brows
+    - one thick dark-brown outline on every shape
+    - flat colour fills + ONE soft shade tone on the side away from the light
+    - short simple body, era-correct costume details carry the identity
+-->
+<html><head><meta charset="utf-8">
+<style>
+  html,body{margin:0;background:#efe4cf}
+  svg{display:block}
+</style></head>
+<body>
+<svg id="sheet" width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"></svg>
+<script>
+// ---------- shared style constants ----------
+const OUT = '#2a1c13';   // the one outline colour (dark warm brown, never pure black)
+const SW  = 7;           // outline thickness in figure units
+let uid = 0;             // counter so every clipPath gets a unique id
+
+// shape with outline: any SVG tag + attributes, filled, stroked with the house outline
+function sh(tag, attrs, fill){
+  const a = Object.entries(attrs).map(([k,v])=>`${k}="${v}"`).join(' ');
+  return `<${tag} ${a} fill="${fill}" stroke="${OUT}" stroke-width="${SW}" stroke-linejoin="round" stroke-linecap="round"/>`;
+}
+// plain line in outline colour (for folds, lacing, brows)
+function ln(d, w=5, col=OUT){ return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`; }
+
+// a "rubber" limb: a thick outline stroke with a thinner colour stroke on top = tube with outline
+function limb(d, w, col){
+  return `<path d="${d}" fill="none" stroke="${OUT}" stroke-width="${w+SW*2}" stroke-linecap="round" stroke-linejoin="round"/>`+
+         `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+// hand = small circle; drawn AFTER a held prop so the fist really wraps it
+function hand(x,y,skin){ return sh('circle',{cx:x,cy:y,r:15},skin) + ln(`M${x-8} ${y-3} Q${x} ${y+4} ${x+8} ${y-3}`,3.5); }
+
+// soft shade: fills the right side of a shape (light comes from upper-left)
+// shapeSvg = the shape markup used as the clip; we lay a darker ellipse over its right part
+function shade(clipInner, cx, cy, rx, ry, col='rgba(80,35,15,.16)'){
+  const id = 'c'+(uid++);
+  return `<clipPath id="${id}">${clipInner}</clipPath>`+
+         `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${col}" clip-path="url(#${id})"/>`;
+}
+
+// ---------- the head (shared by every character) ----------
+// Head centre (0,-300), radius ~60. `ex` = expression name. `age` adds wrinkles.
+function head(skin, ex='neutral', opt={}){
+  let s = '';
+  // ears first so the head outline sits over them
+  s += sh('ellipse',{cx:-58,cy:-296,rx:11,ry:15},skin) + sh('ellipse',{cx:58,cy:-296,rx:11,ry:15},skin);
+  s += sh('ellipse',{cx:0,cy:-300,rx:60,ry:63},skin);
+  s += shade('<ellipse cx="0" cy="-300" rx="57" ry="60"/>', 52, -296, 42, 70);   // shade on the right cheek
+  s += `<ellipse cx="-30" cy="-280" rx="11" ry="6" fill="rgba(230,110,90,.22)"/><ellipse cx="30" cy="-280" rx="11" ry="6" fill="rgba(230,110,90,.22)"/>`; // faint cheeks
+  s += face(ex, opt);
+  if (opt.age) s += ln('M-40 -322 Q-30 -326 -20 -322',2.5) + ln('M20 -322 Q30 -326 40 -322',2.5) + ln('M-46 -284 Q-42 -276 -44 -268',2.5) + ln('M46 -284 Q42 -276 44 -268',2.5);
+  if (opt.beard) s += sh('path',{d:'M-50 -282 Q-48 -232 0 -226 Q48 -232 50 -282 Q40 -258 0 -256 Q-40 -258 -50 -282 Z'}, opt.beard);
+  return s;
+}
+
+// facial expression: eyes, brows, nose, mouth. Small solid eyes like the reference.
+function face(ex, opt={}){
+  let s='', eyeY=-300;
+  const eye = (x, ry=9)=> `<ellipse cx="${x}" cy="${eyeY}" rx="6.5" ry="${ry}" fill="${OUT}"/><circle cx="${x-2}" cy="${eyeY-3}" r="2" fill="#fff"/>`;
+  // nose: one small curve
+  s += ln('M-3 -288 Q3 -284 -1 -279',3.5);
+  switch(ex){
+    case 'neutral':
+      s += eye(-21)+eye(21);
+      s += ln('M-31 -322 L-12 -321',6)+ln('M12 -321 L31 -322',6);
+      s += ln('M-10 -264 Q0 -260 10 -264',4.5); break;
+    case 'stern':      // determined / angry: inner brow ends pushed down
+      s += eye(-21,8)+eye(21,8);
+      s += ln('M-33 -331 L-11 -318',7)+ln('M11 -318 L33 -331',7);
+      s += ln('M-13 -259 Q0 -266 13 -259',5); break;
+    case 'worried':    // inner brow ends raised, wobbly mouth, sweat drop
+      s += eye(-21)+eye(21);
+      s += ln('M-32 -318 L-11 -330',6)+ln('M11 -330 L32 -318',6);
+      s += ln('M-12 -262 Q-6 -267 0 -262 Q6 -257 12 -262',4.5);
+      s += `<path d="M56 -342 Q64 -326 56 -320 Q48 -326 56 -342 Z" fill="#8fc6e8" stroke="${OUT}" stroke-width="3.5"/>`; break;
+    case 'shocked':    // bigger eyes, high brows, open mouth
+      s += `<ellipse cx="-21" cy="${eyeY}" rx="9" ry="12" fill="${OUT}"/><ellipse cx="21" cy="${eyeY}" rx="9" ry="12" fill="${OUT}"/><circle cx="-24" cy="-305" r="2.5" fill="#fff"/><circle cx="18" cy="-305" r="2.5" fill="#fff"/>`;
+      s += ln('M-32 -334 Q-21 -340 -10 -334',6)+ln('M10 -334 Q21 -340 32 -334',6);
+      s += sh('ellipse',{cx:0,cy:-260,rx:9,ry:12},'#7a2b22'); break;
+    case 'sly':        // one brow up, half-closed eyes, smirk
+      s += ln('M-29 -301 Q-21 -296 -13 -301',5)+ln('M13 -301 Q21 -296 29 -301',5);
+      s += ln('M-31 -318 L-12 -317',6)+ln('M12 -326 Q22 -332 32 -324',6);
+      s += ln('M-10 -264 Q4 -262 14 -270',4.5); break;
+    case 'grief':      // brows up in the middle, eyes looking down, downturned mouth
+      s += `<ellipse cx="-21" cy="-296" rx="6" ry="7" fill="${OUT}"/><ellipse cx="21" cy="-296" rx="6" ry="7" fill="${OUT}"/>`;
+      s += ln('M-31 -316 L-12 -326',6)+ln('M12 -326 L31 -316',6);
+      s += ln('M-11 -258 Q0 -266 11 -258',4.5);
+      s += `<path d="M-24 -288 Q-21 -278 -24 -272" stroke="#8fc6e8" stroke-width="4" fill="none" stroke-linecap="round"/>`; break;
+  }
+  return s;
+}
+
+// ---------- hair & headgear ----------
+const hair = {
+  // Edo/Sengoku topknot: shaved crown, hair on the sides, small knot laid on top
+  chonmage(){ return sh('path',{d:'M-60 -292 Q-64 -330 -46 -344 L-40 -318 Q-50 -306 -52 -284 Z'},'#22201f')+
+                     sh('path',{d:'M60 -292 Q64 -330 46 -344 L40 -318 Q50 -306 52 -284 Z'},'#22201f')+
+                     sh('rect',{x:-8,y:-388,width:16,height:34,rx:8},'#22201f')+ln('M-8 -362 L8 -362',3,'#c9b27a'); },
+  // Sengoku kabuto: lacquered bowl, flared neck guard, turned-back flaps, gold crescent crest
+  kabuto(){ return sh('path',{d:'M-70 -318 Q-92 -290 -96 -262 L-62 -276 L-60 -318 Z'},'#7a1f1a')+
+                   sh('path',{d:'M70 -318 Q92 -290 96 -262 L62 -276 L60 -318 Z'},'#7a1f1a')+
+                   ln('M-66 -300 L-90 -286',3.5)+ln('M66 -300 L90 -286',3.5)+
+                   sh('path',{d:'M-68 -316 Q-68 -380 0 -384 Q68 -380 68 -316 Z'},'#2b2a33')+
+                   ln('M-40 -372 L-42 -318',3,'#55546a')+ln('M0 -384 L0 -318',3,'#55546a')+ln('M40 -372 L42 -318',3,'#55546a')+
+                   sh('path',{d:'M-74 -318 Q0 -326 74 -318 L74 -306 Q0 -314 -74 -306 Z'},'#2b2a33')+
+                   sh('path',{d:'M-30 -330 Q-62 -392 -40 -440 Q-46 -386 0 -350 Q46 -386 40 -440 Q62 -392 30 -330 Z'},'#e0b347'); },
+  // Greek Corinthian helmet pushed up on the head (face visible), red horsehair crest
+  corinthian(){ return sh('path',{d:'M-64 -404 Q-66 -488 0 -492 Q66 -488 64 -404 Q40 -436 0 -438 Q-40 -436 -64 -404 Z'},'#b23a2a')+ln('M-40 -440 Q-44 -470 -20 -480 M0 -440 L0 -488 M40 -440 Q44 -470 20 -480',2.5,'#7e2419')+
+                       sh('path',{d:'M-62 -330 Q-66 -404 0 -408 Q66 -404 62 -330 L48 -326 L44 -350 L-44 -350 L-48 -326 Z'},'#c99a45')+
+                       ln('M-44 -350 L44 -350',3,'#8a6427')+
+                       shade('<path d="M-62 -330 Q-66 -404 0 -408 Q66 -404 62 -330 Z"/>', 50, -370, 40, 60, 'rgba(90,50,10,.2)')+
+                       sh('rect',{x:-8,y:-428,width:16,height:24,rx:3},'#8a6427'); },
+  // Roman senator: short greying hair combed forward
+  roman(){ return sh('path',{d:'M-60 -300 Q-66 -366 0 -368 Q66 -366 60 -300 Q56 -334 30 -340 Q0 -332 -30 -340 Q-56 -334 -60 -300 Z'},'#9c958d')+
+                  ln('M-30 -340 L-26 -330',3)+ln('M-6 -336 L-4 -326',3)+ln('M18 -338 L16 -328',3); },
+  // Egyptian New Kingdom wig: black bob with straight fringe
+  wig(){ return sh('path',{d:'M-70 -240 Q-80 -380 0 -376 Q80 -380 70 -240 L48 -240 L50 -300 Q46 -330 30 -334 L-30 -334 Q-46 -330 -50 -300 L-48 -240 Z'},'#1c1a22')+
+                ln('M-60 -300 L-60 -250',2.5,'#3a3846')+ln('M60 -300 L60 -250',2.5,'#3a3846'); },
+  // 1950s fedora
+  fedora(){ return sh('path',{d:'M-58 -300 Q-62 -340 -40 -346 L40 -346 Q62 -340 58 -300 Z'},'#4b3a2a')+
+                   sh('ellipse',{cx:0,cy:-346,rx:88,ry:16},'#3b2e22')+
+                   sh('path',{d:'M-50 -348 Q-50 -404 0 -398 Q50 -404 50 -348 Z'},'#3b2e22')+
+                   ln('M0 -398 L0 -386',4)+sh('rect',{x:-50,y:-364,width:100,height:14,rx:3},'#1f1814'); },
+};
+
+// ---------- the five characters ----------
+// Each returns SVG with feet at y=0 and the body centred on x=0.
+
+function samurai(){ // Sengoku-era samurai in tosei-gusoku armour, hand on katana
+  const skin='#f0cfa8'; let s='';
+  s += sh('ellipse',{cx:0,cy:-4,rx:70,ry:12},'rgba(0,0,0,.14)').replace(`stroke="${OUT}"`,'stroke="none"');
+  s += limb('M-20 -90 L-24 -16',24,'#2d3550')+limb('M20 -90 L24 -16',24,'#2d3550');           // hakama legs
+  s += sh('ellipse',{cx:-28,cy:-9,rx:22,ry:11},'#5a4636')+sh('ellipse',{cx:28,cy:-9,rx:22,ry:11},'#5a4636'); // sandals
+  s += limb('M44 -214 Q60 -170 52 -128',22,'#2d3550');                                         // back arm hangs
+  s += hand(52,-122,skin);
+  // katana scabbard pushed through the belt, hilt forward
+  s += sh('path',{d:'M-10 -150 L-150 -94 L-146 -84 L-6 -140 Z'},'#1e1a1a')+sh('rect',{x:-18,y:-160,width:12,height:28,rx:3},'#c9a24a');
+  s += sh('path',{d:'M-6 -150 L60 -176 L64 -166 L-2 -140 Z'},'#e8e0cc')+ln('M10 -152 L18 -162 M26 -158 L34 -168 M42 -164 L50 -174',3);
+  // do (cuirass) + kusazuri (skirt plates) in red lacquer with lacing
+  s += sh('path',{d:'M-62 -138 L-74 -80 L-26 -76 L-22 -136 Z'},'#9e2a22')+sh('path',{d:'M62 -138 L74 -80 L26 -76 L22 -136 Z'},'#9e2a22')+sh('path',{d:'M-24 -136 L-26 -74 L26 -74 L24 -136 Z'},'#8a231d');
+  s += ln('M-70 -110 L-24 -108 M-26 -92 L26 -92 M24 -108 L70 -110',3,'#e6c46a');
+  s += sh('path',{d:'M-48 -236 Q0 -246 48 -236 L58 -140 Q0 -128 -58 -140 Z'},'#a82d24');
+  s += shade('<path d="M-48 -236 Q0 -246 48 -236 L58 -140 Q0 -128 -58 -140 Z"/>', 60, -190, 40, 80);
+  for (let y=-222;y<=-156;y+=16) s += ln(`M-50 ${y} Q0 ${y-8} 50 ${y}`,3,'#e6c46a');
+  s += sh('rect',{x:-56,y:-152,width:112,height:16,rx:4},'#2a2a35');                          // obi belt
+  s += sh('path',{d:'M-46 -240 L-82 -226 L-78 -176 L-46 -186 Z'},'#9e2a22')+ln('M-80 -210 L-46 -220 M-79 -194 L-46 -204',3,'#e6c46a'); // sode shoulder plate
+  s += sh('path',{d:'M46 -240 L82 -226 L78 -176 L46 -186 Z'},'#8a231d')+ln('M80 -210 L46 -220 M79 -194 L46 -204',3,'#e6c46a');
+  s += limb('M-60 -206 Q-58 -168 -20 -152',22,'#2d3550');                                      // front arm to the hilt
+  s += hand(-14,-152,skin);
+  s += head(skin,'stern') + hair.kabuto();
+  return s;
+}
+
+function hoplite(){ // Spartan hoplite c. 480 BC: helmet up, spear gripped, shield on the arm
+  const skin='#e2b48a'; let s='';
+  s += `<ellipse cx="0" cy="-4" rx="80" ry="12" fill="rgba(0,0,0,.14)"/>`;
+  s += sh('path',{d:'M-46 -236 Q-80 -120 -70 -40 L70 -40 Q80 -120 46 -236 Z'},'#9b2b22');    // red cloak behind
+  s += limb('M-18 -90 L-20 -16',20,skin)+limb('M18 -90 L20 -16',20,skin);
+  s += sh('path',{d:'M-32 -78 L-30 -24 L-8 -24 L-8 -78 Z'},'#c99a45')+sh('path',{d:'M32 -78 L30 -24 L8 -24 L8 -78 Z'},'#c99a45'); // bronze greaves
+  s += sh('ellipse',{cx:-24,cy:-9,rx:20,ry:10},'#6a4a30')+sh('ellipse',{cx:24,cy:-9,rx:20,ry:10},'#6a4a30');
+  // linothorax with pteruges strips
+  for (let i=-3;i<=3;i++) s += sh('rect',{x:i*15-7,y:-122,width:14,height:42,rx:3},'#efe6cf');
+  s += sh('path',{d:'M-46 -238 Q0 -248 46 -238 L50 -120 L-50 -120 Z'},'#efe6cf');
+  s += shade('<path d="M-46 -238 Q0 -248 46 -238 L50 -120 L-50 -120 Z"/>', 52, -180, 34, 80);
+  s += ln('M-48 -150 L48 -150',4,'#b23a2a')+ln('M-44 -214 L44 -214',3,'#c99a45');
+  // spear first (vertical), then the hand drawn over it = real grip
+  s += ln('M-82 -470 L-82 -6',9,OUT)+ln('M-82 -466 L-82 -10',4.5,'#8b5a2b');
+  s += sh('path',{d:'M-82 -520 L-92 -470 L-72 -470 Z'},'#bdbdbd');
+  s += limb('M-44 -222 Q-80 -210 -82 -190',20,skin);
+  s += hand(-82,-186,skin);
+  // aspis shield held on the far arm, lambda for Lacedaemon
+  s += sh('circle',{cx:64,cy:-160,r:84},'#c99a45')+sh('circle',{cx:64,cy:-160,r:68},'#b23a2a');
+  s += shade('<circle cx="64" cy="-160" r="84"/>', 120, -150, 50, 100, 'rgba(70,30,10,.18)');
+  s += ln('M34 -122 L64 -200 L94 -122',12,'#efe0b8');
+  s += head(skin,'stern',{beard:'#3a2a1e'}) + hair.corinthian();
+  return s;
+}
+
+function senator(){ // Late Republic Roman senator: toga over tunic with broad purple stripe, scroll
+  const skin='#ecc59e'; let s='';
+  s += `<ellipse cx="0" cy="-4" rx="66" ry="12" fill="rgba(0,0,0,.14)"/>`;
+  s += limb('M-16 -70 L-18 -16',18,skin)+limb('M16 -70 L18 -16',18,skin);
+  s += sh('ellipse',{cx:-22,cy:-9,rx:20,ry:10},'#7a2a24')+sh('ellipse',{cx:22,cy:-9,rx:20,ry:10},'#7a2a24'); // red calcei
+  s += sh('path',{d:'M-48 -236 Q0 -246 48 -236 Q62 -140 56 -62 L-56 -62 Q-62 -140 -48 -236 Z'},'#f1ece0');
+  s += sh('path',{d:'M8 -240 L22 -240 L20 -62 L6 -62 Z'},'#6b2f6e');                               // laticlavus stripe
+  s += sh('path',{d:'M-50 -238 Q-10 -150 52 -96 L56 -128 Q10 -170 -26 -242 Z'},'#e6dfcf');           // toga drape
+  s += ln('M-38 -210 Q-6 -150 50 -112',3,'#b8ae98')+ln('M-30 -226 Q4 -170 52 -124',3,'#b8ae98')+ln('M-40 -150 L-42 -70 M-24 -140 L-26 -66',3,'#b8ae98');
+  s += shade('<path d="M-48 -236 Q0 -246 48 -236 Q62 -140 56 -62 L-56 -62 Q-62 -140 -48 -236 Z"/>', 60, -150, 34, 110);
+  s += limb('M44 -220 Q64 -180 56 -140',20,'#f1ece0')+hand(56,-134,skin);
+  // scroll held at the chest
+  s += sh('rect',{x:-50,y:-182,width:56,height:22,rx:10},'#efdcae')+sh('ellipse',{cx:6,cy:-171,rx:6,ry:11},'#d8c08a');
+  s += limb('M-44 -220 Q-66 -190 -36 -172',20,'#e6dfcf')+hand(-30,-172,skin);
+  s += head(skin,'sly',{age:true}) + hair.roman();
+  return s;
+}
+
+function scribe(){ // New Kingdom Egyptian scribe: wig, broad collar, pleated kilt, papyrus
+  const skin='#b47a4c'; let s='';
+  s += `<ellipse cx="0" cy="-4" rx="62" ry="12" fill="rgba(0,0,0,.14)"/>`;
+  s += limb('M-16 -90 L-18 -16',18,skin)+limb('M16 -90 L18 -16',18,skin);
+  s += sh('ellipse',{cx:-22,cy:-9,rx:19,ry:9},'#d9c49a')+sh('ellipse',{cx:22,cy:-9,rx:19,ry:9},'#d9c49a'); // papyrus sandals
+  s += sh('path',{d:'M-42 -236 Q0 -246 42 -236 L40 -138 L-40 -138 Z'},skin);                       // bare torso
+  s += shade('<path d="M-42 -236 Q0 -246 42 -236 L40 -138 L-40 -138 Z"/>', 46, -190, 30, 70);
+  s += sh('path',{d:'M-44 -140 L-54 -70 L54 -70 L44 -140 Z'},'#f4efe2');                            // shendyt kilt
+  for (let x=-36;x<=36;x+=12) s += ln(`M${x} -134 L${x*1.2} -74`,2.5,'#c9c0aa');
+  s += sh('rect',{x:-46,y:-146,width:92,height:12,rx:3},'#d6a93a');                                  // gold belt
+  s += sh('path',{d:'M-46 -238 Q0 -250 46 -238 Q40 -196 0 -192 Q-40 -196 -46 -238 Z'},'#2e6f8e');  // usekh collar
+  s += ln('M-40 -226 Q0 -208 40 -226',4,'#d6a93a')+ln('M-30 -212 Q0 -200 30 -212',4,'#c24a3a');
+  s += limb('M42 -222 Q62 -186 54 -146',17,skin)+hand(54,-140,skin);
+  s += sh('rect',{x:-74,y:-200,width:50,height:62,rx:4},'#e8d6a0')+ln('M-66 -186 L-34 -186 M-66 -174 L-38 -174 M-66 -162 L-36 -162',2.5,'#7a5a3a'); // papyrus sheet
+  s += limb('M-42 -222 Q-70 -196 -52 -170',17,skin)+hand(-50,-166,skin);
+  s += head(skin,'worried') + hair.wig();
+  return s;
+}
+
+function agent(){ // 1950s US intelligence officer: grey suit, fedora, secret folder under arm
+  const skin='#efcda9'; let s='';
+  s += `<ellipse cx="0" cy="-4" rx="64" ry="12" fill="rgba(0,0,0,.14)"/>`;
+  s += limb('M-17 -100 L-19 -16',22,'#55595e')+limb('M17 -100 L19 -16',22,'#55595e');
+  s += sh('ellipse',{cx:-24,cy:-9,rx:22,ry:10},'#1b1a1a')+sh('ellipse',{cx:24,cy:-9,rx:22,ry:10},'#1b1a1a');
+  s += sh('path',{d:'M-48 -238 Q0 -248 48 -238 L54 -96 L-54 -96 Z'},'#5f646b');
+  s += shade('<path d="M-48 -238 Q0 -248 48 -238 L54 -96 L-54 -96 Z"/>', 58, -170, 36, 90);
+  s += sh('path',{d:'M-18 -240 L0 -196 L18 -240 Z'},'#f4f1ea')+sh('path',{d:'M-5 -232 L5 -232 L8 -180 L0 -170 L-8 -180 Z'},'#7a2329');
+  s += ln('M-20 -240 L-4 -170 L-10 -100',3.5)+ln('M20 -240 L4 -170',3.5);                         // lapels + front edge
+  s += limb('M-44 -222 Q-60 -180 -52 -140',22,'#5f646b')+hand(-52,-134,skin);
+  // folder clamped under the far arm
+  s += sh('rect',{x:46,y:-214,width:70,height:88,rx:4},'#d9b46a');
+  s += `<text x="84" y="-150" font-family="Bahnschrift, Arial Black, sans-serif" font-weight="700" font-size="13" text-anchor="middle" fill="#b02a20" transform="rotate(-12 84 -154)">TOP SECRET</text>`;
+  s += limb('M44 -222 Q70 -186 40 -150',22,'#5f646b')+hand(36,-148,skin);
+  s += head(skin,'neutral') + hair.fedora();
+  return s;
+}
+
+// ---------- lay out the sheet ----------
+const W = document.getElementById('sheet');
+let out = '';
+// title block
+out += `<text x="70" y="86" font-family="Georgia, serif" font-size="44" fill="${OUT}" font-weight="700">TIMELESS COMPASS · CAST STYLE v1</text>`;
+out += `<text x="72" y="124" font-family="Bahnschrift, Arial, sans-serif" font-size="22" fill="#6b5442">Drawn 100% in code · thick warm outline · round head ≈ 40% of height · flat colour + one soft shade · costume carries the era</text>`;
+// ground strip
+out += `<rect x="0" y="700" width="1920" height="10" fill="#d9c9a8"/>`;
+const cast = [ [samurai,'SAMURAI · 1600'], [hoplite,'HOPLITE · 480 BC'], [senator,'SENATOR · 44 BC'], [scribe,'SCRIBE · 1250 BC'], [agent,'AGENT · 1953'] ];
+cast.forEach(([fn,label],i)=>{
+  const x = 230 + i*365;
+  out += `<g transform="translate(${x} 690) scale(1.08)">${fn()}</g>`;
+  out += `<text x="${x}" y="752" text-anchor="middle" font-family="Bahnschrift, Arial, sans-serif" font-size="24" font-weight="700" fill="${OUT}">${label}</text>`;
+});
+// expression row: same plain samurai head, six emotions
+out += `<text x="70" y="830" font-family="Bahnschrift, Arial, sans-serif" font-size="22" fill="#6b5442">FACES ACT — six base expressions (mouth + brows animate between them)</text>`;
+['neutral','stern','worried','shocked','sly','grief'].forEach((ex,i)=>{
+  const x = 190 + i*300;
+  out += `<g transform="translate(${x} 1240) scale(.95)">${head('#f0cfa8',ex)}${hair.chonmage()}</g>`;
+  out += `<text x="${x}" y="1060" text-anchor="middle" font-family="Bahnschrift, Arial, sans-serif" font-size="22" fill="${OUT}">${ex}</text>`;
+});
+W.innerHTML = out;
+</script>
+</body></html>

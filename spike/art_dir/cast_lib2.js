@@ -1,0 +1,215 @@
+// Cast library part 2 (spike): gods, royals, Spartans + shared extras. Needs cast_lib.js first.
+// ---------- extra pieces for this page ----------
+
+// gods stand in a soft glow; colour tells you the domain (sky gold, sea teal, underworld violet)
+function aura(id){ return `<ellipse cx="0" cy="-250" rx="190" ry="270" fill="url(#${id})"/>`; }
+const DEFS = `<defs>
+  <radialGradient id="gGold"><stop offset="0" stop-color="#ffe9a8" stop-opacity=".95"/><stop offset="1" stop-color="#ffe9a8" stop-opacity="0"/></radialGradient>
+  <radialGradient id="gSea"><stop offset="0" stop-color="#9fe3e0" stop-opacity=".9"/><stop offset="1" stop-color="#9fe3e0" stop-opacity="0"/></radialGradient>
+  <radialGradient id="gDark"><stop offset="0" stop-color="#8f6fb8" stop-opacity=".75"/><stop offset="1" stop-color="#8f6fb8" stop-opacity="0"/></radialGradient>
+</defs>`;
+const shadow = (rx=70)=> `<ellipse cx="0" cy="-4" rx="${rx}" ry="12" fill="rgba(0,0,0,.14)"/>`;
+
+// floor-length gown / robe (hides legs) — used by goddesses, queens, princesses, Hades
+function gown(col, trim){
+  const d='M-44 -238 Q0 -248 44 -238 Q58 -120 80 -8 L-80 -8 Q-58 -120 -44 -238 Z';
+  return sh('path',{d},col)+shade(`<path d="${d}"/>`,70,-120,50,140)+(trim? ln('M-78 -22 L78 -22',6,trim):'')+ln('M-20 -150 L-36 -16 M16 -150 L30 -16',3,'rgba(42,28,19,.35)');
+}
+// long hair that falls behind the shoulders (draw BEFORE the head)
+function longHairBack(col){ return sh('path',{d:'M-66 -300 Q-76 -384 0 -382 Q76 -384 66 -300 L74 -190 Q44 -180 42 -226 L-42 -226 Q-44 -180 -74 -190 Z'},col); }
+// fringe/top of the same hair (draw AFTER the head)
+function longHairTop(col){ return sh('path',{d:'M-62 -296 Q-66 -374 0 -374 Q66 -374 62 -296 Q52 -338 10 -340 Q-26 -336 -44 -312 Q-54 -304 -62 -296 Z'},col); }
+// eyelashes for female faces: one flick at each outer eye corner
+const lashes = ()=> ln('M-28 -306 L-34 -312',3.5)+ln('M28 -306 L34 -312',3.5);
+// big flowing beard + moustache; mouth redrawn on top so the face can still act
+function bigBeard(col, curls){
+  let s = sh('path',{d:'M-58 -292 Q-70 -206 -30 -180 Q0 -164 30 -180 Q70 -206 58 -292 Q42 -258 0 -256 Q-42 -258 -58 -292 Z'},col);
+  s += sh('path',{d:'M-28 -266 Q-14 -280 0 -270 Q14 -280 28 -266 Q14 -258 0 -263 Q-14 -258 -28 -266 Z'},col);
+  if (curls) s += ln('M-40 -230 q6 8 0 14 M-14 -218 q6 8 0 14 M14 -218 q6 8 0 14 M40 -230 q6 8 0 14',3,curls);
+  return s + ln('M-9 -254 Q0 -250 9 -254',4);
+}
+// royal headwear
+const crown = (jewel='#b02a2a')=> sh('path',{d:'M-46 -346 L-48 -398 L-28 -370 L-14 -406 L0 -374 L14 -406 L28 -370 L48 -398 L46 -346 Z'},'#e2b23f')+
+  sh('circle',{cx:0,cy:-358,r:7},jewel)+sh('circle',{cx:-28,cy:-356,r:5},'#2f6fb0')+sh('circle',{cx:28,cy:-356,r:5},'#2f6fb0');
+const tiara = ()=> sh('path',{d:'M-38 -348 Q0 -392 38 -348 Q0 -364 -38 -348 Z'},'#e9c25a')+sh('circle',{cx:0,cy:-372,r:6},'#d0507a');
+const circlet = ()=> sh('path',{d:'M-56 -336 Q0 -350 56 -336 L56 -326 Q0 -340 -56 -326 Z'},'#e2b23f')+sh('circle',{cx:0,cy:-340,r:5},'#2f6fb0');
+// laurel wreath (Zeus)
+function laurel(){ let s=''; for(let i=0;i<5;i++){ const x=-50+i*12, y=-338-i*5; s+=sh('ellipse',{cx:x,cy:y,rx:9,ry:5,transform:`rotate(-30 ${x} ${y})`},'#d9b443'); s+=sh('ellipse',{cx:-x,cy:y,rx:9,ry:5,transform:`rotate(30 ${-x} ${y})`},'#d9b443'); } return s; }
+// closed Corinthian helmet: whole face hidden, T-opening, dark eye slits (battle look)
+function corinthClosed(crestKind='fan'){
+  let s='';
+  if (crestKind==='fan') s+=sh('path',{d:'M-64 -404 Q-66 -488 0 -492 Q66 -488 64 -404 Q40 -436 0 -438 Q-40 -436 -64 -404 Z'},'#b23a2a')+sh('rect',{x:-8,y:-428,width:16,height:24,rx:3},'#8a6427');
+  if (crestKind==='king') s+=sh('path',{d:'M-104 -392 Q0 -466 104 -392 Q0 -420 -104 -392 Z'},'#b23a2a')+ln('M-70 -410 L-60 -396 M-36 -424 L-30 -406 M0 -430 L0 -412 M36 -424 L30 -406 M70 -410 L60 -396',2.5,'#7e2419')+sh('rect',{x:-8,y:-418,width:16,height:24,rx:3},'#8a6427');
+  const d='M-66 -244 Q-72 -384 0 -388 Q72 -384 66 -244 L24 -240 L20 -282 L8 -290 L8 -242 L-8 -242 L-8 -290 L-20 -282 L-24 -240 Z';
+  s+=sh('path',{d},'#c99a45')+shade(`<path d="${d}"/>`,56,-300,40,90,'rgba(90,50,10,.22)');
+  s+=`<path d="M-44 -318 Q-26 -326 -8 -312 L-8 -300 Q-26 -304 -44 -302 Z" fill="#20140c"/><path d="M44 -318 Q26 -326 8 -312 L8 -300 Q26 -304 44 -302 Z" fill="#20140c"/>`;
+  s+=`<circle cx="-24" cy="-309" r="3" fill="#fff"/><circle cx="24" cy="-309" r="3" fill="#fff"/>`;   // eyes glint through the slits
+  return s+ln('M-50 -340 Q0 -352 50 -340',3,'#8a6427');
+}
+// open helmet with a side-to-side (transverse) crest = officer / king
+const corinthKingUp = ()=> sh('path',{d:'M-104 -398 Q0 -476 104 -398 Q0 -426 -104 -398 Z'},'#b23a2a')+ln('M-70 -416 L-60 -402 M-36 -430 L-30 -412 M0 -436 L0 -418 M36 -430 L30 -412 M70 -416 L60 -402',2.5,'#7e2419')+
+  sh('path',{d:'M-62 -330 Q-66 -404 0 -408 Q66 -404 62 -330 L48 -326 L44 -350 L-44 -350 L-48 -326 Z'},'#c99a45')+ln('M-44 -350 L44 -350',3,'#8a6427')+
+  shade('<path d="M-62 -330 Q-66 -404 0 -408 Q66 -404 62 -330 Z"/>',50,-370,40,60,'rgba(90,50,10,.2)')+sh('rect',{x:-8,y:-424,width:16,height:24,rx:3},'#8a6427');
+// a held pole weapon: shaft first, so the hand drawn later wraps it
+const pole = (x1,y1,x2,y2,col='#8b5a2b')=> ln(`M${x1} ${y1} L${x2} ${y2}`,10,OUT)+ln(`M${x1} ${y1} L${x2} ${y2}`,5,col);
+// Spartan bronze shield with lambda
+function aspis(cx,cy,r=84){ return sh('circle',{cx,cy,r},'#c99a45')+sh('circle',{cx,cy,r:r*0.81},'#b23a2a')+shade(`<circle cx="${cx}" cy="${cy}" r="${r}"/>`,cx+56,cy+10,50,100,'rgba(70,30,10,.18)')+ln(`M${cx-30*r/84} ${cy+38*r/84} L${cx} ${cy-40*r/84} L${cx+30*r/84} ${cy+38*r/84}`,12*r/84,'#efe0b8'); }  // emblem scales with the shield
+// hoplite lower body (bare legs, bronze greaves, sandals) + linothorax with pteruges + red cloak
+function hopliteBody(skin, cloak=true){
+  let s='';
+  if (cloak) s += sh('path',{d:'M-46 -236 Q-84 -120 -74 -40 L74 -40 Q84 -120 46 -236 Z'},'#9b2b22');
+  s += limb('M-18 -90 L-20 -16',20,skin)+limb('M18 -90 L20 -16',20,skin);
+  s += sh('path',{d:'M-32 -78 L-30 -24 L-8 -24 L-8 -78 Z'},'#c99a45')+sh('path',{d:'M32 -78 L30 -24 L8 -24 L8 -78 Z'},'#c99a45');
+  s += sh('ellipse',{cx:-24,cy:-9,rx:20,ry:10},'#6a4a30')+sh('ellipse',{cx:24,cy:-9,rx:20,ry:10},'#6a4a30');
+  for (let i=-3;i<=3;i++) s += sh('rect',{x:i*15-7,y:-122,width:14,height:42,rx:3},'#efe6cf');
+  const d='M-46 -238 Q0 -248 46 -238 L50 -120 L-50 -120 Z';
+  s += sh('path',{d},'#efe6cf')+shade(`<path d="${d}"/>`,52,-180,34,80)+ln('M-48 -150 L48 -150',4,'#b23a2a')+ln('M-44 -214 L44 -214',3,'#c99a45');
+  return s;
+}
+
+// ---------- GODS ----------
+function zeus(){ const skin='#f0cba2'; let s=aura('gGold')+shadow(76);
+  s += sh('path',{d:'M-46 -238 Q0 -248 46 -238 Q58 -120 74 -8 L-74 -8 Q-58 -120 -46 -238 Z'},'#f6f1e4')+ln('M-72 -22 L72 -22',6,'#d9b443');           // white chiton
+  s += sh('path',{d:'M-50 -240 Q20 -150 70 -12 L30 -10 Q-10 -120 -40 -170 Z'},'#6b3f8f')+ln('M-30 -200 Q10 -130 46 -14',3,'#4e2d6b');        // purple himation
+  s += shade('<path d="M-46 -238 Q0 -248 46 -238 Q58 -120 74 -8 L-74 -8 Q-58 -120 -46 -238 Z"/>',66,-120,40,140);
+  // lightning bolt raised in the right hand
+  s += limb('M-44 -222 Q-86 -250 -84 -304',20,skin);
+  s += sh('path',{d:'M-70 -400 L-104 -322 L-84 -322 L-102 -240 L-58 -338 L-80 -338 L-60 -400 Z'},'#ffd23f')+hand(-84,-306,skin);
+  s += limb('M44 -222 Q64 -180 56 -140',20,'#f6f1e4')+hand(56,-134,skin);
+  s += sh('path',{d:'M-64 -300 Q-82 -250 -60 -214 L-48 -260 Z'},'#f3f1ec')+sh('path',{d:'M64 -300 Q82 -250 60 -214 L48 -260 Z'},'#f3f1ec'); // white hair falling
+  s += head(skin,'stern') + bigBeard('#f3f1ec','#c8c2b6');
+  s += sh('path',{d:'M-62 -300 Q-74 -380 0 -382 Q74 -380 62 -300 Q56 -338 30 -344 Q0 -334 -30 -344 Q-56 -338 -62 -300 Z'},'#f3f1ec')+ln('M-40 -346 q6 -8 12 0 M-6 -348 q6 -8 12 0 M26 -346 q6 -8 12 0',3,'#c8c2b6');
+  return s + laurel();
+}
+function athena(){ const skin='#f2cfaa'; let s=aura('gGold')+shadow(76);
+  s += longHairBack('#5a3a22') + gown('#f4efe2','#d9b443');
+  // aegis: golden scale cape over the chest with a gorgon disc
+  s += sh('path',{d:'M-48 -238 Q0 -250 48 -238 L40 -170 Q0 -150 -40 -170 Z'},'#d9b443');
+  for (let y=-226;y<=-180;y+=14) for (let x=-34;x<=34;x+=14) s+=ln(`M${x-6} ${y} q6 7 12 0`,2,'#9c7a24');
+  s += sh('circle',{cx:0,cy:-196,r:12},'#7a8b55')+`<circle cx="-4" cy="-198" r="2" fill="${OUT}"/><circle cx="4" cy="-198" r="2" fill="${OUT}"/>`;
+  s += pole(-82,-500,-82,-10,'#8b5a2b')+sh('path',{d:'M-82 -548 L-92 -500 L-72 -500 Z'},'#cfcfcf');
+  s += limb('M-44 -222 Q-80 -210 -82 -190',18,skin)+hand(-82,-186,skin);
+  s += sh('circle',{cx:66,cy:-150,r:80},'#d9b443')+sh('circle',{cx:66,cy:-150,r:64},'#2f5f8a')+shade('<circle cx="66" cy="-150" r="80"/>',120,-140,50,100,'rgba(20,30,60,.2)');
+  s += sh('ellipse',{cx:66,cy:-150,rx:22,ry:26},'#c9a36a')+`<circle cx="58" cy="-156" r="7" fill="#fff" stroke="${OUT}" stroke-width="3"/><circle cx="74" cy="-156" r="7" fill="#fff" stroke="${OUT}" stroke-width="3"/><circle cx="58" cy="-156" r="3" fill="${OUT}"/><circle cx="74" cy="-156" r="3" fill="${OUT}"/>`; // owl emblem
+  s += head(skin,'stern') + lashes() + longHairTop('#5a3a22') + hair.corinthian();
+  return s;
+}
+function poseidon(){ const skin='#e8bf98'; let s=aura('gSea')+shadow(76);
+  s += limb('M-18 -90 L-20 -16',20,skin)+limb('M18 -90 L20 -16',20,skin);
+  s += sh('ellipse',{cx:-24,cy:-9,rx:20,ry:10},'#6a4a30')+sh('ellipse',{cx:24,cy:-9,rx:20,ry:10},'#6a4a30');
+  s += sh('path',{d:'M-46 -238 Q0 -248 46 -238 L48 -150 L-48 -150 Z'},skin)+shade('<path d="M-46 -238 Q0 -248 46 -238 L48 -150 L-48 -150 Z"/>',52,-190,32,70); // bare chest
+  s += ln('M-24 -214 Q-12 -206 -4 -214 M4 -214 Q12 -206 24 -214',3,'rgba(42,28,19,.5)');
+  s += sh('path',{d:'M-54 -156 L-60 -70 L60 -70 L54 -156 Z'},'#2f8a86')+sh('path',{d:'M46 -238 Q20 -190 -54 -150 L-46 -130 Q30 -170 50 -200 Z'},'#2f8a86'); // teal himation
+  s += ln('M-40 -150 L-44 -76 M0 -152 L0 -72 M36 -150 L40 -76',3,'#1f625f');
+  s += pole(-84,-470,-84,-6,'#c9a45a');
+  s += sh('path',{d:'M-118 -470 L-118 -520 L-108 -500 L-108 -478 L-90 -478 L-90 -540 L-84 -560 L-78 -540 L-78 -478 L-60 -478 L-60 -500 L-50 -520 L-50 -470 Z'},'#d9b443'); // trident head
+  s += limb('M-44 -222 Q-82 -214 -84 -196',22,skin)+hand(-84,-192,skin);
+  s += limb('M44 -222 Q66 -186 56 -150',22,skin)+hand(56,-146,skin);
+  s += head(skin,'stern') + bigBeard('#3f8f8a','#2a6764');
+  s += sh('path',{d:'M-62 -300 Q-74 -380 0 -382 Q74 -380 62 -300 Q56 -338 30 -344 Q0 -334 -30 -344 Q-56 -338 -62 -300 Z'},'#3f8f8a');
+  s += sh('path',{d:'M-46 -344 L-40 -380 L-24 -354 L0 -392 L24 -354 L40 -380 L46 -344 Z'},'#d9b443'); // crown of the sea
+  return s;
+}
+function hades(){ const skin='#d9c2b0'; let s=aura('gDark')+shadow(76);
+  s += gown('#2b2633','#6f5a8e');
+  s += sh('path',{d:'M-48 -240 Q-20 -160 -60 -14 L-80 -12 Q-50 -150 -48 -240 Z'},'#3d3449');
+  s += pole(-84,-470,-84,-6,'#3a3036');
+  s += sh('path',{d:'M-104 -470 L-104 -520 L-96 -498 L-96 -478 L-72 -478 L-72 -498 L-64 -520 L-64 -470 Z'},'#9a9aa6'); // bident
+  s += limb('M-44 -222 Q-82 -214 -84 -196',20,'#2b2633')+hand(-84,-192,skin);
+  s += limb('M44 -222 Q64 -180 56 -140',20,'#2b2633')+hand(56,-134,skin);
+  s += head(skin,'sly') + bigBeard('#1d1a22','#3a3546');
+  s += sh('path',{d:'M-62 -300 Q-74 -380 0 -382 Q74 -380 62 -300 Q56 -338 30 -344 Q0 -334 -30 -344 Q-56 -338 -62 -300 Z'},'#1d1a22');
+  s += sh('path',{d:'M-44 -342 L-46 -384 L-30 -362 L-16 -396 L0 -366 L16 -396 L30 -362 L46 -384 L44 -342 Z'},'#4a4458');
+  s += `<path d="M-16 -396 q-6 -16 4 -26 q0 12 8 14 q-4 8 -12 12Z M16 -396 q-6 -16 4 -26 q0 12 8 14 q-4 8 -12 12Z" fill="#7fd0ff" stroke="${OUT}" stroke-width="3"/>`; // cold blue flames
+  return s;
+}
+
+// ---------- ROYALS (medieval Europe) ----------
+function king(){ const skin='#f0cba6'; let s=shadow(80);
+  s += sh('path',{d:'M-50 -236 Q-92 -110 -84 -8 L84 -8 Q92 -110 50 -236 Z'},'#9e1f2a');                            // red mantle
+  s += ln('M-84 -14 L84 -14',12,'#f4f0e6')+`<g fill="${OUT}">${[-60,-30,0,30,60].map(x=>`<rect x="${x-3}" y="-18" width="6" height="8" rx="2"/>`).join('')}</g>`; // ermine hem
+  s += gown('#2f4d8a','#d9b443');
+  s += sh('path',{d:'M-50 -240 Q0 -226 50 -240 L48 -212 Q0 -198 -48 -212 Z'},'#f4f0e6')+`<g fill="${OUT}">${[-30,0,30].map(x=>`<rect x="${x-3}" y="-226" width="6" height="8" rx="2"/>`).join('')}</g>`; // ermine collar
+  s += pole(-74,-360,-74,-150,'#d9b443')+sh('circle',{cx:-74,cy:-366,r:13},'#e2b23f');                               // sceptre
+  s += limb('M-44 -212 Q-74 -200 -74 -190',20,'#2f4d8a')+hand(-74,-186,skin);
+  s += limb('M44 -212 Q62 -180 52 -146',20,'#2f4d8a')+hand(52,-140,skin);
+  s += head(skin,'stern',{age:true}) + bigBeard('#7a4a2a','#5a3420');
+  s += sh('path',{d:'M-62 -300 Q-70 -372 0 -374 Q70 -372 62 -300 Q56 -330 30 -338 Q0 -330 -30 -338 Q-56 -330 -62 -300 Z'},'#7a4a2a');
+  return s + crown();
+}
+function queen(){ const skin='#f3d3b2'; let s=shadow(84);
+  s += longHairBack('#8a4a24') + gown('#2f6b5a','#d9b443');
+  s += sh('path',{d:'M-44 -238 Q0 -222 44 -238 L40 -206 Q0 -192 -40 -206 Z'},'#d9b443');
+  s += sh('circle',{cx:0,cy:-196,r:7},'#b02a2a');                                                                       // brooch
+  s += limb('M-44 -222 Q-60 -170 -20 -160',18,'#2f6b5a')+limb('M44 -222 Q60 -170 20 -160',18,'#2f6b5a');            // hands folded
+  s += hand(-14,-160,skin)+hand(14,-160,skin);
+  s += head(skin,'neutral') + lashes() + longHairTop('#8a4a24');
+  return s + crown('#2f8a4a');
+}
+function prince(){ const skin='#f2d0ac'; let s=shadow(66);
+  s += sh('path',{d:'M-44 -236 Q-70 -170 -64 -100 L-30 -110 L-36 -236 Z'},'#6b2f6e');                                // short cape
+  s += limb('M-16 -100 L-18 -16',20,'#3a3a46')+limb('M16 -100 L18 -16',20,'#3a3a46');
+  s += sh('path',{d:'M-30 -40 L-30 -6 L-6 -6 L-8 -40 Z'},'#5a3a22')+sh('path',{d:'M30 -40 L30 -6 L6 -6 L8 -40 Z'},'#5a3a22'); // boots
+  const d='M-44 -238 Q0 -248 44 -238 L54 -92 L-54 -92 Z';
+  s += sh('path',{d},'#3d6fb0')+shade(`<path d="${d}"/>`,56,-170,34,90)+sh('rect',{x:-50,y:-150,width:100,height:12,rx:3},'#5a3a22')+sh('rect',{x:-8,y:-152,width:16,height:16,rx:2},'#d9b443');
+  s += sh('path',{d:'M-16 -236 L0 -196 L16 -236 Z'},'#d9b443');
+  s += sh('rect',{x:40,y:-150,width:10,height:110,rx:3},'#1e1a1a')+sh('rect',{x:30,y:-160,width:30,height:10,rx:3},'#d9b443'); // sword at the hip
+  s += limb('M44 -222 Q62 -190 46 -160',18,'#3d6fb0')+hand(46,-160,skin);                                          // hand on the hilt
+  s += limb('M-44 -222 Q-62 -180 -54 -142',18,'#3d6fb0')+hand(-54,-136,skin);
+  s += head(skin,'neutral');
+  s += sh('path',{d:'M-62 -296 Q-70 -374 0 -376 Q70 -374 62 -296 Q54 -334 20 -340 Q-20 -338 -40 -326 Q-54 -312 -62 -296 Z'},'#c9963f'); // blond
+  return s + circlet();
+}
+function princess(){ const skin='#f4d6b6'; let s=shadow(80);
+  s += longHairBack('#2a1d16');
+  const d='M-38 -238 Q0 -248 38 -238 Q40 -170 30 -150 Q70 -90 80 -8 L-80 -8 Q-70 -90 -30 -150 Q-40 -170 -38 -238 Z';
+  s += sh('path',{d},'#d96b8f')+shade(`<path d="${d}"/>`,64,-110,46,150)+ln('M-30 -150 Q0 -140 30 -150',5,'#f2c75a')+ln('M-20 -130 L-36 -16 M18 -130 L34 -16',3,'rgba(42,28,19,.3)');
+  s += limb('M-38 -222 Q-60 -186 -50 -150',16,'#d96b8f')+hand(-50,-144,skin);
+  s += limb('M38 -222 Q70 -230 70 -270',16,'#d96b8f');                                                             // raised hand: a small wave
+  s += sh('ellipse',{cx:70,cy:-282,rx:13,ry:16},skin);
+  s += head(skin,'neutral') + lashes() + longHairTop('#2a1d16');
+  return s + tiara();
+}
+
+// ---------- SPARTANS ----------
+function leonidas(){ const skin='#dcae84'; let s=shadow(80);
+  s += hopliteBody(skin);
+  s += sh('path',{d:'M-46 -236 L-30 -222 L-46 -208 Z'},'#d9b443');                                                    // cloak clasp
+  s += pole(-82,-470,-82,-6)+sh('path',{d:'M-82 -520 L-92 -470 L-72 -470 Z'},'#bdbdbd');
+  s += limb('M-44 -222 Q-80 -210 -82 -190',20,skin)+hand(-82,-186,skin);
+  s += aspis(64,-160);
+  s += head(skin,'stern',{beard:'#2a1d14'}) + corinthKingUp();
+  return s;
+}
+function spartanAttack(){ const skin='#d8a87c'; let s=shadow(80);
+  s += hopliteBody(skin);
+  s += aspis(56,-170);
+  // overhand thrust: spear runs through the raised fist
+  s += pole(-200,-268,140,-352)+sh('path',{d:'M138 -366 L180 -362 L142 -340 Z'},'#bdbdbd');
+  s += limb('M-44 -222 Q-96 -236 -104 -288',20,skin)+hand(-104,-292,skin);
+  s += head(skin,'stern') + corinthClosed('fan');
+  return s;
+}
+function spartanWall(){ const skin='#d8a87c'; let s=shadow(90);
+  s += hopliteBody(skin);
+  s += pole(-160,-250,190,-250)+sh('path',{d:'M190 -262 L228 -250 L190 -238 Z'},'#bdbdbd');                           // spear levelled over the shield
+  s += limb('M-44 -222 Q-70 -240 -60 -250',20,skin);
+  s += head(skin,'stern') + corinthClosed('fan');
+  s += aspis(10,-150,96);
+  s += pole(-160,-250,-20,-250)+hand(-62,-250,skin);                                                                                               // big shield in front: the wall
+  return s;
+}
+function spartanRest(){ const skin='#dcae84'; let s=shadow(76);
+  s += hopliteBody(skin);
+  s += limb('M-44 -222 Q-66 -180 -58 -140',20,skin)+hand(-58,-134,skin);
+  // helmet carried under the arm, hand gripping the rim
+  s += sh('path',{d:'M44 -180 Q46 -234 86 -236 Q126 -234 128 -180 Q106 -200 86 -200 Q66 -200 44 -180 Z'},'#b23a2a');
+  s += sh('path',{d:'M40 -96 Q36 -190 86 -192 Q136 -190 132 -96 L108 -94 L106 -128 L94 -134 L94 -96 L78 -96 L78 -134 L66 -128 L64 -94 Z'},'#c99a45');
+  s += `<path d="M58 -150 Q70 -156 82 -146 L82 -138 Q70 -140 58 -140 Z M114 -150 Q102 -156 90 -146 L90 -138 Q102 -140 114 -140 Z" fill="#20140c"/>`;
+  s += limb('M44 -222 Q70 -170 70 -112',20,skin)+hand(70,-104,skin);
+  s += head(skin,'sly',{beard:'#3a2a1e'});
+  s += sh('path',{d:'M-62 -296 Q-70 -372 0 -374 Q70 -372 62 -296 Q56 -330 30 -338 Q0 -330 -30 -338 Q-56 -330 -62 -296 Z'},'#3a2a1e');
+  s += sh('path',{d:'M-62 -300 Q-74 -250 -60 -226 L-50 -280 Z'},'#3a2a1e')+sh('path',{d:'M62 -300 Q74 -250 60 -226 L50 -280 Z'},'#3a2a1e'); // long Spartan hair
+  return s;
+}
+

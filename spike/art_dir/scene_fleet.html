@@ -1,0 +1,109 @@
+<!doctype html>
+<!--
+  Timeless Compass — background proof 2: the Greek fleet under way, Spartan hoplites on deck.
+  Line: "The Greek triremes rowed out in a long line, and on the lead ship stood the Spartans."
+  Layers (for parallax later): sky -> islands -> sea -> far fleet -> hero trireme -> gulls/spray.
+  Drawn 100% in code. No images, no AI.
+-->
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#000}svg{display:block}</style></head>
+<body>
+<svg id="scene" width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"></svg>
+<script src="cast_lib.js"></script>
+<script src="cast_lib2.js"></script>
+<script>
+function rng(seed){ return ()=>{ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+const R = rng(1805);
+const bg = (d, fill, w=4)=> `<path d="${d}" fill="${fill}" stroke="${OUT}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+// ---------- 1. morning sky ----------
+let sky = `<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb4d6"/><stop offset=".6" stop-color="#cfe2e6"/><stop offset="1" stop-color="#f8e3b8"/></linearGradient>
+  <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fa6bd"/><stop offset=".5" stop-color="#2f7d9e"/><stop offset="1" stop-color="#1f5f80"/></linearGradient>
+  <radialGradient id="sunGlow"><stop offset="0" stop-color="#fff8dc" stop-opacity="1"/><stop offset="1" stop-color="#fff8dc" stop-opacity="0"/></radialGradient>
+</defs><rect width="1920" height="1080" fill="url(#sky)"/>`;
+sky += `<circle cx="330" cy="300" r="300" fill="url(#sunGlow)"/><circle cx="330" cy="300" r="58" fill="#fff6d6" stroke="#f0cf86" stroke-width="4"/>`;
+function cloud(x,y,s){ return `<g transform="translate(${x} ${y}) scale(${s})">${bg('M0 40 Q-14 8 26 6 Q34 -22 72 -10 Q100 -34 132 -4 Q172 -6 166 40 Z','#fdf7ec',4)}<path d="M22 34 Q80 24 150 34" stroke="#d9e4e6" stroke-width="5" fill="none"/></g>`; }
+sky += cloud(700,90,1.5)+cloud(1180,160,1.1)+cloud(1580,180,.9)+cloud(980,300,.7)+cloud(1700,300,.8);
+
+// ---------- 2. islands on the horizon ----------
+let isl = bg('M0 470 L90 420 L170 440 L260 390 L360 430 L460 410 L560 460 L560 480 L0 480 Z','#8fa3a0',3);
+isl += bg('M1240 476 Q1320 420 1420 430 Q1500 400 1580 440 Q1660 430 1720 476 Z','#9aaeab',3);
+isl += `<path d="M300 420 l0 -18 l6 0 l0 18 M296 402 l14 0" stroke="${OUT}" stroke-width="2" fill="#e8e0cc"/>`;        // tiny temple on the island
+for (let i=0;i<5;i++) isl += `<rect x="${290+i*5}" y="404" width="2" height="16" fill="${OUT}"/>`;
+
+// ---------- 3. the sea ----------
+let sea = `<rect x="0" y="476" width="1920" height="604" fill="url(#sea)"/>`+`<path d="M0 476 L1920 476" stroke="${OUT}" stroke-width="3"/>`;
+sea += `<path d="M270 478 L400 478 L470 1080 L180 1080 Z" fill="#fff6d6" opacity=".16"/>`;                        // sun path on the water
+for (let i=0;i<150;i++){ const y=490+Math.pow(R(),1.4)*580, x=R()*1920, k=.4+(y-476)/600*1.6, w=12*k+R()*14*k;
+  sea += `<path d="M${x} ${y} q${w/2} ${-5*k} ${w} 0" stroke="#d8f0f4" stroke-width="${2+k*1.6}" fill="none" stroke-linecap="round" opacity=".75"/>`; }
+
+// ---------- trireme: one function, any size ----------
+// Side view, bow to the LEFT (sailing left). Waterline at y=0, hull length ~1000 units.
+// detail=true adds crew, shields, eye, rigging (only for near ships).
+function deckSpartan(skin, helmetUp){
+  let s = hopliteBody(skin, true);
+  s += pole(-60,-500,-60,-20)+sh('path',{d:'M-60 -548 L-70 -500 L-50 -500 Z'},'#cfcfcf');
+  s += limb('M-44 -222 Q-60 -214 -60 -200',20,skin)+hand(-60,-196,skin);
+  s += helmetUp ? head(skin,'stern',{beard:'#2a1d14'})+hair.corinthian() : head(skin,'stern')+corinthClosed('fan');
+  return s;
+}
+function trireme(detail, sailCol='#efe2c4'){
+  let s='';
+  // wake trailing behind (to the right) + bow wave
+  s += `<path d="M480 8 Q700 30 1000 20 M460 16 Q700 50 980 54" stroke="#e6f6f8" stroke-width="10" fill="none" stroke-linecap="round" opacity=".8"/>`;
+  // mast, yard and square sail (drawn first: everything else sits in front)
+  s += `<path d="M10 -120 L10 -640" stroke="${OUT}" stroke-width="18" stroke-linecap="round"/><path d="M10 -120 L10 -640" stroke="#7a5230" stroke-width="9" stroke-linecap="round"/>`;
+  s += bg('M-250 -600 L270 -600 L270 -588 L-250 -588 Z','#6a4428',4);
+  s += bg('M-236 -590 Q10 -560 256 -590 Q290 -440 250 -300 Q10 -330 -230 -300 Q-268 -440 -236 -590 Z',sailCol,5);
+  s += `<path d="M-150 -580 Q-170 -440 -150 -310 M-60 -574 Q-74 -440 -60 -320 M80 -574 Q92 -440 80 -320 M170 -580 Q190 -440 170 -310" stroke="#cdbf9c" stroke-width="4" fill="none"/>`;
+  s += ln('M-50 -360 L10 -520 L70 -360',22,'#a8322a');                                                      // lambda on the sail
+  if (detail) s += `<path d="M10 -640 L-470 -150 M10 -640 L470 -170" stroke="${OUT}" stroke-width="3" fill="none"/>`;  // stays
+  // crew on deck (behind the bulwark: hull is drawn over their legs)
+  if (detail) for (let i=0;i<11;i++){ const x=-330+i*64; s += `<g transform="translate(${x} -40) scale(.42)">${deckSpartan(['#d8a87c','#dcae84','#cf9e72'][i%3], i===0)}</g>`; }
+  // hull
+  s += bg('M-470 -6 L-470 -42 Q-486 -112 -440 -128 L400 -128 Q478 -142 506 -210 Q524 -262 494 -304 Q540 -280 540 -210 Q538 -120 450 -40 Q300 4 -400 4 Z','#5b3a26',6);
+  s += `<path d="M-466 -104 L420 -104 Q470 -110 500 -150" stroke="#b5452c" stroke-width="16" fill="none"/><path d="M-462 -80 L430 -80" stroke="#d8b36a" stroke-width="5" fill="none"/>`;
+  s += `<path d="M-470 -42 L-470 -6 L-400 4 L300 4 Q380 -4 450 -40 Z" fill="rgba(0,0,0,.22)"/>`;          // hull shadow near the water
+  for (let x=-400;x<=400;x+=32) s += `<circle cx="${x}" cy="-56" r="6" fill="#2a1c13"/>`;                  // oar ports
+  s += bg('M-470 -14 L-572 -26 L-470 -40 Z','#c99a45',4);                                                     // bronze ram
+  s += bg('M-454 -96 Q-432 -112 -408 -96 Q-432 -82 -454 -96 Z','#f4efe2',3)+`<circle cx="-431" cy="-96" r="7" fill="${OUT}"/>`;  // painted eye
+  // oars: one long diagonal stroke each, blade + splash at the water
+  for (let x=-390;x<=390;x+=32){ const bx=x-70, by=46;
+    s += `<path d="M${x} -56 L${bx} ${by}" stroke="${OUT}" stroke-width="8" stroke-linecap="round"/><path d="M${x} -56 L${bx} ${by}" stroke="#c49a62" stroke-width="3.5" stroke-linecap="round"/>`;
+    s += `<ellipse cx="${bx-2}" cy="${by+2}" rx="12" ry="5" fill="#e6f6f8" opacity=".9"/>`; }
+  s += `<path d="M-580 -4 Q-520 -30 -470 -10 Q-520 10 -600 14" stroke="#f2fbfc" stroke-width="10" fill="none" stroke-linecap="round"/>`; // bow wave
+  if (detail){
+    // shields hung along the rail, overlapping like scales
+    for (let i=0;i<14;i++){ const x=-390+i*58; s += aspis(x,-150,30); }
+    // steering oar at the stern + helmsman
+    s += `<path d="M470 -150 L560 40" stroke="${OUT}" stroke-width="14" stroke-linecap="round"/><path d="M470 -150 L560 40" stroke="#8b5a2b" stroke-width="7" stroke-linecap="round"/>`;
+    s += `<g transform="translate(450 -120) scale(.4)">${sh('path',{d:'M-46 -238 Q0 -248 46 -238 L50 -120 L-50 -120 Z'},'#e9dcc0')}${limb('M44 -222 Q90 -120 100 30',18,'#d8a87c')}${limb('M-44 -222 Q40 -120 90 6',18,'#d8a87c')}${hand(100,30,'#d8a87c')}${hand(90,6,'#d8a87c')}${head('#d8a87c','neutral',{beard:'#3a2a1e'})}${sh('path',{d:'M-62 -296 Q-70 -372 0 -374 Q70 -372 62 -296 Q56 -330 30 -338 Q0 -330 -30 -338 Q-56 -330 -62 -296 Z'},'#3a2a1e')}</g>`;
+    // commander at the bow, helmet up, spear forward
+    s += `<g transform="translate(-412 -118) scale(.5)">${leonidas()}</g>`;
+  } else {
+    for (let i=0;i<12;i++) s += `<circle cx="${-380+i*68}" cy="-140" r="22" fill="#b23a2a" stroke="${OUT}" stroke-width="5"/>`;   // shields read as red dots far away
+  }
+  return s;
+}
+
+// ---------- 4. the fleet in a long line, far to near ----------
+let fleet = '';
+const far = [[1500,520,.16],[1260,540,.2],[1000,566,.25],[720,600,.32],[1700,560,.22],[1480,610,.3]];
+far.sort((a,b)=>a[1]-b[1]).forEach(([x,y,k],i)=> fleet += `<g transform="translate(${x} ${y}) scale(${k})">${trireme(false, i%2?'#efe2c4':'#e8d0a8')}</g>`);
+
+// ---------- 5. the hero ship ----------
+let hero = `<g transform="translate(980 960) scale(1.02)">${trireme(true)}</g>`;
+
+// ---------- 6. gulls + spray in front ----------
+let fore = '';
+[[260,640,1.4],[420,700,1],[1760,720,1.2],[1600,640,.8]].forEach(([x,y,k])=> fore += `<g transform="translate(${x} ${y}) scale(${k})"><path d="M-26 0 Q-14 -14 0 0 Q14 -14 26 0" stroke="${OUT}" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M-24 -1 Q-14 -11 -2 -1 M2 -1 Q14 -11 24 -1" stroke="#fafafa" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>`);
+for (let i=0;i<30;i++){ const x=R()*1920, y=1000+R()*80; fore += `<path d="M${x} ${y} q14 -8 28 0" stroke="#e6f6f8" stroke-width="5" fill="none" stroke-linecap="round"/>`; }
+
+// ---------- 7. place + date card ----------
+let card = `<g transform="translate(1440 50)"><rect width="430" height="62" rx="8" fill="#f4e6c6" stroke="${OUT}" stroke-width="4"/><text x="215" y="41" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="700" fill="${OUT}">THE GREEK FLEET · 480 BC</text></g>`;
+
+document.getElementById('scene').innerHTML =
+  `<g id="L_sky">${sky}</g><g id="L_isl">${isl}</g><g id="L_sea">${sea}</g><g id="L_fleet">${fleet}</g><g id="L_hero">${hero}</g><g id="L_fore">${fore}</g>${card}`;
+</script>
+</body></html>
