@@ -12,7 +12,7 @@ import math
 
 import bpy
 
-INK = (0.085, 0.052, 0.038)                     # warm dark brown ink
+INK = (0.05, 0.03, 0.022)                     # warm dark brown ink
 
 
 def _hair_rgb(node):
@@ -23,7 +23,7 @@ def _hair_rgb(node):
     m = node.inputs['Melanin'].default_value
     r = node.inputs['Melanin Redness'].default_value
     t = m ** 0.65
-    blond, dark = (0.62, 0.48, 0.30), (0.05, 0.034, 0.024)
+    blond, dark = (0.55, 0.40, 0.24), (0.035, 0.022, 0.015)
     c = [b + (d - b) * t for b, d in zip(blond, dark)]
     c[0] *= 1 + 0.35 * r; c[2] *= 1 - 0.3 * r
     return tuple(min(1.0, x) for x in c)
@@ -45,7 +45,7 @@ TONES = [(0.40, 0.36, 0.50), (0.68, 0.62, 0.70), (1.0, 0.97, 0.92)]
 STEPS = (0.10, 0.36)
 
 
-def toon_material(mat, tones=TONES, steps=STEPS, mode='eevee'):
+def toon_material(mat, tones=TONES, steps=STEPS, mode='eevee', is_skin=False):
     if not mat or not mat.use_nodes or mat.get('drawn'):
         return
     nt = mat.node_tree
@@ -74,20 +74,40 @@ def toon_material(mat, tones=TONES, steps=STEPS, mode='eevee'):
         if grey_mix is not None and thr is not None:               # grey strands keep their share
             mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'
             nt.links.new(thr.outputs[0], mx.inputs['Factor'])
-            mx.inputs['A'].default_value = (*col_val, 1); mx.inputs['B'].default_value = (0.58, 0.57, 0.55, 1)
+            mx.inputs['A'].default_value = (*col_val, 1); mx.inputs['B'].default_value = (0.27, 0.25, 0.23, 1)
             col_src = mx.outputs['Result']
     else:
         col_val = tuple(mat.diffuse_color)[:3]
+        grp = out.inputs['Surface'].links[0].from_node if out.inputs['Surface'].is_linked else None
+        if grp is not None and grp.type == 'GROUP' and grp.node_tree is not None:   # MakeHuman (MPFB) materials
+            inner = grp.node_tree
+            ipr = next((n for n in inner.nodes if n.type == 'BSDF_PRINCIPLED'), None)
+            tex = next((n for n in inner.nodes if n.type == 'TEX_IMAGE' and n.image is not None), None)
+            if ipr is not None:
+                col_val = tuple(ipr.inputs['Base Color'].default_value)[:3]
+                a = ipr.inputs['Alpha']
+                if not a.is_linked and a.default_value < 0.5:
+                    clear = True
+                tw = ipr.inputs.get('Transmission Weight')
+                if tw is not None and not tw.is_linked and tw.default_value > 0.5:
+                    clear = True
+            if tex is not None:                                # same picture, read in the outer tree
+                t = nt.nodes.new('ShaderNodeTexImage'); t.image = tex.image
+                col_src = t.outputs['Color']
+                if ipr is not None and ipr.inputs['Alpha'].is_linked:
+                    alpha_src = t.outputs['Alpha']
     if clear:
         tr = nt.nodes.new('ShaderNodeBsdfTransparent'); nt.links.new(tr.outputs[0], out.inputs['Surface'])
         mat['drawn'] = 1
         return
     if mode == 'cycles':                                            # flat colour only; light is toned in the compositor
         diff = nt.nodes.new('ShaderNodeBsdfDiffuse')
-        if 'skin' in mat.name.lower() and col_src is not None:      # painted skin: one warm tan, the texture only a hint
+        if is_skin or 'skin' in mat.name.lower():                 # painted skin: one warm tan, the texture only a hint
             sk = nt.nodes.new('ShaderNodeMix'); sk.data_type = 'RGBA'; sk.blend_type = 'MIX'
-            sk.inputs['Factor'].default_value = SKIN_FLAT
-            nt.links.new(col_src, sk.inputs['A']); sk.inputs['B'].default_value = (*SKIN_TONE, 1)
+            sk.inputs['Factor'].default_value = SKIN_FLAT if col_src is not None else 1.0
+            if col_src is not None:
+                nt.links.new(col_src, sk.inputs['A'])
+            sk.inputs['B'].default_value = (*SKIN_TONE, 1)
             col_src = sk.outputs['Result']
         if col_src is not None:
             nt.links.new(col_src, diff.inputs['Color'])
@@ -128,10 +148,21 @@ def toon_material(mat, tones=TONES, steps=STEPS, mode='eevee'):
     mat['drawn'] = 1
 
 
+def _skin_materials():
+    """Materials of the MakeHuman body meshes (the object with the body's 'head' vertex group)."""
+    out = set()
+    for o in bpy.data.objects:
+        if o.type == 'MESH' and 'head' in o.vertex_groups and len(o.data.vertices) > 10000:
+            out |= {s.material.name for s in o.material_slots if s.material}
+    return out
+
+
 def toon(skip=(), mode='eevee'):
+    skin = _skin_materials()
+    print('drawn: skin materials', sorted(skin))
     for m in bpy.data.materials:
         if m.name not in skip:
-            toon_material(m, mode=mode)
+            toon_material(m, mode=mode, is_skin=m.name in skin)
 
 
 def ink(thickness=1.7, color=INK, crease_deg=134.0, inner=True, skip=()):

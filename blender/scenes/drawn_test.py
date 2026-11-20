@@ -38,6 +38,8 @@ sc.frame_start, sc.frame_end = 1, last
 from lib import crowd as C  # noqa: E402
 from tc import crowd as TC  # noqa: E402
 men = TC.cast(6, 'spartan', 'greece_480bc', seed=4801)
+for m in men:                       # background men: no cloak cloth (6 cloth sims made the cloud job crawl)
+    m.pop('cloak', None)
 marks = [(-2.6, 5.2, 0), (-0.9, 6.0, 0), (1.0, 5.6, 0), (2.7, 6.3, 0), (-1.8, 8.0, 0), (1.9, 8.4, 0)]
 roots = C.mid_crowd(men, marks, frames=24, face_toward=(0.0, -20.0))
 C.far_crowd(roots, (-14, 14, 10, 34), 60, seed=11, face_toward=(0.0, -40.0))

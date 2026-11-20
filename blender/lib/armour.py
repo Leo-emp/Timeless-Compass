@@ -547,22 +547,23 @@ def tuck_hair_under(helm, hair_objects, margin=0.004):
         print(f'tuck_hair_under: {hidden} strands of {h.name} end inside the helmet')
 
 
-def helmet_up(rig, parts, angle_deg=-58.0, lift=0.02, human=None, tilt_deg=-34.0):
+def helmet_up(rig, parts, angle_deg=-55.0, lift=0.01, human=None, tilt_deg=None, pivot=(0.08, 0.12)):
     """Wear the Corinthian helmet PUSHED UP on top of the head, face open - how Greek vase painters show hoplites
-    off the battle line, talking, resting, pouring libations.
-    With `human` (preferred): tilt the shell back by `tilt_deg` about its own centre, then SEAT it - raise it in
-    small steps until no point of the skull pokes into the bronze, so the shell rests ON the head (the skull fills
-    its bowl, nothing floats, no hollow inside shows). Without `human`: the old fixed pivot (kept for old scenes)."""
+    off the battle line, talking, resting, pouring libations. The shell tips back about a pivot at the back of the
+    crown (`pivot` = (behind, above) the head bone, m) - its rear rim rests on the occiput, the face plate rides
+    above the brow. Values chosen BY EYE from a rendered sweep (blender/scenes/helmet_up_sweep.py, 2026-11-20:
+    -55 deg, pivot 8 cm back / 12 cm up, +1 cm) after measured auto-seating proved unreliable on this shell.
+    `human` / `tilt_deg` are accepted for old callers (tilt_deg overrides angle_deg)."""
     from mathutils import Matrix
-    if human is not None:
-        return _helmet_up_fit(rig, human, parts, tilt_deg)
+    if tilt_deg is not None:
+        angle_deg = tilt_deg
     hb = bone_head(rig, 'head')
-    # pivot at the back of the crown: the face plate swings UP and back, the shell then rests on top of the skull
-    pivot = Vector((hb.x, hb.y + 0.05, hb.z + 0.17))
-    M = Matrix.Translation(pivot + Vector((0, 0.0, lift))) @ Matrix.Rotation(math.radians(angle_deg), 4, 'X') @ Matrix.Translation(-pivot)
+    piv = Vector((hb.x, hb.y + pivot[0], hb.z + pivot[1]))
+    M = Matrix.Translation(piv + Vector((0, 0, lift))) @ Matrix.Rotation(math.radians(angle_deg), 4, 'X') @ Matrix.Translation(-piv)
     for o in parts:
         o.matrix_world = M @ o.matrix_world
     bpy.context.view_layer.update()
+    print(f'helmet_up: {angle_deg} deg about the back of the crown, +{lift * 100:.0f} cm')
 
 
 def _helmet_up_fit(rig, human, parts, tilt_deg):
@@ -591,45 +592,45 @@ def _helmet_up_fit(rig, human, parts, tilt_deg):
             o.matrix_world = T @ R @ m0
         bpy.context.view_layer.update()
 
-    def penetrating():
-        """(poke, inside): skull-top points sticking OUT through the bare shell (a short ray down meets it) and
-        points inside the metal (a ray up meets it within 2 mm). Measured on the shell WITHOUT thickness/subdiv."""
-        mods = [m for m in helm.modifiers if m.show_viewport]
-        for m in mods:
-            m.show_viewport = False
-        bpy.context.view_layer.update()
-        bvh = BVHTree.FromObject(helm, bpy.context.evaluated_depsgraph_get())
-        for m in mods:
-            m.show_viewport = True
-        inv = helm.matrix_world.inverted(); rot = inv.to_3x3()
-        up, down = (rot @ Vector((0, 0, 1))).normalized(), (rot @ Vector((0, 0, -1))).normalized()
-        poke = inside = covered = 0
-        for p in top:                                           # outward normals on the bare shell:
-            lp = inv @ p                                        #  a ray LEAVING the cavity meets n.d > 0
-            hu = bvh.ray_cast(lp, up, 0.3)
-            if hu[0] is not None:
-                if hu[1].dot(up) > 0:
-                    covered += 1                                # under the bowl, inside it: good
-                    if hu[3] < 0.002:
-                        inside += 1                             # ...but touching the metal
-                else:
-                    poke += 1                                   # under the OUTSIDE of the wall: wall cuts the head
-            hd = bvh.ray_cast(lp, down, 0.06)
-            if hd[0] is not None and hd[1].dot(down) < 0:
-                poke += 1                                       # shell below the point, seen from outside: pokes out
-        return poke, inside, covered
+    # the bare shell (no thickness/subdiv), measured ONCE: moving the helmet up by (dy, dz) is the same as moving
+    # the skull points down by it, so each trial position is just ~100 ray casts (was: a scene update per trial,
+    # ~2 s each with a full scene - 8 soldiers x 120 trials made a 40 min render)
+    place(0.0, 0.0)
+    mods = [m for m in helm.modifiers if m.show_viewport]
+    for m in mods:
+        m.show_viewport = False
+    bpy.context.view_layer.update()
+    bvh = BVHTree.FromObject(helm, bpy.context.evaluated_depsgraph_get())
+    for m in mods:
+        m.show_viewport = True
+    inv = helm.matrix_world.inverted(); rot = inv.to_3x3()
+    up, down = (rot @ Vector((0, 0, 1))).normalized(), (rot @ Vector((0, 0, -1))).normalized()
+    # which way do the shell's normals face? (shrinkwrap + booleans can leave them pointing IN.) A ray from the
+    # middle of the bowl straight up leaves the cavity: its hit normal defines "leaving" for every test below.
+    hc = bvh.ray_cast(inv @ c, up, 0.5)
+    sgn = 1.0 if hc[0] is None or hc[1].dot(up) > 0 else -1.0
+
+    def need_lift(dz, dy):
+        """How much higher the shell must go so no crown point is ABOVE any part of it: the largest distance from
+        a crown point straight down to the shell (within 8 cm: the crown, not the neck guard far below)."""
+        shift = Vector((0, dy, dz)); worst = 0.0
+        for p in top:
+            hd = bvh.ray_cast(inv @ (p - shift), down, 0.08)
+            if hd[0] is not None:
+                worst = max(worst, hd[3])
+        return worst
     best = None
     for dy in (0.0, 0.015, 0.03):                          # a little back: the bowl sits on the crown, not the brow
-        for k in range(0, 40):
-            dz = 0.004 * k
-            place(dz, dy)
-            poke, inside, covered = penetrating()
-            if poke + inside == 0 and covered > len(top) * 0.5:   # resting on the crown, which fills the bowl
-                if best is None or dz < best[0]:
-                    best = (dz, dy)
+        dz = 0.0
+        for _ in range(8):                                  # lift until nothing of the skull is above the bronze
+            need = need_lift(dz, dy)
+            if need == 0.0:
                 break
+            dz += need + 0.002
+        if need_lift(dz, dy) == 0.0 and (best is None or dz < best[0]):
+            best = (dz, dy)
     if best is None:
-        print('helmet_up: NO SEAT FOUND (poke/inside/covered at 0 lift:', penetrating(), ') - check the tilt')
+        print('helmet_up: NO SEAT FOUND - check the tilt')
     dz, dy = best or (0.08, 0.02)
     place(dz + 0.003, dy)                                   # 3 mm of felt between scalp and bronze
-    print(f'helmet_up: tilt {tilt_deg} deg, seated {dz * 100:.1f} cm up, {dy * 100:.1f} cm back')
+    print(f'helmet_up: normals {"out" if sgn > 0 else "IN"}; tilt {tilt_deg} deg, seated {dz * 100:.1f} cm up, {dy * 100:.1f} cm back')
