@@ -122,3 +122,155 @@ def test_ambience_beds_merge_consecutive_shots_and_crossfade():
     assert beds[0]["at"] == 0.0 and beds[0]["dur"] == pytest.approx(9.0 + sfx.XFADE_S)   # overlaps the next bed
     assert beds[1]["at"] == 9.0 and beds[1]["sound"] == "wind"
     assert beds[0]["fade_out"] == sfx.XFADE_S
+
+
+# ---------------- curated library build (tc sfx build) ----------------
+def _r(i, name, rating=4.5, n=10, dl=500, lic="http://creativecommons.org/publicdomain/zero/1.0/", dur=2.0):
+    return {"id": i, "name": name, "license": lic, "username": "u", "duration": dur, "avg_rating": rating,
+            "num_ratings": n, "num_downloads": dl, "tags": [], "previews": {"preview-hq-mp3": f"http://x/{i}.mp3"}}
+
+
+def test_rank_prefers_well_rated_by_many_over_one_lucky_five():
+    lucky = _r(1, "clash a", rating=5.0, n=1)
+    solid = _r(2, "clash b", rating=4.6, n=40)
+    assert [r["id"] for r in sfx.rank([lucky, solid])] == [2, 1]
+
+
+def test_rank_drops_franchise_and_fan_recreations():
+    bad = [_r(1, "tmnt_2012_leo_katana_sword"), _r(2, "Lightsaber hum"), _r(3, "Shredder blade clash")]
+    good = _r(4, "Sword_Clash (46).wav")
+    assert [r["id"] for r in sfx.rank(bad + [good])] == [4]
+
+
+def test_rank_drops_item_exclude_words():
+    # an ancient battle must not get a gunshot or a synth
+    rs = [_r(1, "battle with rifle fire"), _r(2, "medieval battle crowd")]
+    assert [r["id"] for r in sfx.rank(rs, exclude=["rifle"])] == [2]
+
+
+def test_add_sound_keeps_mood_and_intensity(tmp_path):
+    src = _tone(tmp_path / "a.wav")
+    e = sfx.add_sound(src, ["sword", "clash"], "freesound", "Creative Commons 0", root=tmp_path / "lib",
+                      mood=["tense", "violent"], intensity=4, freesound_id=326795)
+    assert e["mood"] == ["tense", "violent"] and e["intensity"] == 4 and e["freesound_id"] == 326795
+
+
+def test_build_library_fetches_ranked_skips_known_and_tags_mood(tmp_path):
+    src = _tone(tmp_path / "t.wav")
+    data = src.read_bytes()
+    results = [_r(10, "Sword clash ring", n=30), _r(11, "tmnt sword"), _r(12, "Sword hit", n=5)]
+    def fake_get(url, headers=None, timeout=60):
+        assert "duration%3A%5B0.5+TO+4" in url                # the item's length range goes to the API
+        return {"results": results}
+    wanted = [{"name": "sword_hits", "query": "sword clash", "tags": ["sword", "clash"], "mood": ["violent"],
+               "intensity": 4, "n": 2, "min_s": 0.5, "max_s": 4}]
+    root = tmp_path / "lib"
+    rep = sfx.build_library(wanted, "k", root=root, get=fake_get, download=lambda u: (200, data, "audio/mpeg"))
+    idx = sfx.load_index(root)
+    assert [s["freesound_id"] for s in idx["sounds"]] == [10, 12]       # ranked, franchise one dropped
+    assert all(s["intensity"] == 4 and s["mood"] == ["violent"] and "sword" in s["tags"] for s in idx["sounds"])
+    assert rep[0]["added"] == 2
+    # second run: already have both -> nothing new downloaded
+    rep2 = sfx.build_library(wanted, "k", root=root, get=fake_get, download=lambda u: (200, data, "audio/mpeg"))
+    assert rep2[0]["added"] == 0 and len(sfx.load_index(root)["sounds"]) == 2
+
+
+def test_pick_prefers_the_shots_intensity():
+    idx = {"sounds": [{"id": "soft", "tags": ["sword", "clash"], "intensity": 2, "duration_s": 1},
+                      {"id": "hard", "tags": ["sword", "clash"], "intensity": 5, "duration_s": 1}]}
+    assert sfx.pick(["sword", "clash"], idx, intensity=5)["id"] == "hard"
+    assert sfx.pick(["sword", "clash"], idx, intensity=1)["id"] == "soft"
+
+
+def test_battle_recipes_for_the_film_library():
+    for ev in ("arrow_volley", "cannon", "cavalry", "war_cry", "shield_wall"):
+        assert ev in sfx.RECIPES and len(sfx.RECIPES[ev]) >= 2
+
+
+def test_wanted_manifest_covers_the_brief_and_matches_recipes():
+    import pathlib
+    wanted = json.loads(pathlib.Path("library/sfx/wanted.json").read_text(encoding="utf-8"))["wanted"]
+    have = [set(w["tags"]) for w in wanted]
+    # every recipe layer + ambience can be found by some wanted item
+    for layers in sfx.RECIPES.values():
+        for l in layers:
+            assert any(set(l["tags"]) <= h for h in have), l["tags"]
+    for tags in sfx.AMBIENCES.values():
+        assert any(set(tags) <= h for h in have), tags
+    for w in wanted:
+        assert 1 <= w["intensity"] <= 5 and w["mood"] and w["query"]
+
+
+def test_load_wanted_merges_common_excludes(tmp_path):
+    f = tmp_path / "w.json"
+    f.write_text(json.dumps({"common_exclude": ["rifle"], "wanted": [
+        {"name": "a", "query": "q", "tags": ["x"], "mood": ["calm"], "intensity": 1, "exclude": ["car"]},
+        {"name": "b", "query": "q", "tags": ["y"], "mood": ["calm"], "intensity": 1, "exclude_common": False}]}))
+    a, b = sfx.load_wanted(f)
+    assert set(a["exclude"]) == {"rifle", "car"} and b["exclude"] == []
+    assert [w["name"] for w in sfx.load_wanted(f, only=["b"])] == ["b"]
+
+
+def test_build_library_uses_extra_queries_and_dedups(tmp_path):
+    data = _tone(tmp_path / "t.wav").read_bytes()
+    seen = []
+    def fake_get(url, headers=None, timeout=60):
+        seen.append(url)
+        return {"results": [_r(1, "battle a", n=20), _r(2, "battle b", n=10)] if "first" in url else [_r(1, "battle a", n=20), _r(3, "battle c", n=5)]}
+    wanted = [{"name": "bed", "query": "first", "also": ["second"], "tags": ["battle"], "mood": ["violent"], "intensity": 4, "n": 3}]
+    sfx.build_library(wanted, "k", root=tmp_path / "lib", get=fake_get, download=lambda u: (200, data, "audio/mpeg"), log=None)
+    assert len(seen) == 2
+    assert sorted(s["freesound_id"] for s in sfx.load_index(tmp_path / "lib")["sounds"]) == [1, 2, 3]
+
+
+def test_rank_require_keeps_only_on_topic_results():
+    # the NAME must say it: uploader tags are too loose ("digital wildfire" is tagged fire)
+    rs = [_r(1, "Slow Creaky Piano Pedal"), _r(2, "Heavy wooden door close"), dict(_r(3, "take 4"), tags=["door", "wood"])]
+    assert [r["id"] for r in sfx.rank(rs, require=["door"])] == [2]
+
+
+def test_load_wanted_passes_global_reject_ids(tmp_path):
+    f = tmp_path / "w.json"
+    f.write_text(json.dumps({"reject_ids": [7], "wanted": [
+        {"name": "a", "query": "q", "tags": ["x"], "mood": ["calm"], "intensity": 1}]}))
+    assert sfx.load_wanted(f)[0]["reject"] == [7]
+    rs = [_r(7, "fine name"), _r(8, "fine name too")]
+    assert [r["id"] for r in sfx.rank(rs, reject=[7])] == [8]
+
+
+# ---------------- free-text shot sfx ("roaring fire", "ram impact") ----------------
+def test_resolve_maps_known_phrases_to_recipes_or_tags():
+    assert sfx.resolve("ram impact") == "ship_ram"
+    assert sfx.resolve("roaring fire") == "fire"
+    assert sfx.resolve("oars in unison") == "rowing"
+    assert sfx.resolve("silence") is None                 # silence = no sound at all
+    assert sfx.resolve("a sword drawn") == ["sword", "draw"]
+
+
+def test_resolve_generic_fallback_drops_little_words_and_uses_synonyms():
+    # unknown phrase: stop words go, synonyms map to library tags
+    assert sfx.resolve("the timber splintering") == ["wood", "crash"]
+    assert sfx.resolve("distant screams") == ["crowd", "scream"]
+
+
+def test_every_phrase_in_the_five_shorts_resolves_to_a_wanted_sound():
+    import glob, pathlib
+    wanted = [set(w["tags"]) for w in json.loads(pathlib.Path("library/sfx/wanted.json").read_text(encoding="utf-8"))["wanted"]]
+    phrases = {p for j in glob.glob("jobs/*/shots.json")
+               for s in json.loads(pathlib.Path(j).read_text(encoding="utf-8"))["shots"] for p in s.get("sfx") or []}
+    for p in phrases:
+        r = sfx.resolve(p)
+        if r is None:
+            continue
+        layers = [l["tags"] for l in sfx.RECIPES[r]] if isinstance(r, str) else [r]
+        for tags in layers:
+            assert any(set(tags) <= w for w in wanted), (p, tags)
+
+
+def test_design_uses_resolve_and_shot_intensity():
+    idx = {"sounds": [{"id": "fire_soft", "tags": ["fire", "crackle"], "intensity": 2, "duration_s": 30},
+                      {"id": "roar", "tags": ["fire", "roar"], "intensity": 5, "duration_s": 30}]}
+    shots = [{"id": "s8", "at": 0, "dur": 5, "where": "athens", "sfx": ["roaring fire", "silence"]}]
+    plan = sfx.design(shots, idx)
+    assert {"roar", "fire_soft"} <= {e["sound"] for e in plan["events"]}
+    assert not any("silence" in " ".join(m) for m in plan["missing"])

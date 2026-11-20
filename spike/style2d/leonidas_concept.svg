@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <!-- STYLE CONCEPT: Leonidas in the drawn (cel) look. Flat colour + one flat shadow tone + dark ink outline. Sun from the left. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f6fb8"/><stop offset="0.55" stop-color="#6fa8dc"/><stop offset="1" stop-color="#cfe6f3"/>
+    </linearGradient>
+    <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d8b45a"/><stop offset="1" stop-color="#8e7a35"/>
+    </linearGradient>
+  </defs>
+  <g stroke-linejoin="round" stroke-linecap="round">
+  <!-- sky -->
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <!-- big painted clouds: white body, cool blue-grey underside -->
+  <g>
+    <path d="M60 520 C20 470 70 410 140 430 C150 350 260 330 300 390 C330 300 470 290 500 380 C560 340 650 380 630 450 C700 460 700 530 640 540 Z" fill="#ffffff"/>
+    <path d="M60 520 C110 500 180 515 240 500 C320 520 420 495 520 510 C580 500 630 520 640 540 Z" fill="#c4d6e8"/>
+    <path d="M150 440 C180 420 230 425 250 450" fill="none" stroke="#dce8f3" stroke-width="10"/>
+    <path d="M1180 300 C1150 250 1210 200 1270 220 C1290 150 1400 140 1430 200 C1470 150 1580 170 1580 240 C1620 250 1620 310 1580 320 Z" fill="#ffffff"/>
+    <path d="M1180 300 C1260 285 1340 300 1420 288 C1490 300 1550 290 1580 320 Z" fill="#c4d6e8"/>
+    <path d="M700 170 C690 140 730 115 765 128 C780 90 850 88 870 125 C905 110 950 130 940 165 Z" fill="#ffffff" opacity="0.95"/>
+    <path d="M700 170 C760 160 840 168 940 165" fill="none" stroke="#c4d6e8" stroke-width="12"/>
+  </g>
+  <!-- far mountains -->
+  <path d="M0 610 L120 560 L230 585 L380 520 L520 575 L640 545 L800 590 L960 540 L1120 580 L1300 530 L1460 575 L1600 550 L1600 700 L0 700 Z" fill="#8fa6b8"/>
+  <path d="M380 520 L430 560 L470 548 L520 575 Z M1300 530 L1350 570 L1400 560 L1460 575 Z" fill="#7a92a6"/>
+  <path d="M0 660 L200 625 L420 650 L640 615 L880 650 L1100 620 L1350 655 L1600 630 L1600 760 L0 760 Z" fill="#a8935c"/>
+  <!-- hill with grass -->
+  <path d="M0 720 C300 680 600 700 900 690 C1200 680 1450 700 1600 690 L1600 900 L0 900 Z" fill="url(#hill)"/>
+  <g stroke="#7a6a2c" stroke-width="3" fill="none">
+    <path d="M60 760 l8 -30 M90 770 l-6 -34 M130 765 l10 -28 M180 780 l-4 -36 M240 770 l9 -32 M300 785 l-7 -30 M380 775 l6 -34 M440 790 l-8 -28 M520 780 l7 -33 M600 795 l-5 -30"/>
+    <path d="M1300 770 l8 -30 M1350 785 l-6 -34 M1400 775 l10 -28 M1460 790 l-4 -36 M1520 780 l9 -32 M1570 795 l-7 -30"/>
+  </g>
+  <!-- tiny hoplites on the far ridge -->
+  <g fill="#5a4a3a" stroke="none">
+    <path d="M300 664 l6 -22 l6 22 Z M303 642 a4 4 0 1 0 6 0 Z"/><path d="M306 600 l1 64" stroke="#5a4a3a" stroke-width="2"/>
+    <path d="M330 662 l6 -22 l6 22 Z M333 640 a4 4 0 1 0 6 0 Z"/><path d="M336 598 l1 64" stroke="#5a4a3a" stroke-width="2"/>
+    <circle cx="322" cy="654" r="8" fill="#8a2a22"/>
+  </g>
+
+  <!-- ===== LEONIDAS ===== -->
+  <g stroke="#23150d" stroke-width="5">
+    <!-- spear (behind everything but the hand) -->
+    <path d="M1238 905 L1232 70" stroke="#23150d" stroke-width="16"/>
+    <path d="M1238 905 L1232 70" stroke="#7b5531" stroke-width="9"/>
+    <path d="M1232 70 L1214 140 L1233 175 L1252 140 Z" fill="#d79a4a"/>
+    <path d="M1232 70 L1233 175 L1252 140 Z" fill="#a8702e" stroke="none"/>
+
+    <!-- crimson cloak behind the shoulders -->
+    <path d="M820 540 C780 620 750 780 730 905 L1300 905 C1285 800 1265 640 1200 540 Z" fill="#a3221c"/>
+    <path d="M1200 540 C1265 640 1285 800 1300 905 L1180 905 C1200 780 1200 640 1170 560 Z" fill="#761511" stroke="none"/>
+
+    <!-- long braided hair behind the neck -->
+    <path d="M932 300 C915 380 915 450 935 520 L975 520 C960 450 960 380 962 300 Z" fill="#3a2416"/>
+    <path d="M1040 300 C1045 380 1048 450 1040 520 L1085 515 C1095 440 1090 370 1072 295 Z" fill="#2b1a10"/>
+
+    <!-- neck -->
+    <path d="M965 420 L962 500 L1050 500 L1046 420 Z" fill="#d6a172"/>
+    <path d="M1015 430 L1046 420 L1050 500 L1020 500 Z" fill="#b07b50" stroke="none"/>
+
+    <!-- bronze muscle cuirass -->
+    <path d="M830 545 C870 500 935 488 1005 496 C1075 488 1140 500 1180 545 L1165 905 L845 905 Z" fill="#cf9446"/>
+    <path d="M1005 496 C1075 488 1140 500 1180 545 L1165 905 L1040 905 C1080 760 1070 600 1005 496 Z" fill="#a46c2c" stroke="none"/>
+    <path d="M830 545 C870 500 935 488 1005 496 C1075 488 1140 500 1180 545" fill="none"/>
+    <!-- pectorals + abdomen sculpted lines -->
+    <path d="M900 600 C940 640 990 640 1003 610 M1010 610 C1030 640 1080 640 1115 600" fill="none" stroke-width="4"/>
+    <path d="M1005 620 L1005 860 M930 700 C970 715 1040 715 1080 700 M940 770 C975 782 1035 782 1070 770" fill="none" stroke-width="3"/>
+    <!-- highlight on the lit chest -->
+    <path d="M880 560 C910 545 950 540 975 548" fill="none" stroke="#f1c98a" stroke-width="8"/>
+    <!-- neck opening rim -->
+    <path d="M950 500 C980 520 1030 520 1062 500" fill="none" stroke-width="4"/>
+
+    <!-- right arm (his right, our right) down along the spear -->
+    <path d="M1150 540 C1200 560 1230 620 1240 700 L1250 800 L1200 805 L1190 705 C1180 640 1160 600 1130 590 Z" fill="#d6a172"/>
+    <path d="M1205 600 C1230 640 1240 700 1250 800 L1225 802 C1222 720 1215 650 1195 610 Z" fill="#b07b50" stroke="none"/>
+    <!-- fist round the spear -->
+    <path d="M1205 790 C1200 760 1265 755 1270 790 C1275 830 1205 835 1205 790 Z" fill="#d6a172"/>
+    <path d="M1215 790 L1262 788 M1214 806 L1263 804" fill="none" stroke-width="3"/>
+
+    <!-- head: strong jaw, three-quarter to our left -->
+    <path d="M945 265 C938 320 940 360 952 392 C965 420 985 438 1008 440 C1035 438 1052 418 1060 388 C1068 350 1068 300 1060 262 Z" fill="#d9a477"/>
+    <path d="M1030 270 L1060 262 C1068 300 1068 350 1060 388 C1052 418 1035 438 1012 440 C1040 400 1045 330 1030 270 Z" fill="#b47d52" stroke="none"/>
+    <!-- ear -->
+    <path d="M1060 318 C1080 310 1086 345 1062 358" fill="#c48c5f"/>
+
+    <!-- beard: solid sculpted shape, upper lip shaved (Spartan) -->
+    <path d="M948 352 C944 420 960 488 1006 512 C1052 488 1068 420 1063 352 C1056 392 1042 410 1028 412 C1018 404 994 404 984 412 C968 410 954 392 948 352 Z" fill="#3b2517"/>
+    <path d="M1006 512 C1052 488 1068 420 1063 352 C1056 392 1048 405 1040 410 C1045 450 1030 490 1006 512 Z" fill="#26170d" stroke="none"/>
+    <path d="M975 440 C985 470 995 488 1004 498 M1000 430 C1003 460 1006 480 1008 496 M1030 440 C1026 468 1018 484 1012 496" fill="none" stroke="#5a3a24" stroke-width="3"/>
+    <!-- mouth -->
+    <path d="M985 396 C998 402 1015 402 1028 396" fill="none" stroke-width="4"/>
+
+    <!-- nose -->
+    <path d="M1006 300 C1004 330 1000 350 993 366 C1000 372 1012 372 1020 366" fill="none" stroke-width="4"/>
+    <path d="M1008 305 C1012 330 1018 350 1020 366 C1015 360 1010 340 1008 305 Z" fill="#b47d52" stroke="none"/>
+
+    <!-- eyes: almond, dark iris, heavy lid line -->
+    <path d="M962 322 C970 312 988 312 996 322 C988 328 970 328 962 322 Z" fill="#f4efe6" stroke-width="3"/>
+    <circle cx="981" cy="321" r="5" fill="#2c1c12" stroke="none"/>
+    <path d="M1020 322 C1028 312 1044 312 1050 322 C1043 328 1028 328 1020 322 Z" fill="#f4efe6" stroke-width="3"/>
+    <circle cx="1036" cy="321" r="5" fill="#2c1c12" stroke="none"/>
+    <path d="M960 318 C972 309 990 309 998 318 M1018 318 C1028 309 1044 309 1052 318" fill="none" stroke-width="5"/>
+    <!-- heavy stern brows -->
+    <path d="M955 300 C970 292 988 294 1000 304" fill="none" stroke="#2a1a10" stroke-width="10"/>
+    <path d="M1015 304 C1028 294 1045 292 1056 298" fill="none" stroke="#2a1a10" stroke-width="10"/>
+    <!-- cheekbone + brow-furrow lines -->
+    <path d="M1000 296 L1004 286 M1012 296 L1010 286" fill="none" stroke-width="2.5"/>
+    <path d="M958 355 C965 362 972 365 978 366" fill="none" stroke="#a5704a" stroke-width="3"/>
+
+    <!-- Corinthian helmet pushed back on the crown -->
+    <path d="M935 272 C930 200 975 168 1008 168 C1050 168 1082 200 1074 270 C1050 250 1020 244 1005 244 C985 244 955 250 935 272 Z" fill="#cf9446"/>
+    <path d="M1040 175 C1068 192 1082 225 1074 270 C1060 258 1048 252 1040 250 C1050 220 1050 195 1040 175 Z" fill="#a46c2c" stroke="none"/>
+    <path d="M948 225 C975 212 1040 212 1064 225" fill="none" stroke-width="4"/>
+    <!-- nose-guard pointing up + eye openings seen from above -->
+    <path d="M995 244 L1000 210 L1012 210 L1016 244 Z" fill="#b87d36"/>
+    <path d="M955 255 C965 238 985 236 995 246 Z M1018 246 C1030 236 1050 238 1060 255 Z" fill="#2a1a10"/>
+    <path d="M955 200 C975 185 995 182 1010 182" fill="none" stroke="#f1c98a" stroke-width="7"/>
+
+    <!-- red horsehair crest -->
+    <path d="M915 198 C925 110 1080 100 1098 200 C1085 170 1060 150 1006 150 C955 150 928 170 915 198 Z" fill="#b82a20"/>
+    <path d="M1006 150 C1060 150 1085 170 1098 200 C1092 140 1050 112 1015 110 C1040 125 1035 140 1006 150 Z" fill="#7d1812" stroke="none"/>
+    <path d="M940 160 C960 140 990 132 1010 132 M960 175 C985 158 1020 156 1050 162" fill="none" stroke="#e05a44" stroke-width="4"/>
+    <path d="M995 168 L1018 168 L1018 150 L995 150 Z" fill="#8a5a24"/>
+
+    <!-- shield on his left arm: bronze rim, crimson field, gold lambda -->
+    <circle cx="830" cy="735" r="235" fill="#a46c2c"/>
+    <circle cx="830" cy="735" r="205" fill="#9e1f1a"/>
+    <path d="M830 530 A205 205 0 0 1 830 940 A205 205 0 0 0 830 530 Z" fill="#7a1612" stroke="none"/>
+    <path d="M830 530 A205 205 0 0 0 640 650" fill="none" stroke="#f1c98a" stroke-width="10"/>
+    <path d="M745 845 L830 600 L915 845" fill="none" stroke="#23150d" stroke-width="44"/>
+    <path d="M745 845 L830 600 L915 845" fill="none" stroke="#e6b53e" stroke-width="32"/>
+  </g>
+  </g>
+</svg>

@@ -1,4 +1,2599 @@
 {
   "_note": "Sound-effect catalogue (tc sfx add / tc sfx fetch). Audio files live in library/sfx/files/ (git-ignored). Licences: CC0, CC-BY (credit line required), Pixabay, Sonniss GDC, PremiumBeat/The Beat only; never NC/ND/Sampling+.",
-  "sounds": []
+  "sounds": [
+    {
+      "id": "footsteps_march_army_fs240732",
+      "file": "footsteps_march_army_fs240732.mp3",
+      "tags": [
+        "footsteps",
+        "march",
+        "army"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/240732/",
+      "duration_s": 8.771,
+      "lufs": -20.6,
+      "mood": [
+        "tense",
+        "grand"
+      ],
+      "intensity": 3,
+      "freesound_id": 240732,
+      "wanted": "march_steps",
+      "name": "marching-concrete-loop.aif"
+    },
+    {
+      "id": "footsteps_march_army_fs240724",
+      "file": "footsteps_march_army_fs240724.mp3",
+      "tags": [
+        "footsteps",
+        "march",
+        "army"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/240724/",
+      "duration_s": 25.818,
+      "lufs": -16.4,
+      "mood": [
+        "tense",
+        "grand"
+      ],
+      "intensity": 3,
+      "freesound_id": 240724,
+      "wanted": "march_steps",
+      "name": "marching-loop.aif"
+    },
+    {
+      "id": "footsteps_march_army_fs333907",
+      "file": "footsteps_march_army_fs333907.mp3",
+      "tags": [
+        "footsteps",
+        "march",
+        "army"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/333907/",
+      "duration_s": 36.73,
+      "lufs": -34.3,
+      "mood": [
+        "tense",
+        "grand"
+      ],
+      "intensity": 3,
+      "freesound_id": 333907,
+      "wanted": "march_steps",
+      "name": "squad march.wav"
+    },
+    {
+      "id": "footsteps_march_close_fs200321",
+      "file": "footsteps_march_close_fs200321.mp3",
+      "tags": [
+        "footsteps",
+        "march",
+        "close"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Marching.wav\" by WebbFilmsUK (freesound.org/s/200321) - CC BY",
+      "url": "https://freesound.org/s/200321/",
+      "duration_s": 22.0,
+      "lufs": -23.3,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 4,
+      "freesound_id": 200321,
+      "wanted": "march_close",
+      "name": "Marching.wav"
+    },
+    {
+      "id": "footsteps_march_close_fs200323",
+      "file": "footsteps_march_close_fs200323.mp3",
+      "tags": [
+        "footsteps",
+        "march",
+        "close"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Marching 2.wav\" by WebbFilmsUK (freesound.org/s/200323) - CC BY",
+      "url": "https://freesound.org/s/200323/",
+      "duration_s": 22.0,
+      "lufs": -23.4,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 4,
+      "freesound_id": 200323,
+      "wanted": "march_close",
+      "name": "Marching 2.wav"
+    },
+    {
+      "id": "armour_clank_metal_fs180231",
+      "file": "armour_clank_metal_fs180231.mp3",
+      "tags": [
+        "armour",
+        "clank",
+        "metal"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/180231/",
+      "duration_s": 22.353,
+      "lufs": -26.7,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 2,
+      "freesound_id": 180231,
+      "wanted": "armour_clank",
+      "name": "armor.wav"
+    },
+    {
+      "id": "armour_clank_metal_fs770065",
+      "file": "armour_clank_metal_fs770065.mp3",
+      "tags": [
+        "armour",
+        "clank",
+        "metal"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/770065/",
+      "duration_s": 16.893,
+      "lufs": -33.3,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 2,
+      "freesound_id": 770065,
+      "wanted": "armour_clank",
+      "name": "Footstep Armor - Knight"
+    },
+    {
+      "id": "spear_rattle_wood_fs540300",
+      "file": "spear_rattle_wood_fs540300.mp3",
+      "tags": [
+        "spear",
+        "rattle",
+        "wood"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Whoosh Heavy Spear Hammer Large\" by EminYILDIRIM (freesound.org/s/540300) - CC BY",
+      "url": "https://freesound.org/s/540300/",
+      "duration_s": 1.5,
+      "lufs": -9.1,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 2,
+      "freesound_id": 540300,
+      "wanted": "spear_rattle",
+      "name": "Whoosh Heavy Spear Hammer Large"
+    },
+    {
+      "id": "spear_rattle_wood_fs492252",
+      "file": "spear_rattle_wood_fs492252.mp3",
+      "tags": [
+        "spear",
+        "rattle",
+        "wood"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Imperius - Spear Whoosh.wav\" by SoundFlakes (freesound.org/s/492252) - CC BY",
+      "url": "https://freesound.org/s/492252/",
+      "duration_s": 1.395,
+      "lufs": -16.9,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 2,
+      "freesound_id": 492252,
+      "wanted": "spear_rattle",
+      "name": "Imperius - Spear Whoosh.wav"
+    },
+    {
+      "id": "chant_men_voices_fs319253",
+      "file": "chant_men_voices_fs319253.mp3",
+      "tags": [
+        "chant",
+        "men",
+        "voices"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/319253/",
+      "duration_s": 13.036,
+      "lufs": -23.5,
+      "mood": [
+        "grand",
+        "tense"
+      ],
+      "intensity": 3,
+      "freesound_id": 319253,
+      "wanted": "chant_men",
+      "name": "Low chant.wav"
+    },
+    {
+      "id": "war_cry_shout_fs521831",
+      "file": "war_cry_shout_fs521831.mp3",
+      "tags": [
+        "war",
+        "cry",
+        "shout",
+        "men"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/521831/",
+      "duration_s": 2.681,
+      "lufs": -16.9,
+      "mood": [
+        "violent",
+        "grand"
+      ],
+      "intensity": 5,
+      "freesound_id": 521831,
+      "wanted": "war_cries",
+      "name": "Middle Ages War Cry 3.wav"
+    },
+    {
+      "id": "war_cry_shout_fs521832",
+      "file": "war_cry_shout_fs521832.mp3",
+      "tags": [
+        "war",
+        "cry",
+        "shout",
+        "men"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/521832/",
+      "duration_s": 1.056,
+      "lufs": -17.0,
+      "mood": [
+        "violent",
+        "grand"
+      ],
+      "intensity": 5,
+      "freesound_id": 521832,
+      "wanted": "war_cries",
+      "name": "Middle Ages War Cry 2.wav"
+    },
+    {
+      "id": "war_cry_shout_fs402645",
+      "file": "war_cry_shout_fs402645.mp3",
+      "tags": [
+        "war",
+        "cry",
+        "shout",
+        "men"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Warcry Yarghh! - British Male\" by theuncertainman (freesound.org/s/402645) - CC BY",
+      "url": "https://freesound.org/s/402645/",
+      "duration_s": 3.697,
+      "lufs": -16.1,
+      "mood": [
+        "violent",
+        "grand"
+      ],
+      "intensity": 5,
+      "freesound_id": 402645,
+      "wanted": "war_cries",
+      "name": "Warcry Yarghh! - British Male"
+    },
+    {
+      "id": "war_cry_shout_fs521830",
+      "file": "war_cry_shout_fs521830.mp3",
+      "tags": [
+        "war",
+        "cry",
+        "shout",
+        "men"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/521830/",
+      "duration_s": 1.924,
+      "lufs": -16.7,
+      "mood": [
+        "violent",
+        "grand"
+      ],
+      "intensity": 5,
+      "freesound_id": 521830,
+      "wanted": "war_cries",
+      "name": "Middle Ages War Cry.wav"
+    },
+    {
+      "id": "battle_crowd_ambience_fs258207",
+      "file": "battle_crowd_ambience_fs258207.mp3",
+      "tags": [
+        "battle",
+        "crowd",
+        "ambience"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Vanhan ajan sota, taistelu, miekkailu / Ancient, old time battle, combat, horses snorting and galloping, men shouting and barking, fencing, swords clanging, mix\" by YleArkisto (freesound.org/s/258207) - CC BY",
+      "url": "https://freesound.org/s/258207/",
+      "duration_s": 127.335,
+      "lufs": -17.3,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 4,
+      "freesound_id": 258207,
+      "wanted": "battle_bed",
+      "name": "Vanhan ajan sota, taistelu, miekkailu / Ancient, old time battle, combat, horses snorting and galloping, men shouting and barking, fencing, swords clanging, mix"
+    },
+    {
+      "id": "battle_crowd_ambience_fs138144",
+      "file": "battle_crowd_ambience_fs138144.mp3",
+      "tags": [
+        "battle",
+        "crowd",
+        "ambience"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/138144/",
+      "duration_s": 203.196,
+      "lufs": -9.5,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 4,
+      "freesound_id": 138144,
+      "wanted": "battle_bed",
+      "name": "battlescene.wav"
+    },
+    {
+      "id": "battle_crowd_distant_fs823852",
+      "file": "battle_crowd_distant_fs823852.mp3",
+      "tags": [
+        "battle",
+        "crowd",
+        "distant"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/823852/",
+      "duration_s": 142.644,
+      "lufs": -17.7,
+      "mood": [
+        "tense",
+        "sad"
+      ],
+      "intensity": 2,
+      "freesound_id": 823852,
+      "wanted": "battle_distant",
+      "name": "(Distant)rumbling battle1"
+    },
+    {
+      "id": "sword_clash_metal_fs782966",
+      "file": "sword_clash_metal_fs782966.mp3",
+      "tags": [
+        "sword",
+        "clash",
+        "metal"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/782966/",
+      "duration_s": 3.159,
+      "lufs": -15.8,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 4,
+      "freesound_id": 782966,
+      "wanted": "sword_clash",
+      "name": "Sword Swing Connect"
+    },
+    {
+      "id": "sword_clash_metal_fs522700",
+      "file": "sword_clash_metal_fs522700.mp3",
+      "tags": [
+        "sword",
+        "clash",
+        "metal"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/522700/",
+      "duration_s": 3.128,
+      "lufs": -20.3,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 4,
+      "freesound_id": 522700,
+      "wanted": "sword_clash",
+      "name": "Weapon, Sword, Metal sword, Double swing, fast"
+    },
+    {
+      "id": "sword_clash_metal_fs1450",
+      "file": "sword_clash_metal_fs1450.mp3",
+      "tags": [
+        "sword",
+        "clash",
+        "metal"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/1450/",
+      "duration_s": 0.61,
+      "lufs": -13.9,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 4,
+      "freesound_id": 1450,
+      "wanted": "sword_clash",
+      "name": "06SWORD03.aif"
+    },
+    {
+      "id": "sword_clash_metal_fs180818",
+      "file": "sword_clash_metal_fs180818.mp3",
+      "tags": [
+        "sword",
+        "clash",
+        "metal"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"SwordClash03\" by 32cheeseman32 (freesound.org/s/180818) - CC BY",
+      "url": "https://freesound.org/s/180818/",
+      "duration_s": 1.232,
+      "lufs": -13.7,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 4,
+      "freesound_id": 180818,
+      "wanted": "sword_clash",
+      "name": "SwordClash03"
+    },
+    {
+      "id": "sword_clash_metal_fs326795",
+      "file": "sword_clash_metal_fs326795.mp3",
+      "tags": [
+        "sword",
+        "clash",
+        "metal"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/326795/",
+      "duration_s": 1.176,
+      "lufs": -14.9,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 4,
+      "freesound_id": 326795,
+      "wanted": "sword_clash",
+      "name": "Sword_Clash (46).wav"
+    },
+    {
+      "id": "sword_clash_metal_fs326862",
+      "file": "sword_clash_metal_fs326862.mp3",
+      "tags": [
+        "sword",
+        "clash",
+        "metal"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/326862/",
+      "duration_s": 1.6,
+      "lufs": -15.0,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 4,
+      "freesound_id": 326862,
+      "wanted": "sword_clash",
+      "name": "Sword_Clash (57).wav"
+    },
+    {
+      "id": "sword_clash_fight_fs568789",
+      "file": "sword_clash_fight_fs568789.mp3",
+      "tags": [
+        "sword",
+        "clash",
+        "fight"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/568789/",
+      "duration_s": 9.31,
+      "lufs": -18.9,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 5,
+      "freesound_id": 568789,
+      "wanted": "sword_fight",
+      "name": "sword drawn.wav"
+    },
+    {
+      "id": "sword_draw_metal_fs423935",
+      "file": "sword_draw_metal_fs423935.mp3",
+      "tags": [
+        "sword",
+        "draw",
+        "metal"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/423935/",
+      "duration_s": 1.694,
+      "lufs": -8.4,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 3,
+      "freesound_id": 423935,
+      "wanted": "sword_draw",
+      "name": "Draw sword#1.wav"
+    },
+    {
+      "id": "sword_draw_metal_fs320521",
+      "file": "sword_draw_metal_fs320521.mp3",
+      "tags": [
+        "sword",
+        "draw",
+        "metal"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/320521/",
+      "duration_s": 3.0,
+      "lufs": -12.3,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 3,
+      "freesound_id": 320521,
+      "wanted": "sword_draw",
+      "name": "Unsheathed blade"
+    },
+    {
+      "id": "shield_clash_hit_fs319590",
+      "file": "shield_clash_hit_fs319590.mp3",
+      "tags": [
+        "shield",
+        "clash",
+        "hit",
+        "metal"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Shield Bash Impact\" by Hybrid_V (freesound.org/s/319590) - CC BY",
+      "url": "https://freesound.org/s/319590/",
+      "duration_s": 1.007,
+      "lufs": -11.1,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 4,
+      "freesound_id": 319590,
+      "wanted": "shield_bronze",
+      "name": "Shield Bash Impact"
+    },
+    {
+      "id": "shield_clash_hit_fs575564",
+      "file": "shield_clash_hit_fs575564.mp3",
+      "tags": [
+        "shield",
+        "clash",
+        "hit",
+        "metal"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"shieldDrop.mp3\" by Dibokucres (freesound.org/s/575564) - CC BY",
+      "url": "https://freesound.org/s/575564/",
+      "duration_s": 2.809,
+      "lufs": -23.1,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 4,
+      "freesound_id": 575564,
+      "wanted": "shield_bronze",
+      "name": "shieldDrop.mp3"
+    },
+    {
+      "id": "shield_clash_hit_fs350602",
+      "file": "shield_clash_hit_fs350602.mp3",
+      "tags": [
+        "shield",
+        "clash",
+        "hit",
+        "metal"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/350602/",
+      "duration_s": 3.425,
+      "lufs": -12.9,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 4,
+      "freesound_id": 350602,
+      "wanted": "shield_bronze",
+      "name": "Ship_Hit_Shields.wav"
+    },
+    {
+      "id": "shield_hit_wood_fs812518",
+      "file": "shield_hit_wood_fs812518.mp3",
+      "tags": [
+        "shield",
+        "hit",
+        "wood"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Shield block-01\" by DinisNakamura (freesound.org/s/812518) - CC BY",
+      "url": "https://freesound.org/s/812518/",
+      "duration_s": 0.865,
+      "lufs": -15.1,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 3,
+      "freesound_id": 812518,
+      "wanted": "shield_wood",
+      "name": "Shield block-01"
+    },
+    {
+      "id": "arrow_whoosh_fs391444",
+      "file": "arrow_whoosh_fs391444.mp3",
+      "tags": [
+        "arrow",
+        "whoosh"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/391444/",
+      "duration_s": 2.803,
+      "lufs": -38.6,
+      "mood": [
+        "tense",
+        "violent"
+      ],
+      "intensity": 3,
+      "freesound_id": 391444,
+      "wanted": "arrow_whoosh",
+      "name": "Arrow Whoosh 2 .R.wav"
+    },
+    {
+      "id": "arrow_whoosh_fs394185",
+      "file": "arrow_whoosh_fs394185.mp3",
+      "tags": [
+        "arrow",
+        "whoosh"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/394185/",
+      "duration_s": 0.435,
+      "lufs": -26.4,
+      "mood": [
+        "tense",
+        "violent"
+      ],
+      "intensity": 3,
+      "freesound_id": 394185,
+      "wanted": "arrow_whoosh",
+      "name": "Arrow  Loose.wav"
+    },
+    {
+      "id": "arrow_whoosh_fs789389",
+      "file": "arrow_whoosh_fs789389.mp3",
+      "tags": [
+        "arrow",
+        "whoosh"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/789389/",
+      "duration_s": 1.376,
+      "lufs": -8.2,
+      "mood": [
+        "tense",
+        "violent"
+      ],
+      "intensity": 3,
+      "freesound_id": 789389,
+      "wanted": "arrow_whoosh",
+      "name": "Arrow Flyby"
+    },
+    {
+      "id": "arrow_whoosh_volley_fs675820",
+      "file": "arrow_whoosh_volley_fs675820.mp3",
+      "tags": [
+        "arrow",
+        "whoosh",
+        "volley"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/675820/",
+      "duration_s": 4.45,
+      "lufs": -27.2,
+      "mood": [
+        "violent",
+        "grand"
+      ],
+      "intensity": 5,
+      "freesound_id": 675820,
+      "wanted": "arrow_volley",
+      "name": "S23-22 Arrows fly & hit; indoors.wav"
+    },
+    {
+      "id": "arrow_impact_fs161098",
+      "file": "arrow_impact_fs161098.mp3",
+      "tags": [
+        "arrow",
+        "impact"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/161098/",
+      "duration_s": 0.294,
+      "lufs": null,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 3,
+      "freesound_id": 161098,
+      "wanted": "arrow_impact",
+      "name": "arrow_damage.wav"
+    },
+    {
+      "id": "arrow_impact_fs574044",
+      "file": "arrow_impact_fs574044.mp3",
+      "tags": [
+        "arrow",
+        "impact"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/574044/",
+      "duration_s": 1.29,
+      "lufs": -17.7,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 3,
+      "freesound_id": 574044,
+      "wanted": "arrow_impact",
+      "name": "Arrow.mp3"
+    },
+    {
+      "id": "arrow_impact_fs205938",
+      "file": "arrow_impact_fs205938.mp3",
+      "tags": [
+        "arrow",
+        "impact"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/205938/",
+      "duration_s": 0.614,
+      "lufs": -21.7,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 3,
+      "freesound_id": 205938,
+      "wanted": "arrow_impact",
+      "name": "Arrow Impact"
+    },
+    {
+      "id": "arrow_impact_fs321553",
+      "file": "arrow_impact_fs321553.mp3",
+      "tags": [
+        "arrow",
+        "impact"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/licenses/by/3.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Regular Arrow Shot with rattle\" by brendan89 (freesound.org/s/321553) - CC BY",
+      "url": "https://freesound.org/s/321553/",
+      "duration_s": 2.728,
+      "lufs": -16.5,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 3,
+      "freesound_id": 321553,
+      "wanted": "arrow_impact",
+      "name": "Regular Arrow Shot with rattle"
+    },
+    {
+      "id": "bow_release_fs536067",
+      "file": "bow_release_fs536067.mp3",
+      "tags": [
+        "bow",
+        "release"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/536067/",
+      "duration_s": 0.5,
+      "lufs": -38.0,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 2,
+      "freesound_id": 536067,
+      "wanted": "bow_release",
+      "name": "Bow Loading"
+    },
+    {
+      "id": "bow_release_fs209399",
+      "file": "bow_release_fs209399.mp3",
+      "tags": [
+        "bow",
+        "release"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Bow Release\" by sgossner (freesound.org/s/209399) - CC BY",
+      "url": "https://freesound.org/s/209399/",
+      "duration_s": 0.589,
+      "lufs": -33.2,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 2,
+      "freesound_id": 209399,
+      "wanted": "bow_release",
+      "name": "Bow Release"
+    },
+    {
+      "id": "cannon_boom_close_fs621000",
+      "file": "cannon_boom_close_fs621000.mp3",
+      "tags": [
+        "cannon",
+        "boom",
+        "close"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/621000/",
+      "duration_s": 6.711,
+      "lufs": -14.4,
+      "mood": [
+        "violent",
+        "grand"
+      ],
+      "intensity": 5,
+      "freesound_id": 621000,
+      "wanted": "cannon_boom",
+      "name": "Cannon explosion sound"
+    },
+    {
+      "id": "cannon_boom_close_fs184650",
+      "file": "cannon_boom_close_fs184650.mp3",
+      "tags": [
+        "cannon",
+        "boom",
+        "close"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/184650/",
+      "duration_s": 1.473,
+      "lufs": -13.8,
+      "mood": [
+        "violent",
+        "grand"
+      ],
+      "intensity": 5,
+      "freesound_id": 184650,
+      "wanted": "cannon_boom",
+      "name": "Cannon1.wav"
+    },
+    {
+      "id": "cannon_boom_close_fs621001",
+      "file": "cannon_boom_close_fs621001.mp3",
+      "tags": [
+        "cannon",
+        "boom",
+        "close"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/621001/",
+      "duration_s": 6.711,
+      "lufs": -16.0,
+      "mood": [
+        "violent",
+        "grand"
+      ],
+      "intensity": 5,
+      "freesound_id": 621001,
+      "wanted": "cannon_boom",
+      "name": "Cannon explosion sound 2"
+    },
+    {
+      "id": "cannon_echo_distant_fs345844",
+      "file": "cannon_echo_distant_fs345844.mp3",
+      "tags": [
+        "cannon",
+        "echo",
+        "distant"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/licenses/by/3.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Cannon artillery - distant gunshots.wav\" by Aegersum (freesound.org/s/345844) - CC BY",
+      "url": "https://freesound.org/s/345844/",
+      "duration_s": 5.921,
+      "lufs": -19.8,
+      "mood": [
+        "tense",
+        "grand"
+      ],
+      "intensity": 3,
+      "freesound_id": 345844,
+      "wanted": "cannon_echo",
+      "name": "Cannon artillery - distant gunshots.wav"
+    },
+    {
+      "id": "cannon_echo_distant_fs565794",
+      "file": "cannon_echo_distant_fs565794.mp3",
+      "tags": [
+        "cannon",
+        "echo",
+        "distant"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/565794/",
+      "duration_s": 3.844,
+      "lufs": -32.6,
+      "mood": [
+        "tense",
+        "grand"
+      ],
+      "intensity": 3,
+      "freesound_id": 565794,
+      "wanted": "cannon_echo",
+      "name": "Distant Cannon Fire (simulated)"
+    },
+    {
+      "id": "cannon_echo_distant_fs825297",
+      "file": "cannon_echo_distant_fs825297.mp3",
+      "tags": [
+        "cannon",
+        "echo",
+        "distant"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/825297/",
+      "duration_s": 7.582,
+      "lufs": -24.7,
+      "mood": [
+        "tense",
+        "grand"
+      ],
+      "intensity": 3,
+      "freesound_id": 825297,
+      "wanted": "cannon_echo",
+      "name": "distant cannon or gunshot"
+    },
+    {
+      "id": "debris_falling_stone_fs567249",
+      "file": "debris_falling_stone_fs567249.mp3",
+      "tags": [
+        "debris",
+        "falling",
+        "stone"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/567249/",
+      "duration_s": 4.202,
+      "lufs": -16.5,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 3,
+      "freesound_id": 567249,
+      "wanted": "debris",
+      "name": "Bricks/Stones/Rocks/Gravel Falling"
+    },
+    {
+      "id": "debris_falling_stone_fs567251",
+      "file": "debris_falling_stone_fs567251.mp3",
+      "tags": [
+        "debris",
+        "falling",
+        "stone"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/567251/",
+      "duration_s": 4.202,
+      "lufs": -14.9,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 3,
+      "freesound_id": 567251,
+      "wanted": "debris",
+      "name": "Stones Falling"
+    },
+    {
+      "id": "building_collapse_fs508546",
+      "file": "building_collapse_fs508546.mp3",
+      "tags": [
+        "building",
+        "collapse"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/508546/",
+      "duration_s": 10.149,
+      "lufs": -25.6,
+      "mood": [
+        "violent",
+        "sad"
+      ],
+      "intensity": 5,
+      "freesound_id": 508546,
+      "wanted": "collapse",
+      "name": "Bridge Collapse.wav"
+    },
+    {
+      "id": "wood_crash_fs443293",
+      "file": "wood_crash_fs443293.mp3",
+      "tags": [
+        "wood",
+        "crash"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/443293/",
+      "duration_s": 0.863,
+      "lufs": -13.6,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 4,
+      "freesound_id": 443293,
+      "wanted": "wood_crash",
+      "name": "Wood Break.wav"
+    },
+    {
+      "id": "wood_crash_fs500901",
+      "file": "wood_crash_fs500901.mp3",
+      "tags": [
+        "wood",
+        "crash"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/500901/",
+      "duration_s": 1.827,
+      "lufs": -7.0,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 4,
+      "freesound_id": 500901,
+      "wanted": "wood_crash",
+      "name": "Wood Crate Destory 2"
+    },
+    {
+      "id": "breath_grunt_fs557131",
+      "file": "breath_grunt_fs557131.mp3",
+      "tags": [
+        "breath",
+        "grunt"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/557131/",
+      "duration_s": 1.553,
+      "lufs": -19.5,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 3,
+      "freesound_id": 557131,
+      "wanted": "breath_grunt",
+      "name": "ManlyGrunt02.wav"
+    },
+    {
+      "id": "breath_grunt_fs695378",
+      "file": "breath_grunt_fs695378.mp3",
+      "tags": [
+        "breath",
+        "grunt"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Male Attack Grunt 1.wav\" by F.M.Audio (freesound.org/s/695378) - CC BY",
+      "url": "https://freesound.org/s/695378/",
+      "duration_s": 0.399,
+      "lufs": null,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 3,
+      "freesound_id": 695378,
+      "wanted": "breath_grunt",
+      "name": "Male Attack Grunt 1.wav"
+    },
+    {
+      "id": "breath_grunt_fs507730",
+      "file": "breath_grunt_fs507730.mp3",
+      "tags": [
+        "breath",
+        "grunt"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/507730/",
+      "duration_s": 0.329,
+      "lufs": null,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 3,
+      "freesound_id": 507730,
+      "wanted": "breath_grunt",
+      "name": "EffortNoise.wav"
+    },
+    {
+      "id": "footsteps_scuffle_fs353799",
+      "file": "footsteps_scuffle_fs353799.mp3",
+      "tags": [
+        "footsteps",
+        "scuffle"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/353799/",
+      "duration_s": 6.3,
+      "lufs": -38.0,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 3,
+      "freesound_id": 353799,
+      "wanted": "scuffle",
+      "name": "Footsteps_6_Dirt_shoe.wav"
+    },
+    {
+      "id": "footsteps_scuffle_fs521588",
+      "file": "footsteps_scuffle_fs521588.mp3",
+      "tags": [
+        "footsteps",
+        "scuffle"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/521588/",
+      "duration_s": 2.735,
+      "lufs": -27.5,
+      "mood": [
+        "violent"
+      ],
+      "intensity": 3,
+      "freesound_id": 521588,
+      "wanted": "scuffle",
+      "name": "Hiking Boot Footsteps on Gravel"
+    },
+    {
+      "id": "horse_hooves_trot_fs538438",
+      "file": "horse_hooves_trot_fs538438.mp3",
+      "tags": [
+        "horse",
+        "hooves",
+        "trot"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/538438/",
+      "duration_s": 33.36,
+      "lufs": -27.6,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 538438,
+      "wanted": "horse_trot",
+      "name": "horse with old cart.wav"
+    },
+    {
+      "id": "horse_hooves_gallop_fs165532",
+      "file": "horse_hooves_gallop_fs165532.mp3",
+      "tags": [
+        "horse",
+        "hooves",
+        "gallop"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/165532/",
+      "duration_s": 11.501,
+      "lufs": -23.7,
+      "mood": [
+        "tense",
+        "grand"
+      ],
+      "intensity": 4,
+      "freesound_id": 165532,
+      "wanted": "horse_gallop",
+      "name": "SRS_Foley_Horse_Galloping.wav"
+    },
+    {
+      "id": "horse_hooves_gallop_fs784606",
+      "file": "horse_hooves_gallop_fs784606.mp3",
+      "tags": [
+        "horse",
+        "hooves",
+        "gallop"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/784606/",
+      "duration_s": 13.375,
+      "lufs": -20.3,
+      "mood": [
+        "tense",
+        "grand"
+      ],
+      "intensity": 4,
+      "freesound_id": 784606,
+      "wanted": "horse_gallop",
+      "name": "horse galloping and neighing"
+    },
+    {
+      "id": "horse_hooves_gallop_fs564626",
+      "file": "horse_hooves_gallop_fs564626.mp3",
+      "tags": [
+        "horse",
+        "hooves",
+        "gallop"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/564626/",
+      "duration_s": 9.339,
+      "lufs": -16.7,
+      "mood": [
+        "tense",
+        "grand"
+      ],
+      "intensity": 4,
+      "freesound_id": 564626,
+      "wanted": "horse_gallop",
+      "name": "Wild Horses Galopp"
+    },
+    {
+      "id": "horse_hooves_gallop_fs527430",
+      "file": "horse_hooves_gallop_fs527430.mp3",
+      "tags": [
+        "horse",
+        "hooves",
+        "gallop",
+        "cavalry"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/527430/",
+      "duration_s": 25.103,
+      "lufs": -17.4,
+      "mood": [
+        "violent",
+        "grand"
+      ],
+      "intensity": 5,
+      "freesound_id": 527430,
+      "wanted": "cavalry_charge",
+      "name": "6 horses gallop.wav"
+    },
+    {
+      "id": "horse_hooves_gallop_fs342329",
+      "file": "horse_hooves_gallop_fs342329.mp3",
+      "tags": [
+        "horse",
+        "hooves",
+        "gallop",
+        "cavalry"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Hevoset laukkaavat ohi, hevosjoukko / Horses galloping, passing by in the forest, single horses and groups, mix\" by YleArkisto (freesound.org/s/342329) - CC BY",
+      "url": "https://freesound.org/s/342329/",
+      "duration_s": 87.86,
+      "lufs": -18.8,
+      "mood": [
+        "violent",
+        "grand"
+      ],
+      "intensity": 5,
+      "freesound_id": 342329,
+      "wanted": "cavalry_charge",
+      "name": "Hevoset laukkaavat ohi, hevosjoukko / Horses galloping, passing by in the forest, single horses and groups, mix"
+    },
+    {
+      "id": "horse_whinny_fs826753",
+      "file": "horse_whinny_fs826753.mp3",
+      "tags": [
+        "horse",
+        "whinny"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/826753/",
+      "duration_s": 2.066,
+      "lufs": -21.4,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 3,
+      "freesound_id": 826753,
+      "wanted": "horse_whinny",
+      "name": "Renill de cavall / Horse Neigh"
+    },
+    {
+      "id": "horse_whinny_fs269571",
+      "file": "horse_whinny_fs269571.mp3",
+      "tags": [
+        "horse",
+        "whinny"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/269571/",
+      "duration_s": 1.467,
+      "lufs": -27.6,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 3,
+      "freesound_id": 269571,
+      "wanted": "horse_whinny",
+      "name": "horse neigh shortened.wav"
+    },
+    {
+      "id": "horse_whinny_fs322445",
+      "file": "horse_whinny_fs322445.mp3",
+      "tags": [
+        "horse",
+        "whinny"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Horse Whinny 1.wav\" by GoodListener (freesound.org/s/322445) - CC BY",
+      "url": "https://freesound.org/s/322445/",
+      "duration_s": 1.852,
+      "lufs": -24.4,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 3,
+      "freesound_id": 322445,
+      "wanted": "horse_whinny",
+      "name": "Horse Whinny 1.wav"
+    },
+    {
+      "id": "horse_snort_fs322454",
+      "file": "horse_snort_fs322454.mp3",
+      "tags": [
+        "horse",
+        "snort"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Horse Snort 2.wav\" by GoodListener (freesound.org/s/322454) - CC BY",
+      "url": "https://freesound.org/s/322454/",
+      "duration_s": 4.796,
+      "lufs": -29.7,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 322454,
+      "wanted": "horse_snort",
+      "name": "Horse Snort 2.wav"
+    },
+    {
+      "id": "horse_snort_fs475483",
+      "file": "horse_snort_fs475483.mp3",
+      "tags": [
+        "horse",
+        "snort"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/475483/",
+      "duration_s": 2.5,
+      "lufs": -28.6,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 475483,
+      "wanted": "horse_snort",
+      "name": "Horse(snort)_3.wav"
+    },
+    {
+      "id": "oars_rowing_water_fs249707",
+      "file": "oars_rowing_water_fs249707.mp3",
+      "tags": [
+        "oars",
+        "rowing",
+        "water"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/249707/",
+      "duration_s": 38.674,
+      "lufs": -23.5,
+      "mood": [
+        "calm",
+        "tense"
+      ],
+      "intensity": 2,
+      "freesound_id": 249707,
+      "wanted": "oars",
+      "name": "Paddles rowing on a calm water stream"
+    },
+    {
+      "id": "oars_rowing_water_fs588307",
+      "file": "oars_rowing_water_fs588307.mp3",
+      "tags": [
+        "oars",
+        "rowing",
+        "water"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/588307/",
+      "duration_s": 56.277,
+      "lufs": -32.7,
+      "mood": [
+        "calm",
+        "tense"
+      ],
+      "intensity": 2,
+      "freesound_id": 588307,
+      "wanted": "oars",
+      "name": "rowing boat from inside.wav"
+    },
+    {
+      "id": "oars_rowing_water_fs588308",
+      "file": "oars_rowing_water_fs588308.mp3",
+      "tags": [
+        "oars",
+        "rowing",
+        "water"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/588308/",
+      "duration_s": 34.232,
+      "lufs": -40.0,
+      "mood": [
+        "calm",
+        "tense"
+      ],
+      "intensity": 2,
+      "freesound_id": 588308,
+      "wanted": "oars",
+      "name": "rowing boat rear wave.wav"
+    },
+    {
+      "id": "ship_creak_wood_fs411087",
+      "file": "ship_creak_wood_fs411087.mp3",
+      "tags": [
+        "ship",
+        "creak",
+        "wood"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"creaking sailing boat.wav\" by jimsim (freesound.org/s/411087) - CC BY",
+      "url": "https://freesound.org/s/411087/",
+      "duration_s": 29.795,
+      "lufs": -11.2,
+      "mood": [
+        "tense",
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 411087,
+      "wanted": "ship_creak",
+      "name": "creaking sailing boat.wav"
+    },
+    {
+      "id": "ship_creak_wood_fs636201",
+      "file": "ship_creak_wood_fs636201.mp3",
+      "tags": [
+        "ship",
+        "creak",
+        "wood"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Wooden banging noise on water - good ship or docks sound\" by OBXJohn (freesound.org/s/636201) - CC BY",
+      "url": "https://freesound.org/s/636201/",
+      "duration_s": 63.298,
+      "lufs": -25.4,
+      "mood": [
+        "tense",
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 636201,
+      "wanted": "ship_creak",
+      "name": "Wooden banging noise on water - good ship or docks sound"
+    },
+    {
+      "id": "ship_creak_wood_fs483355",
+      "file": "ship_creak_wood_fs483355.mp3",
+      "tags": [
+        "ship",
+        "creak",
+        "wood"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/483355/",
+      "duration_s": 72.56,
+      "lufs": -27.2,
+      "mood": [
+        "tense",
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 483355,
+      "wanted": "ship_creak",
+      "name": "R28-03-Large Wood Ship Creaking.wav"
+    },
+    {
+      "id": "wood_creak_fs506664",
+      "file": "wood_creak_fs506664.mp3",
+      "tags": [
+        "wood",
+        "creak"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/506664/",
+      "duration_s": 1.144,
+      "lufs": -23.2,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 2,
+      "freesound_id": 506664,
+      "wanted": "wood_creak",
+      "name": "Wood Creak Single V9"
+    },
+    {
+      "id": "wood_creak_fs795898",
+      "file": "wood_creak_fs795898.mp3",
+      "tags": [
+        "wood",
+        "creak"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/795898/",
+      "duration_s": 0.553,
+      "lufs": -21.9,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 2,
+      "freesound_id": 795898,
+      "wanted": "wood_creak",
+      "name": "Fall/Landing on creaking wooden floor"
+    },
+    {
+      "id": "water_splash_fs398039",
+      "file": "water_splash_fs398039.mp3",
+      "tags": [
+        "water",
+        "splash"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/398039/",
+      "duration_s": 1.895,
+      "lufs": -31.7,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 398039,
+      "wanted": "water_splash",
+      "name": "water splash 2"
+    },
+    {
+      "id": "water_splash_fs425140",
+      "file": "water_splash_fs425140.mp3",
+      "tags": [
+        "water",
+        "splash"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/425140/",
+      "duration_s": 2.585,
+      "lufs": -28.6,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 425140,
+      "wanted": "water_splash",
+      "name": "Small Splash (field recording walk with daughter - rec 3).wav"
+    },
+    {
+      "id": "water_splash_fs829676",
+      "file": "water_splash_fs829676.mp3",
+      "tags": [
+        "water",
+        "splash"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/829676/",
+      "duration_s": 0.932,
+      "lufs": -25.8,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 829676,
+      "wanted": "water_splash",
+      "name": "Water Splash"
+    },
+    {
+      "id": "drum_rhythm_war_fs342465",
+      "file": "drum_rhythm_war_fs342465.mp3",
+      "tags": [
+        "drum",
+        "rhythm",
+        "war"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/342465/",
+      "duration_s": 8.276,
+      "lufs": -12.8,
+      "mood": [
+        "tense",
+        "grand"
+      ],
+      "intensity": 3,
+      "freesound_id": 342465,
+      "wanted": "drum_rhythm",
+      "name": "Tribe Drum Loop"
+    },
+    {
+      "id": "fire_crackle_fs676385",
+      "file": "fire_crackle_fs676385.mp3",
+      "tags": [
+        "fire",
+        "crackle"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/676385/",
+      "duration_s": 11.596,
+      "lufs": -41.5,
+      "mood": [
+        "calm",
+        "sad"
+      ],
+      "intensity": 2,
+      "freesound_id": 676385,
+      "wanted": "fire_crackle",
+      "name": "Fire Crackling"
+    },
+    {
+      "id": "fire_crackle_fs572304",
+      "file": "fire_crackle_fs572304.mp3",
+      "tags": [
+        "fire",
+        "crackle"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/572304/",
+      "duration_s": 62.08,
+      "lufs": -23.3,
+      "mood": [
+        "calm",
+        "sad"
+      ],
+      "intensity": 2,
+      "freesound_id": 572304,
+      "wanted": "fire_crackle",
+      "name": "Fireplace2-cracking.m4a"
+    },
+    {
+      "id": "fire_crackle_fs717579",
+      "file": "fire_crackle_fs717579.mp3",
+      "tags": [
+        "fire",
+        "crackle"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/717579/",
+      "duration_s": 60.836,
+      "lufs": -34.7,
+      "mood": [
+        "calm",
+        "sad"
+      ],
+      "intensity": 2,
+      "freesound_id": 717579,
+      "wanted": "fire_crackle",
+      "name": "Fireplace Fire Crackling"
+    },
+    {
+      "id": "camp_fire_crackle_fs508110",
+      "file": "camp_fire_crackle_fs508110.mp3",
+      "tags": [
+        "camp",
+        "fire",
+        "crackle",
+        "night"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/508110/",
+      "duration_s": 27.009,
+      "lufs": -50.6,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 1,
+      "freesound_id": 508110,
+      "wanted": "campfire",
+      "name": "fire ambience, flames, crackles, pops, burning"
+    },
+    {
+      "id": "camp_fire_crackle_fs410736",
+      "file": "camp_fire_crackle_fs410736.mp3",
+      "tags": [
+        "camp",
+        "fire",
+        "crackle",
+        "night"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/410736/",
+      "duration_s": 45.795,
+      "lufs": -36.2,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 1,
+      "freesound_id": 410736,
+      "wanted": "campfire",
+      "name": "campfire in the open field 3"
+    },
+    {
+      "id": "fire_roar_fs196619",
+      "file": "fire_roar_fs196619.mp3",
+      "tags": [
+        "fire",
+        "roar"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/196619/",
+      "duration_s": 31.253,
+      "lufs": -18.2,
+      "mood": [
+        "violent",
+        "sad"
+      ],
+      "intensity": 5,
+      "freesound_id": 196619,
+      "wanted": "fire_roar",
+      "name": "Roaring House Fire Wall Fall In.wav"
+    },
+    {
+      "id": "wood_burning_fire_fs414117",
+      "file": "wood_burning_fire_fs414117.mp3",
+      "tags": [
+        "wood",
+        "burning",
+        "fire"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/414117/",
+      "duration_s": 65.11,
+      "lufs": -39.8,
+      "mood": [
+        "sad",
+        "violent"
+      ],
+      "intensity": 4,
+      "freesound_id": 414117,
+      "wanted": "wood_burning",
+      "name": "Fireplace (light).WAV"
+    },
+    {
+      "id": "crowd_scream_fs563011",
+      "file": "crowd_scream_fs563011.mp3",
+      "tags": [
+        "crowd",
+        "scream"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/563011/",
+      "duration_s": 18.493,
+      "lufs": -14.7,
+      "mood": [
+        "violent",
+        "sad"
+      ],
+      "intensity": 5,
+      "freesound_id": 563011,
+      "wanted": "crowd_scream",
+      "name": "People screaming in agony when charging into battle"
+    },
+    {
+      "id": "crowd_scream_fs459101",
+      "file": "crowd_scream_fs459101.mp3",
+      "tags": [
+        "crowd",
+        "scream"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/459101/",
+      "duration_s": 17.599,
+      "lufs": -11.4,
+      "mood": [
+        "violent",
+        "sad"
+      ],
+      "intensity": 5,
+      "freesound_id": 459101,
+      "wanted": "crowd_scream",
+      "name": "Crowd Screaming"
+    },
+    {
+      "id": "crowd_walla_fs173013",
+      "file": "crowd_walla_fs173013.mp3",
+      "tags": [
+        "crowd",
+        "walla"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/173013/",
+      "duration_s": 178.149,
+      "lufs": -29.0,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 173013,
+      "wanted": "crowd_walla",
+      "name": "market.wav"
+    },
+    {
+      "id": "crowd_walla_fs566891",
+      "file": "crowd_walla_fs566891.mp3",
+      "tags": [
+        "crowd",
+        "walla"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/566891/",
+      "duration_s": 114.995,
+      "lufs": -27.8,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 566891,
+      "wanted": "crowd_walla",
+      "name": "Medium Crowd Ambience Outdoor Talking Background Spanish STR_Zoom_H4nPro"
+    },
+    {
+      "id": "crowd_walla_fs725706",
+      "file": "crowd_walla_fs725706.mp3",
+      "tags": [
+        "crowd",
+        "walla"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/725706/",
+      "duration_s": 52.438,
+      "lufs": -16.4,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 725706,
+      "wanted": "crowd_walla",
+      "name": "Exp_Upset Crowd Talking_Loop_03"
+    },
+    {
+      "id": "crowd_murmur_fs675054",
+      "file": "crowd_murmur_fs675054.mp3",
+      "tags": [
+        "crowd",
+        "murmur"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/675054/",
+      "duration_s": 20.828,
+      "lufs": -25.2,
+      "mood": [
+        "tense",
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 675054,
+      "wanted": "crowd_murmur",
+      "name": "S11-22 Courtroom pre-trial murmuring.wav"
+    },
+    {
+      "id": "crowd_murmur_fs634880",
+      "file": "crowd_murmur_fs634880.mp3",
+      "tags": [
+        "crowd",
+        "murmur"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/634880/",
+      "duration_s": 31.0,
+      "lufs": -37.1,
+      "mood": [
+        "tense",
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 634880,
+      "wanted": "crowd_murmur",
+      "name": "Generic Exterior Walla"
+    },
+    {
+      "id": "crowd_murmur_fs452955",
+      "file": "crowd_murmur_fs452955.mp3",
+      "tags": [
+        "crowd",
+        "murmur"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/452955/",
+      "duration_s": 164.333,
+      "lufs": -34.3,
+      "mood": [
+        "tense",
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 452955,
+      "wanted": "crowd_murmur",
+      "name": "crowd int light whisper murmur hush medium room museum steps movement NYC, USA.flac"
+    },
+    {
+      "id": "footsteps_crowd_fs341324",
+      "file": "footsteps_crowd_fs341324.mp3",
+      "tags": [
+        "footsteps",
+        "crowd"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/341324/",
+      "duration_s": 10.155,
+      "lufs": -43.3,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 341324,
+      "wanted": "crowd_footsteps",
+      "name": "Walking on Stones.wav"
+    },
+    {
+      "id": "footsteps_crowd_fs710763",
+      "file": "footsteps_crowd_fs710763.mp3",
+      "tags": [
+        "footsteps",
+        "crowd"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/710763/",
+      "duration_s": 5.721,
+      "lufs": -32.3,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 710763,
+      "wanted": "crowd_footsteps",
+      "name": "multiple people walking on gravel"
+    },
+    {
+      "id": "room_tone_fs837886",
+      "file": "room_tone_fs837886.mp3",
+      "tags": [
+        "room",
+        "tone"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/837886/",
+      "duration_s": 92.976,
+      "lufs": -57.6,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 1,
+      "freesound_id": 837886,
+      "wanted": "room_tone",
+      "name": "JM_AMB_Room Tone 01_MONO"
+    },
+    {
+      "id": "room_tone_fs242509",
+      "file": "room_tone_fs242509.mp3",
+      "tags": [
+        "room",
+        "tone"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/licenses/by/3.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Room Tone - Theatre #1.wav\" by deleted_user_4401185 (freesound.org/s/242509) - CC BY",
+      "url": "https://freesound.org/s/242509/",
+      "duration_s": 170.382,
+      "lufs": -62.4,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 1,
+      "freesound_id": 242509,
+      "wanted": "room_tone",
+      "name": "Room Tone - Theatre #1.wav"
+    },
+    {
+      "id": "door_wood_fs256214",
+      "file": "door_wood_fs256214.mp3",
+      "tags": [
+        "door",
+        "wood"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/256214/",
+      "duration_s": 5.546,
+      "lufs": -22.4,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 2,
+      "freesound_id": 256214,
+      "wanted": "door_wood",
+      "name": "Wooden-Door-opening+closing_mono.wav"
+    },
+    {
+      "id": "door_wood_fs367221",
+      "file": "door_wood_fs367221.mp3",
+      "tags": [
+        "door",
+        "wood"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/367221/",
+      "duration_s": 3.117,
+      "lufs": -29.2,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 2,
+      "freesound_id": 367221,
+      "wanted": "door_wood",
+      "name": "Heavy_wooden_door_close_mansion.wav"
+    },
+    {
+      "id": "door_wood_fs216876",
+      "file": "door_wood_fs216876.mp3",
+      "tags": [
+        "door",
+        "wood"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/216876/",
+      "duration_s": 3.443,
+      "lufs": -32.7,
+      "mood": [
+        "tense"
+      ],
+      "intensity": 2,
+      "freesound_id": 216876,
+      "wanted": "door_wood",
+      "name": "creaky closed door.wav"
+    },
+    {
+      "id": "quill_writing_fs524948",
+      "file": "quill_writing_fs524948.mp3",
+      "tags": [
+        "quill",
+        "writing"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/524948/",
+      "duration_s": 34.276,
+      "lufs": -37.3,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 1,
+      "freesound_id": 524948,
+      "wanted": "quill",
+      "name": "Scribbling 2 (Pen)"
+    },
+    {
+      "id": "quill_writing_fs320017",
+      "file": "quill_writing_fs320017.mp3",
+      "tags": [
+        "quill",
+        "writing"
+      ],
+      "source": "freesound",
+      "licence": "https://creativecommons.org/licenses/by/4.0/",
+      "licence_name": "CC BY",
+      "credit": "\"Writing on paper with felt pen\" by VlatkoBlazek (freesound.org/s/320017) - CC BY",
+      "url": "https://freesound.org/s/320017/",
+      "duration_s": 33.545,
+      "lufs": -27.1,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 1,
+      "freesound_id": 320017,
+      "wanted": "quill",
+      "name": "Writing on paper with felt pen"
+    },
+    {
+      "id": "sea_waves_fs196717",
+      "file": "sea_waves_fs196717.mp3",
+      "tags": [
+        "sea",
+        "waves"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/196717/",
+      "duration_s": 67.488,
+      "lufs": -32.7,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 196717,
+      "wanted": "sea_waves",
+      "name": "Sea Cave 2"
+    },
+    {
+      "id": "sea_waves_fs727834",
+      "file": "sea_waves_fs727834.mp3",
+      "tags": [
+        "sea",
+        "waves"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/727834/",
+      "duration_s": 122.029,
+      "lufs": -30.5,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 727834,
+      "wanted": "sea_waves",
+      "name": "Onades, waves, Mediterranian sea, lonely beach, soft waves"
+    },
+    {
+      "id": "sea_waves_fs693727",
+      "file": "sea_waves_fs693727.mp3",
+      "tags": [
+        "sea",
+        "waves"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/693727/",
+      "duration_s": 68.826,
+      "lufs": -15.0,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 693727,
+      "wanted": "sea_waves",
+      "name": "Ocean Sounds with Conch Shell"
+    },
+    {
+      "id": "harbour_water_fs648593",
+      "file": "harbour_water_fs648593.mp3",
+      "tags": [
+        "harbour",
+        "water"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/648593/",
+      "duration_s": 109.882,
+      "lufs": -18.7,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 648593,
+      "wanted": "harbour",
+      "name": "AMBIENCE PORT PIRATES.wav"
+    },
+    {
+      "id": "harbour_water_fs254125",
+      "file": "harbour_water_fs254125.mp3",
+      "tags": [
+        "harbour",
+        "water"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/254125/",
+      "duration_s": 60.146,
+      "lufs": -43.3,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 254125,
+      "wanted": "harbour",
+      "name": "Harbor Ambience 1"
+    },
+    {
+      "id": "wind_fs711106",
+      "file": "wind_fs711106.mp3",
+      "tags": [
+        "wind"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/711106/",
+      "duration_s": 297.756,
+      "lufs": -32.5,
+      "mood": [
+        "tense",
+        "sad"
+      ],
+      "intensity": 2,
+      "freesound_id": 711106,
+      "wanted": "wind",
+      "name": "Wind on bushes with muffled gust of wind, twig branch, close to desert ground"
+    },
+    {
+      "id": "wind_fs687449",
+      "file": "wind_fs687449.mp3",
+      "tags": [
+        "wind"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/687449/",
+      "duration_s": 237.445,
+      "lufs": -29.9,
+      "mood": [
+        "tense",
+        "sad"
+      ],
+      "intensity": 2,
+      "freesound_id": 687449,
+      "wanted": "wind",
+      "name": "scary wind through door - raw file"
+    },
+    {
+      "id": "night_crickets_fs568820",
+      "file": "night_crickets_fs568820.mp3",
+      "tags": [
+        "night",
+        "crickets"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/568820/",
+      "duration_s": 90.794,
+      "lufs": -16.8,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 1,
+      "freesound_id": 568820,
+      "wanted": "night",
+      "name": "200906 Cricket, single close loud, PEC pm.flac"
+    },
+    {
+      "id": "night_crickets_fs440574",
+      "file": "night_crickets_fs440574.mp3",
+      "tags": [
+        "night",
+        "crickets"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/440574/",
+      "duration_s": 258.251,
+      "lufs": -44.9,
+      "mood": [
+        "calm"
+      ],
+      "intensity": 1,
+      "freesound_id": 440574,
+      "wanted": "night",
+      "name": "crickets.wav"
+    },
+    {
+      "id": "rain_fs664162",
+      "file": "rain_fs664162.mp3",
+      "tags": [
+        "rain"
+      ],
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licence_name": "CC0",
+      "credit": "",
+      "url": "https://freesound.org/s/664162/",
+      "duration_s": 192.581,
+      "lufs": -50.1,
+      "mood": [
+        "sad",
+        "calm"
+      ],
+      "intensity": 2,
+      "freesound_id": 664162,
+      "wanted": "rain",
+      "name": "soft rain drops.wav"
+    }
+  ]
 }

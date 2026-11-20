@@ -38,7 +38,7 @@ Tools you will use: Blender 5.3 portable `C:\Users\User\tools\blender-5.3.0-wind
 - [ ] Disable the old scheduled `.github/workflows/pipeline.yml` on `main` (still runs Mon/Wed/Fri)
 - [ ] Kaggle: phone-verify + API token → `.env` (free GPU rendering — needed before final renders)
 - [ ] YouTube Data API key → `.env` `YOUTUBE_API_KEY` (topic demand scoring)
-- [ ] Freesound API key → `.env` `FREESOUND_API_KEY` (sound effects)
+- [x] Freesound API key → `.env` `FREESOUND_API_KEY` (sound effects) — copied from the owner's LuminousWill .env 2026-11-20 (Session A)
 - [x] Character voices picked → `library/voices.json` (5 Fish voices)
 - [ ] Fish Audio: decide free vs paid before monetisation (free plan terms = non-commercial)
 - [x] Mixamo account (25 motions downloaded) · [x] Sketchfab token (museum scans downloaded)
@@ -213,6 +213,13 @@ queue workflow `render-queue.yml` is not committed yet). Museum Sketchfab scans 
       lines). SFX fetch; layered sound design per shot (march = steps + armour +
       spears + chant + wind); ambiences (sea, wind, crowd walla, fire)
       DONE code: `tc sfx add|fetch|plan` -> `jobs/<id>/sound.json`. LIBRARY EMPTY: needs FREESOUND_API_KEY (owner)
+      2026-11-20 (Session A): `tc sfx build` fills the library from `library/sfx/wanted.json` (71 items: battle +
+      film list, ranked by trusted rating, CC0 preferred, franchise/modern/off-topic names refused, mood + intensity
+      tags, `reject_ids` = picks a human refused). 113 sounds in (99 MB, Freesound HQ previews). The build was STOPPED
+      at item 'rain' by the PC running low on memory: re-run `python -m tc sfx build` (safe, skips what it has) to fetch
+      the last ~20 items + refill 16 rejected. Shot sfx phrases ("roaring fire", "ram impact") -> `sfx.resolve`;
+      shot intensity (performance spec) picks soft vs huge takes. Music cues with no mood take the scene's acted
+      emotion (`music.scene_mood`). MUSIC LIBRARY STILL EMPTY: needs hand-picked tracks (no AI music; `tc music add`).
       and hand downloads (Sonniss categories / Pixabay) registered with `tc sfx add`
 - [x] Music: ONLY at chosen moments (rule r11: hook, tension, battle/climax, emotional beats, ending); other scenes =
       ambience + SFX only. The agent must CHOOSE music by meaning:
@@ -296,12 +303,16 @@ in `tc/crowd.py` (+ its tests), `cloud/requests/modern_*.json`, `spike/lib_still
   (camel.fbx), 100 (metarig.001, c, Object_11), 109 (Cube); rescaling the top ancestors gives an untextured orange camel
   in the wrong place. Textures are lost (flat orange). Call site: `market.caravan(...)`; debug: `blender/scenes/camel_check.py`.
 
-## WS19 Maps (owner request 2026-11-20, rule r14) — spec `docs/MAP_STYLE.md`, refs `reference/maps/` — UNCLAIMED
-- [ ] Parchment map base: crumpled plane, parchment shader, sea wave engraving, vignette
-- [ ] Natural Earth coastlines/rivers → era polygons; stamp scatter (trees, mountains, dunes)
-- [ ] Territory fills with emblem patterns + ink-spread grow animation
-- [ ] Labels: curved region names, scroll-tag city/leader labels, date strip
-- [ ] Animated arrows, pulse rings, battle marker, spotlight
-- [ ] Tactical battle map: town of tiny houses, contours, compass rose, extruded unit blocks + banners
-- [ ] Shot kind `map` + `map_action` in tc/shots.py; tilted drifting camera preset
-- [ ] Side-by-side still vs reference 02 and 05 before any video use
+## WS19 Maps (owner request 2026-11-20, rule r14) — spec `docs/MAP_STYLE.md`, refs `reference/maps/` — CLAIMED: Session M (maps)
+- [x] Parchment map base (2D painter `tc/maps/base.py`) — crumpled 3D sheet in `blender/lib/maps.py` (render review pending)
+- [x] Natural Earth coastlines/rivers; stamp scatter (trees, mountain chains, tufts, dunes, ships)
+- [x] Territory fills with emblem patterns + grow maps (live grow in Blender shader)
+- [x] Labels: curved region names, scroll-tag city/leader labels, date strip (Cinzel + IM Fell, OFL)
+- [x] Animated arrows, pulse rings, battle marker, spotlight, marching banners, portrait cards (clip `spike/lib_stills/maps/clip/world_v1.mp4`)
+- [x] Tactical battle map: town of tiny houses, contours, compass rose, extruded unit blocks + banners (`tc/maps/battle.py`)
+- [x] Shot field `map` (tc/shots.py check + tc/assemble.py map recipe); tilted drifting camera in maps.camera
+- [~] Side-by-side vs reference: v1 `spike/review/ws19_maps_vs_reference_v1.jpg` (gaps: texture under realms, label size, folds, warm grade, battle blocks — fixes in, v2 render pending Blender lock)
+- [ ] Paint finals at 6144-8192 px on the cloud (laptop RAM too low while other sessions render)
+- [ ] (main) `armour.helmet_up`: pushed-up Corinthian helmet still wrong - at -58 deg the hollow inside faces the camera,
+      at -38 deg / lift 0.075 it floats. Tune pivot/angle against vase paintings (face plate resting above the brow).
+      Cards use helmet worn='off' meanwhile.

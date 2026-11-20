@@ -67,6 +67,10 @@ def _motion(action: str):
 
 
 def recipe_for(shot: dict, lib: dict) -> dict:
+    if shot.get("map"):                                       # WS19: a parchment-map shot (blender/lib/maps.py)
+        return {"shot": shot["id"], "fps": FPS, "frames": round((shot.get("dur") or 0) * FPS), "at": shot.get("at"),
+                "era": shot.get("era"), "kind": "map", "map": shot["map"], "camera": shot.get("camera") or {},
+                "cast": [], "crowd": [], "set": None, "motion": None, "expression": {}, "action": "", "missing": []}
     missing = []
     cast = []
     crowds = []

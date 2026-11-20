@@ -12,6 +12,7 @@
 # 2) The shot list (shots.json, written by Claude) gets a "music" entry ONLY where r11 allows:
 #      {"id": "s12", ..., "music": {"cue": "climax", "mood": "tension", "from": "s12", "to": "s15", "peak": "s14"}}
 #    cue = hook | tension | battle | climax | emotional | ending   (the script's structure gives the beats)
+#    mood may be left out: it then follows the emotions the cast acts in those shots (scene_mood)
 #    Everything else runs on ambience + sound effects (tc sfx).
 #
 # 3) The picker: best tag match (mood > era > intensity > shape), starts on a cut, puts the track's peak on the
@@ -124,6 +125,46 @@ def check_cues(cues: dict, shots: list[dict], kind: str) -> list[str]:
     if total and music_s / total > MAX_SHARE[kind]:
         p.append(f"music plays {music_s / total:.0%} of the video - that is wall-to-wall; max {MAX_SHARE[kind]:.0%} (r11)")
     return p
+
+
+# ================= mood from the scene =================
+# A cue may leave out "mood": it is then taken from what the cast ACTS in the cue's shots (the per-shot performance
+# spec, docs/VISUAL_STANDARD.md sec 4). The strongest emotion (highest intensity, earliest on a tie) sets the mood.
+EMOTION_MOOD = {"grief": "grief", "sorrow": "grief", "sadness": "grief", "despair": "grief", "loss": "grief",
+                "rage": "menace", "anger": "menace", "contempt": "menace", "cruelty": "menace", "pride": "menace",
+                "fear": "dread", "terror": "dread", "panic": "dread", "dread": "dread", "worry": "tension",
+                "resolve": "tension", "determination": "tension", "suspicion": "tension", "defiance": "tension",
+                "cunning": "mystery", "secrecy": "mystery", "curiosity": "mystery", "doubt": "mystery",
+                "awe": "awe", "wonder": "awe", "reverence": "awe", "hope": "hope", "relief": "hope", "love": "hope",
+                "joy": "triumph", "triumph": "triumph", "victory": "triumph", "elation": "triumph"}
+
+
+def scene_mood(c: dict, shots: list[dict]) -> str | None:
+    """The music mood the cue's shots act out, or None when nobody acts an emotion in them."""
+    ids = [s["id"] for s in shots]
+    if c.get("from") not in ids or c.get("to") not in ids:
+        return None
+    best = None                                   # (intensity, -position, mood)
+    for pos, s in enumerate(shots[ids.index(c["from"]): ids.index(c["to"]) + 1]):
+        for v in (s.get("performance") or {}).values():
+            mood = EMOTION_MOOD.get(str(v.get("emotion", "")).lower()) if isinstance(v, dict) else None
+            if mood:
+                key = (int(v.get("intensity") or 1), -pos, mood)
+                best = max(best, key) if best else key
+    return best[2] if best else None
+
+
+def fill_moods(cues: dict, shots: list[dict]) -> dict:
+    """Cues without a mood get the scene's mood (a written mood always wins)."""
+    out = {}
+    for sid, c in cues.items():
+        c = dict(c)
+        if not c.get("mood"):
+            m = scene_mood(c, shots)
+            if m:
+                c["mood"] = m
+        out[sid] = c
+    return out
 
 
 # ================= picker =================
@@ -285,6 +326,7 @@ def _cmd_music(args) -> int:
         tips = retention_lessons(placed, json.loads(Path(args.retention).read_text(encoding="utf-8")))
         print("\n".join(tips) if tips else "no music cue lost viewers faster than the rest of the video")
         return 0
+    cues = fill_moods(cues, json.loads((d / "shots.json").read_text(encoding="utf-8"))["shots"])
     problems = check_cues(cues, shots, job.kind)
     placed, more = pick_all(cues, shots, load_tracks(), banned_for(job.id)) if not problems else ([], [])
     problems += more

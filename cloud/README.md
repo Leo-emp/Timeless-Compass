@@ -29,6 +29,34 @@ python -m tc frames join <job>           # one video per shot -> jobs/<job>/shot
 Every cloud machine joins its finished shots into a video itself and deletes their frames, so the laptop downloads
 one small mp4 per shot instead of hundreds of PNGs.
 
+## Cloud render QUEUE (stills + test scenes, many sessions at once)
+
+`cloud/batch.json` is ONE shared file: two sessions editing it overwrite each other. The queue replaces it with
+**one new file per request** that is never edited afterwards:
+
+```
+python -m tc queue submit cannon blender/scenes/cannon_test.py out/cannon 64 --session C            # GitHub CPU
+python -m tc queue submit cannon blender/scenes/cannon_test.py out/cannon 128 --session C --target kaggle   # GPU
+python -m tc queue list                        # every request: target + status (queued / done / failed)
+```
+
+- The file is `cloud/queue/<YYYYMMDD-HHMMSS>-<session>-<name>.json`, created with "fail if it exists" (a clash in
+  the same second gets `-2`). The scans the scene needs are found by reading the scene + every `blender/lib`
+  function it calls; Sketchfab ones are flagged (`cloud_missing`) because only R2 can give them to a cloud machine.
+- **GitHub:** commit + push ONLY your queue file. `.github/workflows/render-queue.yml` renders exactly the files
+  that push ADDED (1 runner each, up to 20 in parallel), so it never re-renders another session's requests.
+  Artifact `render-<id>` = `out/` with the images + `_results/<id>.json`. Re-run by hand with the `ids` input.
+- **Kaggle GPU:** `python -m tc queue kaggle <id> [<id> ...]` writes `cloud/kaggle/out/tc-still-.../` (the
+  requests are written INTO the kernel script, so they need not be pushed; the scene code must be). Push with
+  `python -m kaggle kernels push -p <folder>` (owner OK: uses GPU quota), then
+  `python -m kaggle kernels output <user>/<folder name> -p output/cloud/`.
+- **Both runners** run `python -m tc queue run <file> --blender <path> [--gpu]`: scans -> render through
+  `cloud/blender_shot.py` (`TC_SCRIPT` = the scene; GPU OptiX/CUDA + OpenImageDenoise + adaptive sampling; the
+  scene's own sample count is kept) -> every image checked (missing / black / broken = `failed`) -> optional film
+  finish (`--finish IN OUT --look dusk`) -> `out/_results/<id>.json` (status, seconds, images) + `<id>.log`.
+- Migration: `batch.json` + `render-batch.yml` keep working until every session has moved; then delete them
+  (owner decides, Session D uses batch.json now).
+
 ## Safety (crash, kill, time limit)
 
 - `progress.json` per shard is written after **every** shot; running the shard again skips finished shots.

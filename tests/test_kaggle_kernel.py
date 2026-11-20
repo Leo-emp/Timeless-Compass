@@ -25,3 +25,26 @@ def test_resume_input_is_attached_when_given(tmp_path):
     folder = kk.write_kernel("j", 0, "someone", tmp_path, resume_from="someone/tc-j-k0")
     meta = json.loads((folder / "kernel-metadata.json").read_text())
     assert meta["kernel_sources"] == ["someone/tc-j-k0"]      # last session's output, mounted under /kaggle/input
+
+
+def test_username_from_oauth_login_config(monkeypatch, tmp_path):
+    # `kaggle auth login` (browser) leaves no kaggle.json; the user name comes from `kaggle config view`
+    monkeypatch.delenv("KAGGLE_USERNAME", raising=False)
+    monkeypatch.setattr(kk.Path, "home", lambda: tmp_path)
+    out = "Configuration values from C:/x\n- username: someone\n- auth_method: OAUTH\n"
+    assert kk._username(config_view=lambda: out) == "someone"
+    assert kk._username(config_view=lambda: "- username: None\n") == ""
+
+
+# ---------------------------------------------------------------- queue stills on the Kaggle GPU
+def test_still_kernel_embeds_the_queue_entries(tmp_path):
+    entries = [{"id": "20261120-023005-c-cannon", "script": "blender/scenes/cannon_test.py", "args": ["out/cannon", "64"]},
+               {"id": "20261120-023006-c-market", "script": "blender/scenes/x.py", "args": ["out/x.png"]}]
+    folder = kk.write_still_kernel(entries, "someone", tmp_path)
+    code = (folder / "render_still.py").read_text()
+    compile(code, "render_still.py", "exec")                     # valid Python after filling in
+    assert "20261120-023005-c-cannon" in code and "{{" not in code
+    meta = json.loads((folder / "kernel-metadata.json").read_text())
+    assert meta["kernel_type"] == "script" and meta["code_file"] == "render_still.py"
+    assert meta["enable_gpu"] and meta["enable_internet"] and meta["is_private"]
+    assert meta["id"] == "someone/" + folder.name and len(folder.name) <= 50

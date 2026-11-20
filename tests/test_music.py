@@ -106,3 +106,24 @@ def test_retention_dip_during_music_suggests_a_rule():
     retention = [[0, 100], [10, 99], [20, 98], [30, 97], [40, 96], [60, 88], [70, 87], [80, 86]]
     tips = music.retention_lessons(placed, retention)
     assert len(tips) == 1 and "epic_rise" in tips[0]
+
+
+# ---------------- mood from the scene (the shots' acted emotions) ----------------
+def test_scene_mood_from_performance_emotions():
+    from tc import music
+    shots = [{"id": "a", "at": 0, "dur": 3, "performance": {"x": {"emotion": "grief", "intensity": 2}}},
+             {"id": "b", "at": 3, "dur": 3, "performance": {"x": {"emotion": "rage", "intensity": 4}}},
+             {"id": "c", "at": 6, "dur": 3, "performance": {}}]
+    # the strongest emotion in the cue wins: rage (4) -> menace
+    assert music.scene_mood({"from": "a", "to": "c"}, shots) == "menace"
+    assert music.scene_mood({"from": "a", "to": "a"}, shots) == "grief"
+    assert music.scene_mood({"from": "c", "to": "c"}, shots) is None
+
+
+def test_cue_without_mood_gets_the_scene_mood():
+    from tc import music
+    shots = [{"id": "a", "at": 0, "dur": 10, "performance": {"x": {"emotion": "fear", "intensity": 3}}},
+             {"id": "b", "at": 10, "dur": 30}]
+    cues = music.fill_moods({"a": {"cue": "tension", "from": "a", "to": "a"}}, shots)
+    assert cues["a"]["mood"] == "dread"
+    assert music.check_cues(cues, shots, "long") == []

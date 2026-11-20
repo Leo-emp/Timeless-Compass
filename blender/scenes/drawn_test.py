@@ -18,6 +18,8 @@ argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
 OUT = argv[0] if argv else 'spike/style2d'
 SCALE = int(argv[1]) if len(argv) > 1 else 100
 SAMPLES = int(argv[2]) if len(argv) > 2 else 32
+ARMY = (argv[3] if len(argv) > 3 else '1') == '1'
+OUT = os.path.abspath(OUT)
 os.makedirs(OUT, exist_ok=True)
 
 common.reset_scene()
@@ -41,8 +43,9 @@ men = TC.cast(6, 'spartan', 'greece_480bc', seed=4801)
 for m in men:                       # background men: no cloak cloth (6 cloth sims made the cloud job crawl)
     m.pop('cloak', None)
 marks = [(-2.6, 5.2, 0), (-0.9, 6.0, 0), (1.0, 5.6, 0), (2.7, 6.3, 0), (-1.8, 8.0, 0), (1.9, 8.4, 0)]
-roots = C.mid_crowd(men, marks, frames=24, face_toward=(0.0, -20.0))
-C.far_crowd(roots, (-9, 9, 10, 20), 16, seed=11, face_toward=(0.0, -40.0))   # 60 ran the 16 GB cloud machine out of memory
+if ARMY:
+  roots = C.mid_crowd(men, marks, frames=24, face_toward=(0.0, -20.0))
+  C.far_crowd(roots, (-9, 9, 10, 20), 16, seed=11, face_toward=(0.0, -40.0))   # 60 ran the 16 GB cloud machine out of memory
 stamp('army built')
 
 CAST = [('leonidas', (-0.48, 0.0, 0.0), -12.0), ('eurybiades', (0.62, 0.35, 0.0), 14.0)]

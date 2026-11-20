@@ -92,14 +92,52 @@ def write_kernel(job: str, index: int, username: str, out_root: Path = OUT, resu
     return folder
 
 
-def _username() -> str:
-    """The Kaggle user name (not secret) from KAGGLE_USERNAME or ~/.kaggle/kaggle.json. The key is never read."""
+STILL_TEMPLATE = ROOT / "cloud" / "kaggle" / "render_still.py"
+
+
+def write_still_kernel(entries: list[dict], username: str, out_root: Path = OUT, r2_public_url: str = "") -> Path:
+    """A Kaggle GPU 'script' kernel that renders cloud-queue requests (tc/cloud_queue.py) one after another.
+    The requests are written INTO the script (as a JSON string), so they don't have to be pushed first."""
+    first = re.sub(r"[^a-z0-9-]+", "-", entries[0]["id"].lower())
+    tail = f"-n{len(entries)}"
+    name = ("tc-still-" + first)[:SLUG_MAX - len(tail)].rstrip("-") + tail
+    text = STILL_TEMPLATE.read_text(encoding="utf-8")
+    for k, v in {"ENTRIES_JSON": repr(json.dumps(entries)), "REPO": REPO, "BRANCH": BRANCH,
+                 "R2_PUBLIC_URL": r2_public_url}.items():
+        text = text.replace("{{" + k + "}}", v)
+    folder = Path(out_root) / name
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "render_still.py").write_text(text, encoding="utf-8")
+    meta = {"id": f"{username}/{name}", "title": name, "code_file": "render_still.py", "language": "python",
+            "kernel_type": "script", "is_private": True, "enable_gpu": True, "enable_internet": True,
+            "dataset_sources": [], "competition_sources": [], "kernel_sources": []}
+    (folder / "kernel-metadata.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    return folder
+
+
+def _kaggle_config_view() -> str:
+    """Output of `python -m kaggle config view` (user name + settings; it never prints the login token)."""
+    import subprocess
+    import sys
+    try:
+        return subprocess.run([sys.executable, "-m", "kaggle", "config", "view"], capture_output=True, text=True,
+                              timeout=60).stdout
+    except Exception:
+        return ""
+
+
+def _username(config_view=_kaggle_config_view) -> str:
+    """The Kaggle user name (not secret). Looked for in this order:
+    1. KAGGLE_USERNAME (environment / .env)
+    2. ~/.kaggle/kaggle.json (old-style API token file; only its "username" field is used)
+    3. `kaggle config view` (the browser login `kaggle auth login` stores the user there)."""
     if os.environ.get("KAGGLE_USERNAME"):
         return os.environ["KAGGLE_USERNAME"]
     f = Path.home() / ".kaggle" / "kaggle.json"
     if f.exists():
         return json.loads(f.read_text(encoding="utf-8")).get("username", "")
-    return ""
+    m = re.search(r"^- username:\s*(\S+)", config_view() or "", flags=re.M)
+    return m.group(1) if m and m.group(1) != "None" else ""
 
 
 def _args(p):

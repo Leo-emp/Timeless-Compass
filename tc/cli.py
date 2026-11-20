@@ -38,7 +38,7 @@ for _name, _help in [("doctor", "check tools, keys and disk space"), ("new", "st
 def _load_commands() -> None:
     """Import every module that registers commands (each one calls @register when imported)."""
     import importlib
-    for mod in ("jobs", "learning", "doctor", "topics", "packaging", "script", "voice", "align", "shots", "run", "render_plan", "render_cache", "render_farm", "kaggle_kernel", "assemble", "assets", "look", "mixamo", "sketchfab", "finish", "edit", "cast_tool", "emblems", "research", "thumbnail", "performance"):
+    for mod in ("jobs", "learning", "doctor", "topics", "packaging", "script", "voice", "align", "shots", "run", "render_plan", "render_cache", "render_farm", "kaggle_kernel", "cloud_queue", "assemble", "assets", "look", "mixamo", "sketchfab", "finish", "edit", "compare", "cast_tool", "emblems", "research", "thumbnail", "performance", "mapcmd"):
         try:
             importlib.import_module(f"tc.{mod}")
         except ModuleNotFoundError as e:

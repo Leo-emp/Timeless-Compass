@@ -32,3 +32,9 @@ library/music/files/
 cloud/kaggle/out/
 spike/BLENDER_LOCK
 spike/emblems_gen/
+library/maps/ne/
+
+# reference frames from other creators: never in the public repo (spec 6.3)
+reference/
+# old 3D test stills (local only)
+spike/lib_stills/

@@ -69,7 +69,11 @@ def render_settings(res=(1280, 720), samples=96, engine='CYCLES', path='out.png'
 
 common.render_settings = render_settings
 
-# Run shot.py with the same "-- recipe out samples anim" arguments Blender gave us.
-SHOT = os.path.abspath(os.path.join(BLENDER_DIR, 'scenes', 'shot.py'))
+# Run the scene with the same "-- ..." arguments Blender gave us:
+#   default        blender/scenes/shot.py (render farm: one shot from its recipe)
+#   TC_SCRIPT=...  any scene script (cloud queue stills, e.g. blender/scenes/cannon_test.py), so stills get the same
+#                  GPU + OpenImageDenoise settings as shots. Their own sample count is kept when TC_SAMPLES is unset.
+SHOT = os.path.abspath(os.environ.get('TC_SCRIPT') or os.path.join(BLENDER_DIR, 'scenes', 'shot.py'))
 sys.argv[0] = SHOT
+sys.path.insert(0, os.path.dirname(SHOT))           # like `blender --python <script>` would do
 runpy.run_path(SHOT, run_name='__main__')

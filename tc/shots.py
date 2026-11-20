@@ -38,6 +38,8 @@ class Shot:
     card: dict | None = None
     span: list | None = None          # [start, end] of the spoken line this shot belongs to (set by fill_timing)
     performance: dict | None = None   # per-person acting spec (VISUAL_STANDARD section 4, checked by tc perf)
+    map: dict | None = None           # WS19 map shot: {"spec": "maps/x.json", "beats": [...], "target": [lon, lat],
+                                      #   "tilt": 46, "dist": 7} -> parchment map instead of a 3D set (docs/MAP_STYLE.md)
 
     @classmethod
     def from_dict(cls, d: dict) -> "Shot":
@@ -116,7 +118,9 @@ def check_shots(shot_list: list[Shot], lines: list[Line], line_times: list[dict]
             p.append(f"{s.id}: unknown camera move {(s.camera or {}).get('move')!r}")
         if s.card is not None and s.card.get("kind") not in CARD_KINDS:
             p.append(f"{s.id}: card kind {s.card.get('kind')!r} not allowed (no captions; only {sorted(CARD_KINDS)})")
-        if not s.who or not s.where or not s.era:
+        if s.map is not None:                   # map shots show a map, not people: who may be empty
+            p += map_shot_problems(s)
+        elif not s.who or not s.where or not s.era:
             p.append(f"{s.id}: who, where and era are required")
     for a, b in zip(shot_list, shot_list[1:]):
         key = lambda s: (s.where, (s.camera or {}).get("move"), (s.camera or {}).get("from"))
@@ -125,6 +129,24 @@ def check_shots(shot_list: list[Shot], lines: list[Line], line_times: list[dict]
     total = sum(s.dur or 0 for s in shot_list)
     if abs(total - voice_s) > TOTAL_TOLERANCE_S:
         p.append(f"shots add up to {total:.1f} s but the voice is {voice_s:.1f} s")
+    return p
+
+
+MAP_BEATS = {"grow", "shrink", "show", "hide", "arrow", "pulse", "battle", "spotlight", "unspot", "date", "move", "card", "uncard"}
+
+
+def map_shot_problems(s: Shot) -> list[str]:
+    """A map shot needs a map spec and beats the map system knows (times are seconds from the shot's start)."""
+    p, m = [], s.map or {}
+    if not m.get("spec"):
+        p.append(f"{s.id}: map shot needs map.spec (a map spec under the job's maps/ folder)")
+    for i, b in enumerate(m.get("beats", [])):
+        if b.get("do") not in MAP_BEATS:
+            p.append(f"{s.id}: map beat {i} 'do' must be one of {sorted(MAP_BEATS)}")
+        if not isinstance(b.get("t"), (int, float)) or (s.dur and b["t"] > s.dur):
+            p.append(f"{s.id}: map beat {i} needs t inside the shot (0-{s.dur or 0:.1f} s)")
+    if not s.era:
+        p.append(f"{s.id}: era is required (the map's date)")
     return p
 
 
