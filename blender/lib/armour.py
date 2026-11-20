@@ -171,6 +171,30 @@ def _tube(name, center, rx, ry, z0, z1, seg=96, ring=0.01):
     return mesh_obj(name, verts, faces)
 
 
+def _smooth_cut_edge(o, sh_z, armpit):
+    """Deleting faces leaves a stair-stepped rim (the mesh rings are 1 cm apart) that subdivision turns into
+    spikes. Snap every open-edge vertex of the upper rim onto the intended smooth cut line instead."""
+    import bmesh
+    bm = bmesh.new(); bm.from_mesh(o.data)
+    mw = o.matrix_world; inv = mw.inverted()
+    for v in bm.verts:
+        if not v.is_boundary:
+            continue
+        p = mw @ v.co
+        if p.z < armpit - 0.06:
+            continue                                            # the hem at the hips: leave it
+        ax = abs(p.x)
+        if ax < 0.095:
+            p.z = min(sh_z + 0.05, sh_z + 0.01 + 3.5 * p.x * p.x)  # neck scoop
+        elif ax > 0.105 and p.z > armpit - 0.015:
+            p.x = math.copysign(0.115, p.x)                        # arm hole: a clean vertical edge
+            p.z = min(p.z, sh_z + 0.05)
+        else:
+            p.z = sh_z + 0.05                                      # shoulder line (over the collarbones)
+        v.co = inv @ p
+    bm.to_mesh(o.data); bm.free(); o.data.update()
+
+
 def muscle_cuirass(human, rig, bronze):
     """Bronze muscle cuirass: a clean tube shrink-fitted to a lightly smoothed torso (keeps chest and abdomen
     forms), cut under the arms and at the neck."""
@@ -186,7 +210,11 @@ def muscle_cuirass(human, rig, bronze):
     shrink_onto(cu, proxy, 0.016)
     armpit = sh_z - 0.075
     delete_verts(cu, lambda p: p.z > armpit and abs(p.x) > 0.115)                       # arm holes
-    delete_verts(cu, lambda p: p.z > sh_z + 0.02 and abs(p.x) < 0.075)                   # neck opening
+    # top edge: the torso proxy has no shoulders, so the tube's upper ring snapped onto random points (a ragged,
+    # torn-looking edge). Cut it cleanly instead: level with the shoulders, with a smooth scoop for the neck.
+    delete_verts(cu, lambda p: p.z > sh_z + 0.05)
+    delete_verts(cu, lambda p: abs(p.x) < 0.095 and p.z > sh_z + 0.01 + 3.5 * p.x * p.x)
+    _smooth_cut_edge(cu, sh_z, armpit)
     cu.modifiers.new('thick', 'SOLIDIFY').thickness = 0.003
     bv = cu.modifiers.new('edge', 'BEVEL'); bv.width = 0.0015; bv.segments = 2
     cu.modifiers.new('smooth', 'SUBSURF').levels = 1
