@@ -103,7 +103,7 @@ costume + name card (no exact face copies), r7 zero spend, r8 laptop light, r11 
 
 | # | Stage | What happens | Gate (automatic) |
 |---|---|---|---|
-| 0 | **topic** | Demand scoring (existing `tc topics`) picks the best topic for the slot; Shorts get their own topic | score ≥ threshold |
+| 0 | **topic** | Demand scoring (existing `tc topics`) **plus a story-potential score (r25)**: main character, real dilemma, rising stakes, twist, visual moments, room for dialogue. For each candidate the agent drafts a 5-line story pitch; the best demand × story wins. Shorts get their own topic | both scores ≥ threshold |
 | 1 | **packaging** | 10+ titles scored; 3 thumbnail concepts written (r21); best pair chosen by the agent | `tc packaging` checks |
 | 2 | **research** | Sources for every fact; era sheet (costume, armour, buildings, ships, landscape) | every fact sourced |
 | 3a | **story design** *(new, r24)* | Before any line: the story page (6.14) — main character, want, fear, central question, beat sheet, twist, ending | story checklist passes |
@@ -117,7 +117,7 @@ costume + name card (no exact face copies), r7 zero spend, r8 laptop light, r11 
 | 10 | **motion** *(new)* | Motion added per the plan (6.8); a few mid-shot frames re-checked | motion check |
 | 11 | **thumbnail** *(new)* | Drawn fresh (6.9), self-checked, 2 variants for YouTube Test & Compare | thumbnail bar |
 | 12 | **render** | Remotion renders chunks on GitHub Actions in parallel; chunks to R2; joined (6.10) | QA: duration, black frames, sync |
-| 13 | **mix** | Existing mix (voice + dialogue + sfx + ambience + music at chosen moments, loudness standard) | existing loudness gate |
+| 13 | **mix** | Existing mix: narrator + character voices + cinematic sfx in every scene + ambience + music **only at peaks (r11, r26)** — opening, ending, battles/marching, tension peaks, emotional scenes; fades on story beats; loudness standard | existing loudness gate + music-placement check (music only on beats the story page marks) |
 | 14 | **pack** | Upload pack (6.11) on R2 + Telegram message | pack complete |
 | 15 | **archive** | Local job files deleted; pack + master kept on R2 | disk freed |
 | 16 | **results** | Daily stats for 30 days feed the learning loop (6.12) | — |
@@ -159,7 +159,7 @@ fresh per video inside `jobs/<id>/scenes/`.
 ### 6.5 Character registry (r19)
 
 `library/characters/<id>/` per person: `sheet.json` (face shape, skin, hair, beard, build, colours, signature costume,
-era, known facts), `character.tsx` (draws them in any pose/expression), `sheet.png` (turnaround: front, three-quarter,
+era, known facts, **their one Fish voice id — r26**), `character.tsx` (draws them in any pose/expression), `sheet.png` (turnaround: front, three-quarter,
 six expressions). New characters are created once, pass the character check, then are locked. Generic people
 (soldiers, crowds, servants) are not registered; they're generated with variety per scene. Real people follow r6.
 
@@ -244,6 +244,9 @@ Every video is a **story, not a list of facts**. The script stage is split in tw
   ("but… therefore…", never "and then") → midpoint turn → darkest moment → climax → twist/reveal → ending line.
 - **Loops:** every question planted, with where it pays off; a re-hook every 60–90 s (long) / every 20–30 s (Short).
 - **Emotional arc:** what the viewer should feel in each act (curiosity → dread → hope → shock → awe).
+- **Sound plan:** where character dialogue lifts a scene (each speaker in their own voice), the sound effects per
+  scene, and the few **music moments** (opening, peaks, battles/marching, emotional beats, ending) — so music is
+  designed with the story, not laid on top.
 - **Dramatic irony and foreshadowing** points; the best scene placed in the last third.
 - Shorts: one story, one twist, hook in the first 2 s, ending that loops back to the first line.
 
