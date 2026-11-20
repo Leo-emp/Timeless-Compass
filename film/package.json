@@ -1,0 +1,23 @@
+{
+  "name": "timeless-compass-film",
+  "private": true,
+  "description": "Timeless Compass 2D film engine: every frame drawn in code (SVG) and rendered with Remotion",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "still": "remotion still"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.506",
+    "@remotion/cli": "4.0.506",
+    "@remotion/renderer": "4.0.506",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.506"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "typescript": "5.6.3",
+    "vitest": "2.1.8"
+  }
+}
