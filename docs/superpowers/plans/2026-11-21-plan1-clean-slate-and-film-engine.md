@@ -16,10 +16,12 @@ vitest 2.1.8, ffmpeg, `gh` CLI, `kaggle` CLI.
 
 **Spec:** `docs/superpowers/specs/2026-11-21-2d-autonomous-agent-design.md` (sections 6.4, 6.10, 6.13, 7 M0–M1).
 
-**This is plan 1 of 8.** Later plans (one per milestone, written when the previous one is done):
+**This is plan 1 of 9.** Later plans (one per milestone, written when the previous one is done):
 2 standards + self-checks (ART_BIBLE, SCRIPT_BIBLE, still/motion/era checks, story check, viewer GO gate) ·
-3 character registry + voices · 4 first autonomous Short · 5 first autonomous long · 6 thumbnails + upload packs +
-schedule + Telegram · 7 results loop + anti-sameness · 8 2D maps.
+3 character registry + unique voices · **4 film craft kit** (word-synced beats, natural motion principles, lip sync,
+camera vocabulary + parallax, colour grading, transitions, sound/music sync, 60 s proof sequence) ·
+5 first autonomous Short · 6 first autonomous long · 7 thumbnails + upload packs + schedule + Telegram ·
+8 results loop + anti-sameness · 9 2D maps.
 
 ## Global Constraints
 
