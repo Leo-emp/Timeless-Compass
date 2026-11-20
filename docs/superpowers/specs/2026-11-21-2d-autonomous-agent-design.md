@@ -240,6 +240,11 @@ own thumbnail too.
 - **Format:** long 1920×1080, Shorts 1080×1920, 24 fps.
 - **Cloud:** a GitHub Actions workflow splits a video into chunks across parallel runners; chunks go to R2; a final
   job joins them with the mixed audio. Target: a long video rendered in ≤ 1 h of wall-clock (measured in M1).
+- **Kaggle too (owner, 2026-11-21):** the Kaggle account is already set up (`~/.kaggle`, `tc/kaggle_kernel.py`).
+  Kaggle notebooks run the same Remotion chunk renderer (Node + headless Chrome installed in the session) and upload
+  chunks to R2. A render plan splits each video's chunks between GitHub runners and Kaggle sessions, so both render
+  at once; if one farm is busy, out of quota or failing, its chunks move to the other. Kaggle's weekly free quota is
+  tracked so it never runs out mid-video.
 - **Laptop** only renders single stills for the self-check.
 
 ### 6.11 Upload pack (r22)
@@ -314,7 +319,7 @@ range. **Bar: all items pass and ≥ 90/100**, else the agent rewrites (up to 3 
 | # | Milestone | Done when |
 |---|---|---|
 | M0 | Clean slate | Old pipeline tagged and removed; rules r10/r13/r14 rewritten; `tc doctor` passes |
-| M1 | Engine + speed | Style kit in Remotion; the fleet test re-made in Remotion; one chunked GitHub render; measured render speed |
+| M1 | Engine + speed | Style kit in Remotion; the fleet test re-made in Remotion; one chunked render on GitHub **and** on Kaggle; measured render speed on both |
 | M2 | Standards + checks | `ART_BIBLE.md` + `SCRIPT_BIBLE.md` written; still checks + story self-check working on the spike scenes and one Salamis script |
 | M3 | Characters | Registry + character check; Leonidas, Themistocles, Xerxes sheets locked |
 | M4 | First autonomous Short | A 2–3 min Short from topic to upload pack with no human step |
