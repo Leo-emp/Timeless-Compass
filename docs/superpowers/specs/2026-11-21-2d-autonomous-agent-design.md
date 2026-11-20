@@ -347,13 +347,33 @@ confrontations, POV for discovery.
 **Check:** the shot-plan check fails a video whose shot sizes, moves or transitions repeat too much (variety
 measured per act); the motion check fails snaps and jerks; the grade is checked against the art direction's range.
 
+### 6.16 Maps (r14 look, r35 build)
+
+Maps keep the owner-loved **Epic History look** from `docs/MAP_STYLE.md` — aged crumpled parchment, engraved sea
+lines, stamped trees and mountains, territory fills with emblem patterns, carved serif region names, scroll city
+tags, torn-paper date tag, portrait cards — and its **animation grammar**: territory spreading like ink, red arrows
+drawing themselves along routes, pulse rings from a city, crossed-swords battle markers, planted army banners,
+spotlight on the place being talked about, and close-up **battle maps** with unit blocks that slide, turn and charge.
+
+What changes: they are **drawn in 2D code in the same renderer**, no Blender.
+- Coastlines and rivers from Natural Earth (public domain), borders per era from the research (`jobs/<id>/map/`).
+- The flat map is drawn as layered SVG, then given the **low tilted camera** with a 3D perspective transform, slow
+  drift and push-in, far edge softly blurred; the spotlight darkens everything else.
+- Little figures, ships, beasts and banners on the map are drawn in **our cast style**, so maps and scenes feel like
+  one film. Emblems come from the era sheet.
+- Map shot kinds: world/region map, route/journey map, territory-change map, battle map. Shorts get vertical maps.
+- Maps are part of the story, synced to the voice like everything else (r28): the arrow draws on "marched", the
+  territory floods on "conquered". Maps alternate with scenes every 5–20 s, never a minute of map.
+- The parts of the existing Blender map module (`tc/maps`) that only hold data (specs, era borders, label lists)
+  are kept; the Blender drawing code is replaced.
+
 ### 6.13 What is removed / rewritten
 
 - Tag `old-3d-pipeline-final`, then remove `blender/`, the 3D cloud workflows, and the Blender-based `tc` modules
   (assemble, assets, cast_tool, crowd, emblems, fight, lipsync's face-rig part, performance, render_cache, render_farm,
   render_plan, slowmo, thumbnail, maps, kaggle). Rhubarb timing data, voice, music, sfx, mix stay.
 - **Rules to retire or rewrite:** r10 (`tc look` vs Heroes of Bronze), r13 (3D library gate) → replaced by the 6.6
-  bar; r14 (maps) → keep the Epic History map *look* but drawn in 2D in this style.
+  bar; r14 (maps) → keep the Epic History map *look*, drawn in 2D (6.16, r35).
 - The `timeless` skill is rewritten for the autonomous flow (no owner gates).
 
 ## 7. Milestones
