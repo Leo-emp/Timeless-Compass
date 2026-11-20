@@ -40,13 +40,14 @@ def arm_hoplite(p, human, rig, chiton):
     leather = bpy.data.materials.get('pteruges_leather') or common.principled('pteruges_leather', (0.18, 0.1, 0.05), rough=0.8)
     wood = bpy.data.materials.get('spear_ash') or common.principled('spear_ash', (0.35, 0.24, 0.13), rough=0.7)
     helm = p.get('helmet') or {'crest': 'red'}
-    seed = p.get('seed', abs(hash(p.get('name', 'hoplite'))) % 1000)
+    import zlib
+    seed = p.get('seed', zlib.crc32(p.get('name', 'hoplite').encode()) % 1000)   # stable across runs (cached emblem)
     if helm.get('worn') == 'off':                      # helmet carried / set aside (character cards, rest scenes)
         pass
     elif helm.get('crest', 'none') != 'none':
         shell, _crest = armour.corinthian_helmet(human, rig, bronze, crest_color=CREST.get(helm['crest'], CREST['red']))
         if helm.get('worn') == 'up':                   # pushed up on the crown (vase paintings): the face shows
-            armour.helmet_up(rig, [shell, _crest])
+            armour.helmet_up(rig, [shell, _crest], human=human, tilt_deg=helm.get('tilt_deg', -34.0))
         hair = [o for o in bpy.data.objects if o.type == 'CURVES' and o.parent is rig and o.parent_bone == 'head'
                 and not o.name.startswith(('crest', 'beard', 'brow'))]
         armour.tuck_hair_under(shell, hair)            # strands rooted under the bronze end inside it (up or down)
@@ -62,8 +63,11 @@ def arm_hoplite(p, human, rig, chiton):
             emblems.paint(sh['emblem'], img, size=512, seed=seed)
         except ImportError:                            # Blender's own Python has no Pillow: paint with the system one
             import subprocess
-            subprocess.run(['python', '-c', f"from tc import emblems; emblems.paint({sh['emblem']!r}, {img!r}, size=512, seed={seed})"],
-                           cwd=root_dir, check=False)
+            env = {k: v for k, v in os.environ.items() if k not in ('PYTHONHOME', 'PYTHONPATH')}   # not Blender's
+            r = subprocess.run(['python', '-c', f"from tc import emblems; emblems.paint({sh['emblem']!r}, {img!r}, size=512, seed={seed})"],
+                               cwd=root_dir, check=False, env=env, capture_output=True, text=True)
+            if r.returncode:
+                print('emblem paint failed:', r.stderr[-400:])
     armour.aspis(rig, bronze, emblem_image=img)
     if p.get('weapon') == 'sword':                     # spear broken / close fight: the xiphos is drawn
         armour.xiphos(rig, bronze, wood)

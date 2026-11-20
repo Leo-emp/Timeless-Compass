@@ -534,10 +534,15 @@ def tuck_hair_under(helm, hair_objects, margin=0.004):
         print(f'tuck_hair_under: {hidden} strands of {h.name} end inside the helmet')
 
 
-def helmet_up(rig, parts, angle_deg=-58.0, lift=0.02):
+def helmet_up(rig, parts, angle_deg=-58.0, lift=0.02, human=None, tilt_deg=-34.0):
     """Wear the Corinthian helmet PUSHED UP on top of the head, face open - how Greek vase painters show hoplites
-    off the battle line, talking, resting, pouring libations. Tilts the shell back about a pivot behind the crown."""
+    off the battle line, talking, resting, pouring libations.
+    With `human` (preferred): tilt the shell back by `tilt_deg` about its own centre, then SEAT it - raise it in
+    small steps until no point of the skull pokes into the bronze, so the shell rests ON the head (the skull fills
+    its bowl, nothing floats, no hollow inside shows). Without `human`: the old fixed pivot (kept for old scenes)."""
     from mathutils import Matrix
+    if human is not None:
+        return _helmet_up_fit(rig, human, parts, tilt_deg)
     hb = bone_head(rig, 'head')
     # pivot at the back of the crown: the face plate swings UP and back, the shell then rests on top of the skull
     pivot = Vector((hb.x, hb.y + 0.05, hb.z + 0.17))
@@ -545,3 +550,70 @@ def helmet_up(rig, parts, angle_deg=-58.0, lift=0.02):
     for o in parts:
         o.matrix_world = M @ o.matrix_world
     bpy.context.view_layer.update()
+
+
+def _helmet_up_fit(rig, human, parts, tilt_deg):
+    """Tilt + seat the helmet on the skull (see helmet_up). Skull points = head-group vertices above the brow.
+    A skull point PENETRATES the shell when a ray straight up from it first meets an OUTWARD-facing bronze surface
+    (it is inside the metal or above it) or a ray straight down meets one (it pokes out through the top)."""
+    from mathutils import Matrix
+    from mathutils.bvhtree import BVHTree
+    helm = parts[0]
+    hb = bone_head(rig, 'head')
+    pos, _, _ = cast.rest_surface(human)
+    w = cast.group_weights(human, 'head') > 0.5
+    brow_z = hb.z + 0.09                                   # ~ just above the eyebrows on the MPFB head
+    skull = [Vector(p) for p in pos[w] if p[2] > brow_z]
+    zmax = max(p.z for p in skull)
+    top = [p for p in skull if p.z > zmax - 0.05][::2]          # the crown: what the bowl actually rests on
+    dg = bpy.context.evaluated_depsgraph_get()
+    zs = [(helm.matrix_world @ v.co) for v in helm.data.vertices]
+    c = sum(zs, Vector()) / len(zs)
+    R = Matrix.Translation(c) @ Matrix.Rotation(math.radians(tilt_deg), 4, 'X') @ Matrix.Translation(-c)
+    base = [o.matrix_world.copy() for o in parts]
+
+    def place(dz, dy):
+        T = Matrix.Translation(Vector((0, dy, dz)))
+        for o, m0 in zip(parts, base):
+            o.matrix_world = T @ R @ m0
+        bpy.context.view_layer.update()
+
+    def penetrating():
+        """(poke, inside): skull-top points sticking OUT through the bare shell (a short ray down meets it) and
+        points inside the metal (a ray up meets it within 2 mm). Measured on the shell WITHOUT thickness/subdiv."""
+        mods = [m for m in helm.modifiers if m.show_viewport]
+        for m in mods:
+            m.show_viewport = False
+        bpy.context.view_layer.update()
+        bvh = BVHTree.FromObject(helm, bpy.context.evaluated_depsgraph_get())
+        for m in mods:
+            m.show_viewport = True
+        inv = helm.matrix_world.inverted(); rot = inv.to_3x3()
+        up, down = (rot @ Vector((0, 0, 1))).normalized(), (rot @ Vector((0, 0, -1))).normalized()
+        poke = inside = covered = 0
+        for p in top:
+            lp = inv @ p
+            hit_up = bvh.ray_cast(lp, up, 0.3)
+            if hit_up[0] is not None:
+                covered += 1
+                if hit_up[3] < 0.002:
+                    inside += 1
+            hit_dn = bvh.ray_cast(lp, down, 0.06)
+            if hit_dn[0] is not None:
+                poke += 1
+        return poke, inside, covered
+    best = None
+    for dy in (0.0, 0.015, 0.03):                          # a little back: the bowl sits on the crown, not the brow
+        for k in range(0, 40):
+            dz = 0.004 * k
+            place(dz, dy)
+            poke, inside, covered = penetrating()
+            if poke + inside == 0 and covered > len(top) * 0.5:   # resting on the crown, which fills the bowl
+                if best is None or dz < best[0]:
+                    best = (dz, dy)
+                break
+    if best is None:
+        print('helmet_up: NO SEAT FOUND (poke/inside/covered at 0 lift:', penetrating(), ') - check the tilt')
+    dz, dy = best or (0.08, 0.02)
+    place(dz + 0.003, dy)                                   # 3 mm of felt between scalp and bronze
+    print(f'helmet_up: tilt {tilt_deg} deg, seated {dz * 100:.1f} cm up, {dy * 100:.1f} cm back')

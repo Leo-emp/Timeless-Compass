@@ -1,7 +1,7 @@
 {
   "_note": "Pushing a change to this file renders every listed request in parallel (render-batch.yml, 1 runner each, max 20).",
-  "batch": "d-verify-15",
+  "batch": "main-drawn-1",
   "run": [
-    "d_traveller"
+    "drawn_hoplites"
   ]
 }
