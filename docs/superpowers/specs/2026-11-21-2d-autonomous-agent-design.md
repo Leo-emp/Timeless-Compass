@@ -195,6 +195,13 @@ and expression starts on the word that names it ("he **raised** his spear" → t
 character mouths follow their own dialogue (Rhubarb mouth cues per Fish line); sound effects hit on their word.
 The shot plan stores these as word-anchored cues, and the self-check samples frames at those words to confirm.
 
+**Acted out in real time, like CapitalCode (r30).** The picture performs the narration phrase by phrase, not one
+illustration per line: every meaningful phrase makes something visibly happen — an action, a reaction, an object
+appearing or changing, a camera move or a cut — roughly every 1–3 s. A shot is a small sequence of word-anchored
+beats (e.g. "Kronos opened his mouth" → jaw opens; "…and swallowed the child" → gulp; Rhea turns away). The
+shot plan lists these beats per phrase; the self-check fails any stretch over ~3 s where nothing story-related
+changes. Motion comes from the story, never from random looping filler. (Idea copied from CapitalCode, no shared code.)
+
 **Natural flow, never abrupt (r29).** Sync is the target, smoothness is the feel:
 - Actions use animation principles: anticipation (a wind-up before the throw), easing in and out, follow-through and
   overlap (head turns first, body follows, cloak settles after). They start a few frames **before** their word so the
