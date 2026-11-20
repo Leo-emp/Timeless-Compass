@@ -139,7 +139,12 @@ grade" into checkable rules. Sections:
    interior lamp), aerial haze for distance, rim light on heroes, cast shadows on the ground.
 4. **Detail density** — rich sets: minimum detail per screen region (no empty patches), small background story
    moments (people working, animals, smoke, banners), texture on rock, wood, stone, water.
-5. **Era sheets** — per era, from the research: costume, armour, weapons, buildings, ships, plants, colours.
+5. **Era sheets (era lock, r4 + r32)** — built for every video in the research stage: every visual item the story needs —
+   clothing, armour, weapons, hairstyles, buildings, furniture, ships, tools, plants, animals, landscape, colours —
+   each with a source (museum piece, excavation, period art) and a do/don't list of common anachronisms (e.g. no
+   stirrups in 480 BC Greece, no Roman armour on Greeks, no Gothic arches in Egypt). Myths are drawn in the era that
+   told them (Greek gods in Archaic/Classical dress, temples and objects). The shot plan names the era sheet item
+   for every costume, building and prop; the still self-check has an **era item** that fails any anachronism.
    Example rows already drawn: Spartan hoplite, Corinthian helmet up/down, transverse crest = officer/king,
    trireme (ram, eye, oars, sail).
 6. **Acting** — six base expressions (spiked), gestures that match the line, crowd variety (no clones side by side).
