@@ -1,0 +1,54 @@
+# FILM RENDER: render one video of the 2D film engine (film/) in parallel parts on free GitHub runners.
+# Started by `python -m tc film render <comp> --frames N --parts P --on github` (or by hand in the Actions tab).
+# Each matrix job renders one frame range and uploads it as an artifact `part-<from>-<to>` (mp4 + timing json).
+# Then on the laptop: `tc film fetch <run-id> --on github --to DIR` and `tc film join DIR OUT`.
+#
+# Free: public repo -> unlimited minutes on standard runners (4 CPU, 16 GB RAM, 6 h per job). No secrets used.
+name: film-render
+run-name: film ${{ inputs.comp }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      comp:
+        description: "Remotion composition id (film/src/Root.tsx)"
+        required: true
+      parts:
+        description: "JSON list of [from, to] frame ranges, e.g. [[0,95],[96,191]]"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  part:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false          # one failed part must not cancel the others (it is simply re-rendered)
+      max-parallel: 20
+      matrix:
+        range: ${{ fromJSON(inputs.parts) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: film
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: film/package-lock.json
+      - name: Install the film engine (exact versions from package-lock.json)
+        working-directory: film
+        run: npm ci --no-audit --no-fund
+      - name: Install headless Chrome for Remotion
+        working-directory: film
+        run: npx remotion browser ensure
+      - name: Render frames ${{ matrix.range[0] }}-${{ matrix.range[1] }}
+        working-directory: film
+        run: node render-part.mjs "${{ inputs.comp }}" ${{ matrix.range[0] }} ${{ matrix.range[1] }} out/parts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: part-${{ matrix.range[0] }}-${{ matrix.range[1] }}
+          path: film/out/parts/
+          retention-days: 3
