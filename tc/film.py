@@ -15,6 +15,7 @@
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 from tc.cli import register
@@ -147,7 +148,7 @@ def _cmd_film(args) -> int:
         if args.on == "github":
             subprocess.run(["gh", "run", "download", args.id, "-D", str(to)], check=True)
         else:
-            subprocess.run(["kaggle", "kernels", "output", args.id, "-p", str(to)], check=True)
+            subprocess.run([sys.executable, "-m", "kaggle", "kernels", "output", args.id, "-p", str(to)], check=True)
         print(f"{len(find_parts(to))} parts in {to}")
         return 0
     if args.action == "join":
