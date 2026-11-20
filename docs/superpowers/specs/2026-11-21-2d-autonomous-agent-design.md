@@ -270,6 +270,12 @@ Every video is a **story, not a list of facts**. The script stage is split in tw
 **Story page (before any line is written):** `jobs/<id>/story.md`
 - **Main character** the viewer follows (a person, not an empire), with a **want**, a **fear** and a **choice** they
   must make. Real history only — the drama comes from what really happened (r4, r12).
+- **Not a fixed formula (r33):** want/fear/choice is only the minimum. From the whole real story the agent picks every
+  element that makes this topic gripping — more characters (rival, villain, ally, traitor, ensemble cast), secrets,
+  betrayals, ticking clocks, mysteries, irony, sacrifices, transformations, moral dilemmas, consequences, legacy —
+  and the **story shape** that fits: mystery investigation (secret projects), rise and fall, countdown, heist,
+  revenge, multi-character. The script bible holds this toolkit with examples; the story self-check asks whether
+  the strongest elements of the real story were used.
 - **Central dramatic question** the title and thumbnail promise, answered only at the end.
 - **Beat sheet:** cold open (the most dramatic moment) → the world and what's at stake → rising complications
   ("but… therefore…", never "and then") → midpoint turn → darkest moment → climax → twist/reveal → ending line.
