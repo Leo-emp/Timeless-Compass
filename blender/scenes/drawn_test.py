@@ -40,7 +40,7 @@ from tc import crowd as TC  # noqa: E402
 men = TC.cast(6, 'spartan', 'greece_480bc', seed=4801)
 marks = [(-2.6, 5.2, 0), (-0.9, 6.0, 0), (1.0, 5.6, 0), (2.7, 6.3, 0), (-1.8, 8.0, 0), (1.9, 8.4, 0)]
 roots = C.mid_crowd(men, marks, frames=24, face_toward=(0.0, -20.0))
-C.far_crowd(roots, (-14, 14, 10, 34), 90, seed=11, face_toward=(0.0, -40.0))
+C.far_crowd(roots, (-14, 14, 10, 34), 60, seed=11, face_toward=(0.0, -40.0))
 bpy.ops.mesh.primitive_plane_add(size=400); g = bpy.context.object
 g.data.materials.append(common.principled('drawn_ground', (0.52, 0.44, 0.24), rough=1.0))
 if any(m.type == 'CLOTH' for o in bpy.data.objects for m in o.modifiers):

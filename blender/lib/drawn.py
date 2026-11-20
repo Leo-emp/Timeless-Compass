@@ -134,12 +134,20 @@ def toon(skip=(), mode='eevee'):
             toon_material(m, mode=mode)
 
 
-def ink(thickness=1.7, color=INK, crease_deg=134.0, inner=True):
+def ink(thickness=1.7, color=INK, crease_deg=134.0, inner=True, skip=()):
     """Freestyle pen lines, rendered as their own pass (paint_post lays them on after the brush filter)."""
     sc = bpy.context.scene
     sc.render.use_freestyle = True
     sc.render.line_thickness_mode = 'ABSOLUTE'
-    vl = sc.view_layers[0]
+    main = sc.view_layers[0]
+    vl = main
+    if skip:                                             # far crowds etc: no ink (and Freestyle never sees them -
+        main.use_freestyle = False                       # tracing ~90 full soldiers took 45+ min). Lines are drawn
+        vl = sc.view_layers.get('ink') or sc.view_layers.new('ink')   # on their own layer, 1 sample, near things only
+        vl.use_freestyle = True; vl.samples = 1
+        for lc in vl.layer_collection.children:
+            if lc.name in skip:
+                lc.exclude = True
     fs = vl.freestyle_settings; fs.as_render_pass = True
     fs.crease_angle = math.radians(crease_deg); fs.use_smoothness = True
     ls = fs.linesets[0] if fs.linesets else fs.linesets.new('ink')
@@ -207,7 +215,7 @@ def paint_post_cycles(brush=5, tones=TONES, steps=STEPS, light_scale=1.0):
     """Toon from passes: tone = ramp(brightness of the diffuse light that reached the surface, shadows included),
     colour = the flat diffuse colour; sky = environment pass; brush filter; ink on top; muted grade."""
     sc = bpy.context.scene
-    vl = sc.view_layers[0]
+    vl = sc.view_layers[0]                               # colour/light passes from the main layer
     vl.use_pass_diffuse_direct = vl.use_pass_diffuse_indirect = vl.use_pass_diffuse_color = True
     vl.use_pass_environment = True
     vl.cycles.denoising_store_passes = True
@@ -247,8 +255,11 @@ def paint_post_cycles(brush=5, tones=TONES, steps=STEPS, light_scale=1.0):
     except (TypeError, ValueError):
         pass
     L(ao_sky.outputs[0], ku.inputs['Image']); last = ku.outputs[0]
-    if 'Freestyle' in rl.outputs:
-        ao = N('CompositorNodeAlphaOver'); L(last, ao.inputs['Background']); L(rl.outputs['Freestyle'], ao.inputs['Foreground'])
+    rli = rl
+    if sc.view_layers.get('ink') is not None:            # lines come from the ink-only layer
+        rli = N('CompositorNodeRLayers'); rli.layer = 'ink'
+    if 'Freestyle' in rli.outputs:
+        ao = N('CompositorNodeAlphaOver'); L(last, ao.inputs['Background']); L(rli.outputs['Freestyle'], ao.inputs['Foreground'])
         last = ao.outputs[0]
     hsv = N('CompositorNodeHueSat')
     if 'Saturation' in hsv.inputs:
@@ -258,14 +269,14 @@ def paint_post_cycles(brush=5, tones=TONES, steps=STEPS, light_scale=1.0):
     return ng
 
 
-def apply_cycles(lines=1.7, brush=5, samples=32, light_scale=1.0):
+def apply_cycles(lines=1.7, brush=5, samples=32, light_scale=1.0, no_ink=('far_crowd',)):
     """The drawn look on CYCLES (CPU, laptop RAM or the cloud) - same look as apply(), no GPU needed."""
     sc = bpy.context.scene
     sc.render.engine = 'CYCLES'; sc.cycles.samples = samples; sc.cycles.use_denoising = False
     sc.cycles.max_bounces = 3; sc.cycles.diffuse_bounces = 2
     sc.view_settings.view_transform = 'Standard'; sc.view_settings.look = 'None'; sc.view_settings.exposure = 0.0
     toon(mode='cycles')
-    ink(lines)
+    ink(lines, skip=tuple(c for c in no_ink if c in bpy.data.collections))
     paint_post_cycles(brush, light_scale=light_scale)
 
 
