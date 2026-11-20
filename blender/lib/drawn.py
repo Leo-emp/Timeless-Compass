@@ -39,6 +39,8 @@ def _ramp(nt, tones, steps):
 
 
 # painter's tones: the shadow side goes cooler and a little purple, the lit side a touch warm
+SKIN_TONE = (0.62, 0.38, 0.24)        # sun-tanned Greek skin, as painted
+SKIN_FLAT = 0.6
 TONES = [(0.40, 0.36, 0.50), (0.68, 0.62, 0.70), (1.0, 0.97, 0.92)]
 STEPS = (0.10, 0.36)
 
@@ -82,6 +84,11 @@ def toon_material(mat, tones=TONES, steps=STEPS, mode='eevee'):
         return
     if mode == 'cycles':                                            # flat colour only; light is toned in the compositor
         diff = nt.nodes.new('ShaderNodeBsdfDiffuse')
+        if 'skin' in mat.name.lower() and col_src is not None:      # painted skin: one warm tan, the texture only a hint
+            sk = nt.nodes.new('ShaderNodeMix'); sk.data_type = 'RGBA'; sk.blend_type = 'MIX'
+            sk.inputs['Factor'].default_value = SKIN_FLAT
+            nt.links.new(col_src, sk.inputs['A']); sk.inputs['B'].default_value = (*SKIN_TONE, 1)
+            col_src = sk.outputs['Result']
         if col_src is not None:
             nt.links.new(col_src, diff.inputs['Color'])
         else:
@@ -137,8 +144,10 @@ def ink(thickness=1.7, color=INK, crease_deg=134.0, inner=True):
     fs.crease_angle = math.radians(crease_deg); fs.use_smoothness = True
     ls = fs.linesets[0] if fs.linesets else fs.linesets.new('ink')
     ls.select_by_visibility = True; ls.visibility = 'VISIBLE'
-    ls.select_silhouette = ls.select_border = ls.select_crease = True
-    ls.select_ridge_valley = inner; ls.select_suggestive_contour = inner
+    ls.select_silhouette = ls.select_border = True
+    # creases / ridges on dense body meshes draw every skin bump as a scribble: outlines only (artists draw
+    # the shape, not the texture); inner lines come from material edges (border) and contours
+    ls.select_crease = False; ls.select_ridge_valley = False; ls.select_suggestive_contour = False
     ls.select_contour = True; ls.select_external_contour = True
     st = ls.linestyle or bpy.data.linestyles.new('ink'); ls.linestyle = st
     st.color = color; st.thickness = thickness; st.thickness_position = 'CENTER'

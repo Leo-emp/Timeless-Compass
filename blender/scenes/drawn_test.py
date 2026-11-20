@@ -25,58 +25,42 @@ rigs, lasts = [], []
 for name, mark, turn in CAST:
     spec = build.manifest('cast', name)
     spec['helmet'] = dict(spec.get('helmet') or {'crest': 'red'}, worn='up')
+    if name == 'leonidas':
+        spec['shield'] = {'emblem': 'lambda', 'wear': 0.4}
     rig, human, root, first, last = build.character(name, spec['wardrobe'], {'pose': 'stand_relaxed'},
                                                     mark=mark, turn_deg=turn, frames=24, spec=spec)
     rigs.append(rig); lasts.append((first, last))
 sc = bpy.context.scene
 first = max(f for f, _ in lasts); last = max(l for _, l in lasts)
 sc.frame_start, sc.frame_end = 1, last
+
+# ---- the army behind them: real Spartans (helmets down, facing the camera), more as instances further back
+from lib import crowd as C  # noqa: E402
+from tc import crowd as TC  # noqa: E402
+men = TC.cast(6, 'spartan', 'greece_480bc', seed=4801)
+marks = [(-2.6, 5.2, 0), (-0.9, 6.0, 0), (1.0, 5.6, 0), (2.7, 6.3, 0), (-1.8, 8.0, 0), (1.9, 8.4, 0)]
+roots = C.mid_crowd(men, marks, frames=24, face_toward=(0.0, -20.0))
+C.far_crowd(roots, (-14, 14, 10, 34), 90, seed=11, face_toward=(0.0, -40.0))
+bpy.ops.mesh.primitive_plane_add(size=400); g = bpy.context.object
+g.data.materials.append(common.principled('drawn_ground', (0.52, 0.44, 0.24), rough=1.0))
 if any(m.type == 'CLOTH' for o in bpy.data.objects for m in o.modifiers):
     bpy.ops.ptcache.bake_all(bake=True)
 sc.frame_set(first + 6)
 
 # ---- GRIP CHECK (owner rule): every spear must pass through the hand that holds it
-dg = bpy.context.evaluated_depsgraph_get()
-for rig in rigs:
-    pb = rig.pose.bones.get('wrist.R') or rig.pose.bones.get('lowerarm02.R')
-    hand = rig.matrix_world @ pb.tail
-    shafts = [o for o in bpy.data.objects if o.parent is rig and o.parent_bone == pb.name and o.type == 'MESH'
-              and o.dimensions.z > 1.5]
-    for s in shafts:
-        a = s.matrix_world @ Vector((0, 0, -1.2)); b = s.matrix_world @ Vector((0, 0, 1.2))
-        ab = b - a; t = max(0.0, min(1.0, (hand - a).dot(ab) / ab.length_squared))
-        d = (a + ab * t - hand).length
-        print(f'GRIP CHECK {rig.name}: spear axis {d * 100:.1f} cm from the right hand -> {"OK" if d < 0.05 else "FAIL"}')
-
-# ---- ground + the army behind: rows of spears, crests and shield rims (cheap shapes, far and painted over)
-bpy.ops.mesh.primitive_plane_add(size=400); g = bpy.context.object
-g.data.materials.append(common.principled('drawn_ground', (0.52, 0.44, 0.24), rough=1.0))
-wood = common.principled('army_wood', (0.30, 0.20, 0.11), rough=0.8)
-bronze = common.principled('army_bronze', (0.62, 0.40, 0.18), metal=1.0, rough=0.5)
-crest_cols = [common.principled(f'army_crest{i}', c, rough=0.9) for i, c in
-              enumerate([(0.45, 0.06, 0.04), (0.08, 0.06, 0.05), (0.75, 0.72, 0.66)])]
-shield_cols = [common.principled(f'army_shield{i}', c, rough=0.7) for i, c in
-               enumerate([(0.40, 0.08, 0.05), (0.55, 0.36, 0.16), (0.12, 0.10, 0.09)])]
-rnd = random.Random(480)
-for row in range(7):
-    y = 5.0 + row * 2.2
-    for k in range(int(10 + row * 3)):
-        x = -6 - row * 1.5 + k * (12 + row * 3) / (10 + row * 3) + rnd.uniform(-0.25, 0.25)
-        h = rnd.uniform(1.62, 1.82)
-        bpy.ops.mesh.primitive_cylinder_add(vertices=6, radius=0.016, depth=2.5, location=(x + 0.25, y, 1.25 + rnd.uniform(-0.1, 0.25)),
-                                            rotation=(rnd.uniform(-0.05, 0.05), rnd.uniform(-0.06, 0.06), 0))
-        bpy.context.object.data.materials.append(wood)
-        bpy.ops.mesh.primitive_cone_add(vertices=6, radius1=0.035, depth=0.28, location=bpy.context.object.location + Vector((0, 0, 1.38)))
-        bpy.context.object.data.materials.append(bronze)
-        bpy.ops.mesh.primitive_uv_sphere_add(segments=12, ring_count=8, radius=0.13, location=(x, y, h))
-        bpy.context.object.scale = (0.9, 1.0, 1.1); bpy.context.object.data.materials.append(bronze)
-        bpy.ops.mesh.primitive_cube_add(size=1, location=(x, y, h + 0.17))
-        bpy.context.object.scale = (0.03, 0.30, 0.14); bpy.context.object.data.materials.append(rnd.choice(crest_cols))
-        bpy.ops.mesh.primitive_cylinder_add(vertices=24, radius=0.45, depth=0.06, location=(x - 0.12, y - 0.25, 1.05),
-                                            rotation=(math.pi / 2, 0, rnd.uniform(-0.4, 0.4)))
-        bpy.context.object.data.materials.append(rnd.choice(shield_cols))
-        bpy.ops.mesh.primitive_cylinder_add(vertices=8, radius=0.2, depth=1.1, location=(x, y + 0.05, h - 0.55))
-        bpy.context.object.data.materials.append(rnd.choice(shield_cols))
+bad = 0
+for s in [o for o in bpy.data.objects if o.name.startswith('dory_shaft')]:
+    rig = s.constraints[0].target
+    hand = rig.matrix_world @ rig.pose.bones[s['grip_bone']].tail
+    a = s.matrix_world @ Vector((0, 0, -1.0)); b = s.matrix_world @ Vector((0, 0, 1.0))
+    ab = b - a; t = (hand - a).dot(ab) / ab.length_squared
+    d = (a + ab * t - hand).length
+    up = (b - a).normalized().z
+    ok = d < 0.03 and up > 0.97
+    bad += not ok
+    print(f'GRIP CHECK {s.name}: {d * 100:.1f} cm from the hand, upright {up:.3f} -> {"OK" if ok else "FAIL"}')
+print('GRIP CHECK SUMMARY', 'ALL OK' if not bad else f'{bad} FAIL')
+print('MATERIALS', sorted(m.name for m in bpy.data.materials if m.users)[:80])
 
 # ---- light: warm sun from camera-left, high; the cloud photo is the painted sky (gentle on the scene)
 common.hdri_sky('kloofendal_48d_partly_cloudy_puresky', background=1.0, lighting=0.12, rotate_deg=60)
@@ -85,6 +69,6 @@ common.sun_light('sun', 1.0, (1.0, 0.95, 0.86), 38, -42)
 # ---- camera: low, slightly looking up at the two men, waist-up (as in the reference frame)
 common.render_settings(res=(1920 * SCALE // 100, 1080 * SCALE // 100), samples=SAMPLES)
 cam = common.camera('cam', Vector((0.15, -3.3, 1.12)), Vector((0.1, 0.2, 1.52)), lens=38)
-drawn.apply_cycles(lines=1.6 * SCALE / 100 + 0.4, brush=max(3, 5 * SCALE // 100), samples=SAMPLES)
+drawn.apply_cycles(lines=2.0 * SCALE / 100 + 0.3, brush=max(3, 8 * SCALE // 100), samples=SAMPLES)
 common.render(os.path.join(OUT, 'drawn_hoplites.png'))
 print('DRAWN DONE')

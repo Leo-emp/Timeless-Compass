@@ -241,11 +241,9 @@ def emblem_face(name, image_path, wear=0.4):
     m = bpy.data.materials.new(name); m.use_fake_user = True
     nt = m.node_tree; L = nt.links.new; b = nt.nodes['Principled BSDF']
     tc = nt.nodes.new('ShaderNodeTexCoord')
-    sep = nt.nodes.new('ShaderNodeSeparateXYZ'); L(tc.outputs['Object'], sep.inputs[0])
-    ux = nt.nodes.new('ShaderNodeMath'); ux.operation = 'MULTIPLY_ADD'; ux.inputs[1].default_value = 1 / 0.92; ux.inputs[2].default_value = 0.5
-    uz = nt.nodes.new('ShaderNodeMath'); uz.operation = 'MULTIPLY_ADD'; uz.inputs[1].default_value = 1 / 0.92; uz.inputs[2].default_value = 0.5
-    L(sep.outputs['X'], ux.inputs[0]); L(sep.outputs['Z'], uz.inputs[0])
-    uv = nt.nodes.new('ShaderNodeCombineXYZ'); L(ux.outputs[0], uv.inputs['X']); L(uz.outputs[0], uv.inputs['Y'])
+    # 'Generated' = 0..1 across the mesh's own bounding box, whatever its location/size: x across, z up the face
+    sep = nt.nodes.new('ShaderNodeSeparateXYZ'); L(tc.outputs['Generated'], sep.inputs[0])
+    uv = nt.nodes.new('ShaderNodeCombineXYZ'); L(sep.outputs['X'], uv.inputs['X']); L(sep.outputs['Z'], uv.inputs['Y'])
     t = nt.nodes.new('ShaderNodeTexImage'); t.image = bpy.data.images.load(str(image_path), check_existing=True)
     t.extension = 'CLIP'; L(uv.outputs['Vector'], t.inputs['Vector'])
     scratch = nt.nodes.new('ShaderNodeTexNoise'); scratch.inputs['Scale'].default_value = 90; scratch.inputs['Detail'].default_value = 8
@@ -313,8 +311,23 @@ def dory(rig, bronze, wood):
     bpy.ops.mesh.primitive_cone_add(vertices=12, radius1=0.016, depth=0.18, location=shaft.location + Vector((0, 0, -1.29)),
                                     rotation=(math.pi, 0, 0))
     butt = bpy.context.object; butt.data.materials.append(bronze)
-    for o in (shaft, tip, butt):
-        cast.parent_to_bone(o, rig, 'wrist.R' if 'wrist.R' in rig.pose.bones else 'lowerarm02.R')
+    shaft.name, tip.name, butt.name = 'dory_shaft', 'dory_tip', 'dory_butt'
+    for o in (tip, butt):                                   # blade + butt spike ride on the shaft
+        o.parent = shaft; o.matrix_parent_inverse = shaft.matrix_world.inverted()
+    # the shaft FOLLOWS the hand but stays UPRIGHT (a soldier at rest holds the spear plumb; parenting it to the
+    # wrist tilted it with every wrist angle - through the body). Copy Location of the hand + the rest offset.
+    bone = 'wrist.R' if 'wrist.R' in rig.pose.bones else 'lowerarm02.R'
+    grip = Vector((hand.x, hand.y - 0.01, hand.z))          # the shaft's ORIGIN goes to the grip point...
+    d = shaft.location - grip
+    for v in shaft.data.vertices:
+        v.co += d
+    for o in (tip, butt):
+        o.matrix_parent_inverse = Matrix.Translation(-grip)
+    shaft.location = grip
+    con = shaft.constraints.new('COPY_LOCATION'); con.target = rig; con.subtarget = bone; con.head_tail = 1.0
+    # ...and is pinned there in world space (whatever the parent: rig, crowd root, crowd instance)
+    shaft['grip_bone'] = bone
+    bpy.context.view_layer.update()
     return shaft, tip, butt
 
 
@@ -591,16 +604,19 @@ def _helmet_up_fit(rig, human, parts, tilt_deg):
         inv = helm.matrix_world.inverted(); rot = inv.to_3x3()
         up, down = (rot @ Vector((0, 0, 1))).normalized(), (rot @ Vector((0, 0, -1))).normalized()
         poke = inside = covered = 0
-        for p in top:
-            lp = inv @ p
-            hit_up = bvh.ray_cast(lp, up, 0.3)
-            if hit_up[0] is not None:
-                covered += 1
-                if hit_up[3] < 0.002:
-                    inside += 1
-            hit_dn = bvh.ray_cast(lp, down, 0.06)
-            if hit_dn[0] is not None:
-                poke += 1
+        for p in top:                                           # outward normals on the bare shell:
+            lp = inv @ p                                        #  a ray LEAVING the cavity meets n.d > 0
+            hu = bvh.ray_cast(lp, up, 0.3)
+            if hu[0] is not None:
+                if hu[1].dot(up) > 0:
+                    covered += 1                                # under the bowl, inside it: good
+                    if hu[3] < 0.002:
+                        inside += 1                             # ...but touching the metal
+                else:
+                    poke += 1                                   # under the OUTSIDE of the wall: wall cuts the head
+            hd = bvh.ray_cast(lp, down, 0.06)
+            if hd[0] is not None and hd[1].dot(down) < 0:
+                poke += 1                                       # shell below the point, seen from outside: pokes out
         return poke, inside, covered
     best = None
     for dy in (0.0, 0.015, 0.03):                          # a little back: the bowl sits on the crown, not the brow
