@@ -117,6 +117,7 @@ def _args(p):
     p.add_argument("png")
     p.add_argument("--json", help="inspector json (film/scripts/inspect.mjs)")
     p.add_argument("--calm", default="", help='tiles allowed to be calm, e.g. "0,0 1,0" (open sky / calm sea)')
+    p.add_argument("--chars", action="store_true", help="also check every character part colour against its sheet (r19)")
 
 
 @register("still", "measured still checks: grip, faces covered, text fit, safe areas, empty areas, contrast", _args)
@@ -127,6 +128,9 @@ def _cmd_still(args) -> int:
     if args.json:
         d = json.loads(Path(args.json).read_text(encoding="utf-8"))
         probs = geometry_problems(d["elements"], d["w"], d["h"]) + probs
+        if args.chars:
+            from tc.charcheck import character_problems, load_sheets_for
+            probs += character_problems(d["elements"], load_sheets_for(d["elements"]))
     for p in probs:
         print("problem:", p)
     print("still:", "OK" if not probs else f"{len(probs)} problem(s)")
