@@ -5,6 +5,7 @@ topic, packaging, research, script, voice, align, music, sfx, mix, rules — is 
 
 ## 1. Intent: what and why
 
+**The goal: a cinematic 2D animated film-like video** — it should feel like watching an animated film, not a slideshow.
 Timeless Compass is a YouTube channel of serious animated documentaries about **History and Secret Government
 Projects**. The owner dropped 3D on 2026-11-21 (quality unreachable) and chose a **2D cartoon look drawn entirely in
 code**, aimed at the Japan-history reference video (`Downloads/videoplayback (13).mp4`): thick outlines, round-headed
