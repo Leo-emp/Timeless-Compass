@@ -46,3 +46,8 @@ def test_unsafe_names_rejected():
 def test_chrome_libs_installed_one_by_one_without_stopping():
     code = "\n".join(_code(fk.film_notebook("FleetTest", [(0, 1)])))
     assert 'for lib in "' in code and "check=True" not in code.split("for lib in")[1].split("\n")[1]
+
+
+def test_clone_lives_outside_the_saved_output():
+    code = "\n".join(_code(fk.film_notebook("FleetTest", [(0, 1)])))
+    assert "/tmp/tc" in code and "/kaggle/working/tc" not in code

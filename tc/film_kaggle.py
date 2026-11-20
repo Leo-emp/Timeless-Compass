@@ -46,7 +46,7 @@ def film_notebook(comp: str, ranges: list[tuple[int, int]], repo: str = REPO, re
         raise ValueError(f"unsafe composition or ref name: {comp!r} {ref!r}")
     ranges = [(int(a), int(b)) for a, b in ranges]
     renders = "\n".join(
-        f'run("cd /kaggle/working/tc/film && CONCURRENCY=4 node render-part.mjs {comp} {a} {b} /kaggle/working/parts")'
+        f'run("cd /tmp/tc/film && CONCURRENCY=4 node render-part.mjs {comp} {a} {b} /kaggle/working/parts")'
         for a, b in ranges)
     cells = [
         _cell('''# 1. internet check: without it nothing below can work (Kaggle: Settings -> Internet on)
@@ -67,12 +67,11 @@ run("apt-get install -y -q nodejs > /dev/null")
 for lib in "{CHROME_LIBS}".split():   # one by one: a name that differs on this Ubuntu must not stop the render
     subprocess.run(f"apt-get install -y -q {{lib}} > /dev/null 2>&1", shell=True)
 run("node --version")'''),
-        _cell(f'''# 4. the film engine at the exact commit branch we render from
-run("rm -rf /kaggle/working/tc && git clone --depth 1 --branch {ref} {repo} /kaggle/working/tc")
-run("cd /kaggle/working/tc/film && npm ci --no-audit --no-fund && npx remotion browser ensure")'''),
+        _cell(f'''# 4. the film engine at the branch we render from (in /tmp so the kernel output holds only the parts)
+run("rm -rf /tmp/tc && git clone --depth 1 --branch {ref} {repo} /tmp/tc")   # /tmp is never saved as output
+run("cd /tmp/tc/film && npm ci --no-audit --no-fund && npx remotion browser ensure")'''),
         _cell(f'''# 5. render every range given to this notebook; parts stay in /kaggle/working/parts (kernel output)
 {renders}
-run("rm -rf /kaggle/working/tc")   # keep only the parts in the output
 run("ls -la /kaggle/working/parts")'''),
     ]
     return {"cells": cells, "metadata": {"kernelspec": {"name": "python3", "display_name": "Python 3", "language": "python"},
