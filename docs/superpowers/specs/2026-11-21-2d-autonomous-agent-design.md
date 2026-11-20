@@ -106,7 +106,8 @@ costume + name card (no exact face copies), r7 zero spend, r8 laptop light, r11 
 | 0 | **topic** | Demand scoring (existing `tc topics`) picks the best topic for the slot; Shorts get their own topic | score ≥ threshold |
 | 1 | **packaging** | 10+ titles scored; 3 thumbnail concepts written (r21); best pair chosen by the agent | `tc packaging` checks |
 | 2 | **research** | Sources for every fact; era sheet (costume, armour, buildings, ships, landscape) | every fact sourced |
-| 3 | **script** | Film structure (long) / hook-build-payoff (Short); loops every ~90 s; dramatised lines tagged | `tc script` passes + agent self-review against title promise |
+| 3a | **story design** *(new, r24)* | Before any line: the story page (6.14) — main character, want, fear, central question, beat sheet, twist, ending | story checklist passes |
+| 3b | **script** | Written from the story page, following `docs/SCRIPT_BIBLE.md`; loops every ~90 s; dramatised lines tagged | `tc script` passes + story self-check ≥ 90/100, else rewrite |
 | 4 | **voice + dialogue + align** | Existing Azure narrator, Fish character lines, word timings | existing checks |
 | 5 | **art direction** *(new)* | One page per video: palette per act, settings list, time-of-day plan, signature compositions; must differ from the last ~10 videos | sameness check (6.7) |
 | 6 | **cast** *(new)* | Every character needed: load the saved sheet, or create a new sheet and check it | character check (6.5) |
@@ -231,6 +232,34 @@ needed from the owner.
 - Findings become rules automatically (`tc learn … --why "results: <video>"`), and re-weight topic scoring, title
   styles, thumbnail types, hook types and pacing. A retro per video: `taste/retros/<id>.md`.
 
+### 6.14 Storytelling (r24) — `docs/SCRIPT_BIBLE.md` + the story self-check
+
+Every video is a **story, not a list of facts**. The script stage is split in two:
+
+**Story page (before any line is written):** `jobs/<id>/story.md`
+- **Main character** the viewer follows (a person, not an empire), with a **want**, a **fear** and a **choice** they
+  must make. Real history only — the drama comes from what really happened (r4, r12).
+- **Central dramatic question** the title and thumbnail promise, answered only at the end.
+- **Beat sheet:** cold open (the most dramatic moment) → the world and what's at stake → rising complications
+  ("but… therefore…", never "and then") → midpoint turn → darkest moment → climax → twist/reveal → ending line.
+- **Loops:** every question planted, with where it pays off; a re-hook every 60–90 s (long) / every 20–30 s (Short).
+- **Emotional arc:** what the viewer should feel in each act (curiosity → dread → hope → shock → awe).
+- **Dramatic irony and foreshadowing** points; the best scene placed in the last third.
+- Shorts: one story, one twist, hook in the first 2 s, ending that loops back to the first line.
+
+**Script craft (from the bible):** hook confirms the title within 5 s; no intro or logo; stakes in human terms;
+short ear-friendly lines with varied rhythm; concrete pictures over abstractions (every line must be drawable);
+held silences before reveals; character lines only at peak moments; ending answers the opening question, then one
+line that sticks, then a natural pointer to a related video (watch hours), never a cheesy subscribe ask.
+
+**Story self-check (before voicing):** scored checklist — hook strength, title promise delivered, central question
+clear, character want/fear/choice, rising stakes each act, cause-and-effect links, loops planted and paid off,
+re-hook spacing, twist, emotional arc, best scene placement, every line drawable, every fact sourced, length in
+range. **Bar: all items pass and ≥ 90/100**, else the agent rewrites (up to 3 passes, then re-designs the story page).
+
+**Learning:** retention dips from the results loop are mapped back to the beat and line; the bible gains rules
+(e.g. "slow 'world' sections lose viewers at 1:40 → keep them under 45 s").
+
 ### 6.13 What is removed / rewritten
 
 - Tag `old-3d-pipeline-final`, then remove `blender/`, the 3D cloud workflows, and the Blender-based `tc` modules
@@ -246,7 +275,7 @@ needed from the owner.
 |---|---|---|
 | M0 | Clean slate | Old pipeline tagged and removed; rules r10/r13/r14 rewritten; `tc doctor` passes |
 | M1 | Engine + speed | Style kit in Remotion; the fleet test re-made in Remotion; one chunked GitHub render; measured render speed |
-| M2 | Drawing standard + checks | `ART_BIBLE.md` written; measured checks + agent checklist working on the spike scenes |
+| M2 | Standards + checks | `ART_BIBLE.md` + `SCRIPT_BIBLE.md` written; still checks + story self-check working on the spike scenes and one Salamis script |
 | M3 | Characters | Registry + character check; Leonidas, Themistocles, Xerxes sheets locked |
 | M4 | First autonomous Short | A 2–3 min Short from topic to upload pack with no human step |
 | M5 | First autonomous long | A 12–15 min video from topic to upload pack with no human step |
