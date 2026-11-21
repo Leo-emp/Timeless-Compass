@@ -71,3 +71,10 @@ def test_beat_on_a_later_line_of_the_same_shot():
                                                             {"word": "burn", "line": 1, "do": "fire", "kind": "object"}])]
     assert plan_problems(p, TIMINGS, 6.0) == []
     assert resolve(p, TIMINGS, 6.0)["shots"][0]["beats"][3]["frame"] == round(5.1 * 24) - 6
+
+
+def test_misheard_word_matches_closest():
+    from tc.shotplan import find_word
+    tm = {"words": [{"w": "the", "s": 1.0, "e": 1.1}, {"w": "mysticles.", "s": 1.2, "e": 1.8}], "lines": [{"index": 0, "start": 1.0, "end": 1.8}]}
+    assert find_word(tm, 0, "Themistocles") == 1.2
+    assert find_word(tm, 0, "elephant") is None

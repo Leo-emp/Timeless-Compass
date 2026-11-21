@@ -44,7 +44,14 @@ def find_word(timings: dict, line: int, word: str, occurrence: int = 1) -> float
     span = _line_span(timings, line)
     if span is None:
         return None
-    hits = [w["s"] for w in timings.get("words", []) if span[0] - 0.05 <= w["s"] <= span[1] + 0.05 and _norm(w["w"]) == _norm(word)]
+    inside = [w for w in timings.get("words", []) if span[0] - 0.05 <= w["s"] <= span[1] + 0.05]
+    hits = [w["s"] for w in inside if _norm(w["w"]) == _norm(word)]
+    if not hits:
+        # speech recognition mishears names and rare words ("Themistocles" -> "mysticles", "hulls" -> "halls"):
+        # take the most similar heard word in the same line if it is close enough
+        import difflib
+        scored = sorted(((difflib.SequenceMatcher(None, _norm(w["w"]), _norm(word)).ratio(), w["s"]) for w in inside), reverse=True)
+        hits = [scored[0][1]] if scored and scored[0][0] >= 0.6 and occurrence == 1 else []
     return hits[occurrence - 1] if 0 < occurrence <= len(hits) else None
 
 
