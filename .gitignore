@@ -16,7 +16,7 @@ dashboard/.next/
 .env*
 
 .superpowers/
-jobs/
+/jobs/
 spike/frames*/
 spike/**/*.png
 spike/**/*.mp4

@@ -176,12 +176,22 @@ export function gown(col: string, trim?: string): string {
 export const pole = (x1: number, y1: number, x2: number, y2: number, col = '#8b5a2b', id?: string): string =>
   `<g data-role="prop"${id ? ` data-id="${id}"` : ''}>` + ln(`M${x1} ${y1} L${x2} ${y2}`, 10, OUT) + ln(`M${x1} ${y1} L${x2} ${y2}`, 5, col) + '</g>';
 
-/** Greek bronze shield (aspis) with the Spartan lambda; the emblem scales with the radius. */
-export function aspis(cx: number, cy: number, r = 84, id?: string): string {
-  const k = r / 84;
+/** Shield devices (episemata): Spartans carried the lambda; Athenians painted personal blazons (vase paintings). */
+export type Device = 'lambda' | 'owl' | 'star' | 'crescent' | 'none';
+
+/** Greek bronze shield (aspis) with a painted device; everything scales with the radius. */
+export function aspis(cx: number, cy: number, r = 84, id?: string, device: Device = 'lambda'): string {
+  const k = r / 84, paint = '#efe0b8';
+  let dev = '';
+  if (device === 'lambda') dev = ln(`M${cx - 30 * k} ${cy + 38 * k} L${cx} ${cy - 40 * k} L${cx + 30 * k} ${cy + 38 * k}`, 12 * k, paint);
+  if (device === 'owl') dev = `<circle cx="${cx - 16 * k}" cy="${cy - 8 * k}" r="${13 * k}" fill="${paint}" stroke="${OUT}" stroke-width="${3 * k}"/>` +
+    `<circle cx="${cx + 16 * k}" cy="${cy - 8 * k}" r="${13 * k}" fill="${paint}" stroke="${OUT}" stroke-width="${3 * k}"/>` +
+    `<circle cx="${cx - 16 * k}" cy="${cy - 8 * k}" r="${5 * k}" fill="${OUT}"/><circle cx="${cx + 16 * k}" cy="${cy - 8 * k}" r="${5 * k}" fill="${OUT}"/>` +
+    ln(`M${cx - 6 * k} ${cy + 10 * k} L${cx} ${cy + 22 * k} L${cx + 6 * k} ${cy + 10 * k}`, 4 * k, paint);
+  if (device === 'star') { let d = ''; for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; d += `M${cx} ${cy} L${(cx + Math.cos(a) * 36 * k).toFixed(1)} ${(cy + Math.sin(a) * 36 * k).toFixed(1)} `; } dev = ln(d, 7 * k, paint); }
+  if (device === 'crescent') dev = `<path d="M${cx - 10 * k} ${cy - 34 * k} A ${36 * k} ${36 * k} 0 1 0 ${cx - 10 * k} ${cy + 34 * k} A ${26 * k} ${28 * k} 0 1 1 ${cx - 10 * k} ${cy - 34 * k} Z" fill="${paint}" stroke="${OUT}" stroke-width="${3 * k}"/>`;
   return `<g data-role="prop"${id ? ` data-id="${id}"` : ''}>` + sh('circle', { cx, cy, r }, '#c99a45') + sh('circle', { cx, cy, r: r * 0.81 }, '#b23a2a') +
-    shade(`<circle cx="${cx}" cy="${cy}" r="${r}"/>`, cx + 56 * k, cy + 10 * k, 50 * k, 100 * k, 'rgba(70,30,10,.18)') +
-    ln(`M${cx - 30 * k} ${cy + 38 * k} L${cx} ${cy - 40 * k} L${cx + 30 * k} ${cy + 38 * k}`, 12 * k, '#efe0b8') + '</g>';
+    shade(`<circle cx="${cx}" cy="${cy}" r="${r}"/>`, cx + 56 * k, cy + 10 * k, 50 * k, 100 * k, 'rgba(70,30,10,.18)') + dev + '</g>';
 }
 
 /** Hoplite lower body + linothorax with pteruges strips, optional red cloak behind. */
