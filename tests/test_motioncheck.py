@@ -54,3 +54,11 @@ def test_snap_is_sudden_against_the_frames_just_before():
     assert [p for p in motion_problems(quiet + [0.12] * 20 + quiet, 24) if "snap" in p]
     # a teleport in the middle of a slow move is still a snap
     assert [p for p in motion_problems(quiet + [0.03] * 10 + [0.25] + [0.03] * 10 + quiet, 24) if "snap" in p]
+
+
+def test_a_pop_during_a_fast_move_is_still_a_snap():
+    from tc.motioncheck import motion_problems
+    quiet = [0.004] * 60
+    fast = [0.004 + 0.12 * (math.sin(math.pi * i / 40) ** 2) for i in range(41)]
+    fast[20] = 0.32                                       # something pops while a big figure moves
+    assert [p for p in motion_problems(quiet + fast + quiet, 24) if "snap at frame 80" in p]
