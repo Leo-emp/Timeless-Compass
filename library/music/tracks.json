@@ -123,6 +123,105 @@
       "credit": "",
       "url": "https://freesound.org/s/621289/",
       "lufs": -20.1
+    },
+    {
+      "id": "ethereal_ritual_fs875778",
+      "file": "ethereal_ritual_fs875778.mp3",
+      "moods": [
+        "mystery",
+        "awe"
+      ],
+      "intensity": 2,
+      "era": [
+        "epic"
+      ],
+      "shape": "steady",
+      "length_s": 120.65,
+      "tempo_bpm": 0,
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "credit": "",
+      "url": "https://freesound.org/s/875778/",
+      "lufs": -15.0
+    },
+    {
+      "id": "revelation_awe_fs560146",
+      "file": "revelation_awe_fs560146.mp3",
+      "moods": [
+        "hope",
+        "awe"
+      ],
+      "intensity": 3,
+      "era": [
+        "epic"
+      ],
+      "shape": "slow_build",
+      "length_s": 215.21,
+      "tempo_bpm": 0,
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "credit": "",
+      "url": "https://freesound.org/s/560146/",
+      "lufs": -19.8
+    },
+    {
+      "id": "dark_rhythmic_march_fs789404",
+      "file": "dark_rhythmic_march_fs789404.mp3",
+      "moods": [
+        "menace",
+        "tension"
+      ],
+      "intensity": 4,
+      "era": [
+        "epic"
+      ],
+      "shape": "steady",
+      "length_s": 180.99,
+      "tempo_bpm": 0,
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "credit": "",
+      "url": "https://freesound.org/s/789404/",
+      "lufs": -11.6
+    },
+    {
+      "id": "suspicion_cello_fs654843",
+      "file": "suspicion_cello_fs654843.mp3",
+      "moods": [
+        "tension",
+        "mystery"
+      ],
+      "intensity": 2,
+      "era": [
+        "epic"
+      ],
+      "shape": "steady",
+      "length_s": 135.85,
+      "tempo_bpm": 0,
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "credit": "",
+      "url": "https://freesound.org/s/654843/",
+      "lufs": -26.4
+    },
+    {
+      "id": "sad_dramatic_fs404461",
+      "file": "sad_dramatic_fs404461.mp3",
+      "moods": [
+        "grief"
+      ],
+      "intensity": 3,
+      "era": [
+        "epic"
+      ],
+      "shape": "slow_build",
+      "length_s": 108.0,
+      "tempo_bpm": 0,
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "credit": "",
+      "url": "https://freesound.org/s/404461/",
+      "lufs": -18.5
     }
   ]
 }

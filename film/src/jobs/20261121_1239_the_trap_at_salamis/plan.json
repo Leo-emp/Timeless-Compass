@@ -71,6 +71,7 @@
     "cue": "hook",
     "from_word": "At",
     "until": "s09",
+    "track": "epic_dark_fantasy_fs701688",
     "at": 0.0
    },
    "start_f": 0,
@@ -537,7 +538,13 @@
      "at": 50.82
     }
    ],
-   "music": null,
+   "music": {
+    "cue": "hook",
+    "from_word": "Months",
+    "until": "s19",
+    "track": "ethereal_ritual_fs875778",
+    "at": 48.22
+   },
    "start_f": 1157,
    "end_f": 1276
   },
@@ -1060,7 +1067,13 @@
     }
    ],
    "sfx": [],
-   "music": null,
+   "music": {
+    "cue": "emotional",
+    "from_word": "But",
+    "until": "s29",
+    "track": "revelation_awe_fs560146",
+    "at": 99.76
+   },
    "start_f": 2394,
    "end_f": 2516
   },
@@ -1448,7 +1461,13 @@
      "at": 149.56
     }
    ],
-   "music": null,
+   "music": {
+    "cue": "tension",
+    "from_word": "And",
+    "until": "s34",
+    "track": "dark_rhythmic_march_fs789404",
+    "at": 143.22
+   },
    "start_f": 3437,
    "end_f": 3655
   },
@@ -1693,7 +1712,13 @@
     }
    ],
    "sfx": [],
-   "music": null,
+   "music": {
+    "cue": "emotional",
+    "from_word": "So",
+    "until": "s39",
+    "track": "sad_strings_choir_fs610532",
+    "at": 171.72
+   },
    "start_f": 4121,
    "end_f": 4242
   },
@@ -2067,7 +2092,13 @@
     }
    ],
    "sfx": [],
-   "music": null,
+   "music": {
+    "cue": "tension",
+    "from_word": "The",
+    "until": "s48",
+    "track": "suspense_rise_fs768645",
+    "at": 209.26
+   },
    "start_f": 5022,
    "end_f": 5143
   },
@@ -2124,12 +2155,7 @@
      "at": 218.84
     }
    ],
-   "music": {
-    "cue": "tension",
-    "from_word": "killed",
-    "until": "s47",
-    "at": 215.24
-   },
+   "music": null,
    "start_f": 5143,
    "end_f": 5291
   },
@@ -2676,7 +2702,13 @@
     }
    ],
    "sfx": [],
-   "music": null,
+   "music": {
+    "cue": "tension",
+    "from_word": "He",
+    "until": "s63",
+    "track": "dark_thriller_orchestra_fs609755",
+    "at": 272.3
+   },
    "start_f": 6535,
    "end_f": 6696
   },
@@ -3307,7 +3339,13 @@
     }
    ],
    "sfx": [],
-   "music": null,
+   "music": {
+    "cue": "tension",
+    "from_word": "So",
+    "until": "s94",
+    "track": "suspicion_cello_fs654843",
+    "at": 338.78
+   },
    "start_f": 8131,
    "end_f": 8255
   },
@@ -3402,12 +3440,7 @@
     }
    ],
    "sfx": [],
-   "music": {
-    "cue": "tension",
-    "from_word": "Take",
-    "until": "s78",
-    "at": 348.64
-   },
+   "music": null,
    "start_f": 8367,
    "end_f": 8492
   },
@@ -4634,7 +4667,13 @@
     }
    ],
    "sfx": [],
-   "music": null,
+   "music": {
+    "cue": "battle",
+    "from_word": "Across",
+    "until": "s121",
+    "track": "war_around_us_fs608811",
+    "at": 483.6
+   },
    "start_f": 11606,
    "end_f": 11709
   },
@@ -4730,12 +4769,7 @@
      "at": 496.88
     }
    ],
-   "music": {
-    "cue": "battle",
-    "from_word": "sing",
-    "until": "s118",
-    "at": 496.88
-   },
+   "music": null,
    "start_f": 11863,
    "end_f": 11952
   },
@@ -5937,7 +5971,8 @@
    "music": {
     "cue": "emotional",
     "from_word": "By",
-    "until": "s127",
+    "until": "s133",
+    "track": "sad_dramatic_fs404461",
     "at": 615.48
    },
    "start_f": 14772,
@@ -6495,6 +6530,7 @@
     "cue": "ending",
     "from_word": "So",
     "until": "s141",
+    "track": "orchestral_score_fs621289",
     "at": 678.34
    },
    "start_f": 16280,
