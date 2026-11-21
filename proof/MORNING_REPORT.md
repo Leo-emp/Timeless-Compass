@@ -36,13 +36,13 @@ Tests: **393 Python + 72 TypeScript, all passing.** 85+ commits today, all pushe
 | Shot plan | **all 141 shots**, every action pinned to its word, nothing static over 3 s — passes |
 | Drawing | shots 1–34 of 141 drawn (cold open, Delphi, Athens, silver + ships, Hellespont, Thermopylae); 107 to go |
 | Render | chapters 1–2 rendered on GitHub (2:51); full render waits for the drawing |
-| Motion (ch 1–2) | 63 of 80 beats land clearly, 0 freezes; 5 snaps + 17 subtle beats still to polish (not scored yet) |
+| Motion (ch 1–2) | 65 of 80 beats land clearly, 0 freezes; 1 snap + 15 subtle beats still to polish (not scored yet) |
 
 ## Honest gaps
 
 - **Sets are still simpler than the reference video.** Clean, but flat cliffs, plain walls. This is the main quality gap.
 - **The Short's motion score is exactly the bar (90/100, self-scored).** Not watched or listened to by a human yet.
-- **Long chapters 1–2:** 5 snaps and 17 subtle beats to polish; not scored yet.
+- **Long chapters 1–2:** 1 snap and 15 subtle beats to polish; not scored yet.
 - **I changed the snap rule** in the motion check: a "snap" must now also be sudden compared with the frames just before it. The flagged "snaps" were smooth fast moves, and tests prove real pops, teleports and jerky starts are still caught. Please judge the fast moves by eye (Short: 0:45, 1:08, 1:27).
 
 ## Things only you can do
