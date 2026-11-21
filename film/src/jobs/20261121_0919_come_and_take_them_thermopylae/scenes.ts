@@ -185,20 +185,20 @@ const pass_envoy: SceneFn = (c) => {
     card(240, 120, 600, 76, 'THERMOPYLAE · 480 BC', 34, cardOp);
 };
 const pass_scout: SceneFn = (c) => {
-  const p = passSet(c, 'noon'), peek = easeOutBack(bt(c, 0, 0.3, 0.9)), count = bt(c, 1, 0.2, 1.2), handUp = easeOutBack(bt(c, 1, 0.3, 0.6)), tips = easeInOut(bt(c, 2, 0.3, 0.9)), widen = easeInOut(bt(c, 3, 0.3, 0.5));
+  const p = passSet(c, 'noon'), peek = easeOutBack(bt(c, 0, 0.3, 1.3)), count = bt(c, 1, 0.2, 1.2), handUp = easeOutBack(bt(c, 1, 0.3, 0.6)), tips = easeOutBack(bt(c, 2, 0.15, 0.5)), widen = easeInOut(bt(c, 3, 0.3, 0.5));
   let men = '';
   for (let i = 0; i < 5; i++) men += at(470 + i * 130, 1440, 0.42, spartan(c.t, i, { helmet: 'up' }));
   const fingers = Math.max(0, Math.min(5, Math.ceil(count * 5)));
-  const scout = at(860, 1980 - 140 * peek, 1.5, persian(c.t, 7, { back: widen })) + `<g transform="translate(${(860 - 100).toFixed(0)} ${(1680 + 120 * (1 - handUp)).toFixed(0)})">${Array.from({ length: fingers }, (_, i) => `<rect x="${i * 14}" y="0" width="9" height="${(26 - (i === 4 ? 6 : 0))}" rx="4" fill="#c98f62" stroke="${OUT}" stroke-width="2.5"/>`).join('')}</g>`;
+  const scout = at(860, 1980 - 140 * peek + 40 * widen, 1.5, persian(c.t, 7, { back: widen })) + `<g transform="translate(${(860 - 100).toFixed(0)} ${(1680 + 120 * (1 - handUp)).toFixed(0)})">${Array.from({ length: fingers }, (_, i) => `<rect x="${i * 26}" y="0" width="18" height="${(52 - (i === 4 ? 12 : 0))}" rx="8" fill="#c98f62" stroke="${OUT}" stroke-width="2.5"/>`).join('')}</g>`;
   const rock = bg('M560 2100 Q600 1780 860 1720 Q1100 1700 1200 1820 L1200 2100 Z', '#8b6b4f', 6);
-  return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid + Array.from({ length: 10 }, (_, i) => `<path d="M${380 + i * 72} 1170 L${380 + i * 72} ${(1170 - 110 * tips).toFixed(0)}" stroke="#8b5a2b" stroke-width="6"/><path d="M${372 + i * 72} ${(1172 - 110 * tips).toFixed(0)} l8 -26 l8 26 Z" fill="#bdbdbd" stroke="#2b211c" stroke-width="2"/>`).join('') + p.ground + men) + LP(c, 1.1, scout + rock);
+  return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid + Array.from({ length: 10 }, (_, i) => `<path d="M${380 + i * 72} 1170 L${380 + i * 72} ${(1170 - 160 * tips).toFixed(0)}" stroke="#8b5a2b" stroke-width="6"/><path d="M${372 + i * 72} ${(1172 - 160 * tips).toFixed(0)} l8 -26 l8 26 Z" fill="#bdbdbd" stroke="#2b211c" stroke-width="2"/>`).join('') + p.ground + men) + LP(c, 1.1, scout + rock);
 };
 const pass_comb: SceneFn = (c) => {
   const p = passSet(c, 'noon'), laugh = easeInOut(bt(c, 2, 0.25, 0.4)), hop = Math.sin(Math.min(1, bt(c, 2, 0.1, 0.5)) * Math.PI);
   const amps = [tween(c.local, c.beatT(0) - 0.3, c.beatT(0) + 0.4, 0, 1), 0, tween(c.local, c.beatT(1) - 0.3, c.beatT(1) + 0.4, 0, 1)];
   let s = '';
   [[300, 1640, 0.85, 0], [620, 1700, 0.95, 1], [900, 1660, 0.88, 2]].forEach(([x, y, k, i]) => {
-    s += at(x, y - (i === 1 ? 26 * hop : 0), k, spartan(c.t, i, { helmet: 'up', arms: i === 1 ? 'rest' : 'comb', amp: amps[i], k: (c.local * 0.8 + i * 0.3) % 1, expr: 'neutral', to: 'sly', mix: i === 1 ? laugh : 0, shield: false }));
+    s += at(x, y - (i === 1 ? 26 * hop : 0), k, spartan(c.t, i, { helmet: 'up', arms: i === 1 ? 'rest' : 'comb', amp: amps[i], k: (c.local * 1.6 + i * 0.3) % 1, expr: 'neutral', to: 'sly', mix: i === 1 ? laugh : 0, shield: false }));
   });
   s += at(620, 1880, 0.6, aspis(0, 0, 90, undefined, 'lambda'));             // a shield resting on the ground
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid + p.ground) + LP(c, 1, s);
@@ -210,7 +210,7 @@ const throne_laugh: SceneFn = (c) => {
   const sunX = -100 + (days % 1) * 1300, sunY = 700 - 500 * Math.sin((days % 1) * Math.PI);
   const set = plainSet(c, 'noon', sunX, sunY);   // the set's own sun is the one that crosses the sky
   return L(c, 0.05, set.sky) + L(c, 0.25, set.far + set.ground) +
-    L(c, 1, at(540, 2150, 2.0, throneSeat(c, { ...exch(c, 0, 'neutral', 'sly'), armR: { from: 'down', to: 'hip', k: easeInOut(bt(c, 2, 0.3, 0.6)) } }))) + `<rect width="${W}" height="${H}" fill="#2a1838" opacity="${dimDay.toFixed(3)}"/>`;
+    L(c, 1, at(540, 2150, 2.0, throneSeat(c, { ...exch(c, 0, 'neutral', 'sly'), armR: { from: 'down', to: 'hip', k: easeInOut(bt(c, 2, 0.3, 0.6)) } }), 2.5 * Math.sin(c.local * 28) * Math.sin(Math.min(1, bt(c, 0, 0.2, 0.9)) * Math.PI))) + `<rect width="${W}" height="${H}" fill="#2a1838" opacity="${dimDay.toFixed(3)}"/>`;
 };
 const pass_firm: SceneFn = (c) => {
   const p = passSet(c, 'dawn');
@@ -236,7 +236,7 @@ const pass_waves: SceneFn = (c) => {
   for (let i = 0; i < 7; i++) wall += at(420 + i * 100, 1430 + (i % 2) * 14, 0.4, spartan(c.t, i, { helmet: 'closed', arms: 'thrust', k: 1 }));
   let foes = '';
   for (let r = 0; r < 3; r++) for (let i = 0; i < 6; i++) {
-    const x = 1150 - pour * 420 + i * 70 + r * 40 - (hit > 0 ? 0 : 0), y = 1480 + r * 70;
+    const x = 1150 - pour * 300 + i * 70 + r * 40 - (hit > 0 ? 0 : 0), y = 1480 + r * 70;
     foes += at(x + (hit > 0 && r === 0 ? 30 * Math.sin(hit * Math.PI) : 0), y, 0.38 + r * 0.04, persian(c.t, i + r * 6, { run: 1, back: r === 0 ? Math.min(1, hit * 2) : 0 }));
   }
   const cloud = dust > 0 ? Array.from({ length: 10 }, (_, i) => `<circle cx="${(560 + i * 50).toFixed(0)}" cy="${(1520 - 60 * dust - (i % 3) * 20).toFixed(0)}" r="${(30 + 50 * dust).toFixed(0)}" fill="#d9c3a0" opacity="${(0.55 * Math.min(1, dust * 6) * (1 - dust * 0.7)).toFixed(2)}"/>`).join('') : '';
@@ -250,7 +250,7 @@ const pass_wall: SceneFn = (c) => {
   return L(c, 0.05, p.sky) + LP(c, 0.3, p.far + p.mid + p.ground) + LP(c, 1, s);
 };
 const pass_feint: SceneFn = (c) => {
-  const p = passSet(c, 'noon'), away = easeInOut(bt(c, 0, 0.3, 0.5)), wheel = easeOutBack(bt(c, 1, 0.3, 0.4)), fall = bt(c, 2, 0.2, 0.8);
+  const p = passSet(c, 'noon'), away = easeInOut(bt(c, 0, 0.3, 0.8)), wheel = easeInOut(bt(c, 1, 0.3, 0.8)), fall = bt(c, 2, 0.2, 0.8);
   const dir = Math.max(-1, Math.min(1, 1 - 2 * away + 2 * Math.min(1, wheel)));
   let s = '';
   for (let i = 0; i < 5; i++) s += at(380 + i * 150 - 80 * away + 80 * wheel, 1620, 0.62, `<g transform="scale(${dir} 1)">${spartan(c.t, i, { helmet: 'closed', arms: 'thrust', k: wheel })}</g>`);
@@ -259,9 +259,9 @@ const pass_feint: SceneFn = (c) => {
 };
 const throne_leap: SceneFn = (c) => {
   const set = plainSet(c, 'noon');
-  const jump = Math.max(...[0, 1, 2].map((i) => Math.sin(Math.min(1, bt(c, i, 0.25, 0.75)) * Math.PI)));
+  const jump = Math.max(...[0, 1, 2].map((i) => Math.sin(Math.min(1, bt(c, i, 0.25, 1.0)) * Math.PI)));
   return L(c, 0.05, set.sky) + L(c, 0.25, set.far + set.ground) +
-    L(c, 1, at(540, 2200 - 90 * jump, 2.0, throneSeat(c, { ...exch(c, 0, 'stern', 'shocked'), armR: { from: 'down', to: 'raise', k: jump } })));
+    L(c, 1, at(540, 2200 - 70 * jump, 2.0, throneSeat(c, { ...exch(c, 0, 'stern', 'shocked'), armR: { from: 'down', to: 'raise', k: jump } })));
 };
 const pass_warning: SceneFn = (c) => {
   const p = passSet(c, 'noon'), point = easeOutBack(bt(c, 1)), dark = easeInOut(bt(c, 2, 0.3, 1.0));
@@ -279,16 +279,16 @@ const pass_dienekes: SceneFn = (c) => {
   return L(c, 0.05, p.sky) + LP(c, 0.3, p.far + p.mid) + LP(c, 1, at(540, 2380, 3.0, face)) + `<rect width="${W}" height="${H}" fill="#1a1020" opacity="${(0.32 * shade).toFixed(2)}"/>`;
 };
 const pass_immortals: SceneFn = (c) => {
-  const p = passSet(c, 'noon'), charge = easeInOut(bt(c, 0, 0.3, 1.6)), back = easeInOut(bt(c, 1, 0.2, 1.0));
+  const p = passSet(c, 'noon'), charge = easeInOut(bt(c, 0, 0.3, 2.2)), back = easeInOut(bt(c, 1, 0.2, 1.0));
   let s = '';
   for (let i = 0; i < 6; i++) s += at(380 + i * 120, 1460, 0.45, spartan(c.t, i, { helmet: 'closed', arms: 'thrust', k: 1 }));
-  for (let r = 0; r < 2; r++) for (let i = 0; i < 6; i++) s += at(1150 - 380 * charge + 300 * back + i * 75, 1540 + r * 80, 0.44, persian(c.t, i + r * 6, { gold: true, run: 1 - back, back: Math.min(1, back * 3) }), back * 16 * (i % 2 ? 1 : -1));
+  for (let r = 0; r < 2; r++) for (let i = 0; i < 6; i++) s += at(1150 - 300 * charge + 300 * back + i * 75, 1540 + r * 80, 0.44, persian(c.t, i + r * 6, { gold: true, run: 1 - back, back: Math.min(1, back * 3) }), back * 16 * (i % 2 ? 1 : -1));
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + s);
 };
 const pass_dusk: SceneFn = (c) => {
-  const p = passSet(c, 'dusk');
+  const p = passSet(c, 'dusk'), raise = easeInOut(bt(c, 1, 0.3, 0.7));
   let men = '';
-  for (let i = 0; i < 8; i++) men += at(400 + i * 90, 1440, 0.34, spartan(c.t, i, { helmet: 'closed' }));
+  for (let i = 0; i < 8; i++) men += at(400 + i * 90, 1440, 0.34, spartan(c.t, i, { helmet: 'closed', arms: 'thrust', k: 1 - raise }));
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + men);
 };
 
@@ -337,7 +337,7 @@ const path_night: SceneFn = (c) => {
 
 // ---------- DAWN: SURROUNDED, THE LAST STAND, THE STONE, THE WEAPONS ----------
 const pass_ridge: SceneFn = (c) => {
-  const p = passSet(c, 'dawn'), turn = easeInOut(bt(c, 1, 0.35, 0.9)), show = easeInOut(bt(c, 2, 0.3, 0.8));
+  const p = passSet(c, 'dawn'), turn = easeInOut(bt(c, 1, 0.35, 1.3)), show = easeInOut(bt(c, 2, 0.3, 0.8));
   let ridge = '';
   for (let i = 0; i < 9; i++) ridge += at(40 + i * 44, 620 + (i % 2) * 14, 0.26, persian(c.t, i, {}));
   return L(c, 0.05, p.sky) + LP(c, 0.4, p.mid + `<g opacity="${show.toFixed(2)}">${ridge}</g>`) + LP(c, 0.8, p.ground) +
@@ -353,7 +353,7 @@ const pass_resolve: SceneFn = (c) => {
 const pass_allies: SceneFn = (c) => {
   const p = passSet(c, 'dawn'), go = tween(c.local, c.beatT(0) - 0.3, c.dur, 0, 1, (x) => x);
   let s = '';
-  for (let i = 0; i < 12; i++) s += at(560 + i * 40 + go * 260, 1300 - i * 6 - go * 60, 0.2, spartan(c.t, i + 5, { helmet: 'up', shield: true }).replace(/#9b2b22/g, '#6a6a7a'));
+  for (let i = 0; i < 12; i++) s += at(560 + i * 40 + go * 260, 1300 - i * 6 - go * 60, 0.3, spartan(c.t, i + 5, { helmet: 'up', shield: true }).replace(/#9b2b22/g, '#6a6a7a'));
   for (let i = 0; i < 5; i++) s += at(380 + i * 120, 1700, 0.62, spartan(c.t, i, { helmet: 'closed' }));
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + s);
 };
@@ -367,7 +367,7 @@ const pass_laststand: SceneFn = (c) => {
   return L(c, 0.05, p.sky) + LP(c, 0.3, p.mid + p.ground + `<g opacity="${(0.3 + 0.7 * fill).toFixed(2)}">${foes}</g>`) + LP(c, 1, men + dust);
 };
 const pass_stone: SceneFn = (c) => {
-  const carve = tween(c.local, c.beatT(0) - 0.3, c.beatT(0) + 1.4, 0, 1, (x) => x), gust = 1 + 2.5 * Math.sin(Math.min(1, bt(c, 1, 0.2, 1.4)) * Math.PI), dim = tween(c.local, c.beatT(2) - 0.3, c.dur, 0, 1);
+  const carve = tween(c.local, c.beatT(0) - 0.15, c.beatT(0) + 0.6, 0, 1, (x) => x), gust = 1 + 4 * Math.sin(Math.min(1, bt(c, 1, 0.2, 1.4)) * Math.PI), dim = tween(c.local, c.beatT(2) - 0.2, c.beatT(2) + 0.6, 0, 1);
   const p = passSet(c, 'dusk'), sway = Math.sin(c.t * 2) * 6 * gust;
   let grass = '';
   for (let i = 0; i < 26; i++) { const x = 60 + i * 40; grass += `<path d="M${x} 1900 q${(4 + sway).toFixed(1)} -40 ${(8 + sway * 1.6).toFixed(1)} -80" stroke="#6f8a44" stroke-width="5" fill="none" stroke-linecap="round"/>`; }
@@ -375,9 +375,10 @@ const pass_stone: SceneFn = (c) => {
   return L(c, 0.05, p.sky) + LP(c, 0.3, p.far + p.mid) + LP(c, 1, stone + grass) + `<rect width="${W}" height="${H}" fill="#1a1020" opacity="${(0.38 * dim).toFixed(3)}"/>`;
 };
 const pass_weapons: SceneFn = (c) => {
-  const p = passSet(c, 'dusk'), show = easeOutBack(bt(c, 1, 0.3, 0.8));
+  const p = passSet(c, 'dusk'), show = easeOutBack(bt(c, 1, 0.3, 0.8)), fly = c.local - c.beatT(0) + 0.3;
+  const birds = fly > 0 ? [0, 1, 2, 3, 4].map((i) => { const x = -80 + fly * 260 + i * 70, y = 520 - i * 26 + 10 * Math.sin(fly * 3 + i), w = 4 * Math.sin(c.t * 14 + i); return `<path d="M${x.toFixed(0)} ${y.toFixed(0)} q12 ${(-10 + w).toFixed(1)} 24 0 q12 ${(-10 + w).toFixed(1)} 24 0" stroke="#2b211c" stroke-width="4" fill="none" stroke-linecap="round"/>`; }).join('') : '';
   const relic = at(760, 1250, 1.1 * (0.6 + 0.4 * show), pole(0, -560, 0, 0, '#8b5a2b') + sh('path', { d: 'M0 -610 L-10 -560 L10 -560 Z' }, '#bdbdbd') + aspis(-10, -120, 96, undefined, 'lambda'));
-  return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + relic) + `<rect width="${W}" height="${H}" fill="#ffb060" opacity="${(0.2 * tween(c.local, c.beatT(0) - 0.3, c.beatT(0) + 0.9, 0, 1)).toFixed(3)}"/>`;
+  return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + relic) + birds + `<rect width="${W}" height="${H}" fill="#ffb060" opacity="${(0.2 * tween(c.local, c.beatT(0) - 0.3, c.beatT(0) + 0.9, 0, 1)).toFixed(3)}"/>`;
 };
 
 export const SCENES: Record<string, SceneFn> = {
