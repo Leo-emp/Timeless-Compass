@@ -12,8 +12,8 @@
 // ============================================================================================================
 import { OUT, sh, ln, limb, shade } from './core';
 
-export type Expr = 'neutral' | 'stern' | 'worried' | 'shocked' | 'sly' | 'grief';
-export const EXPRESSIONS: Expr[] = ['neutral', 'stern', 'worried', 'shocked', 'sly', 'grief'];
+export type Expr = 'neutral' | 'stern' | 'worried' | 'shocked' | 'sly' | 'grief' | 'angry' | 'fear';
+export const EXPRESSIONS: Expr[] = ['neutral', 'stern', 'worried', 'shocked', 'sly', 'grief', 'angry', 'fear'];
 
 export interface HeadOpts {
   age?: boolean;   // forehead + cheek wrinkles for older characters
@@ -22,6 +22,7 @@ export interface HeadOpts {
   extra?: boolean; // a background extra (crowd, crew behind a rail): may be partly hidden (still check)
   to?: Expr;       // expression being changed to (cross-fade, no snap - rule r29)
   mix?: number;    // 0..1 progress of that change
+  variant?: number; // crowd extras only: a different face (width, nose, brow weight, moustache, wrinkles). Registry characters never set it.
 }
 
 // ---------- head + face ----------
@@ -30,7 +31,9 @@ export function head(skin: string, ex: Expr = 'neutral', opt: HeadOpts = {}): st
   // one group = one face for the still check; acting faces must never be covered, extras may be
   let s = `<g data-role="face"${opt.extra ? ' data-acting="false"' : ''}>`;
   s += sh('ellipse', { cx: -58, cy: -296, rx: 11, ry: 15 }, skin) + sh('ellipse', { cx: 58, cy: -296, rx: 11, ry: 15 }, skin); // ears first
-  s += sh('ellipse', { cx: 0, cy: -300, rx: 60, ry: 63 }, skin);
+  const v = opt.variant, vr = v === undefined ? 0 : v;
+  const fw = v === undefined ? 60 : 55 + (vr * 7) % 11, fh = v === undefined ? 63 : 60 + (vr * 5) % 8;      // face shape varies for extras
+  s += sh('ellipse', { cx: 0, cy: -300, rx: fw, ry: fh }, skin);
   s += shade('<ellipse cx="0" cy="-300" rx="57" ry="60"/>', 52, -296, 42, 70);                    // shade on the right cheek
   s += '<ellipse cx="-30" cy="-280" rx="11" ry="6" fill="rgba(230,110,90,.22)"/><ellipse cx="30" cy="-280" rx="11" ry="6" fill="rgba(230,110,90,.22)"/>';
   if (opt.to && opt.mix !== undefined && opt.mix > 0 && opt.to !== ex) {
@@ -39,6 +42,14 @@ export function head(skin: string, ex: Expr = 'neutral', opt: HeadOpts = {}): st
     s += m < 1 ? `<g opacity="${(1 - m).toFixed(3)}">${face(ex)}</g><g opacity="${m.toFixed(3)}">${face(opt.to)}</g>` : face(opt.to);
   } else {
     s += face(ex);
+  }
+  if (v !== undefined) {                                                                              // crowd variety on top of the expression
+    const nose = vr % 3;
+    if (nose === 1) s += sh('path', { d: 'M-6 -292 Q2 -278 8 -284 Q4 -276 -6 -278 Z' }, skin) + ln('M-4 -292 Q6 -280 -2 -277', 3);   // a big nose
+    if (nose === 2) s += sh('ellipse', { cx: 0, cy: -282, rx: 8, ry: 6 }, skin);                                                          // a round nose
+    if (vr % 4 === 1 && !opt.beard) s += sh('path', { d: 'M-24 -274 Q-12 -282 0 -276 Q12 -282 24 -274 Q12 -270 0 -272 Q-12 -270 -24 -274 Z' }, '#3a2a1e');   // a moustache
+    if (vr % 5 === 2) s += ln('M-36 -340 Q-20 -346 -4 -342', 2.5) + ln('M4 -342 Q20 -346 36 -340', 2.5);                               // forehead lines
+    if (vr % 6 === 3) s += ln('M-44 -268 Q-40 -262 -42 -256', 2.5) + ln('M44 -268 Q40 -262 42 -256', 2.5);                              // cheek lines
   }
   if (opt.blink) {                                                                                    // lids over the eyes
     s += `<ellipse cx="-21" cy="-300" rx="11" ry="14" fill="${skin}"/><ellipse cx="21" cy="-300" rx="11" ry="14" fill="${skin}"/>`;
@@ -59,7 +70,7 @@ export function face(ex: Expr): string {
     case 'neutral':
       s += eye(-21) + eye(21) + ln('M-31 -322 L-12 -321', 6) + ln('M12 -321 L31 -322', 6) + ln('M-10 -264 Q0 -260 10 -264', 4.5); break;
     case 'stern':   // inner brow ends pushed down
-      s += eye(-21, 8) + eye(21, 8) + ln('M-33 -331 L-11 -318', 7) + ln('M11 -318 L33 -331', 7) + ln('M-13 -259 Q0 -266 13 -259', 5); break;
+      s += eye(-21, 8) + eye(21, 8) + ln('M-35 -333 L-10 -317', 9) + ln('M10 -317 L35 -333', 9) + ln('M-14 -258 Q0 -267 14 -258', 5.5) + ln('M-3 -318 L-1 -309 M3 -318 L1 -309', 2.5); break;
     case 'worried': // inner brow ends raised, wobbly mouth, sweat drop
       s += eye(-21) + eye(21) + ln('M-32 -318 L-11 -330', 6) + ln('M11 -330 L32 -318', 6) + ln('M-12 -262 Q-6 -267 0 -262 Q6 -257 12 -262', 4.5);
       s += `<path d="M56 -342 Q64 -326 56 -320 Q48 -326 56 -342 Z" fill="#8fc6e8" stroke="${OUT}" stroke-width="3.5"/>`; break;
@@ -69,6 +80,12 @@ export function face(ex: Expr): string {
     case 'sly':     // one brow up, half-closed eyes, smirk
       s += ln('M-29 -301 Q-21 -296 -13 -301', 5) + ln('M13 -301 Q21 -296 29 -301', 5) + ln('M-31 -318 L-12 -317', 6) +
            ln('M12 -326 Q22 -332 32 -324', 6) + ln('M-10 -264 Q4 -262 14 -270', 4.5); break;
+    case 'angry':   // sharp V brows, small fierce eyes, gritted teeth
+      s += eye(-21, 7) + eye(21, 7) + ln('M-37 -336 L-8 -314', 10) + ln('M8 -314 L37 -336', 10) + ln('M-4 -320 L-2 -308 M4 -320 L2 -308', 3);
+      s += sh('path', { d: 'M-16 -266 L16 -266 L14 -254 L-14 -254 Z' }, '#fff') + ln('M-16 -260 L16 -260 M-6 -266 L-6 -254 M6 -266 L6 -254', 2); break;
+    case 'fear':    // wide eyes, brows high and pinched, mouth pulled down
+      s += `<ellipse cx="-21" cy="${eyeY}" rx="9" ry="11" fill="#fff" stroke="${OUT}" stroke-width="3"/><ellipse cx="21" cy="${eyeY}" rx="9" ry="11" fill="#fff" stroke="${OUT}" stroke-width="3"/><circle cx="-21" cy="${eyeY}" r="4" fill="${OUT}"/><circle cx="21" cy="${eyeY}" r="4" fill="${OUT}"/>`;
+      s += ln('M-33 -322 L-11 -336', 6) + ln('M11 -336 L33 -322', 6) + ln('M-12 -258 Q0 -268 12 -258', 4.5) + `<path d="M56 -342 Q64 -326 56 -320 Q48 -326 56 -342 Z" fill="#8fc6e8" stroke="${OUT}" stroke-width="3.5"/>`; break;
     case 'grief':   // brows up in the middle, eyes down, a tear
       s += `<ellipse cx="-21" cy="-296" rx="6" ry="7" fill="${OUT}"/><ellipse cx="21" cy="-296" rx="6" ry="7" fill="${OUT}"/>`;
       s += ln('M-31 -316 L-12 -326', 6) + ln('M12 -326 L31 -316', 6) + ln('M-11 -258 Q0 -266 11 -258', 4.5);

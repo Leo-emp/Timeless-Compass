@@ -12,8 +12,8 @@ for (const [id, mod] of Object.entries(MODULES)) {
   const sheet = JSON.parse(fs.readFileSync(`../library/characters/${id}/sheet.json`, 'utf8'));
   const colours: Record<string, string> = { skin: sheet.look.skin, hair: sheet.look.hair.colour, ...(sheet.look.beard ? { beard: sheet.look.beard.colour } : {}), ...sheet.look.parts };
 
-  test(`${id}: six different expressions`, () => {
-    expect(new Set(EXPRESSIONS.map((expr) => mod.draw({ expr }))).size).toBe(6);
+  test(`${id}: every expression looks different`, () => {
+    expect(new Set(EXPRESSIONS.map((expr) => mod.draw({ expr }))).size).toBe(EXPRESSIONS.length);
   });
   test(`${id}: every tagged part uses its sheet colour`, () => {
     const svg = mod.draw({ expr: 'neutral' });

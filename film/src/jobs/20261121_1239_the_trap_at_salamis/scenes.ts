@@ -443,14 +443,22 @@ function civilian(t: number, seed: number, o: { kind?: 'man' | 'woman' | 'child'
   const k = kind === 'child' ? 0.62 : 1;
   let s = `<g transform="scale(${k})"><ellipse cx="0" cy="-4" rx="62" ry="11" fill="rgba(0,0,0,.15)"/>`;
   s += bg('M-46 -238 Q0 -250 46 -238 Q58 -120 64 -8 L-64 -8 Q-58 -120 -46 -238 Z', robe, 5);               // chiton / peplos to the feet
-  s += `<path d="M-46 -236 Q10 -170 52 -60" stroke="rgba(0,0,0,.18)" stroke-width="18" fill="none"/>`;      // himation drape
+  const accent = ['#b5452c', '#2f5a8a', '#c99a45', '#3a6a4a', '#7a2a5e'][(seed * 3) % 5];
+  s += `<path d="M-62 -34 L62 -34" stroke="${accent}" stroke-width="10"/>` + Array.from({ length: 9 }, (_, i) => `<rect x="${-56 + i * 13}" y="-38" width="6" height="6" fill="#f2ead8" opacity=".85"/>`).join('');   // patterned hem border
+  if (kind !== 'child') {
+    const cloak = ['#7a5a8e', '#b5793a', '#4f7a6a', '#a8463a', '#c9b48a', '#5a6a8e'][(seed * 5) % 6];
+    s += bg('M-46 -236 Q20 -206 62 -70 L38 -58 Q4 -168 -46 -196 Z', cloak, 4) + `<path d="M-30 -222 Q16 -186 46 -82" stroke="rgba(0,0,0,.18)" stroke-width="4" fill="none"/>`;   // the himation over one shoulder
+    s += `<circle cx="-40" cy="-226" r="7" fill="#e2b23f" stroke="${OUT}" stroke-width="3"/>`;   // a brooch pinning it
+  }
+  if (kind === 'woman') s += Array.from({ length: 7 }, (_, i) => `<circle cx="${-18 + i * 6}" cy="${-236 + Math.abs(i - 3) * -2}" r="3" fill="#e2b23f" stroke="${OUT}" stroke-width="1.5"/>`).join('');   // necklace
   const a = o.arm ?? 0;                                                                                     // 0 down .. 1 raised
   s += limb(`M44 -222 Q${70 + 10 * a} ${-180 - 70 * a} ${56 + 20 * a} ${-140 - 140 * a}`, 18, robe) + hand(56 + 20 * a, -140 - 140 * a, skin);
   if (o.hold === 'bundle') s += bg('M-70 -170 Q-96 -150 -86 -110 Q-40 -96 -20 -126 Q-24 -170 -70 -170 Z', '#c9b48a', 4) + limb('M-44 -222 Q-80 -190 -60 -140', 18, robe) + hand(-56, -136, skin);
   else if (o.hold === 'child') s += limb('M-44 -222 Q-86 -200 -70 -150', 18, robe) + hand(-66, -146, skin);
   else s += limb('M-44 -222 Q-60 -180 -52 -140', 18, robe) + hand(-52, -134, skin);
   const lift = (breathe(t, seed) * -1.4).toFixed(2), look = (o.look ?? 0) * 14;
-  s += `<g transform="translate(${look} ${lift})">` + head(skin, o.expr ?? 'neutral', { beard: kind === 'man' ? '#3a2a1e' : undefined, blink: blinkAt(t, seed), extra: true, to: o.to, mix: o.mix });
+  const beardC = kind === 'man' && seed % 4 !== 2 ? ['#3a2a1e', '#1c1612', '#5a3a24', '#8a8078'][seed % 4] : undefined;   // some men clean-shaven, some grey
+  s += `<g transform="translate(${look} ${lift})">` + head(skin, o.expr ?? 'neutral', { beard: beardC, blink: blinkAt(t, seed), extra: true, to: o.to, mix: o.mix, variant: seed });
   s += kind === 'woman'
     ? sh('path', { d: 'M-64 -300 Q-70 -372 0 -380 Q70 -372 64 -300 L70 -210 Q40 -250 46 -300 Q0 -330 -46 -300 Q-40 -250 -70 -210 Z' }, '#3a2a1e') +   // long hair
       `<path d="M-70 -320 Q0 -400 70 -320 L78 -230 Q60 -300 0 -330 Q-60 -300 -78 -230 Z" fill="${robe}" stroke="${OUT}" stroke-width="4" opacity=".92"/>`  // veil
@@ -1131,7 +1139,7 @@ function athensBird(c: ShotCtx, o: { argue?: number; vote?: number; reveal?: num
     if (y < 845) continue;
     const loud = argue * (i % 3 === 0 ? 1 : 0.4), hands = vote > 0.1 && i % 4 !== 0;
     const ss = 0.9 + (y - 830) / 600, det = (o.zoom ?? 1) > 1.5;
-    pnyx += det ? at(x, y, 0.13 * ss, civilian(t, 100 + i, { kind: i % 5 === 3 ? 'woman' : 'man', expr: (['stern', 'worried', 'neutral', 'sly'] as const)[i % 4], arm: hands ? 0.8 + 0.2 * Math.sin(t * 4 + i) : loud * 0.5 }))
+    pnyx += det ? at(x, y, 0.13 * ss, civilian(t, 100 + i, { kind: i % 5 === 3 ? 'woman' : 'man', expr: (['angry', 'worried', 'stern', 'sly', 'neutral', 'fear'] as const)[i % 6], arm: hands ? 0.8 + 0.2 * Math.sin(t * 4 + i) : loud * 0.5 }))
       : tiny(x, y, ss, 100 + i, hands ? 'point' : loud > 0.5 ? (i % 2 ? 'point' : 'talk') : (i % 5 ? 'stand' : 'talk'), t, { flip: x > 342 });
   }
   const reveal = o.reveal ?? 1;
