@@ -220,7 +220,7 @@ const pass_firm: SceneFn = (c) => {
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + men);
 };
 const pass_demand: SceneFn = (c) => {
-  const p = passSet(c, 'noon'), point = easeOutBack(bt(c, 0)), stand = easeOutBack(bt(c, 2));
+  const p = passSet(c, 'noon'), point = anticipate(bt(c, 0, 0.3, 0.7), 0.2), stand = anticipate(bt(c, 2, 0.3, 0.8), 0.25);
   const leo = at(380, 1760 - 40 * stand - 24 * easeOutBack(bt(c, 1, 0.3, 0.5)), 1.0, leonidas.draw({ ...exch(c, 1, 'neutral', 'stern'), breath: breathe(c.t, 5), blink: blinkAt(c.t, 5) }));
   const her = at(900, 1900, 1.25, herald(c.t, point));
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid + p.ground) + LP(c, 1, leo + her);
@@ -245,7 +245,7 @@ const pass_waves: SceneFn = (c) => {
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + wall + foes + cloud + ring);
 };
 const pass_wall: SceneFn = (c) => {
-  const p = passSet(c, 'noon'), lock = easeOutBack(bt(c, 0, 0.3, 0.7)), bounce = bt(c, 1, 0.1, 0.6);
+  const p = passSet(c, 'noon'), lock = anticipate(bt(c, 0, 0.3, 0.8), 0.2), bounce = bt(c, 1, 0.1, 0.6);
   let s = '';
   for (let i = 0; i < 4; i++) s += at(160 + i * 250 - 20 * (1 - lock), 1880, 1.15, spartan(c.t, i, { helmet: 'closed', arms: 'thrust', k: lock }));
   for (let i = 0; i < 3; i++) s += at(300 + i * 280 + 60 * Math.sin(bounce * Math.PI), 1260 - 40 * Math.sin(bounce * Math.PI), 0.7, persian(c.t, i, { back: Math.min(1, bounce * 3) }), -12 * Math.sin(bounce * Math.PI));
@@ -288,7 +288,7 @@ const pass_immortals: SceneFn = (c) => {
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + s);
 };
 const pass_dusk: SceneFn = (c) => {
-  const p = passSet(c, 'dusk'), raise = easeInOut(bt(c, 1, 0.3, 0.7));
+  const p = passSet(c, 'dusk'), raise = anticipate(bt(c, 1, 0.3, 0.8), 0.25);
   let men = '';
   for (let i = 0; i < 7; i++) men += at(390 + i * 112, 1460, 0.5, spartan(c.t, i, { helmet: 'closed', arms: 'thrust', k: 1 - raise }));
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + men);
@@ -339,7 +339,7 @@ const path_night: SceneFn = (c) => {
 
 // ---------- DAWN: SURROUNDED, THE LAST STAND, THE STONE, THE WEAPONS ----------
 const pass_ridge: SceneFn = (c) => {
-  const p = passSet(c, 'dawn'), turn = easeInOut(bt(c, 1, 0.35, 1.3)), show = easeInOut(bt(c, 2, 0.3, 0.8));
+  const p = passSet(c, 'dawn'), turn = easeInOut(bt(c, 1, 0.35, 1.3)), show = easeInOut(bt(c, 2, 0.3, 0.6));
   let ridge = '';
   for (let i = 0; i < 9; i++) ridge += at(40 + i * 44, 620 + (i % 2) * 14 + 70 * (1 - show), 0.26, persian(c.t, i, {}));
   return L(c, 0.05, p.sky) + LP(c, 0.4, p.mid + `<g opacity="${show.toFixed(2)}">${ridge}</g>`) + LP(c, 0.8, p.ground) +
@@ -348,7 +348,7 @@ const pass_ridge: SceneFn = (c) => {
 const pass_resolve: SceneFn = (c) => {
   const p = passSet(c, 'dawn');
   const e = c.local < c.beatT(1) - 0.2 ? exch(c, 0, 'shocked', 'stern') : exch(c, 1, 'stern', 'sly');
-  const nod = Math.sin(bt(c, 2, 0.1, 0.5) * Math.PI) * 10;
+  const nod = Math.sin(bt(c, 2, 0.1, 0.6) * Math.PI) * 26;
   return L(c, 0.05, p.sky) + LP(c, 0.3, p.far + p.mid) +
     LP(c, 1, at(540, 2380 + nod, 3.0, leonidas.draw({ ...e, armL: c.local >= c.beatT(3) - 0.3 ? 'point' : 'hold_spear', breath: breathe(c.t, 5), blink: blinkAt(c.t, 5) })));
 };
@@ -360,7 +360,7 @@ const pass_allies: SceneFn = (c) => {
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + s);
 };
 const pass_laststand: SceneFn = (c) => {
-  const p = passSet(c, 'dawn'), turn = easeOutBack(bt(c, 0)), fill = easeInOut(bt(c, 1, 0.3, 1.2)), charge = easeInOut(bt(c, 3, 0.3, 1.4));
+  const p = passSet(c, 'dawn'), turn = anticipate(bt(c, 0, 0.3, 0.7), 0.2), fill = easeInOut(bt(c, 1, 0.3, 1.0)), charge = anticipate(bt(c, 3, 0.3, 1.4), 0.15);
   let foes = '';
   for (let r = 0; r < 4; r++) for (let i = 0; i < 9; i++) foes += at(380 + i * 90, 1200 + r * 50 + 400 * (1 - fill), 0.22 + r * 0.04, persian(c.t, i + r * 9, { run: 0.4 }));
   let men = '';
@@ -381,7 +381,8 @@ const pass_stone: SceneFn = (c) => {
 const pass_weapons: SceneFn = (c) => {
   const p = passSet(c, 'dusk'), show = easeOutBack(bt(c, 1, 0.3, 0.8)), fly = c.local - c.beatT(0) + 0.3;
   const birds = fly > 0 ? [0, 1, 2, 3, 4].map((i) => { const x = -80 + fly * 420 + i * 90, y = 520 - i * 34 + 10 * Math.sin(fly * 3 + i), w = 4 * Math.sin(c.t * 14 + i); return `<path d="M${x.toFixed(0)} ${y.toFixed(0)} q24 ${(-22 + 2 * w).toFixed(1)} 48 0 q24 ${(-22 + 2 * w).toFixed(1)} 48 0" stroke="#2b211c" stroke-width="5" fill="none" stroke-linecap="round" transform="scale(1)"/>`; }).join('') : '';
-  const relic = at(760, 1250, 1.1 * (0.6 + 0.4 * show), pole(0, -560, 0, 0, '#8b5a2b') + sh('path', { d: 'M0 -610 L-10 -560 L10 -560 Z' }, '#bdbdbd') + aspis(-10, -120, 96, undefined, 'lambda'));
+  const glint = Math.sin(Math.min(1, bt(c, 1, 0.2, 0.6)) * Math.PI);
+  const relic = `<circle cx="750" cy="1118" r="${(80 + 160 * glint).toFixed(0)}" fill="#fff3c4" opacity="${(0.55 * glint).toFixed(2)}"/>` + at(760, 1250, 1.1 * (0.6 + 0.4 * show), pole(0, -560, 0, 0, '#8b5a2b') + sh('path', { d: 'M0 -610 L-10 -560 L10 -560 Z' }, '#bdbdbd') + aspis(-10, -120, 96, undefined, 'lambda'));
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + relic) + birds + `<rect width="${W}" height="${H}" fill="#ffb060" opacity="${(0.3 * tween(c.local, c.beatT(0) - 0.25, c.beatT(0) + 0.3, 0, 1)).toFixed(3)}"/>`;
 };
 
