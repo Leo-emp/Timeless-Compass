@@ -34,7 +34,7 @@ Tests: **393 Python + 72 TypeScript, all passing.** 85+ commits today, all pushe
 | Script | 1,906 words; **9 fresh viewers** — 8 NO-GO, each fixed, then **GO** ("would subscribe") |
 | Voice | 12:01, 7 character voices + narrator |
 | Shot plan | **all 141 shots**, every action pinned to its word, nothing static over 3 s — passes |
-| Drawing | shots 1–48 of 141 drawn (cold open, Delphi, Athens, silver + ships, Hellespont, Thermopylae, the evacuation, the burning Acropolis); 93 to go. Chapter 3 is stills-only: the Acropolis fire (wide), the rider's horse and the night shots need another pass |
+| Drawing | shots 1–48 of 141 drawn (cold open, Delphi, Athens, silver + ships, Hellespont, Thermopylae, the evacuation, the burning Acropolis); 93 to go. Chapter 3 is checked as stills (fire, horse and night sky fixed) but not rendered yet |
 | Render | chapters 1–2 rendered on GitHub (2:51); full render waits for the drawing |
 | Motion (ch 1–2) | 65 of 80 beats land clearly, 0 freezes; 1 snap + 15 subtle beats still to polish (not scored yet) |
 
@@ -54,4 +54,4 @@ Tests: **393 Python + 72 TypeScript, all passing.** 85+ commits today, all pushe
 
 ## Next session
 
-Polish chapter 3, then draw the remaining 93 shots of the long video, chapter by chapter (the council → the night message → the battle → the ending), still-gate each chapter, render, mix, thumbnails, pack. Then plans 8 and 9.
+Render chapter 3, then draw the remaining 93 shots of the long video, chapter by chapter (the council → the night message → the battle → the ending), still-gate each chapter, render, mix, thumbnails, pack. Then plans 8 and 9.
