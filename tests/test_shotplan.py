@@ -62,3 +62,12 @@ def test_bad_transition_and_move():
     p = copy.deepcopy(PLAN); p["shots"][1]["transition_in"] = {"kind": "spin", "frames": 3}; p["shots"][0]["camera"]["move"] = "barrel_roll"
     probs = plan_problems(p, TIMINGS, 6.0)
     assert any("transition" in x for x in probs) and any("camera move" in x for x in probs)
+
+
+def test_beat_on_a_later_line_of_the_same_shot():
+    p = copy.deepcopy(PLAN); p["shots"] = [shot(1, 0, beats=[{"word": "king", "do": "x", "kind": "gesture"},
+                                                            {"word": "ships", "do": "y", "kind": "reveal"},
+                                                            {"word": "Then", "line": 1, "do": "z", "kind": "gesture"},
+                                                            {"word": "burn", "line": 1, "do": "fire", "kind": "object"}])]
+    assert plan_problems(p, TIMINGS, 6.0) == []
+    assert resolve(p, TIMINGS, 6.0)["shots"][0]["beats"][3]["frame"] == round(5.1 * 24) - 6

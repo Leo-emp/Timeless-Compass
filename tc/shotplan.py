@@ -84,9 +84,10 @@ def plan_problems(plan: dict, timings: dict, total_s: float) -> list[str]:
             events.append(start)
         for kind in ("beats", "sfx"):
             for b in s.get(kind, []):
-                t = find_word(timings, s["line"], b["word"], b.get("occurrence", 1))
+                ln_ = b.get("line", s["line"])          # a beat may sit on a word of a later line the shot also covers
+                t = find_word(timings, ln_, b["word"], b.get("occurrence", 1))
                 if t is None:
-                    probs.append(f"{sid}: {kind[:-1] if kind == 'beats' else 'sfx'} word {b['word']!r} (occurrence {b.get('occurrence', 1)}) not heard in line {s['line']}")
+                    probs.append(f"{sid}: {kind[:-1] if kind == 'beats' else 'sfx'} word {b['word']!r} (occurrence {b.get('occurrence', 1)}) not heard in line {ln_}")
                 elif kind == "beats":
                     events.append(t)
     events = sorted(set(events + [total_s]))
@@ -113,11 +114,11 @@ def resolve(plan: dict, timings: dict, total_s: float) -> dict:
     for i, s in enumerate(shots):
         s["start_f"] = round(starts[i] * fps)
         s["end_f"] = round(starts[i + 1] * fps) if i + 1 < len(shots) else total_f
-        s["beats"] = [dict(b, frame=round(find_word(timings, s["line"], b["word"], b.get("occurrence", 1)) * fps) - b.get("lead", 6))
+        s["beats"] = [dict(b, frame=round(find_word(timings, b.get("line", s["line"]), b["word"], b.get("occurrence", 1)) * fps) - b.get("lead", 6))
                       for b in s.get("beats", [])]
-        s["sfx"] = [dict(x, at=find_word(timings, s["line"], x["word"], x.get("occurrence", 1))) for x in s.get("sfx", [])]
+        s["sfx"] = [dict(x, at=find_word(timings, x.get("line", s["line"]), x["word"], x.get("occurrence", 1))) for x in s.get("sfx", [])]
         if s.get("music") and s["music"].get("from_word"):
-            s["music"] = dict(s["music"], at=find_word(timings, s["line"], s["music"]["from_word"]))
+            s["music"] = dict(s["music"], at=find_word(timings, s["music"].get("line", s["line"]), s["music"]["from_word"]))
     return {"fps": fps, "frames": total_f, "shots": shots}
 
 
