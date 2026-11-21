@@ -12,6 +12,7 @@ import { anticipate, beat, blinkAt, breathe, easeInOut, easeOutBack, tween } fro
 import { camLayer } from '../../kit/camera';
 import { mouthAt } from '../../kit/lipsync';
 import { card } from '../../kit/tags';
+import { field, house, road, seaTop, shipTop, templeTop, tiny, tree, wall } from '../../kit/town';
 import * as xerxes from '../../characters/xerxes';
 import * as themistocles from '../../characters/themistocles';
 import lip from './lipsync.json';
@@ -1066,12 +1067,225 @@ const road_rider: SceneFn = (c) => {
   return L(c, 0.05, sky) + L(c, 1, s);
 };
 
+// =============================== RICH PASS — bird's-eye establishing shots (owner 2026-11-21) ===============================
+/** Athens from a high view: the city packed with houses, the Acropolis (480 BC temple, NO Parthenon), the agora with its
+ *  colonnade, roads, olives and cypresses, the old wall, the harbour + ships far away, and the assembly on the Pnyx
+ *  (a dense crowd arguing around the speaker's stone). act: 0..1 how hard the crowd argues / votes. */
+function athensBird(c: ShotCtx, o: { argue?: number; vote?: number; reveal?: number; focus?: number } = {}): string {
+  const t = c.t, argue = o.argue ?? 0, vote = o.vote ?? 0;
+  const R = rng(4242);
+  // sky band + distant hills + the sea with the harbour and ships (the top of the frame is far away)
+  let g = skyGrad(c, 'abSky', [[0, '#9cc4dc'], [1, '#e8eedf']]).replace(`height="${H + 600}"`, 'height="480"');
+  g += poly2([[-200, 150], [200, 96], [520, 128], [860, 84], [1200, 120], [1560, 80], [2120, 118], [2120, 190], [-200, 190]], '#a7a0b8');
+  g += seaTop(c.pid('abSea'), -200, 150, 2120, 250, t, '#6fa6ba', 3);
+  for (let i = 0; i < 9; i++) g += shipTop(1250 + i * 70, 205 + (i % 3) * 14, 0.22, 'greek', t, 0.3, i);                 // the fleet at Phaleron
+  g += poly2([[-200, 240], [2120, 228], [2120, 1300], [-200, 1300]], '#cdb98e');                                         // the plain of Attica
+  for (let i = 0; i < 40; i++) g += `<ellipse cx="${(R() * 2000).toFixed(0)}" cy="${(260 + R() * 900).toFixed(0)}" rx="${(60 + R() * 140).toFixed(0)}" ry="${(14 + R() * 30).toFixed(0)}" fill="${['#bfb27a', '#d6c49a', '#b9b07c'][i % 3]}" opacity=".55"/>`;
+  // fields + olive groves far off (left), the old city wall around the town
+  for (let i = 0; i < 6; i++) { const x = -120 + i * 150, y = 262 + (i % 2) * 22; g += field([[x, y], [x + 140, y - 6], [x + 150, y + 30], [x + 6, y + 36]], ['#b8c27a', '#c9b97a', '#a8b46a'][i % 3], 5, i % 3 === 2); }
+  for (let i = 0; i < 26; i++) g += tree(40 + R() * 1800, 300 + R() * 40, 0.55, 'olive', i);
+  g += wall(-200, 360, 700, 336, 0.7) + wall(700, 336, 1900, 352, 0.7) + wall(1900, 352, 2120, 380, 0.7);
+  // the town: rows of houses, smaller further away; a main road (the Panathenaic Way) toward the Acropolis
+  const rows: string[] = [];
+  for (let r = 0; r < 9; r++) {
+    const y0 = 400 + r * 78, s = 0.42 + r * 0.075;
+    let row = '';
+    let x = -80 + R() * 60, n = 0;
+    for (let i = 0; i < 40 && x < 2100; i++) {
+      const y = y0 + (R() - 0.5) * 14 * s;
+      if (n >= 3 + Math.floor(R() * 3)) { x += (34 + R() * 40) * s; n = 0; }            // an alley between blocks
+      const big = R() > 0.86, w = (big ? 150 : 80 + R() * 40) * s;
+      x += w / 2;
+      const inAcro = Math.hypot((x - 1240) / 1.6, y - 470) < 200, inAgora = x > 360 && x < 840 && y > 510 && y < 710, inPnyx = x < 800 && y > 750;
+      if (!(inAcro || inAgora || inPnyx || x > 2060)) {
+        row += house(x, y, s, r * 31 + i, { w: w / s, flat: R() > 0.82, court: big || R() > 0.75 });
+        if (big || R() > 0.8) row += tree(x + w / 2 + 18 * s, y - 4, s * 1.1, R() > 0.5 ? 'cypress' : 'olive', i + r);
+      }
+      x += w / 2 + 6 * s; n++;
+    }
+    rows.push(row);
+  }
+  // the Acropolis: the rock, the old temple of Athena, two shrines, the thorn hedge
+  const acro = poly2([[930, 640], [960, 560], [1540, 560], [1580, 650], [1500, 668], [1000, 664]], '#9a7f5c') +       // the cliff faces
+    Array.from({ length: 12 }, (_, i) => `<path d="M${970 + i * 50} 566 q${(i % 2 ? 6 : -4)} 40 ${(i % 3) * 4} 92" stroke="#7a6248" stroke-width="3" fill="none"/>`).join('') +
+    poly2([[930, 640], [880, 700], [940, 706], [990, 640]], '#b59a74') +                                                         // the ramp up the west side
+    poly2([[960, 560], [1000, 470], [1120, 420], [1360, 412], [1480, 450], [1540, 560]], '#c4a982') +
+    Array.from({ length: 8 }, (_, i) => `<path d="M${990 + i * 68} 548 q8 -50 ${4 + (i % 3) * 6} -100" stroke="#8e7656" stroke-width="3" fill="none" stroke-linecap="round"/>`).join('') +
+    templeTop(1250, 470, 0.62) + house(1090, 470, 0.4, 7, { h: 26, w: 70 }) + house(1420, 468, 0.4, 9, { h: 26, w: 70 }) +
+    Array.from({ length: 16 }, (_, i) => tree(1000 + i * 34, 520 + 22 * Math.sin(i / 15 * Math.PI) * -1, 0.5, 'shrub', i)).join('');
+  // the agora: an open square, a long colonnade (stoa), stalls, people walking and carrying
+  let agora = poly2([[380, 700], [820, 692], [800, 520], [400, 528]], '#dccb9e');
+  agora += `<g>${poly2([[420, 560], [780, 552], [780, 534], [420, 542]], '#e8dcc0')}</g>`;
+  for (let i = 0; i < 12; i++) agora += poly2([[430 + i * 29, 562], [436 + i * 29, 562], [436 + i * 29, 590], [430 + i * 29, 590]], '#f3ebd6');   // stoa columns
+  agora += poly2([[420, 596], [780, 588], [780, 600], [420, 608]], '#cbbd9c');
+  for (let i = 0; i < 5; i++) agora += poly2([[470 + i * 70, 650], [520 + i * 70, 648], [520 + i * 70, 668], [470 + i * 70, 670]], ['#b5452c', '#2f5a8a', '#d9b443'][i % 3]);   // market awnings
+  for (let i = 0; i < 26; i++) agora += tiny(400 + R() * 400, 610 + R() * 80, 0.8, i, (['walk', 'carry', 'talk', 'stand'] as const)[i % 4], t, { flip: i % 2 === 0 });
+  const road_ = road('M300 1100 Q600 900 760 720 Q860 640 930 650', 30) + road('M-200 730 Q900 700 2120 740', 18) + road('M1000 1300 Q1100 950 1080 680', 18);   // streets (drawn UNDER the houses, around the rock)
+  // the Pnyx: a semicircle of terraces, the speaker's stone, and the assembly — a dense crowd
+  let pnyx = poly2([[-200, 1300], [-200, 820], [200, 760], [620, 780], [860, 900], [900, 1300]], '#c4ad80');
+  for (let r = 0; r < 4; r++) pnyx += `<path d="M-120 ${880 + r * 80} Q330 ${790 + r * 80} 780 ${920 + r * 70}" stroke="#a08a62" stroke-width="3" fill="none"/>`;
+  pnyx += poly2([[300, 830], [380, 828], [384, 812], [304, 814]], '#d9c39a');                                            // the bema
+  pnyx += tiny(342, 812, 1.25, 77, argue > 0.2 ? 'point' : 'talk', t, { robe: '#f2ead8' });                               // the speaker
+  for (let i = 0; i < 150; i++) {
+    const a = Math.PI * (0.05 + 0.9 * R()), rr = 120 + R() * 360, x = 340 + Math.cos(a) * rr * 1.35, y = 830 + Math.sin(a) * rr * 0.55;
+    if (y < 845) continue;
+    const loud = argue * (i % 3 === 0 ? 1 : 0.4), hands = vote > 0.1 && i % 4 !== 0;
+    pnyx += tiny(x, y, 0.9 + (y - 830) / 600, 100 + i, hands ? 'point' : loud > 0.5 ? (i % 2 ? 'point' : 'talk') : (i % 5 ? 'stand' : 'talk'), t, { flip: x > 342 });
+  }
+  const reveal = o.reveal ?? 1;
+  // one layer for the whole town (roads first, then far -> near), so a camera move never slides streets off the houses
+  const town = road_ + rows.slice(0, 2).join('') + acro + rows.slice(2, 4).join('') + agora + rows.slice(4).join('');
+  return L(c, 0.05, g) + L(c, 0.7, town) + L(c, 0.85, `<g opacity="${(0.6 + 0.4 * reveal).toFixed(2)}">${pnyx}</g>`);
+}
+function poly2(pts: number[][], fill: string, w = 2.2): string {
+  return `<path d="M${pts.map((p) => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' L')} Z" fill="${fill}" stroke="${OUT}" stroke-width="${w}" stroke-linejoin="round"/>`;
+}
+const athens_bird: SceneFn = (c) => {
+  // line 19: the whole city argues ("argued"); line 28: the assembly votes ("vote"); outro: they vote him out ("throw")
+  const ln_ = lineOf(c);
+  const argue = easeInOut(bw(c, ln_ === 19 ? 'argued' : 'vote', 0.3, 0.9)), vote = ln_ === 19 ? 0 : easeOutBack(bw(c, ln_ === 28 ? 'vote' : 'throw', 0.3, 0.7));
+  return athensBird(c, { argue, vote: Math.min(1, vote), reveal: easeInOut(bw(c, 'wood', 0.3, 1.0)) });
+};
+
+// ---------- bird's-eye: THE STRAIT OF SALAMIS ----------
+/** The strait from high above: Salamis (top-left) with its town and the Greek fleet on the beach, the narrow channel running
+ *  diagonally, the islet of Psyttaleia, the Attic shore (bottom-right) with the slopes of Aigaleos and the Persian camp.
+ *  persian = 0..1 how much of the Persian fleet is in view; greek = 0..1 how visible the Greek fleet is; mist 0..1. */
+function straitBird(c: ShotCtx, o: { persian?: number; greek?: number; mist?: number; lurch?: number; night?: boolean; zoom?: number; cx?: number; cy?: number } = {}): string {
+  const t = c.t, R = rng(901), per = o.persian ?? 0, gre = o.greek ?? 1, z = o.zoom ?? 1;
+  let g = (o.night ? skyGrad(c, 'sbN', [[0, '#0b1430'], [1, '#26385c']]) : skyGrad(c, 'sbS', [[0, '#e8a074'], [1, '#fde8c2']])).replace(`height="${H + 600}"`, 'height="760"');
+  g += poly2([[-200, 120], [300, 70], [700, 100], [1100, 60], [1600, 96], [2120, 70], [2120, 160], [-200, 160]], o.night ? '#2a3050' : '#b7a2b8');   // far mountains
+  g += seaTop(c.pid('sbSea'), -200, 150, 2120, 1300, t, o.night ? '#24385a' : '#4f8aa6', 9);
+  // Salamis island: a long shore from the top-left, a beach strip, its town and families
+  let sal = poly2([[-200, 150], [900, 150], [980, 230], [860, 330], [640, 420], [380, 500], [120, 560], [-200, 600]], o.night ? '#4a4a40' : '#b59a70');
+  sal += `<path d="M900 150 Q980 230 860 330 Q640 420 380 500 Q120 560 -200 600" stroke="${o.night ? '#6a6a5a' : '#e2d2a8'}" stroke-width="16" fill="none"/>`;   // the beach
+  sal += `<path d="M900 150 Q980 230 860 330 Q640 420 380 500 Q120 560 -200 600" stroke="#9ccad6" stroke-width="60" fill="none" opacity=".45" transform="translate(16 22)"/>`;   // shallows
+  for (let i = 0; i < 46; i++) { const u = R(), v = R(); const x = -150 + 1000 * u - 200 * v, y = 200 + 260 * v + 120 * u * (1 - v); if (y > 540 - 400 * u) continue; sal += house(x, y, 0.36, 600 + i); }
+  for (let i = 0; i < 60; i++) { const x = -180 + R() * 1060, y = 170 + R() * 330; if (y > 560 - 420 * ((x + 200) / 1100)) continue; sal += tree(x, y, 0.55, R() > 0.6 ? 'pine' : 'olive', i); }
+  for (let i = 0; i < 40; i++) { const u = R(); sal += tiny(-150 + 1000 * u, 560 - 420 * u + R() * 30, 0.7, 700 + i, (['stand', 'walk', 'carry', 'talk'] as const)[i % 4], t); }   // the families on the shore
+  let gf = '';
+  for (let r = 0; r < 2; r++) for (let i = 0; i < 24; i++) { const u = i / 23; gf += shipTop(-140 + 1000 * u + r * 40, 600 - 420 * u + 44 + r * 46, 0.5, 'greek', t, 0.05, i + r * 30); }   // the Greek fleet along the beach
+  // Psyttaleia + the Attic shore with Aigaleos and the Persian camp
+  const shoreY = (x: number) => 380 + (2120 - x) * 0.66;                       // the Attic shoreline (diagonal)
+  let att = poly2([[2120, 380], [1400, 855], [900, 1185], [720, 1300], [2120, 1300]], o.night ? '#3a342c' : '#a5835f');
+  att += `<path d="M2120 380 L1400 855 L900 1185 L720 1300" stroke="${o.night ? '#5a5048' : '#e2d2a8'}" stroke-width="16" fill="none"/>` +
+    `<path d="M2120 380 L1400 855 L900 1185 L720 1300" stroke="#9ccad6" stroke-width="50" fill="none" opacity=".4" transform="translate(-18 -14)"/>`;   // beach + shallows
+  for (let i = 0; i < 160; i++) { const x = 800 + R() * 1320, y = 420 + R() * 880; if (y < shoreY(x) + 40) continue; att += `<path d="M${x.toFixed(0)} ${y.toFixed(0)} l-14 0 l14 -18 l14 18 Z" fill="${['#e9e0c8', '#d9c39a', '#b5452c', '#e2d6b4'][i % 4]}" stroke="${OUT}" stroke-width="1.6"/>`; if (i % 5 === 0) att += tiny(x + 18, y + 2, 0.7, 960 + i, (['walk', 'stand', 'talk'] as const)[i % 3], t, { spear: i % 2 === 0, robe: '#b5793a' }); }   // the camp: tents + soldiers
+  for (let i = 0; i < 40; i++) { const x = 900 + R() * 1220, y = 460 + R() * 840; if (y < shoreY(x) + 30) continue; att += tree(x, y, 0.75, R() > 0.5 ? 'pine' : 'olive', 40 + i); }
+  att += poly2([[1760, 800], [1820, 750], [1890, 800]], '#e2b23f') + tiny(1825, 790, 1.4, 950, 'sit', t, { robe: '#5b2a6e', hat: '#e2b23f' });   // the throne on the slope of Aigaleos
+  const psy = `<path d="M1450 330 Q1460 282 1520 274 Q1580 260 1630 284 Q1680 310 1664 350 Q1640 386 1570 388 Q1490 390 1460 366 Q1440 350 1450 330 Z" fill="${o.night ? '#4a4a40' : '#9a8a6a'}" stroke="${OUT}" stroke-width="2.2"/>` +
+    `<path d="M1450 330 Q1460 282 1520 274 Q1580 260 1630 284 Q1680 310 1664 350 Q1640 386 1570 388 Q1490 390 1460 366 Q1440 350 1450 330 Z" fill="none" stroke="#9ccad6" stroke-width="14" opacity=".5" transform="translate(6 8)"/>` +
+    tree(1530, 320, 0.6, 'shrub', 3) + tree(1580, 338, 0.5, 'shrub', 4) + tree(1620, 310, 0.55, 'shrub', 5);   // Psyttaleia, a rocky islet
+  let pf = '';
+  const n = Math.round(72 * per);
+  for (let i = 0; i < n; i++) { const row = (i % 4) - 1.5, k = Math.floor(i / 4), u = k / 18 + 0.06 * (o.lurch ?? 0);
+    const x = 2160 - 1500 * u + row * 40, y = 190 + 760 * u + row * 54 + (k % 2) * 10; pf += shipTop(x, y, 0.55, 'persian', t, 0.4 + 0.6 * (o.lurch ?? 0), i); }
+  const mist = o.mist ? `<rect x="-200" y="140" width="${W + 400}" height="1200" fill="#f4e4d0" opacity="${(0.6 * o.mist).toFixed(3)}"/>` : '';
+  const body = sal + `<g opacity="${gre.toFixed(2)}">${gf}</g>` + psy + pf + att;
+  const cx = o.cx ?? 960, cy = o.cy ?? 600;
+  return L(c, 0.05, g) + L(c, 0.8, `<g transform="translate(960 600) scale(${z}) translate(${-cx} ${-cy})">${body}</g>`) + mist;
+}
+const strait_fleet_persian_bird: SceneFn = (c) => straitBird(c, { persian: easeInOut(bw(c, 'navy', 0.3, 2.4)), lurch: easeInOut(bw(c, 'morning', 0.3, 1.0)) });
+const strait_dawn_wide_bird: SceneFn = (c) => straitBird(c, { persian: 0.5, mist: 1 - easeInOut(bw(c, 'strait', 0.3, 1.2)), greek: 0.35 + 0.65 * easeInOut(bw(c, 'Greek', 0.3, 0.9)) });
+const strait_dawn_fleet_bird: SceneFn = (c) => straitBird(c, { persian: 0.5, zoom: 1.9 + 0.15 * easeInOut(bw(c, 'still', 0.3, 1.2)), cx: 420, cy: 400 });   // close on the Greek fleet on the beach
+
+// ---------- bird's-eye: DELPHI ----------
+const delphi_ext_bird: SceneFn = (c) => {
+  // DELPHI from high up, packed like the reference: terraces stacked up the mountain under the cliffs, treasuries, a long
+  // colonnade, the great altar, statues on their bases, the town below, the temple of Apollo at the top, and pilgrims
+  // crowding the Sacred Way. The messengers kneel at the temple ("knelt"); smoke billows from its door ("Delphi").
+  const t = c.t, R = rng(77), down = easeOutBack(bw(c, 'knelt', 0.3, 0.8)), puff = easeInOut(bw(c, 'Delphi', 0.3, 1.2)), rev = easeInOut(bw(c, 'Months', 0.3, 1.2));
+  let g = skyGrad(c, 'dbSky', [[0, '#7fa8c8'], [1, '#efe6cc']]).replace(`height="${H + 600}"`, 'height="760"');
+  g += poly2([[-200, 300], [-200, 40], [300, 0], [700, 50], [1100, -10], [1500, 40], [2120, 0], [2120, 300]], '#b9a48a');            // the Phaedriades cliffs
+  for (let i = 0; i < 18; i++) g += `<path d="M${-100 + i * 125} ${30 + (i % 3) * 14} q${20 + (i % 4) * 6} 130 ${10 + (i % 2) * 20} 250" stroke="#8e7a62" stroke-width="4" fill="none"/>`;
+  g += poly2([[-200, 290], [2120, 280], [2120, 1300], [-200, 1300]], '#c4ad80');
+  for (let i = 0; i < 40; i++) g += `<ellipse cx="${(R() * 2000).toFixed(0)}" cy="${(300 + R() * 900).toFixed(0)}" rx="${(60 + R() * 120).toFixed(0)}" ry="${(14 + R() * 26).toFixed(0)}" fill="${['#b8ad7a', '#d6c49a', '#a8a070'][i % 3]}" opacity=".5"/>`;
+  // terraces: retaining walls stepping down the slope
+  let s = '';
+  const terr = [380, 560, 740, 920];
+  for (const y of terr) s += wall(-200, y + 10, 2120, y - 20, 1.3, '#cdbd9a');
+  // the Sacred Way zigzags up across the terraces
+  const wayPts = [[260, 1300], [520, 1080], [1500, 1000], [1560, 860], [520, 800], [460, 650], [1420, 600], [1440, 470], [1000, 420]];
+  s += road('M' + wayPts.map((q) => q.join(' ')).join(' L'), 44);
+  // the town below (bottom), houses and gardens
+  for (let i = 0; i < 26; i++) { const x = -120 + i * 86 + R() * 20, y = 1170 + (i % 3) * 46; if (Math.abs(x - 300) < 90) continue; s += house(x, y, 0.62, 3000 + i, { court: R() > 0.6 }); if (R() > 0.6) s += tree(x + 50, y - 4, 0.8, 'olive', i); }
+  // treasuries of the Greek cities along the way (small painted temples), the colonnade, statues, the great altar
+  for (let i = 0; i < 6; i++) s += templeTop(180 + i * 300 + (i % 2) * 40, 990 - (i % 2) * 20, 0.36, { roof: ['#b5452c', '#9a5a3a', '#c07a52'][i % 3], frieze: ['#2f5a8a', '#7a2a5e', '#3a6a4a'][i % 3] });
+  s += poly2([[640, 760], [1380, 748], [1380, 728], [640, 740]], '#e8dcc0');
+  for (let i = 0; i < 22; i++) s += poly2([[650 + i * 33, 762], [657 + i * 33, 762], [657 + i * 33, 800], [650 + i * 33, 800]], '#f3ebd6', 1.4);   // the colonnade
+  s += poly2([[640, 806], [1380, 794], [1380, 806], [640, 818]], '#cbbd9c');
+  for (let i = 0; i < 9; i++) { const x = 300 + i * 170, y = 880 + (i % 2) * 10; s += poly2([[x - 14, y], [x + 14, y], [x + 14, y - 16], [x - 14, y - 16]], '#d9ccb0', 1.4) + tiny(x, y - 16, 1.3, 4000 + i, i % 2 ? 'point' : 'stand', 0, { robe: '#d8c49a', spear: i % 3 === 0 }); }   // bronze/stone statues on bases
+  s += poly2([[1180, 520], [1300, 516], [1300, 490], [1180, 494]], '#e2d6ba') + poly2([[1180, 494], [1300, 490], [1312, 480], [1192, 484]], '#cfc2a2');   // the great altar
+  for (let i = 0; i < 70; i++) { const x = R() * 1950, y = 330 + R() * 880; s += tree(x, y, 0.8, (['cypress', 'olive', 'shrub'] as const)[i % 3], 50 + i); }
+  for (let i = 0; i < 8; i++) { const x = 100 + i * 240, y = 520 + (i % 2) * 18; if (Math.abs(x - 1240) < 120) continue; s += templeTop(x, y, 0.22, { roof: ['#9a5a3a', '#b5452c'][i % 2], frieze: '#3a6a4a' }); }   // small shrines on the upper terrace
+  for (let i = 0; i < 12; i++) { const x = 80 + i * 165, y = 690 + (i % 3) * 8; s += poly2([[x - 10, y], [x + 10, y], [x + 8, y - 22], [x - 8, y - 22]], ['#c99a45', '#b58a3a', '#e2c070'][i % 3], 1.4) + `<ellipse cx="${x}" cy="${y - 24}" rx="12" ry="4" fill="#c99a45" stroke="${OUT}" stroke-width="1.2"/>`; }   // bronze tripods and offerings
+  for (let i = 0; i < 60; i++) s += tiny(R() * 1900, 340 + R() * 760, 0.85, 6000 + i, (['stand', 'talk', 'point', 'sit'] as const)[i % 4], t, { flip: i % 2 === 0 });   // people across the terraces
+  // the temple of Apollo on the top terrace, with its smoking door
+  s += templeTop(980, 430, 0.9);
+  s += Array.from({ length: 6 }, (_, i) => `<circle cx="${(980 + 26 * Math.sin(i * 2 + t)).toFixed(0)}" cy="${(300 - 120 * puff - i * 30).toFixed(0)}" r="${(20 + 40 * puff + i * 8).toFixed(0)}" fill="#a49a92" opacity="${(0.5 * puff * (1 - i * 0.13)).toFixed(3)}"/>`).join('');
+  // pilgrims crowding the Sacred Way, priests, people with offerings
+  for (let i = 0; i < 120; i++) {
+    const u = R(), seg = Math.min(wayPts.length - 2, Math.floor(u * (wayPts.length - 1))), k = u * (wayPts.length - 1) - seg, a = wayPts[seg], b = wayPts[seg + 1];
+    s += tiny(a[0] + (b[0] - a[0]) * k + (R() - 0.5) * 30, a[1] + (b[1] - a[1]) * k + (R() - 0.5) * 16 + 10, 0.95, 5000 + i, (['walk', 'carry', 'talk', 'walk'] as const)[i % 4], t, { flip: b[0] < a[0] });
+  }
+  s += tiny(950, 442 + 8 * (1 - down), 1.4, 7, down > 0.5 ? 'sit' : 'walk', t, { robe: '#e6dcc6' }) + tiny(1010, 442 + 8 * (1 - down), 1.4, 8, down > 0.5 ? 'sit' : 'walk', t, { robe: '#c9b48a' });   // the two messengers
+  return L(c, 0.05, g) + L(c, 0.8, `<g opacity="${(0.5 + 0.5 * rev).toFixed(2)}">${s}</g>`) + card(1440, 60, 420, 62, 'DELPHI · 481 BC', 27, tween(c.local, 0.6, 1.6, 0, 1));
+};
+
+// ---------- bird's-eye: THE HELLESPONT ----------
+const hellespont_bird: SceneFn = (c) => {
+  // two shores (Asia far, Europe near), two bridges of ships lashed side by side, columns of soldiers marching over them;
+  // the king's parasol on "Xerxes", the bridges sway on "bridges", a second column on "sea". Aftermath: guards watching.
+  const t = c.t, ln_ = lineOf(c), dusk = ln_ > 100, R = rng(55);
+  const king = easeInOut(bw(c, 'Xerxes', 0.3, 1.2)), swayB = Math.sin(Math.min(1, bw(c, 'bridges', 0.3, 1.2)) * Math.PI), more = easeInOut(bw(c, 'sea', 0.3, 1.0)), rev = easeInOut(bw(c, dusk ? 'bridges' : 'coming', 0.3, 1.0));
+  let g = (dusk ? skyGrad(c, 'hbD', [[0, '#4f3a6e'], [1, '#f2b06a']]) : skyGrad(c, 'hbS', [[0, '#e8a074'], [1, '#fde8c2']])).replace(`height="${H + 600}"`, 'height="760"');
+  g += seaTop(c.pid('hbSea'), -200, 160, 2120, 1300, t, dusk ? '#4a4a6e' : '#4f8aa6', 13);
+  g += poly2([[-200, 160], [2120, 150], [2120, 300], [1400, 330], [700, 310], [-200, 330]], dusk ? '#7a6a6a' : '#b59a70');        // Asia
+  for (let i = 0; i < 40; i++) g += `<path d="M${(R() * 2000).toFixed(0)} ${(190 + R() * 110).toFixed(0)} l-12 0 l12 -16 l12 16 Z" fill="${['#e9e0c8', '#b5452c', '#d9c39a'][i % 3]}" stroke="${OUT}" stroke-width="1.4"/>`;   // the camp left behind
+  g += poly2([[-200, 1300], [-200, 960], [700, 1000], [1400, 980], [2120, 1010], [2120, 1300]], dusk ? '#7a6a6a' : '#b59a70');   // Europe
+  let b = '';
+  for (let k = 0; k < 2; k++) {
+    const x0 = 520 + k * 520, sway = 6 * swayB * Math.sin(t * 3 + k);
+    for (let i = 0; i < 15; i++) { const y = 340 + i * 44; b += `<path d="M${(x0 - 90 + sway).toFixed(1)} ${y} Q${(x0 + sway).toFixed(1)} ${y + 22} ${(x0 + 90 + sway).toFixed(1)} ${y} L${(x0 + 80 + sway).toFixed(1)} ${y - 18} L${(x0 - 80 + sway).toFixed(1)} ${y - 18} Z" fill="#5a3424" stroke="${OUT}" stroke-width="2"/>` + `<path d="M${(x0 - 90 + sway).toFixed(1)} ${y + 6} q-30 10 -50 30 M${(x0 + 90 + sway).toFixed(1)} ${y + 6} q30 10 50 30" stroke="${OUT}" stroke-width="1.2" fill="none"/>`; }   // hulls lashed side by side, anchor cables
+    b += `<rect x="${x0 - 40 + sway}" y="320" width="80" height="${670}" fill="#a07a4a" stroke="${OUT}" stroke-width="2.4"/>` + Array.from({ length: 34 }, (_, j) => `<path d="M${x0 - 40 + sway} ${330 + j * 20} l80 0" stroke="#7a5a34" stroke-width="1.2"/>`).join('');   // the plank road with its boards
+    const step = 34, off = (t * 26 * (dusk ? 0.1 : 1)) % step;
+    for (let y = 330 + off; y < 990; y += step) for (let a = -1; a <= 1; a++) b += tiny(x0 + sway + a * 22, y + a * 3, 0.95, Math.floor(y) + k * 7 + a, 'walk', t, { spear: true, robe: ['#b5793a', '#7a5a8e', '#4f7a6a', '#a8463a'][(Math.floor(y / step) + a + 3) % 4] });
+  }
+  if (more > 0) for (let i = 0; i < 30; i++) b += `<g opacity="${more.toFixed(2)}">${tiny(200 + i * 60, 1040 + (i % 3) * 18, 0.8, 300 + i, 'walk', t, { spear: true })}</g>`;
+  if (king > 0) b += `<g opacity="${king.toFixed(2)}">${tiny(520, 330 + 640 * king, 1.5, 999, 'walk', t, { robe: '#5b2a6e', hat: '#e2b23f' })}<path d="M${520 - 22} ${(300 + 640 * king).toFixed(0)} Q520 ${(280 + 640 * king).toFixed(0)} ${520 + 22} ${(300 + 640 * king).toFixed(0)} Z" fill="#7a2a5e" stroke="${OUT}" stroke-width="1.6"/></g>`;
+  for (let i = 0; i < 22; i++) { const x = 60 + (i * 197) % 1900, y = 380 + (i * 89) % 560; if (Math.abs(x - 520) < 140 || Math.abs(x - 1040) < 140) continue; b += shipTop(x, y, 0.42, i % 3 ? 'boat' : 'persian', t, 0.3, i); }   // supply boats + escort ships
+  for (let i = 0; i < 50; i++) b += tiny(40 + i * 40, 300 - (i % 3) * 14, 0.7, 1500 + i, (['stand', 'walk', 'talk'] as const)[i % 3], t, { spear: i % 2 === 0 });   // the army waiting on the Asian shore
+  for (let i = 0; i < 40; i++) b += tiny(60 + i * 50, 1030 + (i % 3) * 16, 0.85, 1600 + i, 'walk', t, { spear: true, robe: '#b5793a' });   // landing in Europe
+  return L(c, 0.05, g) + L(c, 0.8, `<g opacity="${(0.5 + 0.5 * rev).toFixed(2)}">${b}</g>`);
+};
+const hellespont_army_road_bird: SceneFn = (c) => {
+  // the Persian army pours south across the plain ("largest"); Athens on the horizon ("Athens"); villages smoke
+  const t = c.t, R = rng(66), pour = easeInOut(bw(c, 'largest', 0.3, 1.6)), city = easeInOut(bw(c, 'Athens', 0.3, 1.0));
+  let g = skyGrad(c, 'arSky', [[0, '#4f3a6e'], [1, '#f2b06a']]).replace(`height="${H + 600}"`, 'height="760"');
+  g += poly2([[-200, 220], [2120, 200], [2120, 1300], [-200, 1300]], '#b59a70');
+  for (let i = 0; i < 30; i++) g += `<ellipse cx="${(R() * 2000).toFixed(0)}" cy="${(240 + R() * 900).toFixed(0)}" rx="${(60 + R() * 140).toFixed(0)}" ry="${(14 + R() * 30).toFixed(0)}" fill="${['#a8986a', '#c4ae80'][i % 2]}" opacity=".5"/>`;
+  g += `<path d="M-200 520 Q500 600 900 560 Q1400 500 2120 600" stroke="#6fa6ba" stroke-width="46" fill="none"/>` + `<path d="M-200 520 Q500 600 900 560 Q1400 500 2120 600" stroke="#9ccad6" stroke-width="14" fill="none" opacity=".6"/>`;   // a river
+  for (let i = 0; i < 10; i++) { const x = -100 + i * 220, y = 300 + (i % 3) * 90; g += field([[x, y], [x + 180, y - 10], [x + 190, y + 50], [x + 10, y + 60]], ['#b8c27a', '#c9b97a', '#a8b46a'][i % 3], 5, i % 4 === 1); }
+  for (let i = 0; i < 70; i++) g += tree(R() * 2000, 620 + R() * 640, 0.8, 'olive', 60 + i);
+  g += road('M-100 1300 Q500 900 1000 600 Q1300 400 1600 250', 110, '#d9c39a');
+  g += `<g opacity="${(0.4 + 0.6 * city).toFixed(2)}">${templeTop(1660, 240, 0.3)}${Array.from({ length: 10 }, (_, i) => house(1540 + i * 30, 260 + (i % 2) * 10, 0.22, 1300 + i)).join('')}</g>`;
+  for (let v = 0; v < 4; v++) { const vx = 300 + v * 420, vy = 500 + (v % 2) * 260; g += house(vx, vy, 0.5, 1400 + v) + house(vx + 60, vy + 10, 0.45, 1410 + v); for (let q = 0; q < 6; q++) { const u = (q / 6 + t * 0.05) % 1; g += `<circle cx="${(vx + 20 * Math.sin(q + v) * u).toFixed(0)}" cy="${(vy - 40 - 220 * u).toFixed(0)}" r="${(14 + 40 * u).toFixed(0)}" fill="#6a6260" opacity="${(0.45 * (1 - u)).toFixed(3)}"/>`; } }   // burning villages
+  let army = '';
+  for (let i = 0; i < 260; i++) {
+    const u = ((i / 260) * (0.25 + 0.75 * pour) + t * 0.004) % 1, lane = (i % 7) - 3;
+    const bx = -100 + 1700 * u, by = 1300 - 1050 * u + Math.sin(u * 9) * 40, s = 0.4 + 1.0 * (1 - u);
+    army += tiny(bx + lane * 18 * s, by + lane * 12 * s, s, 2000 + i, 'walk', t, { spear: true, shield: i % 3 === 0 ? '#c9a96e' : undefined, robe: ['#b5793a', '#7a5a8e', '#4f7a6a', '#a8463a'][i % 4] });
+    if (i % 40 === 0) army += `<path d="M${bx} ${by - 40 * s} l0 ${-30 * s} l${22 * s} ${6 * s} l${-22 * s} ${6 * s}" fill="#7a2a5e" stroke="${OUT}" stroke-width="1.4"/>`;   // banners
+  }
+  return L(c, 0.05, g) + L(c, 0.9, army);
+};
+
 export const SCENES: Record<string, SceneFn> = {
-  strait_fleet_persian: strait_fleet,                    // the Persian fleet fills the bay (beats: appear / lift)
-  aigaleos_dawn, aigaleos_scribes, strait_dawn_wide, strait_dawn_fleet, salamis_families, aigaleos_xerxes, aigaleos_xerxes_scribes, aigaleos_scroll,
-  delphi_ext, delphi_messengers, delphi_pythia, delphi_pythia_cu, delphi_beg, delphi_riddle, opensea_messengers,
-  athens_pnyx, acropolis_hedge, athens_themistocles, athens_crowd_split, athens_scroll_word, laurium_mine, shipyard,
-  hellespont, hellespont_close, thermopylae, opensea_fleet_south, hellespont_army_road,
+  strait_fleet_persian: strait_fleet_persian_bird,                    // the Persian fleet fills the bay (beats: appear / lift)
+  aigaleos_dawn, aigaleos_scribes, strait_dawn_wide: strait_dawn_wide_bird, strait_dawn_fleet: strait_dawn_fleet_bird, salamis_families, aigaleos_xerxes, aigaleos_xerxes_scribes, aigaleos_scroll,
+  delphi_ext: delphi_ext_bird, delphi_messengers, delphi_pythia, delphi_pythia_cu, delphi_beg, delphi_riddle, opensea_messengers,
+  athens_pnyx: athens_bird, athens_pnyx_old: athens_pnyx, acropolis_hedge, athens_themistocles, athens_crowd_split, athens_scroll_word, laurium_mine, shipyard,
+  hellespont: hellespont_bird, hellespont_close, thermopylae, opensea_fleet_south, hellespont_army_road: hellespont_army_road_bird,
   athens_streets_empty, harbour_evac, opensea_boats_salamis, salamis_shore_look, acropolis_defenders, acropolis_barricade,
   acropolis_cliff_climb, acropolis_burning, acropolis_temple_fire, acropolis_barricade_burnt, salamis_shore_smoke, road_rider,
   road_xerxes_home: road_rider,
