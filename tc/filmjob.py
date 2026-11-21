@@ -77,7 +77,9 @@ def music_from_plan(timed: dict, tracks: dict) -> dict:
         t = next(x for x in tracks["tracks"] if x["id"] == wanted)
         at = m.get("at")
         at = s["start_f"] / fps if at is None else at
-        cues.append({"track": wanted, "file": t["file"], "at": at, "dur": round(s["end_f"] / fps - at, 3),
+        # a cue lasts to the end of its shot, or to the end of the shot named in "until" (one piece across a sequence)
+        end_shot = next((x for x in timed["shots"] if x["id"] == m.get("until")), s)
+        cues.append({"track": wanted, "file": t["file"], "at": at, "dur": round(end_shot["end_f"] / fps - at, 3),
                      "db": m.get("db", -16), "fade_in": 1.0, "fade_out": 2.5})
     return {"cues": cues}
 

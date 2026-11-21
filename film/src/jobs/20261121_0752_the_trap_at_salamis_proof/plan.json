@@ -64,6 +64,7 @@
    "music": {
     "cue": "hook",
     "from_word": "At",
+    "until": "s03",
     "at": 0.0
    },
    "start_f": 0,
@@ -686,6 +687,7 @@
    "music": {
     "cue": "battle",
     "from_word": "drove",
+    "until": "s14",
     "at": 42.86
    },
    "letterbox": true,
@@ -787,11 +789,7 @@
      "at": 50.62
     }
    ],
-   "music": {
-    "cue": "ending",
-    "from_word": "The",
-    "at": 49.68
-   },
+   "music": null,
    "start_f": 1192,
    "end_f": 1256
   }
