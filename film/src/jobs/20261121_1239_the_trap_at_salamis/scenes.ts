@@ -700,8 +700,204 @@ const opensea_messengers: SceneFn = (c) => {
   return L(c, 0.05, s0.sky) + L(c, 0.5, s0.sea) + L(c, 1, ship + men);
 };
 
+// =============================== CHAPTER 2 — Athens argues, the silver, the king comes (drawn for this film) ===============================
+/** Beat progress by WORD (never by index). */
+const bw = (c: ShotCtx, word: string, lead = 0.3, dur = 0.6) => bt(c, bi(c, word), lead, dur);
+function noonSky(c: ShotCtx, name: string): string {
+  return skyGrad(c, name, [[0, '#7fb0d0'], [0.6, '#cfe3e6'], [1, '#f3e7c8']]) + glow(c, name + 'sun', 1500, 200, 260, '#fff6d8', 0.9) +
+    `<circle cx="1500" cy="200" r="52" fill="#fff6d8" stroke="#f0d08a" stroke-width="4"/>` + cloud(wrap(300 + c.t * 4, W + 400) - 200, 120, 1.1, '#fdf6ea') + cloud(wrap(1100 + c.t * 3, W + 400) - 200, 210, 0.8, '#fdf6ea');
+}
+/** The Acropolis of 480 BC: the rock, the archaic Old Temple of Athena (painted), small shrines, the thorn hedge. NO Parthenon. */
+function acropolisRock(k = 1, hedge = 1, fire = 0, t = 0): string {
+  let s = bg('M-520 0 Q-480 -150 -380 -210 Q-200 -250 0 -246 Q220 -250 380 -210 Q480 -150 520 0 Z', '#b59a74', 6);
+  for (let i = 0; i < 9; i++) s += `<path d="M${-420 + i * 100} -40 q20 -80 ${10 + (i % 3) * 10} -170" stroke="#8e7656" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  // the Old Temple of Athena (archaic, smaller than the later Parthenon) + two shrines
+  s += bg('M-190 -246 L190 -246 L180 -262 L-180 -262 Z', '#ddd0b4', 4);
+  for (let i = 0; i < 7; i++) s += bg(`M${-160 + i * 53} -262 L${-148 + i * 53} -262 L${-146 + i * 53} -370 L${-162 + i * 53} -370 Z`, '#efe4cc', 3);
+  s += bg('M-180 -370 L180 -370 L180 -392 L-180 -392 Z', '#2f5a8a', 3) + bg('M-196 -392 L0 -450 L196 -392 Z', '#b5452c', 4);
+  s += bg('M240 -246 L330 -246 L330 -300 L240 -300 Z', '#e4d8bc', 3) + bg('M232 -300 L285 -326 L338 -300 Z', '#9a3a2a', 3);
+  s += bg('M-330 -246 L-250 -246 L-250 -290 L-330 -290 Z', '#e4d8bc', 3) + bg('M-338 -290 L-290 -312 L-242 -290 Z', '#9a3a2a', 3);
+  if (hedge > 0) for (let i = 0; i < 22; i++) { const x = -470 + i * 44, y = -150 - 90 * Math.sin(Math.PI * (i / 21)); s += `<g opacity="${hedge.toFixed(2)}" transform="translate(${x} ${y.toFixed(0)})">${bg('M-26 0 Q-30 -30 -10 -34 Q0 -50 14 -36 Q30 -32 26 0 Z', '#5c6e34', 3)}<path d="M-14 -20 l-10 -6 M8 -28 l10 -8" stroke="${OUT}" stroke-width="2"/></g>`; }
+  if (fire > 0) for (let q = 0; q < 10; q++) { const u = (q / 10 + t * 0.4) % 1; s += `<path d="M${(-150 + q * 32).toFixed(0)} -370 q${(10 * Math.sin(t * 7 + q)).toFixed(1)} ${(-60 - 80 * u) * fire} 0 ${(-120 - 120 * u) * fire} q20 50 0 ${(120 + 120 * u) * fire}" fill="${q % 2 ? '#ff9a2a' : '#ffd25a'}" opacity="${(0.85 * fire).toFixed(2)}"/>`; }
+  return `<g transform="scale(${k})">${s}</g>`;
+}
+function pnyxSet(c: ShotCtx): { sky: string; far: string; mid: string; ground: string } {
+  const sky = noonSky(c, 'pnyxsky');
+  const far = `<rect x="-200" y="560" width="${W + 400}" height="140" fill="#7fb3c4"/>` + waves(c.t, 61, 570, 690, 50, '#e3f1f4', 8) +
+    farFleet(c.t, 18, 600, 9, 0.07) + bg('M-200 640 Q400 600 900 640 Q1400 610 2120 640 L2120 760 L-200 760 Z', '#c7b28c', 4);
+  const mid = at(560, 690, 0.9, acropolisRock(1, 1));
+  let ground = bg('M-200 760 Q900 700 2120 760 L2120 1300 L-200 1300 Z', '#b59a70', 5);
+  for (let r = 0; r < 4; r++) ground += `<path d="M-200 ${800 + r * 70} Q900 ${760 + r * 70} 2120 ${800 + r * 70}" stroke="#8e7656" stroke-width="5" fill="none"/>`;   // the stone terraces of the assembly hill
+  ground += bg('M860 860 L1060 860 L1050 800 L870 800 Z', '#cbb48c', 5) + bg('M900 800 L1020 800 L1014 770 L906 770 Z', '#d9c39a', 4);              // the speaker's platform (bema), cut from the rock
+  return { sky, far, mid, ground };
+}
+function crowd(t: number, seed: number, n: number, y: number, k: number, x0: number, x1: number, o: { cheer?: number; fold?: number; split?: boolean } = {}): string {
+  let s = '';
+  for (let i = 0; i < n; i++) {
+    const x = x0 + (i + 0.5) * (x1 - x0) / n, left = x < (x0 + x1) / 2;
+    const arm = o.split ? (left ? (o.cheer ?? 0) * (0.6 + 0.4 * Math.sin(t * 6 + i)) : 0) : (o.cheer ?? 0) * (i % 3 === 0 ? 1 : 0.3);
+    const ex: any = o.split && !left ? 'stern' : 'neutral';
+    s += at(x, y + (i % 2) * 10, k, civilian(t, seed + i, { kind: i % 5 === 3 ? 'woman' : 'man', expr: ex, to: o.split && !left ? 'sly' : undefined, mix: o.split && !left ? (o.fold ?? 0) * 0.5 : 0, arm }));
+  }
+  return s;
+}
+function themSpeaker(c: ShotCtx, pose: any): string {
+  const mouth = mouthAt(c.t, LIP, 'THEMISTOCLES');
+  return themistocles.draw({ breath: breathe(c.t, 3), blink: blinkAt(c.t, 3), mouth, ...pose });
+}
+const athens_pnyx: SceneFn = (c) => {
+  // the assembly on the hill. line 19: the crowd argues on "argued". line 28: the vote — hands go up on "vote".
+  // line 141-ish (outro): they vote him out — hands up against him.
+  const set = pnyxSet(c), ln_ = lineOf(c);
+  const argue = easeInOut(bw(c, ln_ === 19 ? 'argued' : ln_ === 28 ? 'vote' : 'throw', 0.3, 0.8)), reveal = ln_ === 19 ? easeInOut(bw(c, 'wood', 0.3, 1.0)) : 1;
+  const hands = ln_ === 28 || ln_ > 120 ? argue : 0, shout = ln_ === 19 ? argue : 0;
+  let people = crowd(c.t, 3, 14, 900, 0.62, 80, 1840, { cheer: hands + 0.6 * shout * Math.abs(Math.sin(c.t * 5)) });
+  people += crowd(c.t, 40, 11, 1010, 0.78, 40, 1880, { cheer: hands });
+  const speaker = at(960, 790, 0.62, themSpeaker(c, { expr: ln_ > 120 ? 'grief' : 'stern', armR: ln_ === 28 ? { from: 'down', to: 'raise', k: easeInOut(bw(c, 'sea', 0.3, 0.6)) } : 'point' }));
+  return L(c, 0.05, set.sky) + L(c, 0.2, set.far) + L(c, 0.4, `<g opacity="${(0.4 + 0.6 * reveal).toFixed(2)}">${set.mid}</g>`) + L(c, 1, set.ground + speaker + people);
+};
+const acropolis_hedge: SceneFn = (c) => {
+  // the old thorn hedge (reveal on "hedge"), the rock behind it (pull out on "Acropolis")
+  const sky = noonSky(c, 'hedgesky'), show = easeInOut(bw(c, 'hedge', 0.3, 0.9)), rock = easeInOut(bw(c, 'Acropolis', 0.3, 0.9));
+  const ground = bg('M-200 900 Q900 860 2120 900 L2120 1300 L-200 1300 Z', '#a8906a', 5) + pine(160, 920, 1.3) + pine(1780, 930, 1.1);
+  return L(c, 0.05, sky) + L(c, 0.6, at(960, 940 + 40 * (1 - rock), 1.5 + 0.2 * (1 - rock), acropolisRock(1, show))) + L(c, 1, ground);
+};
+const athens_themistocles: SceneFn = (c) => {
+  // Themistocles on the bema. line 21: steps out of the crowd ("one"), the name lands ("Themistocles").
+  // line 23 (CU): points to the harbour on "ships". line 25: a knowing look on "sure", turns to the sea on "built".
+  const set = pnyxSet(c), ln_ = lineOf(c);
+  let hero = '';
+  if (ln_ === 21) {
+    const step = easeInOut(bw(c, 'one', 0.3, 0.9)), name = easeOutBack(bw(c, 'Themistocles', 0.3, 0.6));
+    hero = crowd(c.t, 70, 8, 1080, 1.0, -100, 2020) + at(960, 1060 - 60 * step - 20 * name, 1.25, themSpeaker(c, { expr: 'neutral', exprTo: 'stern', exprMix: name, armR: 'down' }));
+  } else if (ln_ === 23) {
+    const pt = easeOutBack(bw(c, 'ships', 0.35, 0.8));
+    hero = at(900, 1620, 2.6, themSpeaker(c, { expr: 'stern', armR: { from: 'down', to: 'point', k: Math.min(1, pt) } }));
+  } else {
+    const sure = bw(c, 'sure', 0.3, 0.5), turn = easeInOut(bw(c, 'built', 0.3, 0.9));
+    hero = at(960 + 40 * turn, 1180, 1.6, `<g transform="scale(${(1 - 2 * turn).toFixed(3)} 1)">${themSpeaker(c, { expr: 'stern', exprTo: 'sly', exprMix: Math.min(1, sure * 2), armR: 'hip' })}</g>`);
+  }
+  return L(c, 0.05, set.sky) + L(c, 0.2, set.far) + L(c, 0.45, set.mid) + L(c, 1, set.ground + hero);
+};
+const athens_crowd_split: SceneFn = (c) => {
+  // half the crowd cheers on "admired"; the other half folds its arms on "trust"
+  const set = pnyxSet(c), cheer = easeOutBack(bw(c, 'admired', 0.3, 0.6)), fold = easeInOut(bw(c, 'trust', 0.3, 0.7));
+  const divider = `<path d="M960 820 L960 1300" stroke="rgba(0,0,0,.0)" stroke-width="2"/>`;
+  return L(c, 0.05, set.sky) + L(c, 0.2, set.far) + L(c, 0.45, set.mid) +
+    L(c, 1, set.ground + divider + crowd(c.t, 90, 12, 980, 0.95, 40, 1880, { split: true, cheer: Math.min(1, cheer), fold }));
+};
+const athens_scroll_word: SceneFn = (c) => {
+  // ECU: the oracle's words on a papyrus (shapes, no letters — r3); his finger finds ONE word ("word"), taps it twice ("cruel")
+  const find = easeInOut(bw(c, 'word', 0.3, 0.8)), tap = bw(c, 'cruel', 0.2, 0.7), glowW = Math.max(find, bw(c, 'Salamis', 0.3, 0.6));
+  let s = skyGrad(c, 'papbg', [[0, '#6a4a2e'], [1, '#3a2818']]) + bg('M220 200 L1700 180 L1720 920 L200 940 Z', '#e8d6a0', 7);
+  const R = rng(31);
+  for (let r = 0; r < 7; r++) for (let q = 0; q < 10; q++) {
+    const x = 300 + q * 130 + R() * 20, y = 300 + r * 85, w = 60 + R() * 40, key = r === 3 && q === 5;
+    s += `<path d="M${x.toFixed(0)} ${y} q${(w / 2).toFixed(0)} -12 ${w.toFixed(0)} 0 m8 -16 l0 20" stroke="${key ? '#9b2b22' : '#3a2414'}" stroke-width="${key ? 8 : 5}" fill="none" stroke-linecap="round"/>`;
+    if (key) s += glow(c, 'wordglow', x + w / 2, y - 6, 90, '#ffe08a', 0.6 * glowW);
+  }
+  const fx = 900 + 50 * (1 - find), fy = 560 - 16 * Math.abs(Math.sin(tap * Math.PI * 2));
+  s += limb(`M1400 1200 Q1100 900 ${fx + 30} ${fy + 40}`, 70, '#efe6d2') + `<g transform="translate(${fx} ${fy}) scale(2.6)">${hand(0, 0, '#d9a87c')}</g>`;
+  return L(c, 0.3, s);
+};
+const laurium_mine: SceneFn = (c) => {
+  // the silver mines: a miner lifts a shining lump on "silver"; citizens hold out their hands on "share";
+  // the silver goes into a shipwright's hands instead on "warships"
+  const sky = noonSky(c, 'lausky'), lift = easeOutBack(bw(c, 'silver', 0.3, 0.7)), share = easeInOut(bw(c, 'share', 0.3, 0.8)), give = easeInOut(bw(c, 'warships', 0.3, 1.0));
+  let s = bg('M-200 700 Q300 560 700 640 Q1100 520 1500 620 Q1800 560 2120 640 L2120 1300 L-200 1300 Z', '#a88a62', 5);
+  s += bg('M380 760 L560 760 L540 640 L400 640 Z', '#2a1c14', 5) + ln('M380 760 L400 640 M560 760 L540 640 M392 700 L548 700', 8, '#6a4a2a');                 // a shaft mouth with timber frame
+  for (let i = 0; i < 4; i++) s += bg(`M${900 + i * 160} 820 L${1040 + i * 160} 820 L${1030 + i * 160} 860 L${910 + i * 160} 860 Z`, '#c9b48a', 4);           // the washing tables
+  const lump = `<g transform="translate(${(470 + 600 * give).toFixed(0)} ${(700 - 160 * lift + 120 * give).toFixed(0)})"><path d="M-30 0 L-10 -26 L22 -20 L34 6 L6 22 Z" fill="#dfe6ee" stroke="${OUT}" stroke-width="4"/>${glow(c, 'silverglow', 0, 0, 90, '#ffffff', 0.7 * lift)}</g>`;
+  const miner = at(470, 900, 1.2, civilian(c.t, 5, { kind: 'man', expr: 'neutral', to: 'sly', mix: lift, arm: Math.min(1, lift) }));
+  let citizens = '';
+  for (let i = 0; i < 4; i++) citizens += at(780 + i * 120, 960, 1.0, civilian(c.t, 20 + i, { kind: 'man', expr: 'neutral', arm: share * (1 - give) * 0.6, to: give > 0.5 ? 'worried' : undefined, mix: give }));
+  const wright = at(1180, 960, 1.1, civilian(c.t, 33, { kind: 'man', expr: 'neutral', to: 'sly', mix: give, arm: give * 0.7 }));
+  return L(c, 0.05, sky) + L(c, 1, s + miner + citizens + (give > 0.05 ? wright : '') + lump);
+};
+const shipyard: SceneFn = (c) => {
+  // rows of new triremes on the slipways (reveal on "walls"); hammers fall on "wood"
+  const sky = noonSky(c, 'yardsky'), show = easeInOut(bw(c, bi(c, 'walls') < 99 ? 'walls' : 'ships', 0.3, 1.1)), hammer = bw(c, 'wood', 0.2, 1.4);
+  let s = `<rect x="-200" y="580" width="${W + 400}" height="200" fill="#7fb3c4"/>` + waves(c.t, 71, 590, 760, 60, '#e3f1f4', 10);
+  s += bg('M-200 760 L2120 700 L2120 1300 L-200 1300 Z', '#b59a70', 5);
+  for (let r = 0; r < 3; r++) for (let i = 0; i < 5; i++) {
+    const x = 220 + i * 360 + r * 60, y = 820 + r * 130, k = 0.2 + r * 0.06, on = Math.max(0, Math.min(1, show * 5 - (i + r * 1.5) * 0.6));
+    s += `<g opacity="${on.toFixed(2)}" transform="translate(${x} ${y}) scale(${k.toFixed(3)})">${warship(c.t, 'greek', 0, i + r)}${ln('M-380 30 L-380 160 M0 30 L0 160 M380 30 L380 160', 30, '#6a4a2a')}</g>`;   // on its slipway props
+  }
+  for (let i = 0; i < 4; i++) { const sw = Math.sin((hammer * 6 + i * 0.4) * Math.PI) * (hammer > 0 && hammer < 1 ? 1 : 0); s += at(380 + i * 380, 1120, 1.0, civilian(c.t, 50 + i, { kind: 'man', expr: 'neutral', arm: 0.5 + 0.5 * sw })); }
+  return L(c, 0.05, sky) + L(c, 1, s);
+};
+function hellespontBridge(c: ShotCtx, march: number, sway = 0): string {
+  // two bridges of ships lashed side by side, a plank road on top, the army marching over the sea
+  let s = '';
+  for (let b = 0; b < 2; b++) {
+    const y = 720 + b * 170, k = 0.07 + b * 0.03;
+    for (let i = 0; i < 26; i++) s += at(-100 + i * 82, y + Math.sin(c.t * 1.2 + i) * 2 + sway * Math.sin(c.t * 3 + i) * 4, k, warship(c.t, 'persian', 0, i));
+    s += `<rect x="-200" y="${y - 22 - b * 2}" width="${W + 400}" height="${14 + b * 6}" fill="#8a6a44" stroke="${OUT}" stroke-width="3"/>`;
+    const step = 30 + b * 14, off = wrap(c.t * 40 * march, step);
+    for (let x = -step + off; x < W + step; x += step) s += at(x, y - 24 - b * 2, 0.06 + b * 0.03, guard(c.t, Math.floor(x) + b));
+  }
+  return s;
+}
+const hellespont: SceneFn = (c) => {
+  // the army marching over a bridge of ships: reveal on "coming", ships lashed on "bridges", columns over the sea on "sea".
+  // aftermath (line ~124): the same bridge, guards watching the sea nervously
+  const ln_ = lineOf(c), dusk = ln_ > 100;
+  const sky = dusk ? skyGrad(c, 'hdusk', [[0, '#4f3a6e'], [0.55, '#d77c56'], [1, '#f2b06a']]) : dawnSky(c, 330);
+  const reveal = easeInOut(bw(c, dusk ? 'bridges' : 'coming', 0.3, 1.0)), march = dusk ? 0.15 : 1;
+  const sea = `<rect x="-200" y="600" width="${W + 400}" height="700" fill="${dusk ? '#4a4a6e' : '#4f8aa6'}"/>` + waves(c.t, 81, 610, 1080, 140, '#dcf0f3', 20) +
+    bg('M-200 610 L300 560 L600 590 L900 550 L1200 600 Z', '#9c86a3', 3) + bg('M1100 610 L1500 560 L1900 590 L2120 570 L2120 620 Z', '#a993ad', 3);
+  return L(c, 0.05, sky) + L(c, 0.3, sea) + L(c, 1, `<g opacity="${(0.3 + 0.7 * reveal).toFixed(2)}">${hellespontBridge(c, march)}</g>`);
+};
+const hellespont_close: SceneFn = (c) => {
+  // MS low: the plank road sways under the feet on "stop"; endless feet on the planks on "walk"
+  const sway = easeInOut(bw(c, 'stop', 0.3, 0.8)), walk = easeInOut(bw(c, 'walk', 0.3, 0.8));
+  const sky = dawnSky(c, 330);
+  let s = `<rect x="-200" y="700" width="${W + 400}" height="600" fill="#4f8aa6"/>` + waves(c.t, 91, 710, 1080, 90, '#dcf0f3', 30);
+  const tilt = 2 * sway * Math.sin(c.t * 2.5);
+  let deck = `<rect x="-300" y="760" width="${W + 600}" height="70" fill="#8a6a44" stroke="${OUT}" stroke-width="5"/>`;
+  for (let i = 0; i < 30; i++) deck += `<path d="M${-300 + i * 90} 760 L${-300 + i * 90} 830" stroke="#5a3f24" stroke-width="5"/>`;
+  const step = 230, off = wrap(c.t * 90 * (0.4 + 0.6 * walk), step);
+  for (let x = -step + off; x < W + step; x += step) deck += at(x, 770, 0.9, guard(c.t, Math.floor(x)));
+  s += `<g transform="rotate(${tilt.toFixed(2)} 960 790)">${deck}</g>`;
+  return L(c, 0.05, sky) + L(c, 1, s);
+};
+const thermopylae: SceneFn = (c) => {
+  // Thermopylae, drawn for this film: the red line in the pass ("Spartans"), shields lock ("held"), one spear left standing ("died")
+  const sky = skyGrad(c, 'thsky', [[0, '#5a3a5e'], [0.55, '#d77c56'], [1, '#f2b06a']]) + glow(c, 'thsun', 1550, 520, 300, '#ffcf8a', 0.8);
+  const line = easeInOut(bw(c, 'Spartans', 0.3, 0.8)), lock = easeOutBack(bw(c, 'held', 0.3, 0.6)), fall = easeInOut(bw(c, 'died', 0.3, 1.2));
+  let s = `<rect x="-200" y="640" width="${W + 400}" height="300" fill="#6a6a8a"/>` + waves(c.t, 101, 650, 900, 60, '#d9c3c9', 10) +   // the gulf, behind the cliff
+    bg('M-200 1300 L-200 200 Q300 260 420 520 Q520 760 760 860 L760 1300 Z', '#7a5a44', 6);
+  s += bg('M-200 1300 L-200 960 Q700 900 2120 900 L2120 1300 Z', '#a07a52', 5) + bg('M780 905 L1700 890 L1700 850 L780 865 Z', '#c9b48a', 4);   // the ground across the pass + the old wall
+  let men = '';
+  for (let i = 0; i < 9; i++) {
+    const gone = fall > (i + 1) / 10;
+    if (gone) continue;
+    men += at(820 + i * 95, 900 + 8 * (1 - line), 0.28, hopliteBody('#d8a87c', true) + aspis(56, -170, 78 * (0.9 + 0.1 * lock), undefined, 'lambda') + head('#d8a87c', 'stern', { extra: true }));
+  }
+  const spear = fall > 0.5 ? `<g opacity="${Math.min(1, (fall - 0.5) * 3).toFixed(2)}">${pole(1300, 640, 1300, 900, '#8b5a2b')}<path d="M1300 600 L1290 640 L1310 640 Z" fill="#bdbdbd" stroke="${OUT}" stroke-width="3"/></g>` : '';
+  return L(c, 0.05, sky) + L(c, 1, s + `<g opacity="${line.toFixed(2)}">${men}</g>` + spear);
+};
+const opensea_fleet_south: SceneFn = (c) => {
+  // the Greek fleet turns south at dusk ("fleet"); Salamis rises ahead ("Salamis")
+  const s0 = openSea(c, 'dusk'), turn = easeInOut(bw(c, 'fleet', 0.3, 1.0)), isle = easeInOut(bw(c, 'Salamis', 0.3, 1.0));
+  let fleet = '';
+  for (let i = 0; i < 10; i++) { const x = 300 + i * 150 + 60 * turn, y = 700 + (i % 3) * 60; fleet += at(x, y + Math.sin(c.t * 1.3 + i) * 4, 0.11 + (i % 3) * 0.02, `<g transform="scale(${(1 - 2 * turn).toFixed(3)} 1)">${warship(c.t, 'greek', 0.7, i)}</g>`); }
+  const island = bg('M1300 600 Q1450 520 1600 560 Q1750 520 1900 590 L1900 610 L1300 610 Z', '#7a6a8a', 3);
+  return L(c, 0.05, s0.sky) + L(c, 0.3, `<g opacity="${isle.toFixed(2)}">${island}</g>`) + L(c, 0.5, s0.sea) + L(c, 1, fleet);
+};
+const hellespont_army_road: SceneFn = (c) => {
+  // the Persian army pours south ("largest"); Athens on the horizon ("Athens")
+  const sky = skyGrad(c, 'rdsky', [[0, '#4f3a6e'], [0.55, '#d77c56'], [1, '#f2b06a']]), pour = easeInOut(bw(c, 'largest', 0.3, 1.2)), city = easeInOut(bw(c, 'Athens', 0.3, 1.0));
+  let s = bg('M-200 640 Q900 600 2120 640 L2120 1300 L-200 1300 Z', '#9a7a52', 5) + `<path d="M-200 1200 Q700 900 1500 680" stroke="#c9b48a" stroke-width="120" fill="none"/>`;
+  s += `<g opacity="${city.toFixed(2)}">${at(1560, 660, 0.25, acropolisRock(1, 0))}</g>`;
+  for (let i = 0; i < 70; i++) { const u = ((i / 70) * pour + c.t * 0.01) % 1; const x = -200 + 1700 * u, y = 1200 - 520 * u + (i % 3) * 14; s += at(x, y, 0.05 + 0.25 * (1 - u), guard(c.t, i)); }
+  return L(c, 0.05, sky) + L(c, 1, s);
+};
+
 export const SCENES: Record<string, SceneFn> = {
   strait_fleet_persian: strait_fleet,                    // the Persian fleet fills the bay (beats: appear / lift)
   aigaleos_dawn, aigaleos_scribes, strait_dawn_wide, strait_dawn_fleet, salamis_families, aigaleos_xerxes, aigaleos_xerxes_scribes, aigaleos_scroll,
   delphi_ext, delphi_messengers, delphi_pythia, delphi_pythia_cu, delphi_beg, delphi_riddle, opensea_messengers,
+  athens_pnyx, acropolis_hedge, athens_themistocles, athens_crowd_split, athens_scroll_word, laurium_mine, shipyard,
+  hellespont, hellespont_close, thermopylae, opensea_fleet_south, hellespont_army_road,
 };
