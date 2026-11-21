@@ -1,0 +1,46 @@
+{
+  "id": "leonidas",
+  "name": "Leonidas",
+  "aliases": [
+    "king leonidas",
+    "leonidas of sparta"
+  ],
+  "who": "Leonidas I, king of Sparta (c. 540-480 BC), about 60 at Thermopylae",
+  "kind": "real",
+  "era": "greece_480bc",
+  "design_source": "'Leonidas' marble hoplite head from Sparta (c. 480-470 BC, Sparta Archaeological Museum): strong brow, straight nose, full beard; Herodotus 7.208-209: Spartans wore long hair and combed it before battle; transverse crest = officer (vase paintings)",
+  "voice": "leonidas",
+  "look": {
+    "skin": "#d8a47a",
+    "hair": {
+      "style": "long_combed",
+      "colour": "#3b2c22"
+    },
+    "beard": {
+      "style": "full",
+      "colour": "#3b2c22"
+    },
+    "build": {
+      "height": 1.0,
+      "width": 1.05
+    },
+    "headgear": "bronze Corinthian helmet pushed up, transverse red crest",
+    "parts": {
+      "cloak": "#9b2b22",
+      "tunic": "#a83228",
+      "armour": "#c99a45",
+      "helmet": "#c99a45",
+      "crest": "#b23a2a",
+      "shield": "#b23a2a",
+      "trim": "#efe0b8"
+    }
+  },
+  "signature": [
+    "transverse (side-to-side) red crest",
+    "long combed hair under the helmet",
+    "red cloak",
+    "bronze aspis with the lambda",
+    "grey-streaked full beard"
+  ],
+  "version": 1
+}

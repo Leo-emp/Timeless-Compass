@@ -37,6 +37,7 @@ export interface Layers {
   head: (pose: Pose) => string;                   // head + hair/headgear for this pose
   front?: string;                                 // props held in front (spear, shield) — drawn before the hands
   sleeve?: string;                                // arm colour (default: skin)
+  mouthBg?: string;                               // colour behind a lip-sync mouth (beard colour for bearded faces)
 }
 
 /** Tag a coloured piece of a character so the still check can compare it with the sheet. */
@@ -47,7 +48,7 @@ export function part(char: string, name: string, svg: string, fill: string): str
 // arm end points per pose for the LEFT arm (x mirrored for the right arm): [control x, control y, hand x, hand y]
 const ARM: Record<ArmPose, [number, number, number, number]> = {
   down: [-62, -182, -54, -138],
-  hip: [-84, -192, -48, -152],
+  hip: [-104, -176, -60, -140],           // elbow out, fist on the hip
   point: [-92, -232, -136, -238],
   raise: [-76, -282, -62, -336],
   hold_spear: [-80, -210, -82, -188],
@@ -75,8 +76,8 @@ const MOUTHS: Record<Mouth, string> = {
 };
 
 /** A lip-sync mouth drawn over the expression's mouth (skin patch first, then the shape). */
-function mouth(m: Mouth, skin: string): string {
-  return `<ellipse cx="0" cy="-262" rx="16" ry="10" fill="${skin}"/>` + MOUTHS[m];
+function mouth(m: Mouth, bgColour: string): string {
+  return `<ellipse cx="0" cy="-262" rx="16" ry="10" fill="${bgColour}"/>` + MOUTHS[m];
 }
 
 /** The whole character for one pose, layers in film order: back, body, far arm, front props, near arm, head. */
@@ -89,7 +90,7 @@ export function figure(char: string, look: Look, pose: Pose, layers: Layers): st
   s += layers.front ?? '';
   s += arm(-1, pose.armL ?? 'down', sleeve, look.skin, pose.holds);         // near arm: hand over the prop = grip
   s += layers.head(pose);
-  if (pose.mouth) s += mouth(pose.mouth, look.skin);
+  if (pose.mouth) s += mouth(pose.mouth, layers.mouthBg ?? look.skin);
   const { height, width } = look.build;
   return `<g data-figure="${char}" transform="scale(${f * width} ${height})">${s}</g>`;   // build + facing
 }

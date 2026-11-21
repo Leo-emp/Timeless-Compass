@@ -1,0 +1,44 @@
+{
+  "id": "xerxes",
+  "name": "Xerxes",
+  "aliases": [
+    "king xerxes",
+    "xerxes the great",
+    "the great king",
+    "king of kings"
+  ],
+  "who": "Xerxes I, King of Kings of the Achaemenid empire (c. 518-465 BC), about 38 at Salamis",
+  "kind": "real",
+  "era": "persia_480bc",
+  "design_source": "Persepolis reliefs (Treasury audience relief, Gate of All Nations): long squared beard in rows of tight curls, curled hair bunched at the nape, crenellated royal crown, long court robe with wide sleeves",
+  "voice": "xerxes",
+  "look": {
+    "skin": "#c98f62",
+    "hair": {
+      "style": "nape_bun_curls",
+      "colour": "#1c1612"
+    },
+    "beard": {
+      "style": "squared_curls",
+      "colour": "#1c1612"
+    },
+    "build": {
+      "height": 1.06,
+      "width": 1.0
+    },
+    "headgear": "crenellated gold crown",
+    "parts": {
+      "robe": "#5b2a6e",
+      "trim": "#d9b443",
+      "crown": "#e2b23f",
+      "boots": "#3b2416"
+    }
+  },
+  "signature": [
+    "long squared beard in rows of curls",
+    "crenellated gold crown",
+    "purple court robe with gold trim",
+    "golden sceptre"
+  ],
+  "version": 1
+}

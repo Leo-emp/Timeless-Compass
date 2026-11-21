@@ -59,3 +59,12 @@ def test_resolve_by_alias_and_id():
 
 def test_registry_lists_ids():
     assert characters.all_ids() == ["xerxes"] and characters.load_sheet("xerxes")["name"] == "Xerxes"
+
+
+def test_real_registry_sheets_are_sheets():
+    """Guard (2026-11-21 bug): a renderer once overwrote sheet.json with element boxes. Every real sheet must be a sheet."""
+    import pathlib
+    real = pathlib.Path(__file__).parent.parent / "library" / "characters"
+    for f in real.glob("*/sheet.json"):
+        d = json.loads(f.read_text(encoding="utf-8"))
+        assert "look" in d and "id" in d and "elements" not in d, f

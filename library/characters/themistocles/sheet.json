@@ -1,0 +1,42 @@
+{
+  "id": "themistocles",
+  "name": "Themistocles",
+  "aliases": [
+    "themistokles",
+    "themistocles of athens"
+  ],
+  "who": "Themistocles, Athenian statesman and general (c. 524-459 BC)",
+  "kind": "real",
+  "era": "greece_480bc",
+  "design_source": "Ostia herm (Roman copy of a c. 470 BC Greek portrait, Museo Ostiense): broad face, heavy brow, short full beard, short curly hair; Athenian citizen dress (chiton + himation) from Attic red-figure vases",
+  "voice": "themistocles",
+  "look": {
+    "skin": "#e0b48c",
+    "hair": {
+      "style": "short_curly",
+      "colour": "#4a3222"
+    },
+    "beard": {
+      "style": "short_full",
+      "colour": "#4a3222"
+    },
+    "build": {
+      "height": 0.97,
+      "width": 1.08
+    },
+    "headgear": "none",
+    "parts": {
+      "tunic": "#efe8d6",
+      "robe": "#b5793a",
+      "trim": "#6b3f22",
+      "boots": "#6a4a30"
+    }
+  },
+  "signature": [
+    "broad face and heavy brow",
+    "short curly hair + short full beard",
+    "ochre himation over a cream chiton",
+    "no armour in council scenes"
+  ],
+  "version": 1
+}

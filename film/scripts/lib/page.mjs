@@ -23,7 +23,7 @@ export async function bundleDraw(modulePath, exportName, wrap = 'f') {
 }
 
 /** Draw window.__draw(arg) at W x H, return {elements}, save outPng (+ .json next to it). */
-export async function renderToPng({ js, arg, W = 1920, H = 1080, outPng }) {
+export async function renderToPng({ js, arg, W = 1920, H = 1080, outPng, outJson = outPng.replace(/\.png$/i, '.json') }) {
   // 2. a page with the bundled fonts and an empty svg
   const fontUrl = 'file:///' + path.join(FILM, 'public', 'fonts', 'Cinzel.ttf').split(path.sep).join('/');
   const html = `<!doctype html><html><head><meta charset="utf-8"><style>
@@ -38,9 +38,12 @@ export async function renderToPng({ js, arg, W = 1920, H = 1080, outPng }) {
   const browser = await puppeteer.launch({ executablePath: exe, headless: true, args: ['--allow-file-access-from-files'] });
   try {
     const page = await browser.newPage();
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));          // surface script errors instead of a vague failure
     await page.setViewport({ width: W, height: H });
     await page.goto('file:///' + tmpHtml.split(path.sep).join('/'));
     await page.addScriptTag({ content: js });
+    if (errors.length) throw new Error('scene script failed in the browser: ' + errors.join(' | '));
     await page.evaluate(async (arg) => {
       document.getElementById('s').innerHTML = window.__draw(arg);
       await document.fonts.load('700 27px Cinzel');   // the card must be measured in its real font
@@ -79,7 +82,7 @@ export async function renderToPng({ js, arg, W = 1920, H = 1080, outPng }) {
       return out;
     });
     await page.screenshot({ path: outPng });
-    fs.writeFileSync(outPng.replace(/\.png$/i, '.json'), JSON.stringify({ w: W, h: H, arg, elements }, null, 1));
+    fs.writeFileSync(outJson, JSON.stringify({ w: W, h: H, arg, elements }, null, 1));
     return { elements };
   } finally {
     await browser.close();

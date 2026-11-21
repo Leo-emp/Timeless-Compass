@@ -15,6 +15,7 @@ fs.writeFileSync(entry, `import { draw } from '../src/characters/${id}';\nimport
   `export const sheetDraw = () => drawSheet(draw, ${JSON.stringify(sheet)});\n`);
 try {
   const js = await bundleDraw(path.relative(FILM, entry), 'sheetDraw', 'f()');
-  const { elements } = await renderToPng({ js, arg: 0, outPng: path.join(lib, 'sheet.png') });
+  // element boxes go to film/out, NEVER next to sheet.png (that name is the character's sheet.json)
+  const { elements } = await renderToPng({ js, arg: 0, outPng: path.join(lib, 'sheet.png'), outJson: path.join(FILM, 'out', `${id}.sheet-boxes.json`) });
   console.log(`${path.join(lib, 'sheet.png')}: ${elements.length} tagged elements`);
 } finally { fs.rmSync(entry, { force: true }); }
