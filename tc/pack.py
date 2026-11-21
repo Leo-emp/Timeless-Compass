@@ -67,9 +67,47 @@ def description(d: Path) -> str:
     text = base
     if _job(d).get("kind") == "short":
         text += "\n\n#Shorts #history"
+    elif (d / "timings.json").exists():
+        ch = chapters((d / "script.md").read_text(encoding="utf-8"),
+                      json.loads((d / "timings.json").read_text(encoding="utf-8")), _upload(d).get("chapters", {}))
+        if ch:
+            text += "\n\nChapters:\n" + "\n".join(ch)
     if cites:
         text += "\n\nSources:\n" + "\n".join(f"- {c}" for c in cites)
     return build_description(text, (d / "script.md").read_text(encoding="utf-8"))
+
+
+MIN_CHAPTER_S, MIN_CHAPTERS = 10, 3        # YouTube's chapter rules (first at 0:00, >= 3, each >= 10 s)
+
+
+def _clock(s: float) -> str:
+    s = int(s)
+    return f"{s // 3600}:{s % 3600 // 60:02d}:{s % 60:02d}" if s >= 3600 else f"{s // 60}:{s % 60:02d}"
+
+
+def chapters(script_text: str, timings: dict, names: dict[str, str]) -> list[str]:
+    """YouTube chapter lines from the script's sections: each starts at its first timed line. 'title' is skipped,
+    the first chapter is forced to 0:00, a chapter shorter than 10 s is merged into the one before, and fewer than
+    3 chapters means none (YouTube would ignore them)."""
+    from tc.script import parse_script
+    starts = {t["index"]: float(t["start"]) for t in timings.get("lines", [])}
+    out: list[list] = []                               # [start, section]
+    for ln in parse_script(script_text):
+        if ln.section == "title" or ln.index not in starts or (out and out[-1][1] == ln.section):
+            continue
+        out.append([starts[ln.index], ln.section])
+    if not out:
+        return []
+    out[0][0] = 0.0
+    kept = [out[0]]
+    for i, (s, sec) in enumerate(out[1:], 1):
+        nxt = out[i + 1][0] if i + 1 < len(out) else None
+        if s - kept[-1][0] < MIN_CHAPTER_S or (nxt is not None and nxt - s < MIN_CHAPTER_S):
+            continue                                   # too short: its time stays with the chapter before
+        kept.append([s, sec])
+    if len(kept) < MIN_CHAPTERS:
+        return []
+    return [f"{_clock(s)} {names.get(sec) or sec.replace('_', ' ').title()}" for s, sec in kept]
 
 
 def posting_slot(kind: str, now: datetime) -> str:

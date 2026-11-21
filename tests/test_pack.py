@@ -122,3 +122,53 @@ def test_notify_keeps_the_token_off_any_command_line(monkeypatch):
     monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
     assert pack.notify("hi", {"TC_TELEGRAM_BOT_TOKEN": "t", "TC_TELEGRAM_CHAT_ID": "1"}) is True
     assert seen["url"].endswith("/sendMessage")
+
+
+# ---- chapters (long videos) ----------------------------------------------------------------------------------
+LONG_SCRIPT = """## cold_open
+At dawn a king sat on a throne. [src: f-1]
+## title
+## world
+Athens was empty. [src: f-1]
+## tension
+The fleet was trapped. [src: f-1]
+## turning_point
+A slave rowed out at night. [src: f-1]
+## climax
+The rams struck. [src: f-1]
+"""
+
+
+def _timings(starts):
+    return {"lines": [{"index": i, "start": s, "end": s + 3} for i, s in enumerate(starts)]}
+
+
+def test_chapters_follow_youtube_rules():
+    names = {"cold_open": "The King's Throne", "world": "The Empty City", "tension": "Trapped",
+             "turning_point": "The Secret Message", "climax": "The Rams"}
+    ch = pack.chapters(LONG_SCRIPT, _timings([2.0, 40.0, 130.0, 300.0, 305.0]), names)
+    assert ch[0] == "0:00 The King's Throne"                         # always starts at 0:00
+    assert ch[1:3] == ["0:40 The Empty City", "2:10 Trapped"]
+    assert ch[-1] == "5:05 The Rams" and len(ch) == 4                 # the 5 s chapter's time goes to the one before
+    assert not any("The Secret Message" in c for c in ch)
+    assert pack.chapters(LONG_SCRIPT, _timings([0, 4, 8, 12, 15]), names) == []     # under 3 valid chapters -> none
+
+
+def test_chapters_fallback_names():
+    ch = pack.chapters(LONG_SCRIPT, _timings([0, 40, 130, 300, 400]), {})
+    assert "2:10 Tension" in ch and "5:00 Turning Point" in ch
+
+
+def test_long_description_has_chapters(jobdir):
+    job = json.loads((jobdir / "job.json").read_text(encoding="utf-8"))
+    job["kind"] = "long"
+    (jobdir / "job.json").write_text(json.dumps(job), encoding="utf-8")
+    (jobdir / "script.md").write_text(LONG_SCRIPT, encoding="utf-8")
+    (jobdir / "timings.json").write_text(json.dumps(_timings([0, 40, 130, 300, 400])), encoding="utf-8")
+    text = pack.description(jobdir)
+    assert "Chapters:\n0:00 " in text and "#Shorts" not in text
+
+
+def test_short_description_has_no_chapters(jobdir):
+    (jobdir / "timings.json").write_text(json.dumps(_timings([0, 40])), encoding="utf-8")
+    assert "Chapters:" not in pack.description(jobdir)
