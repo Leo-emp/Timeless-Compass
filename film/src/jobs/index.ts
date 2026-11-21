@@ -2,6 +2,9 @@
 import type { SceneFn, TimedPlan } from '../film/sequence';
 import plan0 from './20261121_0752_the_trap_at_salamis_proof/plan.json';
 import { SCENES as scenes0 } from './20261121_0752_the_trap_at_salamis_proof/scenes';
+import plan1 from './20261121_0919_come_and_take_them_thermopylae/plan.json';
+import { SCENES as scenes1 } from './20261121_0919_come_and_take_them_thermopylae/scenes';
 export const JOBS: { slug: string; plan: TimedPlan; scenes: Record<string, SceneFn> }[] = [
   { slug: '20261121_0752_the_trap_at_salamis_proof', plan: plan0 as unknown as TimedPlan, scenes: scenes0 },
+  { slug: '20261121_0919_come_and_take_them_thermopylae', plan: plan1 as unknown as TimedPlan, scenes: scenes1 },
 ];

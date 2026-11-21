@@ -1,0 +1,1423 @@
+{
+ "fps": 24,
+ "frames": 2911,
+ "width": 1080,
+ "height": 1920,
+ "shots": [
+  {
+   "id": "s01",
+   "line": 0,
+   "place": "army",
+   "scene": "army_vast",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "crane_down",
+    "amount": 0.12
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "fade_black",
+    "frames": 10
+   },
+   "era_items": [
+    "immortal",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "largest",
+     "do": "endless columns of the Persian army fill the plain",
+     "kind": "reveal",
+     "word_frame": 4,
+     "frame": -2
+    },
+    {
+     "word": "Spartans",
+     "do": "far away, a tiny line of red cloaks",
+     "kind": "reveal",
+     "word_frame": 58,
+     "frame": 52
+    },
+    {
+     "word": "chance",
+     "do": "the columns halt",
+     "kind": "object",
+     "word_frame": 85,
+     "frame": 79
+    }
+   ],
+   "sfx": [
+    {
+     "word": "army",
+     "sound": "footsteps_march_army_fs240732",
+     "db": -16,
+     "at": 0.56
+    }
+   ],
+   "music": {
+    "cue": "hook",
+    "from_word": "The",
+    "until": "s03",
+    "at": 0.0
+   },
+   "start_f": 0,
+   "end_f": 127
+  },
+  {
+   "id": "s02",
+   "line": 1,
+   "place": "throne",
+   "scene": "throne_offer",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "Lay",
+     "do": "Xerxes leans forward",
+     "kind": "gesture",
+     "word_frame": 127,
+     "frame": 121
+    },
+    {
+     "word": "live",
+     "do": "a thin smile",
+     "kind": "expression",
+     "word_frame": 180,
+     "frame": 174
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 127,
+   "end_f": 206
+  },
+  {
+   "id": "s03",
+   "line": 2,
+   "place": "army",
+   "scene": "army_nations",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "track",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "immortal",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "marched",
+     "do": "rows of soldiers march past",
+     "kind": "object",
+     "word_frame": 212,
+     "frame": 206
+    },
+    {
+     "word": "Asia",
+     "do": "banners rise",
+     "kind": "object",
+     "word_frame": 225,
+     "frame": 219
+    },
+    {
+     "word": "nations",
+     "do": "every row wears different hats and shields",
+     "kind": "reveal",
+     "word_frame": 269,
+     "frame": 263
+    }
+   ],
+   "sfx": [
+    {
+     "word": "marched",
+     "sound": "drum_rhythm_war_fs342465",
+     "db": -18,
+     "at": 8.82
+    }
+   ],
+   "music": null,
+   "start_f": 206,
+   "end_f": 304
+  },
+  {
+   "id": "s04",
+   "line": 3,
+   "place": "pass",
+   "scene": "pass_envoy",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.12
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 10
+   },
+   "era_items": [
+    "pass",
+    "phocian_wall"
+   ],
+   "beats": [
+    {
+     "word": "envoy",
+     "do": "a herald with a staff walks into the pass",
+     "kind": "reveal",
+     "word_frame": 306,
+     "frame": 300
+    },
+    {
+     "word": "Thermopylae",
+     "do": "the place card appears",
+     "kind": "reveal",
+     "word_frame": 340,
+     "frame": 334
+    },
+    {
+     "word": "narrow",
+     "do": "the cliffs close in",
+     "kind": "camera",
+     "word_frame": 379,
+     "frame": 373
+    },
+    {
+     "word": "side",
+     "do": "two men abreast fill the road",
+     "kind": "reveal",
+     "word_frame": 426,
+     "frame": 420
+    }
+   ],
+   "sfx": [
+    {
+     "word": "narrow",
+     "sound": "wind_fs711106",
+     "db": -24,
+     "at": 15.8
+    }
+   ],
+   "music": null,
+   "start_f": 304,
+   "end_f": 468
+  },
+  {
+   "id": "s05",
+   "line": 4,
+   "place": "pass",
+   "scene": "pass_scout",
+   "size": "ms",
+   "angle": "ots",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "pass",
+    "phocian_wall",
+    "hoplite"
+   ],
+   "beats": [
+    {
+     "word": "scout",
+     "do": "a Persian scout peers over a rock",
+     "kind": "reveal",
+     "word_frame": 478,
+     "frame": 472
+    },
+    {
+     "word": "count",
+     "do": "he counts on his fingers",
+     "kind": "gesture",
+     "word_frame": 507,
+     "frame": 501
+    },
+    {
+     "word": "wall",
+     "do": "the wall hides most of them",
+     "kind": "reveal",
+     "word_frame": 584,
+     "frame": 578
+    },
+    {
+     "word": "only",
+     "do": "his eyes widen: so few",
+     "kind": "expression",
+     "word_frame": 532,
+     "frame": 526
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 468,
+   "end_f": 612
+  },
+  {
+   "id": "s06",
+   "line": 5,
+   "place": "pass",
+   "scene": "pass_comb",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.05
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "hope"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "hoplite",
+    "comb",
+    "aspis_lambda"
+   ],
+   "beats": [
+    {
+     "word": "combing",
+     "do": "Spartans comb their long hair",
+     "kind": "gesture",
+     "word_frame": 627,
+     "frame": 621
+    },
+    {
+     "word": "hair",
+     "do": "one ties his hair back",
+     "kind": "gesture",
+     "word_frame": 647,
+     "frame": 641
+    },
+    {
+     "word": "festival",
+     "do": "a Spartan laughs",
+     "kind": "expression",
+     "word_frame": 698,
+     "frame": 692
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 612,
+   "end_f": 726
+  },
+  {
+   "id": "s07",
+   "line": 6,
+   "place": "throne",
+   "scene": "throne_laugh",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "laughed",
+     "do": "Xerxes throws back his head and laughs",
+     "kind": "expression",
+     "word_frame": 739,
+     "frame": 733
+    },
+    {
+     "word": "days",
+     "do": "the sun races across the sky: days pass",
+     "kind": "object",
+     "word_frame": 773,
+     "frame": 767
+    },
+    {
+     "word": "away",
+     "do": "he waits, drumming his fingers",
+     "kind": "gesture",
+     "word_frame": 795,
+     "frame": 789
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 726,
+   "end_f": 824
+  },
+  {
+   "id": "s08",
+   "line": 7,
+   "place": "pass",
+   "scene": "pass_firm",
+   "size": "ws",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.05
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 8
+   },
+   "era_items": [
+    "hoplite",
+    "phocian_wall",
+    "aspis_lambda"
+   ],
+   "beats": [
+    {
+     "word": "run",
+     "do": "the Spartans stand firm at the wall",
+     "kind": "reveal",
+     "word_frame": 835,
+     "frame": 829
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 824,
+   "end_f": 872
+  },
+  {
+   "id": "s09",
+   "line": 8,
+   "place": "pass",
+   "scene": "pass_demand",
+   "size": "ms",
+   "angle": "ots",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.05
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "hoplite",
+    "aspis_lambda"
+   ],
+   "beats": [
+    {
+     "word": "demanded",
+     "do": "the herald points at the Spartan spears",
+     "kind": "gesture",
+     "word_frame": 882,
+     "frame": 876
+    },
+    {
+     "word": "Leonidas",
+     "do": "Leonidas looks up",
+     "kind": "expression",
+     "word_frame": 918,
+     "frame": 912
+    },
+    {
+     "word": "words",
+     "do": "he stands",
+     "kind": "gesture",
+     "word_frame": 950,
+     "frame": 944
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 872,
+   "end_f": 988
+  },
+  {
+   "id": "s10",
+   "line": 9,
+   "place": "pass",
+   "scene": "pass_leonidas",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "hoplite"
+   ],
+   "beats": [
+    {
+     "word": "take",
+     "do": "Leonidas, cold and calm",
+     "kind": "expression",
+     "word_frame": 1001,
+     "frame": 995
+    }
+   ],
+   "sfx": [],
+   "music": {
+    "cue": "battle",
+    "from_word": "Come",
+    "until": "s17",
+    "at": 41.18
+   },
+   "start_f": 988,
+   "end_f": 1030
+  },
+  {
+   "id": "s11",
+   "line": 10,
+   "place": "pass",
+   "scene": "pass_waves",
+   "size": "ws",
+   "angle": "high",
+   "camera": {
+    "move": "handheld",
+    "amount": 0.9
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "immortal",
+    "pass"
+   ],
+   "beats": [
+    {
+     "word": "Persians",
+     "do": "Persians pour into the pass",
+     "kind": "object",
+     "word_frame": 1036,
+     "frame": 1030
+    },
+    {
+     "word": "wave",
+     "do": "a first wave hits the shields",
+     "kind": "object",
+     "word_frame": 1061,
+     "frame": 1055
+    },
+    {
+     "word": "pass",
+     "do": "dust rises",
+     "kind": "object",
+     "word_frame": 1103,
+     "frame": 1097
+    }
+   ],
+   "sfx": [
+    {
+     "word": "wave",
+     "sound": "battle_crowd_ambience_fs258207",
+     "db": -14,
+     "at": 44.22
+    },
+    {
+     "word": "pass",
+     "sound": "shield_hit_wood_fs812518",
+     "db": -12,
+     "at": 45.94
+    }
+   ],
+   "music": null,
+   "start_f": 1030,
+   "end_f": 1136
+  },
+  {
+   "id": "s12",
+   "line": 11,
+   "place": "pass",
+   "scene": "pass_wall",
+   "size": "ms",
+   "angle": "low",
+   "camera": {
+    "move": "handheld",
+    "amount": 1.0
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "hoplite",
+    "aspis_lambda",
+    "immortal"
+   ],
+   "beats": [
+    {
+     "word": "gap",
+     "do": "the Spartan shield wall locks",
+     "kind": "gesture",
+     "word_frame": 1154,
+     "frame": 1148
+    },
+    {
+     "word": "nothing",
+     "do": "attackers bounce off",
+     "kind": "object",
+     "word_frame": 1180,
+     "frame": 1174
+    }
+   ],
+   "sfx": [
+    {
+     "word": "gap",
+     "sound": "shield_hit_wood_fs812518",
+     "db": -10,
+     "at": 48.1
+    }
+   ],
+   "music": null,
+   "start_f": 1136,
+   "end_f": 1210
+  },
+  {
+   "id": "s13",
+   "line": 12,
+   "place": "pass",
+   "scene": "pass_feint",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "track",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "hoplite",
+    "immortal"
+   ],
+   "beats": [
+    {
+     "word": "pretended",
+     "do": "the Spartans turn as if to run",
+     "kind": "gesture",
+     "word_frame": 1220,
+     "frame": 1214
+    },
+    {
+     "word": "turned",
+     "do": "they wheel round",
+     "kind": "gesture",
+     "word_frame": 1261,
+     "frame": 1255
+    },
+    {
+     "word": "chasing",
+     "do": "the chasers fall back",
+     "kind": "object",
+     "word_frame": 1300,
+     "frame": 1294
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1210,
+   "end_f": 1321
+  },
+  {
+   "id": "s14",
+   "line": 13,
+   "place": "throne",
+   "scene": "throne_leap",
+   "size": "ms",
+   "angle": "low",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "whip",
+    "frames": 8
+   },
+   "era_items": [
+    "throne",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "Three",
+     "do": "Xerxes jumps up",
+     "kind": "gesture",
+     "word_frame": 1321,
+     "frame": 1315
+    },
+    {
+     "word": "leapt",
+     "do": "and again",
+     "kind": "gesture",
+     "word_frame": 1375,
+     "frame": 1369
+    },
+    {
+     "word": "army",
+     "do": "and again, afraid",
+     "kind": "expression",
+     "word_frame": 1428,
+     "frame": 1422
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1321,
+   "end_f": 1456
+  },
+  {
+   "id": "s15",
+   "line": 14,
+   "place": "pass",
+   "scene": "pass_warning",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.05
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "whip",
+    "frames": 8
+   },
+   "era_items": [
+    "immortal"
+   ],
+   "beats": [
+    {
+     "word": "Persian",
+     "do": "a Persian officer shouts across",
+     "kind": "gesture",
+     "word_frame": 1459,
+     "frame": 1453
+    },
+    {
+     "word": "arrows",
+     "do": "he points at the sky",
+     "kind": "gesture",
+     "word_frame": 1486,
+     "frame": 1480
+    },
+    {
+     "word": "sun",
+     "do": "arrows darken the sky",
+     "kind": "object",
+     "word_frame": 1523,
+     "frame": 1517
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1456,
+   "end_f": 1559
+  },
+  {
+   "id": "s16",
+   "line": 15,
+   "place": "pass",
+   "scene": "pass_dienekes",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "hoplite"
+   ],
+   "beats": [
+    {
+     "word": "Good",
+     "do": "Dienekes grins",
+     "kind": "expression",
+     "word_frame": 1559,
+     "frame": 1553
+    },
+    {
+     "word": "shade",
+     "do": "shadow falls across his face",
+     "kind": "object",
+     "word_frame": 1596,
+     "frame": 1590
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1559,
+   "end_f": 1621
+  },
+  {
+   "id": "s17",
+   "line": 16,
+   "place": "pass",
+   "scene": "pass_immortals",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "handheld",
+    "amount": 0.9
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "immortal",
+    "hoplite"
+   ],
+   "beats": [
+    {
+     "word": "elite",
+     "do": "the Immortals charge in gold and white",
+     "kind": "object",
+     "word_frame": 1637,
+     "frame": 1631
+    },
+    {
+     "word": "back",
+     "do": "they are thrown back",
+     "kind": "object",
+     "word_frame": 1668,
+     "frame": 1662
+    }
+   ],
+   "sfx": [
+    {
+     "word": "back",
+     "sound": "war_cry_shout_fs521831",
+     "db": -14,
+     "at": 69.52
+    }
+   ],
+   "music": null,
+   "start_f": 1621,
+   "end_f": 1698
+  },
+  {
+   "id": "s18",
+   "line": 17,
+   "place": "pass",
+   "scene": "pass_dusk",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 12
+   },
+   "era_items": [
+    "pass",
+    "phocian_wall"
+   ],
+   "beats": [
+    {
+     "word": "two",
+     "do": "the sun goes down over the pass",
+     "kind": "reveal",
+     "word_frame": 1703,
+     "frame": 1697
+    },
+    {
+     "word": "held",
+     "do": "the red line still holds",
+     "kind": "reveal",
+     "word_frame": 1737,
+     "frame": 1731
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1698,
+   "end_f": 1766
+  },
+  {
+   "id": "s19",
+   "line": 18,
+   "place": "tent",
+   "scene": "tent_ephialtes",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "fade_black",
+    "frames": 12
+   },
+   "era_items": [
+    "royal_tent",
+    "throne",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "night",
+     "do": "lamplight in the royal tent",
+     "kind": "reveal",
+     "word_frame": 1777,
+     "frame": 1771
+    },
+    {
+     "word": "Ephialtes",
+     "do": "a Greek kneels before the king",
+     "kind": "reveal",
+     "word_frame": 1809,
+     "frame": 1803
+    },
+    {
+     "word": "tent",
+     "do": "Xerxes leans in",
+     "kind": "gesture",
+     "word_frame": 1848,
+     "frame": 1842
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1766,
+   "end_f": 1872
+  },
+  {
+   "id": "s20",
+   "line": 19,
+   "place": "tent",
+   "scene": "tent_map",
+   "size": "cu",
+   "angle": "high",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "royal_tent"
+   ],
+   "beats": [
+    {
+     "word": "secret",
+     "do": "a finger traces a line on a map",
+     "kind": "gesture",
+     "word_frame": 1888,
+     "frame": 1882
+    },
+    {
+     "word": "mountain",
+     "do": "over the mountain",
+     "kind": "object",
+     "word_frame": 1916,
+     "frame": 1910
+    },
+    {
+     "word": "Spartans",
+     "do": "behind the Spartans",
+     "kind": "object",
+     "word_frame": 1954,
+     "frame": 1948
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1872,
+   "end_f": 1979
+  },
+  {
+   "id": "s21",
+   "line": 20,
+   "place": "path",
+   "scene": "path_night",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "crane_up",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 12
+   },
+   "era_items": [
+    "anopaea",
+    "immortal",
+    "pine"
+   ],
+   "beats": [
+    {
+     "word": "dark",
+     "do": "a moonlit mountain path",
+     "kind": "reveal",
+     "word_frame": 1995,
+     "frame": 1989
+    },
+    {
+     "word": "Immortals",
+     "do": "a long file of soldiers climbs",
+     "kind": "object",
+     "word_frame": 2011,
+     "frame": 2005
+    },
+    {
+     "word": "silence",
+     "do": "they pass through the pines",
+     "kind": "object",
+     "word_frame": 2042,
+     "frame": 2036
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1979,
+   "end_f": 2076
+  },
+  {
+   "id": "s22",
+   "line": 21,
+   "place": "pass",
+   "scene": "pass_ridge",
+   "size": "ws",
+   "angle": "low",
+   "camera": {
+    "move": "rack_focus",
+    "amount": 6
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "pass",
+    "hoplite",
+    "immortal"
+   ],
+   "beats": [
+    {
+     "word": "dawn",
+     "do": "first light on the pass",
+     "kind": "reveal",
+     "word_frame": 2081,
+     "frame": 2075
+    },
+    {
+     "word": "Leonidas",
+     "do": "Leonidas turns",
+     "kind": "gesture",
+     "word_frame": 2100,
+     "frame": 2094
+    },
+    {
+     "word": "ridge",
+     "do": "Immortals on the ridge behind",
+     "kind": "reveal",
+     "word_frame": 2128,
+     "frame": 2122
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 2076,
+   "end_f": 2166
+  },
+  {
+   "id": "s23",
+   "line": 22,
+   "place": "pass",
+   "scene": "pass_resolve",
+   "size": "cu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "hoplite"
+   ],
+   "beats": [
+    {
+     "word": "surrounded",
+     "do": "Leonidas understands",
+     "kind": "expression",
+     "word_frame": 2173,
+     "frame": 2167
+    },
+    {
+     "word": "breakfast",
+     "do": "a small grim smile to his men",
+     "kind": "expression",
+     "line": 23,
+     "word_frame": 2246,
+     "frame": 2240
+    },
+    {
+     "word": "underworld",
+     "do": "he nods",
+     "kind": "gesture",
+     "line": 23,
+     "word_frame": 2311,
+     "frame": 2305
+    },
+    {
+     "word": "told",
+     "line": 23,
+     "do": "he turns to his men",
+     "kind": "gesture",
+     "word_frame": 2219,
+     "frame": 2213
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 2166,
+   "end_f": 2352
+  },
+  {
+   "id": "s24",
+   "line": 24,
+   "place": "pass",
+   "scene": "pass_allies",
+   "size": "ws",
+   "angle": "high",
+   "camera": {
+    "move": "track",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "pass",
+    "hoplite"
+   ],
+   "beats": [
+    {
+     "word": "thousands",
+     "do": "the allies march away down the road",
+     "kind": "object",
+     "word_frame": 2373,
+     "frame": 2367
+    },
+    {
+     "word": "marched",
+     "do": "they look back",
+     "kind": "expression",
+     "word_frame": 2412,
+     "frame": 2406
+    },
+    {
+     "word": "Greece",
+     "do": "the Spartans watch them go",
+     "kind": "reveal",
+     "word_frame": 2444,
+     "frame": 2438
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 2352,
+   "end_f": 2499
+  },
+  {
+   "id": "s25",
+   "line": 25,
+   "place": "pass",
+   "scene": "pass_laststand",
+   "size": "ws",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "hoplite",
+    "aspis_lambda",
+    "immortal"
+   ],
+   "beats": [
+    {
+     "word": "turned",
+     "do": "they turn to face the army",
+     "kind": "gesture",
+     "word_frame": 2508,
+     "frame": 2502
+    },
+    {
+     "word": "army",
+     "do": "the whole Persian army fills the pass",
+     "kind": "reveal",
+     "word_frame": 2546,
+     "frame": 2540
+    },
+    {
+     "word": "fell",
+     "do": "a last charge into the dust",
+     "kind": "object",
+     "line": 26,
+     "word_frame": 2630,
+     "frame": 2624
+    },
+    {
+     "word": "Spartans",
+     "line": 26,
+     "do": "shields lock for the last time",
+     "kind": "gesture",
+     "word_frame": 2588,
+     "frame": 2582
+    }
+   ],
+   "sfx": [
+    {
+     "word": "army",
+     "sound": "battle_crowd_distant_fs823852",
+     "db": -14,
+     "at": 106.1
+    }
+   ],
+   "music": {
+    "cue": "ending",
+    "from_word": "Then",
+    "until": "s27",
+    "at": 104.14
+   },
+   "start_f": 2499,
+   "end_f": 2637
+  },
+  {
+   "id": "s26",
+   "line": 27,
+   "place": "pass",
+   "scene": "pass_stone",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "fade_black",
+    "frames": 14
+   },
+   "era_items": [
+    "stone",
+    "pass"
+   ],
+   "beats": [
+    {
+     "word": "stone",
+     "do": "the epitaph stone at the pass",
+     "kind": "reveal",
+     "word_frame": 2660,
+     "frame": 2654
+    },
+    {
+     "word": "travelers",
+     "do": "wind moves the grass",
+     "kind": "object",
+     "word_frame": 2724,
+     "frame": 2718
+    },
+    {
+     "word": "laws",
+     "do": "the light fades on the words",
+     "kind": "reveal",
+     "word_frame": 2781,
+     "frame": 2775
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 2637,
+   "end_f": 2817
+  },
+  {
+   "id": "s27",
+   "line": 28,
+   "place": "pass",
+   "scene": "pass_weapons",
+   "size": "ews",
+   "angle": "low",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "pass",
+    "phocian_wall",
+    "aspis_lambda"
+   ],
+   "beats": [
+    {
+     "word": "pass",
+     "do": "the empty pass at sunset",
+     "kind": "reveal",
+     "word_frame": 2831,
+     "frame": 2825
+    },
+    {
+     "word": "weapons",
+     "do": "a Spartan shield and spear still stand on the wall",
+     "kind": "reveal",
+     "line": 29,
+     "word_frame": 2880,
+     "frame": 2874
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 2817,
+   "end_f": 2911
+  }
+ ]
+}
