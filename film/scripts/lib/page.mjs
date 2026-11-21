@@ -54,7 +54,20 @@ export async function renderToPng({ js, arg, W = 1920, H = 1080, outPng, outJson
       const out = [];
       document.querySelectorAll('[data-role], [data-char]').forEach((el, order) => {
         const r = el.getBoundingClientRect();                 // screen box after all transforms
-        out.push({ role: el.getAttribute('data-role'), id: el.getAttribute('data-id'), holds: el.getAttribute('data-holds'), acting: el.getAttribute('data-acting'),
+        // for character parts: the colours REALLY painted inside (computed fill of every opaque shape), not just the claim
+      let fills = null;
+      if (el.getAttribute('data-char')) {
+        const set = new Set();
+        el.querySelectorAll('path, circle, ellipse, rect, polygon').forEach((sh) => {
+          if (sh.closest('clipPath')) return;                         // clip masks are never painted
+          const cs = getComputedStyle(sh);
+          const m = cs.fill.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/);
+          if (!m || (m[4] !== undefined && Number(m[4]) < 1) || Number(cs.fillOpacity) < 1) return;   // none / see-through shading
+          set.add('#' + [m[1], m[2], m[3]].map((v) => Number(v).toString(16).padStart(2, '0')).join(''));
+        });
+        fills = [...set];
+      }
+      out.push({ role: el.getAttribute('data-role'), id: el.getAttribute('data-id'), holds: el.getAttribute('data-holds'), acting: el.getAttribute('data-acting'), fills,
                    char: el.getAttribute('data-char'), part: el.getAttribute('data-part'), fill: el.getAttribute('data-fill'),
                    box: [r.x, r.y, r.width, r.height], order });
       });

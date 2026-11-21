@@ -3,6 +3,8 @@
 # Used by `tc still <png> --json <json> --chars`.
 from tc import characters
 
+OUTLINE = "#2a1c13"     # the house outline colour may appear in any part
+
 
 def character_problems(elements: list[dict], sheets: dict[str, dict]) -> list[str]:
     probs, seen = [], set()
@@ -25,6 +27,14 @@ def character_problems(elements: list[dict], sheets: dict[str, dict]) -> list[st
             probs.append(f"{cid}: no colour for part {e.get('part')!r} on the sheet")
         elif str(e.get("fill", "")).lower() != want.lower():
             probs.append(f"{cid} {e['part']} is {str(e.get('fill')).lower()}, sheet says {want.lower()}")
+        # the colours really drawn inside the part (inspector: computed fills of every opaque shape in the group)
+        drawn = [f.lower() for f in e.get("fills", [])]
+        if drawn and want:
+            allowed = {c.lower() for c in colours.values() if c} | {a.lower() for a in look.get("accents", [])} | {OUTLINE}
+            for f in sorted(set(drawn) - allowed):
+                probs.append(f"{cid} {e['part']} draws {f}, which is not on the sheet (parts or accents)")
+            if want.lower() not in drawn:
+                probs.append(f"{cid} {e['part']}: its sheet colour {want.lower()} is not drawn (it claims it but paints {sorted(set(drawn))})")
     return probs
 
 

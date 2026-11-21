@@ -33,7 +33,10 @@
       "crest": "#b23a2a",
       "shield": "#b23a2a",
       "trim": "#efe0b8"
-    }
+    },
+    "accents": [
+      "#8a6427"
+    ]
   },
   "signature": [
     "transverse (side-to-side) red crest",

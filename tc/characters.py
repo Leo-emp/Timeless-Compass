@@ -46,6 +46,18 @@ def resolve(name: str) -> str | None:
     return None
 
 
+def registry_problems() -> list[str]:
+    """Across ALL sheets: a name or alias may belong to only one character (else a speaker resolves to the wrong voice)."""
+    owner, probs = {}, []
+    for cid in all_ids():
+        s = load_sheet(cid)
+        for n in {_norm(cid), _norm(s.get("name", ""))} | {_norm(a) for a in s.get("aliases", [])}:
+            if n and n in owner and owner[n] != cid:
+                probs.append(f"name/alias {n!r} belongs to both {owner[n]} and {cid}")
+            owner.setdefault(n, cid)
+    return probs
+
+
 def sheet_problems(sheet: dict, voices: dict) -> list[str]:
     probs = []
     for k in ("id", "name", "who", "era", "voice", "look"):
@@ -66,6 +78,9 @@ def sheet_problems(sheet: dict, voices: dict) -> list[str]:
             probs.append(f"unknown part {part!r}; parts are {sorted(PARTS)}")
         if not isinstance(col, str) or not HEX.match(col):
             probs.append(f"{part} colour must be #rrggbb, got {col!r}")
+    for a in look.get("accents", []):                 # extra detail colours a part may paint (dark bronze lines, ...)
+        if not isinstance(a, str) or not HEX.match(a):
+            probs.append(f"accent colour must be #rrggbb, got {a!r}")
     b = look.get("build", {})
     if not (0.85 <= b.get("height", 1) <= 1.15 and 0.85 <= b.get("width", 1) <= 1.2):
         probs.append("build height must be 0.85-1.15 and width 0.85-1.2")
@@ -97,7 +112,7 @@ def _cmd_characters(args) -> int:
             s = load_sheet(cid)
             print(f"{cid:16} {s['name']:20} voice={s.get('voice')}  {s.get('who', '')[:60]}")
         return 0
-    probs = sheet_problems(load_sheet(args.id), load_voices())
+    probs = sheet_problems(load_sheet(args.id), load_voices()) + registry_problems()
     for f in ("sheet.png",):
         if not (root() / args.id / f).exists():
             probs.append(f"missing {f} (node film/scripts/sheet.mjs {args.id})")

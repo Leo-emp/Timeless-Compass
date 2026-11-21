@@ -12,7 +12,8 @@ from tc.dialogue import load_voices
 from tc.script import parse_script
 
 
-def cast_problems(cast: dict, voices: dict, speakers: list[str]) -> list[str]:
+def cast_problems(cast: dict, voices: dict, speakers: list[str], speaker_voices: dict[str, str] | None = None) -> list[str]:
+    """speaker_voices = the voice each script speaker will really use (line key / job mapping / registry), if known."""
     probs, used = [], {}
     chars = voices.get("characters", {})
     known = set(characters.all_ids())
@@ -30,6 +31,14 @@ def cast_problems(cast: dict, voices: dict, speakers: list[str]) -> list[str]:
     for e in cast.get("extras", []):
         if e not in chars:
             probs.append(f"extra {e!r} has no voice in library/voices.json")
+    # the voices speakers will REALLY use (a line can name a voice, a job can map one): no two speakers may share
+    by_ref = {}
+    for sp, key in (speaker_voices or {}).items():
+        ref = chars.get(key, {}).get("reference_id")
+        if ref and ref in by_ref and by_ref[ref] != sp:
+            probs.append(f"{sp} and {by_ref[ref]} share a voice ({key}); every speaker needs its own")
+        if ref:
+            by_ref.setdefault(ref, sp)
     names = {re.sub(r"[^a-z0-9]+", "_", n.lower()) for n in cast.get("extras", [])}
     for sp in speakers:
         cid = characters.resolve(sp)
@@ -47,10 +56,20 @@ def _cmd_cast(args) -> int:
         print(f"write {d / 'cast.json'} first: {{\"characters\": [...], \"extras\": [...]}}")
         return 1
     cast = json.loads((d / "cast.json").read_text(encoding="utf-8"))
-    speakers = []
+    speakers, speaker_voices = [], {}
+    voices = load_voices()
+    mapping = json.loads((d / "cast_voices.json").read_text(encoding="utf-8")) if (d / "cast_voices.json").exists() else {}
     if (d / "script.md").exists():
-        speakers = sorted({l.speaker for l in parse_script((d / "script.md").read_text(encoding="utf-8")) if l.speaker})
-    probs = cast_problems(cast, load_voices(), speakers)
+        from tc.dialogue import DialogueError, voice_for
+        for l in parse_script((d / "script.md").read_text(encoding="utf-8")):
+            if l.speaker:
+                speakers.append(l.speaker)
+                try:
+                    speaker_voices[l.speaker] = voice_for(l.speaker, l.voice_key, voices, mapping)[0]
+                except DialogueError:
+                    pass                                   # reported below as "not in cast.json" / unknown voice
+        speakers = sorted(set(speakers))
+    probs = cast_problems(cast, voices, speakers, speaker_voices)
     for p in probs:
         print("problem:", p)
     if probs:
