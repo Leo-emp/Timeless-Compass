@@ -38,3 +38,6 @@ library/maps/ne/
 reference/
 # old 3D test stills (local only)
 spike/lib_stills/
+
+# rendered videos stay local
+proof/*.mp4

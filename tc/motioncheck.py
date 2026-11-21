@@ -22,7 +22,7 @@ def frame_diffs(video: Path, scale: int = 192, cols: int = 8, rows: int = 6) -> 
     tile (8 x 6 grid), so a local action (a face changing, a hand pointing) counts, not just whole-frame motion."""
     import numpy as np
     w, h = scale, scale * 9 // 16
-    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(video), "-vf", f"scale={w}:{h},gblur=sigma=1.5,format=gray",   # blur: film grain must not count as motion
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(video), "-fps_mode", "passthrough", "-vf", f"scale={w}:{h},gblur=sigma=1.5,format=gray",   # blur: film grain must not count as motion
                           "-f", "rawvideo", "-"], capture_output=True, check=True).stdout
     frames = np.frombuffer(raw, dtype=np.uint8)[: (len(raw) // (w * h)) * w * h].reshape(-1, h, w).astype(np.int16)
     if len(frames) < 2:

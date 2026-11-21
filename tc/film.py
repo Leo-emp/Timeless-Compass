@@ -56,9 +56,16 @@ def _start_frame(p: Path) -> int:
     return int(m.group(1))
 
 
-def concat_list(parts: list[Path]) -> str:
-    """ffmpeg concat-demuxer list, ordered by each part's first frame (not by file name text)."""
-    return "".join(f"file '{p.resolve().as_posix()}'\n" for p in sorted(parts, key=_start_frame))
+def concat_list(parts: list[Path], fps: int = 24) -> str:
+    """ffmpeg concat-demuxer list, ordered by each part's first frame (not by file name text).
+    Each part gets its EXACT duration (frames / fps): without it every seam gained one frame of time and the
+    joined video hitched slightly at every part boundary (found on the proof clip, 2026-11-21)."""
+    out = []
+    for p in sorted(parts, key=_start_frame):
+        m = PART_RE.search(p.name)
+        frames = int(m.group(2)) - int(m.group(1)) + 1
+        out.append(f"file '{p.resolve().as_posix()}'\nduration {frames / fps:.6f}\n")
+    return "".join(out)
 
 
 def find_parts(parts_dir: Path) -> list[Path]:

@@ -32,7 +32,7 @@ def test_dispatch_args_carry_json_ranges():
 
 def test_concat_list_orders_by_start_frame(tmp_path):
     ps = [tmp_path / "part-96-191.mp4", tmp_path / "part-0-95.mp4", tmp_path / "part-1000-1100.mp4"]
-    lines = concat_list(ps).splitlines()
+    lines = [l for l in concat_list(ps).splitlines() if l.startswith("file")]
     assert lines[0].endswith("part-0-95.mp4'") and lines[1].endswith("part-96-191.mp4'")
 
 
@@ -63,3 +63,8 @@ def test_join_finds_parts_in_artifact_subfolders(tmp_path):
     join_parts(tmp_path, tmp_path / "out.mp4", runner=lambda cmd, **k: calls.append(cmd))
     assert calls and calls[0][0] == "ffmpeg" and "copy" in calls[0]
     assert (tmp_path / "concat.txt").read_text().count("file ") == 2
+
+
+def test_concat_list_gives_each_part_its_exact_duration(tmp_path):
+    txt = concat_list([tmp_path / "part-0-23.mp4", tmp_path / "part-24-71.mp4"])
+    assert "duration 1.000000" in txt and "duration 2.000000" in txt
