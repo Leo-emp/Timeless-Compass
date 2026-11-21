@@ -812,7 +812,7 @@ const laurium_mine: SceneFn = (c) => {
   let citizens = '';
   for (let i = 0; i < 4; i++) citizens += at(780 + i * 120, 960, 1.0, civilian(c.t, 20 + i, { kind: 'man', expr: 'neutral', arm: share * (1 - give) * 0.6, to: give > 0.5 ? 'worried' : undefined, mix: give }));
   const wright = at(1180, 960, 1.1, civilian(c.t, 33, { kind: 'man', expr: 'neutral', to: 'sly', mix: give, arm: give * 0.7 }));
-  return L(c, 0.05, sky) + L(c, 1, s + miner + citizens + (give > 0.05 ? wright : '') + lump);
+  return L(c, 0.05, sky) + L(c, 1, s + miner + citizens + `<g opacity="${Math.min(1, give * 3).toFixed(2)}">${wright}</g>` + lump);
 };
 const shipyard: SceneFn = (c) => {
   // rows of new triremes on the slipways (reveal on "walls"); hammers fall on "wood"
@@ -846,7 +846,10 @@ const hellespont: SceneFn = (c) => {
   const reveal = easeInOut(bw(c, dusk ? 'bridges' : 'coming', 0.3, 1.0)), march = dusk ? 0.15 : 1;
   const sea = `<rect x="-200" y="600" width="${W + 400}" height="700" fill="${dusk ? '#4a4a6e' : '#4f8aa6'}"/>` + waves(c.t, 81, 610, 1080, 140, '#dcf0f3', 20) +
     bg('M-200 610 L300 560 L600 590 L900 550 L1200 600 Z', '#9c86a3', 3) + bg('M1100 610 L1500 560 L1900 590 L2120 570 L2120 620 Z', '#a993ad', 3);
-  return L(c, 0.05, sky) + L(c, 0.3, sea) + L(c, 1, `<g opacity="${(0.3 + 0.7 * reveal).toFixed(2)}">${hellespontBridge(c, march)}</g>`);
+  const king = easeInOut(bw(c, 'Xerxes', 0.3, 1.0)), swayB = Math.sin(Math.min(1, bw(c, 'bridges', 0.3, 1.2)) * Math.PI), more = easeInOut(bw(c, 'sea', 0.3, 1.0));
+  const royal = king > 0 ? at(-80 + 420 * king, 690, 0.32, parasol(c.t) + guard(c.t, 99)) : '';
+  const column2 = more > 0 ? `<g opacity="${more.toFixed(2)}">${Array.from({ length: 24 }, (_, i) => at(wrap(i * 90 + c.t * 30, W + 200) - 100, 880, 0.1, guard(c.t, 200 + i))).join('')}</g>` : '';
+  return L(c, 0.05, sky) + L(c, 0.3, sea) + L(c, 1, `<g opacity="${(0.3 + 0.7 * reveal).toFixed(2)}">${hellespontBridge(c, march, 3 * swayB)}</g>` + royal + column2);
 };
 const hellespont_close: SceneFn = (c) => {
   // MS low: the plank road sways under the feet on "stop"; endless feet on the planks on "walk"
@@ -856,7 +859,7 @@ const hellespont_close: SceneFn = (c) => {
   const tilt = 2 * sway * Math.sin(c.t * 2.5);
   let deck = `<rect x="-300" y="760" width="${W + 600}" height="70" fill="#8a6a44" stroke="${OUT}" stroke-width="5"/>`;
   for (let i = 0; i < 30; i++) deck += `<path d="M${-300 + i * 90} 760 L${-300 + i * 90} 830" stroke="#5a3f24" stroke-width="5"/>`;
-  const step = 230, off = wrap(c.t * 90 * (0.4 + 0.6 * walk), step);
+  const tw = c.beatT(bi(c, 'walk')) - 0.4, step = 230, off = wrap(c.t * 36 + 54 * Math.max(0, c.local - tw) * walk, step);   // speed changes never jump
   for (let x = -step + off; x < W + step; x += step) deck += at(x, 770, 0.9, guard(c.t, Math.floor(x)));
   s += `<g transform="rotate(${tilt.toFixed(2)} 960 790)">${deck}</g>`;
   return L(c, 0.05, sky) + L(c, 1, s);
@@ -875,7 +878,12 @@ const thermopylae: SceneFn = (c) => {
     men += at(820 + i * 95, 900 + 8 * (1 - line), 0.28, hopliteBody('#d8a87c', true) + aspis(56, -170, 78 * (0.9 + 0.1 * lock), undefined, 'lambda') + head('#d8a87c', 'stern', { extra: true }));
   }
   const spear = fall > 0.5 ? `<g opacity="${Math.min(1, (fall - 0.5) * 3).toFixed(2)}">${pole(1300, 640, 1300, 900, '#8b5a2b')}<path d="M1300 600 L1290 640 L1310 640 Z" fill="#bdbdbd" stroke="${OUT}" stroke-width="3"/></g>` : '';
-  return L(c, 0.05, sky) + L(c, 1, s + `<g opacity="${line.toFixed(2)}">${men}</g>` + spear);
+  const rise = easeOutBack(bw(c, 'pass', 0.3, 0.6)), hit = bw(c, 'held', 0.3, 0.8);
+  let spears = '';
+  for (let i = 0; i < 9; i++) if (fall <= (i + 1) / 10) spears += pole(838 + i * 95, 860 - 60 * rise, 838 + i * 95, 890, '#8b5a2b');
+  let wave = '';
+  if (hit > 0 && hit < 1) for (let i = 0; i < 6; i++) { const x = 1900 - 520 * Math.sin(hit * Math.PI / 2) + 180 * Math.max(0, hit - 0.6) * 2.5 + i * 50; wave += at(x, 905 + (i % 2) * 6, 0.26, guard(c.t, 300 + i), 10 * Math.max(0, hit - 0.6)); }
+  return L(c, 0.05, sky) + L(c, 1, s + `<g opacity="${line.toFixed(2)}">${spears}${men}</g>` + wave + spear);
 };
 const opensea_fleet_south: SceneFn = (c) => {
   // the Greek fleet turns south at dusk ("fleet"); Salamis rises ahead ("Salamis")
