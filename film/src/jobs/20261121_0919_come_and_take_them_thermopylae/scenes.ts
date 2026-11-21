@@ -210,7 +210,7 @@ const throne_laugh: SceneFn = (c) => {
   const sunX = -100 + (days % 1) * 1300, sunY = 700 - 500 * Math.sin((days % 1) * Math.PI);
   const set = plainSet(c, 'noon', sunX, sunY);   // the set's own sun is the one that crosses the sky
   return L(c, 0.05, set.sky) + L(c, 0.25, set.far + set.ground) +
-    L(c, 1, at(540, 2150, 2.0, throneSeat(c, { ...exch(c, 0, 'neutral', 'sly'), armR: { from: 'down', to: 'hip', k: easeInOut(bt(c, 2, 0.3, 0.6)) } }), 2.5 * Math.sin(c.local * 28) * Math.sin(Math.min(1, bt(c, 0, 0.2, 0.9)) * Math.PI))) + `<rect width="${W}" height="${H}" fill="#2a1838" opacity="${dimDay.toFixed(3)}"/>`;
+    L(c, 1, at(540, 2150, 2.0, throneSeat(c, { ...exch(c, 0, 'neutral', 'sly'), armR: { from: 'down', to: 'hip', k: easeInOut(bt(c, 2, 0.3, 0.6)) } }), 1.2 * Math.sin(c.local * 18) * Math.sin(Math.min(1, bt(c, 0, 0.2, 0.9)) * Math.PI))) + `<rect width="${W}" height="${H}" fill="#2a1838" opacity="${dimDay.toFixed(3)}"/>`;
 };
 const pass_firm: SceneFn = (c) => {
   const p = passSet(c, 'dawn');
