@@ -718,7 +718,10 @@ function acropolisRock(k = 1, hedge = 1, fire = 0, t = 0): string {
   s += bg('M240 -246 L330 -246 L330 -300 L240 -300 Z', '#e4d8bc', 3) + bg('M232 -300 L285 -326 L338 -300 Z', '#9a3a2a', 3);
   s += bg('M-330 -246 L-250 -246 L-250 -290 L-330 -290 Z', '#e4d8bc', 3) + bg('M-338 -290 L-290 -312 L-242 -290 Z', '#9a3a2a', 3);
   if (hedge > 0) for (let i = 0; i < 22; i++) { const x = -470 + i * 44, y = -150 - 90 * Math.sin(Math.PI * (i / 21)); s += `<g opacity="${hedge.toFixed(2)}" transform="translate(${x} ${y.toFixed(0)})">${bg('M-26 0 Q-30 -30 -10 -34 Q0 -50 14 -36 Q30 -32 26 0 Z', '#5c6e34', 3)}<path d="M-14 -20 l-10 -6 M8 -28 l10 -8" stroke="${OUT}" stroke-width="2"/></g>`; }
-  if (fire > 0) for (let q = 0; q < 10; q++) { const u = (q / 10 + t * 0.4) % 1; s += `<path d="M${(-150 + q * 32).toFixed(0)} -370 q${(10 * Math.sin(t * 7 + q)).toFixed(1)} ${(-60 - 80 * u) * fire} 0 ${(-120 - 120 * u) * fire} q20 50 0 ${(120 + 120 * u) * fire}" fill="${q % 2 ? '#ff9a2a' : '#ffd25a'}" opacity="${(0.85 * fire).toFixed(2)}"/>`; }
+  if (fire > 0) for (let q = 0; q < 12; q++) {                // flame tongues on the temple roof
+    const fx = -176 + q * 32, fh = (70 + 60 * Math.abs(Math.sin(t * 5 + q * 1.9))) * fire;
+    s += `<path d="M${fx - 16} -392 Q${fx - 8} ${(-392 - fh * 0.6).toFixed(0)} ${(fx + 6 * Math.sin(t * 6 + q)).toFixed(1)} ${(-392 - fh).toFixed(0)} Q${fx + 10} ${(-392 - fh * 0.5).toFixed(0)} ${fx + 16} -392 Z" fill="${q % 3 ? '#ff8a2a' : '#ffd25a'}" stroke="#c0451a" stroke-width="2" opacity="${(0.92 * fire).toFixed(2)}"/>`;
+  }
   return `<g transform="scale(${k})">${s}</g>`;
 }
 function pnyxSet(c: ShotCtx): { sky: string; far: string; mid: string; ground: string } {
@@ -964,7 +967,8 @@ const salamis_shore_look: SceneFn = (c) => {
   return L(c, 0.05, b.sky) + L(c, 0.2, far) + L(c, 0.5, b.sea) + L(c, 1, shore + girl + at(420, 1060, 1.3, civilian(c.t, 12, { kind: 'woman', expr: 'grief' })));
 };
 function summit(c: ShotCtx, time: 'noon' | 'dusk' | 'night', fire = 0): string {   // on the Acropolis: the temple, the gate with its barricade
-  let s = time === 'noon' ? noonSky(c, 'sumsky') : time === 'dusk' ? skyGrad(c, 'sumdusk', [[0, '#4f3a6e'], [0.55, '#d77c56'], [1, '#f2b06a']]) : skyGrad(c, 'sumnight', [[0, '#0b1430'], [1, '#26385c']]);
+  let s = time === 'noon' ? noonSky(c, 'sumsky') : time === 'dusk' ? skyGrad(c, 'sumdusk', [[0, '#4f3a6e'], [0.55, '#d77c56'], [1, '#f2b06a']]) : skyGrad(c, 'sumnight', [[0, '#0b1430'], [1, '#26385c']]) + glow(c, 'summoon', 1650, 180, 220, '#cfe0ff', 0.5) + `<circle cx="1650" cy="180" r="38" fill="#eef3ff" stroke="#b8c8e8" stroke-width="3"/>` +
+      Array.from({ length: 40 }, (_, i) => `<circle cx="${(i * 197) % W}" cy="${(i * 89) % 520}" r="${1 + (i % 3)}" fill="#e6eeff" opacity="${(0.4 + 0.5 * Math.abs(Math.sin(c.t * 2 + i))).toFixed(2)}"/>`).join('');
   s += bg('M-200 820 L2120 820 L2120 1300 L-200 1300 Z', '#b59a74', 5);
   s += at(1240, 830, 1.7, acropolisRock(1, 0, fire, c.t).replace('<g transform="scale(1)">', '<g transform="scale(1) translate(0 0)">')).replace(/M-520 0 Q-480 -150[^"]*Z/, 'M-520 0 L520 0 L520 -246 L-520 -246 Z');
   return s;
@@ -1012,6 +1016,8 @@ const acropolis_burning: SceneFn = (c) => {
   let s = skyGrad(c, 'bsky', [[0, '#3a2440'], [0.55, '#b5583a'], [1, '#e8904a']]) + `<rect x="-200" y="700" width="${W + 400}" height="600" fill="#6a5a52"/>`;
   s += at(960, 860, 1.1, acropolisRock(1, 0, fire, c.t));
   for (let q = 0; q < 12; q++) { const u = (q / 12 + c.t * 0.06) % 1; s += `<circle cx="${(820 + 260 * Math.sin(q) * u).toFixed(0)}" cy="${(420 - 400 * u).toFixed(0)}" r="${(40 + 110 * u).toFixed(0)}" fill="#3a3030" opacity="${(0.5 * fire * (1 - u)).toFixed(3)}"/>`; }
+  s += glow(c, 'blaze', 960, 420, 520 * fire, '#ffb04a', 0.8 * fire);
+  for (let q = 0; q < 14; q++) { const fx = 790 + q * 26, fh = (120 + 90 * Math.abs(Math.sin(c.t * 5 + q * 1.7))) * fire; s += `<path d="M${fx - 22} 470 Q${fx - 10} ${(470 - fh * 0.6).toFixed(0)} ${(fx + 8 * Math.sin(c.t * 6 + q)).toFixed(1)} ${(470 - fh).toFixed(0)} Q${fx + 14} ${(470 - fh * 0.5).toFixed(0)} ${fx + 22} 470 Z" fill="${q % 3 ? '#ff8a2a' : '#ffd25a'}" stroke="#c0451a" stroke-width="2" opacity="${(0.9 * fire).toFixed(2)}"/>`; }
   for (let i = 0; i < 6; i++) s += `<g opacity="${on.toFixed(2)}">${at(700 + i * 90, 600, 0.18, guard(c.t, 600 + i))}</g>`;
   return L(c, 0.6, s);
 };
@@ -1048,7 +1054,10 @@ const road_rider: SceneFn = (c) => {
   if (ln_ < 60) {
     const go = tween(c.local, c.beatT(bi(c, 'rider')) - 0.3, c.dur, 0, 1, (x) => x), dust = easeInOut(bw(c, 'fallen', 0.3, 1.0));
     const x = -100 + 1900 * go, gal = Math.sin(c.t * 14);
-    s += at(x, 930, 0.9, bg('M-120 -60 Q-40 -110 80 -80 Q130 -60 120 -20 L-110 -20 Z', '#6a4428', 5) + ln(`M-90 -20 L${-110 + 20 * gal} 40 M-50 -20 L${-30 - 20 * gal} 40 M60 -20 L${40 + 20 * gal} 40 M100 -20 L${120 - 20 * gal} 40`, 12, '#5a3a24') + at(0, -80, 0.4, guard(c.t, 700)));
+    const horse = bg('M-110 -70 Q-120 -110 -60 -116 L60 -112 Q110 -110 120 -80 L176 -150 Q196 -172 214 -150 L226 -120 Q206 -116 186 -128 L140 -72 Q130 -40 90 -40 L-90 -40 Q-130 -40 -110 -70 Z', '#6a4428', 5) +
+      `<path d="M-110 -80 Q-170 -70 -180 -20" stroke="#3a2414" stroke-width="14" fill="none" stroke-linecap="round"/>` + `<path d="M150 -130 Q140 -150 170 -168" stroke="#3a2414" stroke-width="10" fill="none"/>` +   // tail + mane
+      ln(`M-80 -44 L${-110 + 30 * gal} 30 M-40 -44 L${-20 - 30 * gal} 30 M60 -44 L${40 + 30 * gal} 30 M100 -44 L${130 - 30 * gal} 30`, 14, '#5a3a24');
+    s += at(x, 930, 0.9, horse + at(0, -110, 0.42, guard(c.t, 700)));
     for (let q = 0; q < 6; q++) s += `<circle cx="${(x - 160 - q * 60).toFixed(0)}" cy="${(940 - q * 8).toFixed(0)}" r="${(20 + q * 12) * (0.5 + dust)}" fill="#d9c3a0" opacity="${(0.5 * (1 - q / 6)).toFixed(2)}"/>`;
   } else {
     const turn = easeInOut(bw(c, 'trick', 0.3, 1.2));
