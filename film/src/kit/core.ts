@@ -19,10 +19,19 @@ export const SW = 7;          // character outline thickness in figure units
 
 // ---------- unique ids (restarted every frame) ----------
 let counter = 0;
+let shotPrefix = '';
 /** Call at the top of every frame's draw function so ids are the same on every machine. */
 export function resetIds(): void { counter = 0; }
-/** Next unique id inside this frame, e.g. nextId('c') -> 'c0', 'c1', ... */
-export function nextId(prefix: string): string { return `${prefix}${counter++}`; }
+/** Next unique id inside this frame, e.g. nextId('c') -> 'c0', 'c1', ... (inside a shot: 's03c0'). */
+export function nextId(prefix: string): string { return `${shotPrefix}${prefix}${counter++}`; }
+/** A fixed id (gradient, filter) made unique for the shot being drawn: pid('sky') -> 's03sky'. */
+export function pid(name: string): string { return `${shotPrefix}${name}`; }
+/** Draw with every id prefixed (two shots on screen during a dissolve must never share an id). */
+export function withIdPrefix(prefix: string, fn: () => string): string {
+  const saved = [shotPrefix, counter];
+  shotPrefix = prefix; counter = 0;
+  try { return fn(); } finally { shotPrefix = saved[0] as string; counter = saved[1] as number; }
+}
 
 // ---------- numbers ----------
 /** Seeded random generator (mulberry32): same seed -> same sequence on every machine. Returns [0, 1). */
