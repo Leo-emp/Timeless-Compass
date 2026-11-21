@@ -29,3 +29,10 @@ test('fade to black is fully black at the cut', () => {
   expect(frameAt(48, PLAN, SCENES)).toMatch(/fill="#000" opacity="1(\.0+)?"/);
 });
 test('ids outside a shot are plain', () => { expect(nextId('c')).toMatch(/^c\d+$/); });
+
+test('a vertical frame uses its own size (Shorts 1080x1920)', () => {
+  const v: TimedPlan = { ...PLAN, width: 1080, height: 1920 } as any;
+  const f = frameAt(10, v, SCENES);
+  expect(f).toContain('width="1080" height="1920"');
+  expect(f).not.toContain('width="1920" height="1080"');
+});

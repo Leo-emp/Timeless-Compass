@@ -51,7 +51,7 @@ export function graded(id: string, time: TimeOfDay, mood: Mood, content: string)
 }
 
 /** Film finish on top of everything: vignette + grain (+ letterbox). t picks the grain pattern for this frame. */
-export function finish(t: number, id: string, opts: { vignette?: number; grain?: number; letterbox?: boolean } = {}): string {
+export function finish(t: number, id: string, opts: { vignette?: number; grain?: number; letterbox?: boolean } = {}, W = 1920, H = 1080): string {
   const vig = opts.vignette ?? 0.38, grain = opts.grain ?? 0.05;
   let s = `<defs><radialGradient id="${id}vig" cx="50%" cy="50%" r="75%"><stop offset="0.55" stop-color="#000" stop-opacity="0"/>` +
     `<stop offset="1" stop-color="#000" stop-opacity="${vig}"/></radialGradient>`;
@@ -60,8 +60,8 @@ export function finish(t: number, id: string, opts: { vignette?: number; grain?:
   let dots = '';
   for (let i = 0; i < 260; i++) dots += `<rect x="${(R() * 240).toFixed(1)}" y="${(R() * 240).toFixed(1)}" width="1.6" height="1.6" fill="${R() > 0.5 ? '#fff' : '#000'}"/>`;
   s += `<pattern id="${id}grain" width="240" height="240" patternUnits="userSpaceOnUse">${dots}</pattern></defs>`;
-  s += `<rect width="1920" height="1080" fill="url(#${id}vig)"/>`;
-  s += `<rect width="1920" height="1080" fill="url(#${id}grain)" opacity="${grain}"/>`;
-  if (opts.letterbox) s += '<rect width="1920" height="138" fill="#000"/><rect y="942" width="1920" height="138" fill="#000"/>';
+  s += `<rect width="${W}" height="${H}" fill="url(#${id}vig)"/>`;
+  s += `<rect width="${W}" height="${H}" fill="url(#${id}grain)" opacity="${grain}"/>`;
+  if (opts.letterbox) { const bar = Math.round((H - W / 2.39) / 2); s += `<rect width="${W}" height="${bar}" fill="#000"/><rect y="${H - bar}" width="${W}" height="${bar}" fill="#000"/>`; }   // 2.39:1 inside the frame
   return s;
 }

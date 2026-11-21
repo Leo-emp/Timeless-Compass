@@ -15,7 +15,7 @@ export const Root: React.FC = () => (
     {/* 15-minute speed test: the same scene for 21,600 frames */}
     <Composition id="FleetTestLong" component={FleetTest} width={1920} height={1080} fps={24} durationInFrames={21600} />
     {JOBS.map((j) => (
-      <Composition key={j.slug} id={`Job-${j.slug.replace(/_/g, '-')}`} component={JobFilm as any} width={1920} height={1080}
+      <Composition key={j.slug} id={`Job-${j.slug.replace(/_/g, '-')}`} component={JobFilm as any} width={j.plan.width ?? 1920} height={j.plan.height ?? 1080}
         fps={j.plan.fps} durationInFrames={Math.max(1, j.plan.frames)} defaultProps={{ slug: j.slug }} />
     ))}
   </>

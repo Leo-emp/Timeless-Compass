@@ -6,5 +6,5 @@ import { frameAt, type SceneFn, type TimedPlan } from './sequence';
 
 export const Film: React.FC<{ plan: TimedPlan; scenes: Record<string, SceneFn> }> = ({ plan, scenes }) => {
   const frame = useCurrentFrame();
-  return <SvgFrame svg={frameAt(frame, plan, scenes)} />;
+  return <SvgFrame svg={frameAt(frame, plan, scenes)} width={plan.width ?? 1920} height={plan.height ?? 1080} />;
 };

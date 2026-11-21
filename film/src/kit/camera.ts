@@ -14,10 +14,8 @@ import { easeInOut } from './anim';
 export interface Cam { move: string; amount: number; t0: number; t1: number; focus?: [number, number] }
 export interface CamT { scale: number; dx: number; dy: number }
 
-const W = 1920, H = 1080;
-
-/** Scale + offset for one layer at time t. */
-export function camTransform(t: number, depth: number, cam: Cam): CamT {
+/** Scale + offset for one layer at time t (w x h = frame size: 1920x1080 long, 1080x1920 Shorts). */
+export function camTransform(t: number, depth: number, cam: Cam, W = 1920, H = 1080): CamT {
   const k = easeInOut(cam.t1 > cam.t0 ? (t - cam.t0) / (cam.t1 - cam.t0) : 1) * cam.amount * depth;
   switch (cam.move) {
     case 'push_in': return { scale: 1 + k, dx: 0, dy: 0 };
@@ -38,8 +36,8 @@ export function camTransform(t: number, depth: number, cam: Cam): CamT {
 }
 
 /** One layer's content under the camera at time t (zoom about the focus point, then offset). */
-export function camLayer(t: number, depth: number, cam: Cam, content: string): string {
-  const { scale, dx, dy } = camTransform(t, depth, cam);
+export function camLayer(t: number, depth: number, cam: Cam, content: string, W = 1920, H = 1080): string {
+  const { scale, dx, dy } = camTransform(t, depth, cam, W, H);
   if (scale === 1 && dx === 0 && dy === 0) return `<g>${content}</g>`;
   const [fx, fy] = cam.focus ?? [W / 2, H / 2];
   return `<g transform="translate(${(fx + dx).toFixed(2)} ${(fy + dy).toFixed(2)}) scale(${scale.toFixed(5)}) translate(${-fx} ${-fy})">${content}</g>`;

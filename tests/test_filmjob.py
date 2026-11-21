@@ -51,3 +51,10 @@ def test_mux_trims_a_short_music_tail(tmp_path):
     filmjob.mux(tmp_path / "v.mp4", tmp_path / "a.wav", tmp_path / "o.mp4",
                 probe=lambda p: 52.3 if p.name == "v.mp4" else 54.3, runner=lambda cmd, **k: calls.append(cmd))
     assert "-t" in calls[0] and calls[0][calls[0].index("-t") + 1] == "52.300"
+
+
+def test_short_plan_is_vertical():
+    from tc.shotplan import resolve
+    from tests.test_shotplan import PLAN, TIMINGS
+    assert (resolve(PLAN, TIMINGS, 6.0, kind="short")["width"], resolve(PLAN, TIMINGS, 6.0, kind="short")["height"]) == (1080, 1920)
+    assert resolve(PLAN, TIMINGS, 6.0)["width"] == 1920

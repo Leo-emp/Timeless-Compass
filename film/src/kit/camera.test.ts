@@ -31,3 +31,7 @@ test('rack focus moves the blur from the near layer to the far layer', () => {
   expect(rackFocus(2, 1, c)).toBeGreaterThan(0); expect(rackFocus(2, 0.2, c)).toBe(0);
 });
 test('camLayer wraps content in a transform group', () => { expect(camLayer(1, 1, PUSH, '<rect/>')).toContain('<rect/>'); });
+test('pans use the frame width they are given', () => {
+  const c: Cam = { move: 'pan_left', amount: 0.1, t0: 0, t1: 2 };
+  expect(camTransform(2, 1, c, 1080, 1920).dx).toBeCloseTo(108, 6);
+});

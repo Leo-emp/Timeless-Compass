@@ -118,8 +118,11 @@ def plan_problems(plan: dict, timings: dict, total_s: float) -> list[str]:
     return probs
 
 
-def resolve(plan: dict, timings: dict, total_s: float) -> dict:
-    """Timed plan: shot start/end frames (cuts on word boundaries), beat frames, sfx seconds."""
+SIZES_BY_KIND = {"long": (1920, 1080), "short": (1080, 1920)}     # Shorts are vertical 9:16
+
+
+def resolve(plan: dict, timings: dict, total_s: float, kind: str = "long") -> dict:
+    """Timed plan: frame size, shot start/end frames (cuts on word boundaries), beat frames, sfx seconds."""
     fps = plan.get("fps", 24)
     shots = [dict(s) for s in plan["shots"]]
     starts, seen = [], set()
@@ -139,7 +142,8 @@ def resolve(plan: dict, timings: dict, total_s: float) -> dict:
         s["sfx"] = [dict(x, at=find_word(timings, x.get("line", s["line"]), x["word"], x.get("occurrence", 1))) for x in s.get("sfx", [])]
         if s.get("music") and s["music"].get("from_word"):
             s["music"] = dict(s["music"], at=find_word(timings, s["music"].get("line", s["line"]), s["music"]["from_word"]))
-    return {"fps": fps, "frames": total_f, "shots": shots}
+    w, h = SIZES_BY_KIND[kind]
+    return {"fps": fps, "frames": total_f, "width": w, "height": h, "shots": shots}
 
 
 def _duration(path: Path) -> float:
@@ -162,7 +166,7 @@ def _cmd_shotplan(args) -> int:
         return 1
     out = ROOT / "film" / "src" / "jobs" / re.sub(r"[^a-z0-9_]", "_", job.id.lower()) / "plan.json"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(resolve(plan, timings, total), indent=1), encoding="utf-8")
+    out.write_text(json.dumps(resolve(plan, timings, total, job.kind), indent=1), encoding="utf-8")
     jobs.save_job(jobs.mark(job, "shots", "done", note=f"{len(plan['shots'])} shots"))
     print(f"shotplan OK -> {out}")
     return 0

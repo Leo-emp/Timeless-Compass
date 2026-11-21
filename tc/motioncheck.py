@@ -18,11 +18,19 @@ FREEZE_MEAN = 0.0003      # whole-frame change below this = nothing alive at all
 BEAT_BEFORE, BEAT_AFTER, BEAT_FACTOR = 8, 4, 2.0
 
 
+def _size(video: Path, scale: int) -> tuple[int, int]:
+    """Decode size keeping the video's own shape (16:9 long videos, 9:16 Shorts), even numbers."""
+    out = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height",
+                          "-of", "csv=p=0", str(video)], capture_output=True, text=True, check=True).stdout.strip().split(",")
+    vw, vh = int(out[0]), int(out[1])
+    return scale, max(2, round(scale * vh / vw / 2) * 2)
+
+
 def frame_diffs(video: Path, scale: int = 192, cols: int = 8, rows: int = 6) -> list[float]:
     """How much the picture changes between consecutive frames, 0..1: the mean difference of the MOST-changed
     tile (8 x 6 grid), so a local action (a face changing, a hand pointing) counts, not just whole-frame motion."""
     import numpy as np
-    w, h = scale, scale * 9 // 16
+    w, h = _size(video, scale)
     raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(video), "-fps_mode", "passthrough", "-vf", f"scale={w}:{h},gblur=sigma=1.5,format=gray",   # blur: film grain must not count as motion
                           "-f", "rawvideo", "-"], capture_output=True, check=True).stdout
     frames = np.frombuffer(raw, dtype=np.uint8)[: (len(raw) // (w * h)) * w * h].reshape(-1, h, w).astype(np.int16)
@@ -37,7 +45,7 @@ def frame_diffs(video: Path, scale: int = 192, cols: int = 8, rows: int = 6) -> 
 def frame_means(video: Path, scale: int = 192) -> list[float]:
     """Whole-frame mean change per frame (for the freeze test), same decoding as frame_diffs."""
     import numpy as np
-    w, h = scale, scale * 9 // 16
+    w, h = _size(video, scale)
     raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(video), "-fps_mode", "passthrough", "-vf", f"scale={w}:{h},gblur=sigma=1.5,format=gray",
                           "-f", "rawvideo", "-"], capture_output=True, check=True).stdout
     f = np.frombuffer(raw, dtype=np.uint8)[: (len(raw) // (w * h)) * w * h].reshape(-1, h, w).astype(np.int16)
