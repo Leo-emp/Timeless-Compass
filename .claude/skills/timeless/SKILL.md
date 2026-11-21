@@ -27,7 +27,7 @@ Every scored self-check: **all items pass AND total ≥ 90/100** (`python -m tc 
 Below the bar: fix it yourself and record a new attempt. After 3 failed attempts on one still, simplify the
 composition; after 3 failed story scores, redesign the story page. Never show the owner unfinished work.
 
-## Stage guides (plan 2 scope; later stages arrive with plans 3–9)
+## Stage guides
 
 **topic** — Brainstorm 6–10 seeds (History + Secret Government Projects). For each, write the 5-line story pitch
 (SCRIPT_BIBLE §1). Score demand: `python -m tc topics <id> "seed 1" "seed 2" …`; weigh story potential (r25); pick
@@ -57,8 +57,30 @@ NO-GO → rewrite the script from its notes and run a NEW fresh viewer. Nothing 
 **voice / align** — `python -m tc voice <id>`, `python -m tc dialogue <id>` (each character in their own Fish
 voice, r26), `python -m tc align <id>` (plain python).
 
+**artdir / cast** — Pick this video's palette per act, places (each place = one set, r23) and light plan; never
+repeat a recent video's look (r17). Write `jobs/<id>/cast.json` (`{"characters": [...], "extras": [...]}`); a new
+named character is registered first (sheet.json + `film/src/characters/<id>.ts` + `node film/scripts/sheet.mjs <id>`
++ a unique Fish voice via `tc voices search/add`); then `python -m tc cast <id>`.
+
+**shots** — `jobs/<id>/shotplan.json` (spec in `tc/shotplan.py`): every line 1–3 shots; size, angle, camera move,
+grade (time + mood), transition, era items, and **beats pinned to words** (something visibly happens every ≤ 3 s,
+r30), sfx on words, music cues only at peaks (`until` to span shots). Shorts are composed for 9:16.
+`python -m tc shotplan <id>` writes `film/src/jobs/<slug>/plan.json`.
+
+**draw** — Write `film/src/jobs/<slug>/scenes.ts` FRESH (export `SCENES`; one function per scene name used in the
+plan; ART_BIBLE): sets in depth layers via `camLayer`, named characters from `film/src/characters/*`, actions on
+beats with `beat/easeOutBack/anticipate`, expressions with cross-fades (`exprTo/exprMix`), breathing + blinks,
+lip sync via `mouthAt`, the place/date card via `card()`. Example: the Salamis proof
+(`film/src/jobs/20261121_0752_the_trap_at_salamis_proof/scenes.ts`). `python -m tc filmjob build <id>`.
+
+**produce** — `python -m tc produce <id>`: dialogue → voice → align → lipsync → shotplan → build → cloud render →
+motion report → mix → mux (`jobs/<id>/master.mp4`). Re-run after any fix: finished steps are skipped.
+
+**Shorts** — 1080×1920, 2 to under 3 min (300–420 words, produce refuses > 179 s), hook in 2 s, re-hook ≤ 30 s,
+last line loops back to the first, own topic and scenes (never cut from a long video).
+
 **stills / motion gates (used by the draw stages)** — for every shot's key frame:
-`node film/scripts/inspect.mjs <scene.ts> <export> <t> film/out/<shot>.png` →
+`node film/scripts/jobstill.mjs <slug> <frame> film/out/<shot>.png` →
 `python -m tc still film/out/<shot>.png --json film/out/<shot>.json [--calm "c,r …"]` (no problems) →
 score ART_BIBLE §10 → `python -m tc qa <id> still <answers.json> --subject <shot>`.
 Clips: `python -m tc motion <clip.mp4> --cuts … --beats …` then `python -m tc qa <id> motion <answers.json>`.
