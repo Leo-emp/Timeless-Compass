@@ -70,6 +70,8 @@ def test_pack_files_complete(jobdir, tmp_path):
     assert (out / "video.mp4").read_bytes() == b"VIDEO-BYTES"
     assert (out / "title.txt").read_text(encoding="utf-8").strip() == "Come and Take Them"
     assert "#Shorts" in (out / "description.txt").read_text(encoding="utf-8")       # Shorts are tagged as Shorts
+    posting = (out / "posting.txt").read_text(encoding="utf-8")
+    assert "Test & Compare" not in posting and "frame" in posting      # Shorts: YouTube picks a frame, no A/B thumbnails
 
 
 def test_pack_never_writes_env_values(jobdir, tmp_path, monkeypatch):

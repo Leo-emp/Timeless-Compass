@@ -95,11 +95,15 @@ def build_pack(d: Path, out_root: Path, now: datetime | None = None) -> Path:
     (out / "description.txt").write_text(description(d) + "\n", encoding="utf-8")
     (out / "tags.txt").write_text(", ".join(up["tags"]) + "\n", encoding="utf-8")
     slot = posting_slot(job.get("kind", "long"), now or datetime.now(timezone.utc))
-    (out / "posting.txt").write_text(
-        f"Post: {slot}\n"
-        "Thumbnails: upload thumbnail_a.jpg; add thumbnail_b.jpg in YouTube 'Test & Compare' (A/B).\n"
-        + ("Shorts: upload as a Short (vertical, under 3 minutes).\n" if job.get("kind") == "short" else ""),
-        encoding="utf-8")
+    if job.get("kind") == "short":
+        # YouTube Shorts: no A/B thumbnail test; the cover is usually a frame picked in the app
+        cover = up.get("cover_frame", "the most striking moment")
+        thumbs = ("Cover: Shorts use a frame from the video - pick the frame at " + cover + ". If your app offers "
+                  "'upload thumbnail', use thumbnail_a.jpg (thumbnail_b.jpg is the backup).\n"
+                  "Upload as a Short (vertical, under 3 minutes).\n")
+    else:
+        thumbs = "Thumbnails: upload thumbnail_a.jpg; add thumbnail_b.jpg in YouTube 'Test & Compare' (A/B).\n"
+    (out / "posting.txt").write_text(f"Post: {slot}\n" + thumbs, encoding="utf-8")
     return out
 
 

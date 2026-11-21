@@ -75,6 +75,18 @@ lip sync via `mouthAt`, the place/date card via `card()`. Example: the Salamis p
 
 **produce** — `python -m tc produce <id>`: dialogue → voice → align → lipsync → shotplan → build → cloud render →
 motion report → mix → mux (`jobs/<id>/master.mp4`). Re-run after any fix: finished steps are skipped.
+Then score the motion checklist honestly (`python -m tc qa <id> motion answers.json --of jobs/<id>/master.mp4`).
+Actions land ON their word: the scene helper centres each action on the word (lead ≥ dur/2); make beats bold
+enough to read on a phone (thin spears/arms/grass barely register); cross-fade every swap; ease every start.
+
+**thumbnails** — draw `film/src/jobs/<slug>/thumb.ts` fresh (exports `THUMB_SIZE`, `WORDS`, `THUMBS`; a + b are
+different compositions; ≤ 3 big words with a dark band + heavy outline; main face never under the words).
+`python -m tc thumb <id>` (size, ≤ 2 MB, words, 160 px contrast, variants differ) → look at both full size and at
+160 px → `python -m tc qa <id> thumbnail answers.json --subject thumbnail_a` (and `_b`).
+
+**pack** — `python -m tc packaging <id> --titles … --thumbs … --pick N` (pick the title the video delivers), write
+`jobs/<id>/upload.json` (`title`, `description` base, `tags`, Shorts: `cover_frame`), then `python -m tc pack <id>`
+→ `packs/<id>/` (+ R2 + one Telegram message when the `TC_R2_*` / `TC_TELEGRAM_*` keys exist).
 
 **Shorts** — 1080×1920, 2 to under 3 min (300–420 words, produce refuses > 179 s), hook in 2 s, re-hook ≤ 30 s,
 last line loops back to the first, own topic and scenes (never cut from a long video).

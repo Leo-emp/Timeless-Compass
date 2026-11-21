@@ -391,3 +391,6 @@ export const SCENES: Record<string, SceneFn> = {
   pass_waves, pass_wall, pass_feint, throne_leap, pass_warning, pass_dienekes, pass_immortals, pass_dusk, tent_ephialtes, tent_map,
   path_night, pass_ridge, pass_resolve, pass_allies, pass_laststand, pass_stone, pass_weapons,
 };
+
+// shared with this video's own thumbnails (thumb.ts): same places, same cast
+export { sky, passSet, plainSet, spartan, persian, columns, at };

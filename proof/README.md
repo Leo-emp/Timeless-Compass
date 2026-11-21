@@ -61,3 +61,11 @@ Honest gaps:
 - Sets are simpler than the reference (flat cliff, plain road). Set richness is still the main quality gap.
 - 7 beats are small actions (expression changes on close-ups, thin spear tips) that read at full size but are subtle on a phone.
 - **I changed the snap rule** during this job: a snap must now also be sudden compared with the 4 frames before it. The frame differences showed the flagged "snaps" were eased fast moves of big figures, not pops. Tests prove pops, teleports and jerky starts are still caught. Owner: please judge the fast moves (the Persian wave at 0:45, the Immortals' charge at 1:08, Leonidas turning at 1:27) by eye.
+
+### Upload pack for the Short (M4 closed)
+
+`packs/20261121-0919-come-and-take-them-thermopylae/` (local; R2 + Telegram switch on when the `TC_*` keys are added):
+video.mp4, thumbnail_a.jpg (93/100), thumbnail_b.jpg (91/100), title "300 Spartans Got One Last Chance" (picked
+from 11 checked titles because it promises the hook's offer, which the last line pays off), description with 20
+sources + "Some dialogue is dramatised.", tags, posting slot (Sun 2026-11-22 15:00 UTC) and the cover frame to pick
+(0:41: YouTube Shorts use a frame, not an uploaded thumbnail).
