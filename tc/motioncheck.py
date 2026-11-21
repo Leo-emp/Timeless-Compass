@@ -57,8 +57,9 @@ def motion_problems(diffs: list[float], fps: int, cuts: list[int] = (), beats: l
         if i > 0 and d > max(SNAP_FACTOR * med, SNAP_MIN) and i not in cut_frames:
             probs.append(f"snap at frame {i} (change {d:.3f}, typical {med:.4f})")
     run_start = None
-    for i, d in enumerate((mean_diffs if mean_diffs is not None else diffs) + [1.0]):                       # sentinel closes a run at the end
-        if i > 0 and d < FREEZE_DIFF and i not in cut_frames:
+    series, limit = (mean_diffs, FREEZE_MEAN) if mean_diffs is not None else (diffs, FREEZE_DIFF)
+    for i, d in enumerate(series + [1.0]):                        # sentinel closes a run at the end
+        if i > 0 and d < limit and i not in cut_frames:
             run_start = i if run_start is None else run_start
         else:
             if run_start is not None and (i - run_start) >= FREEZE_S * fps:
