@@ -27,7 +27,7 @@ function body(): string {
 function headPart(pose: Pose): string {
   let s = part(ID, 'hair', sh('ellipse', { cx: -46, cy: -244, rx: 22, ry: 26 }, HAIR) +
     sh('ellipse', { cx: 46, cy: -244, rx: 22, ry: 26 }, HAIR), HAIR);                                     // hair bunched at the nape
-  s += head(SKIN, pose.expr, { blink: pose.blink });
+  s += head(SKIN, pose.expr, { blink: pose.blink, to: pose.exprTo, mix: pose.exprMix });
   // the long squared Persian beard, worked in rows of tight curls
   const beard = 'M-50 -284 L-50 -176 Q0 -160 50 -176 L50 -284 Q32 -256 0 -254 Q-32 -256 -50 -284 Z';
   let curls = '';

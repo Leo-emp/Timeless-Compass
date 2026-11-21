@@ -30,7 +30,7 @@ function body(): string {
 }
 
 function headPart(pose: Pose): string {
-  let s = head(SKIN, pose.expr, { blink: pose.blink });
+  let s = head(SKIN, pose.expr, { blink: pose.blink, to: pose.exprTo, mix: pose.exprMix });
   s += ln('M-34 -326 L-10 -322 M10 -322 L34 -326', 4, 'rgba(42,28,19,.5)');                                // the heavy brow ridge
   const beard = 'M-52 -284 Q-54 -236 -22 -222 Q0 -214 22 -222 Q54 -236 52 -284 Q38 -258 0 -256 Q-38 -258 -52 -284 Z';
   s += part(ID, 'beard', sh('path', { d: beard }, BEARD) +

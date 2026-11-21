@@ -17,14 +17,20 @@ FREEZE_DIFF, FREEZE_S = 0.0015, 3.0
 BEAT_BEFORE, BEAT_AFTER, BEAT_FACTOR = 8, 4, 2.0
 
 
-def frame_diffs(video: Path, scale: int = 160) -> list[float]:
-    """Mean absolute difference between consecutive frames (small grey frames via ffmpeg), 0..1."""
+def frame_diffs(video: Path, scale: int = 192, cols: int = 8, rows: int = 6) -> list[float]:
+    """How much the picture changes between consecutive frames, 0..1: the mean difference of the MOST-changed
+    tile (8 x 6 grid), so a local action (a face changing, a hand pointing) counts, not just whole-frame motion."""
+    import numpy as np
     w, h = scale, scale * 9 // 16
-    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(video), "-vf", f"scale={w}:{h},format=gray",
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(video), "-vf", f"scale={w}:{h},gblur=sigma=1.5,format=gray",   # blur: film grain must not count as motion
                           "-f", "rawvideo", "-"], capture_output=True, check=True).stdout
-    n = w * h
-    frames = [raw[i:i + n] for i in range(0, len(raw) - n + 1, n)]
-    return [0.0] + [sum(abs(a - b) for a, b in zip(f0, f1)) / n / 255 for f0, f1 in zip(frames, frames[1:])]
+    frames = np.frombuffer(raw, dtype=np.uint8)[: (len(raw) // (w * h)) * w * h].reshape(-1, h, w).astype(np.int16)
+    if len(frames) < 2:
+        return [0.0] * len(frames)
+    d = np.abs(np.diff(frames, axis=0)).astype(np.float32) / 255.0
+    th, tw = h // rows, w // cols
+    tiles = d[:, : th * rows, : tw * cols].reshape(len(d), rows, th, cols, tw).mean(axis=(2, 4))
+    return [0.0] + [float(x) for x in tiles.reshape(len(d), -1).max(axis=1)]
 
 
 def motion_problems(diffs: list[float], fps: int, cuts: list[int] = (), beats: list[int] = ()) -> list[str]:
@@ -46,7 +52,8 @@ def motion_problems(diffs: list[float], fps: int, cuts: list[int] = (), beats: l
             run_start = None
     for b in beats:
         window = diffs[max(0, b - BEAT_BEFORE): b + BEAT_AFTER + 1]
-        if not window or max(window) < BEAT_FACTOR * med:
+        # a beat shows either as a clear peak OR as steady change adding up over the window (slow eased actions)
+        if not window or (max(window) < BEAT_FACTOR * med and sum(window) < 1.4 * med * len(window)):
             probs.append(f"nothing happens on the beat at frame {b}")
     return probs
 

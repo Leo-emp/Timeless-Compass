@@ -29,3 +29,9 @@ test('headgear, bodies and props all draw', () => {
 test('a closed helmet with no crest has no crest shape', () => {
   expect(corinthClosed('none')).not.toContain('#b23a2a');
 });
+
+test('an expression change cross-fades instead of snapping', () => {
+  const mid = head('#f0cfa8', 'neutral', { to: 'stern', mix: 0.5 });
+  expect(mid).toContain('opacity="0.500"');
+  expect(head('#f0cfa8', 'neutral', { to: 'stern', mix: 1 })).not.toContain('opacity="0.');
+});

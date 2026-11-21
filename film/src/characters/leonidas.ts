@@ -33,7 +33,7 @@ function headPart(pose: Pose): string {
   // long combed hair falls behind the shoulders (drawn first), then the head, beard, helmet pushed up
   let s = part(ID, 'hair', sh('path', { d: 'M-62 -306 Q-78 -246 -60 -206 L-36 -214 Q-50 -258 -44 -300 Z' }, HAIR) +
     sh('path', { d: 'M62 -306 Q78 -246 60 -206 L36 -214 Q50 -258 44 -300 Z' }, HAIR), HAIR);
-  s += head(SKIN, pose.expr, { blink: pose.blink, age: true });
+  s += head(SKIN, pose.expr, { blink: pose.blink, age: true, to: pose.exprTo, mix: pose.exprMix });
   const beard = 'M-54 -286 Q-60 -214 -26 -196 Q0 -186 26 -196 Q60 -214 54 -286 Q40 -256 0 -254 Q-40 -256 -54 -286 Z';
   s += part(ID, 'beard', sh('path', { d: beard }, BEARD) +
     sh('path', { d: 'M-26 -266 Q-12 -278 0 -270 Q12 -278 26 -266 Q12 -260 0 -264 Q-12 -260 -26 -266 Z' }, BEARD) +

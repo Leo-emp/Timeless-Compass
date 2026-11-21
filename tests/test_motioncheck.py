@@ -31,3 +31,11 @@ def test_beat_with_no_motion():
 def test_beat_with_motion_just_before_lands():
     d = [0.01] * 240; d[116] = 0.03
     assert not any("beat" in p for p in motion_problems(d, 24, beats=[120]))
+
+
+def test_slow_steady_action_counts_as_a_beat():
+    d = [0.01] * 240
+    for f in range(112, 125):
+        d[f] = 0.019                     # below the 2x peak, but steady change all through the window
+    d[100] = 0.0; d[130] = 0.0
+    assert not any("beat" in p for p in motion_problems(d, 24, beats=[120]))

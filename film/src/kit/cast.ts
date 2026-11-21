@@ -20,6 +20,8 @@ export interface HeadOpts {
   beard?: string;  // colour of a short beard (big flowing beards use bigBeard)
   blink?: boolean; // eyelids closed this frame
   extra?: boolean; // a background extra (crowd, crew behind a rail): may be partly hidden (still check)
+  to?: Expr;       // expression being changed to (cross-fade, no snap - rule r29)
+  mix?: number;    // 0..1 progress of that change
 }
 
 // ---------- head + face ----------
@@ -31,7 +33,13 @@ export function head(skin: string, ex: Expr = 'neutral', opt: HeadOpts = {}): st
   s += sh('ellipse', { cx: 0, cy: -300, rx: 60, ry: 63 }, skin);
   s += shade('<ellipse cx="0" cy="-300" rx="57" ry="60"/>', 52, -296, 42, 70);                    // shade on the right cheek
   s += '<ellipse cx="-30" cy="-280" rx="11" ry="6" fill="rgba(230,110,90,.22)"/><ellipse cx="30" cy="-280" rx="11" ry="6" fill="rgba(230,110,90,.22)"/>';
-  s += face(ex);
+  if (opt.to && opt.mix !== undefined && opt.mix > 0 && opt.to !== ex) {
+    // cross-fade between two expressions over a few frames: a face never snaps from one emotion to another
+    const m = Math.min(1, opt.mix);
+    s += m < 1 ? `<g opacity="${(1 - m).toFixed(3)}">${face(ex)}</g><g opacity="${m.toFixed(3)}">${face(opt.to)}</g>` : face(opt.to);
+  } else {
+    s += face(ex);
+  }
   if (opt.blink) {                                                                                    // lids over the eyes
     s += `<ellipse cx="-21" cy="-300" rx="11" ry="14" fill="${skin}"/><ellipse cx="21" cy="-300" rx="11" ry="14" fill="${skin}"/>`;
     s += ln('M-30 -299 Q-21 -293 -12 -299', 4.5) + ln('M12 -299 Q21 -293 30 -299', 4.5);

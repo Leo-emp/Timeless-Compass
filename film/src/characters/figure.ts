@@ -20,6 +20,8 @@ export type ArmBlend = { from: ArmPose; to: ArmPose; k: number };
 
 export interface Pose {
   expr: Expr;
+  exprTo?: Expr;          // expression it is changing to (cross-fade over a few frames, r29)
+  exprMix?: number;       // 0..1 progress of that change
   blink?: boolean;
   mouth?: Mouth;          // set only while the character speaks (lip sync), otherwise the expression's mouth
   armL?: ArmPose | ArmBlend;  // viewer's left arm (a pose, or a blend while a gesture is moving)

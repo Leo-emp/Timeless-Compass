@@ -25,6 +25,8 @@ const L = (c: ShotCtx, depth: number, s: string) => camLayer(c.local, depth, c.c
 /** 0..1 progress of beat i landing on its word (starts lead s early, takes dur s). */
 const bt = (c: ShotCtx, i: number, lead = 0.3, dur = 0.6) => beat(c.local, c.beatT(i), lead, dur);
 const LIP = (lip as any).lines;
+/** Expression change landing on beat i: cross-fade from -> to over ~0.2 s (never a one-frame snap). */
+const exch = (c: ShotCtx, i: number, from: any, to: any) => ({ expr: from, exprTo: to, exprMix: tween(c.local, c.beatT(i) - 0.16, c.beatT(i) + 0.04, 0, 1) });
 
 // ---------- shared drawing for this video ----------
 function skyGrad(c: ShotCtx, name: string, stops: [number, string][]): string {
@@ -201,7 +203,7 @@ function seatedXerxes(c: ShotCtx, pose: any): string {
 
 const throne_wide: SceneFn = (c) => {
   // s01 EWS, low angle, crane down: dawn breaks, the king settles, gold catches the light, the strait opens below
-  const sunY = tween(c.local, c.beatT(0) - 0.6, c.beatT(0) + 1.2, 470, 330, easeInOut);
+  const sunY = tween(c.local, c.beatT(0) - 0.35, c.beatT(0) + 0.5, 470, 330, easeOutBack);
   const set = throneSet(c, { sunY });
   const gleam = bt(c, 2, 0.1, 0.8);
   const settle = easeOutBack(bt(c, 1, 0.4, 0.8));
@@ -217,8 +219,7 @@ const throne_xerxes: SceneFn = (c) => {
   // s03 CU low angle push-in: "Today, Greece ends." — chin lifts on "Today", cold stare on "ends"
   const set = throneSet(c);
   const lift = anticipate(bt(c, 0, 0.3, 0.6));
-  const expr = c.local < c.beatT(1) - 0.2 ? 'neutral' : 'stern';
-  const hero = `<g transform="translate(960 ${1330 - 30 * lift}) scale(2.6)">${parasol(c.t)}${seatedXerxes(c, { expr, armR: 'down' })}</g>`;
+  const hero = `<g transform="translate(960 ${1330 - 30 * lift}) scale(2.6)">${parasol(c.t)}${seatedXerxes(c, { ...exch(c, 1, 'neutral', 'stern'), armR: 'down' })}</g>`;
   return L(c, 0.05, set.sky) + L(c, 0.25, set.far) + L(c, 1, hero);
 };
 
@@ -237,8 +238,7 @@ const throne_believe: SceneFn = (c) => {
   // s08 MS push-in after a whip: Xerxes smiles on "believed", waves the fleet forward on "word"
   const set = throneSet(c, { sunY: 300 });
   const wave = easeOutBack(bt(c, 1, 0.35, 0.7));
-  const expr = c.local >= c.beatT(0) - 0.25 ? 'sly' : 'neutral';
-  const hero = `<g transform="translate(960 1000) scale(1.25)">${parasol(c.t)}${seatedXerxes(c, { expr, armR: { from: 'down', to: 'point', k: wave } })}</g>` +
+  const hero = `<g transform="translate(960 1000) scale(1.25)">${parasol(c.t)}${seatedXerxes(c, { ...exch(c, 0, 'neutral', 'sly'), armR: { from: 'down', to: 'point', k: wave } })}</g>` +
     `<g transform="translate(420 1020) scale(1.1)">${scribe(c.t, 21, { write: 0.2, look: 1, expr: 'neutral' })}</g>`;
   return L(c, 0.05, set.sky) + L(c, 0.2, set.far) + L(c, 0.6, set.mid) + L(c, 1, set.ground + hero);
 };
@@ -246,11 +246,10 @@ const throne_believe: SceneFn = (c) => {
 const throne_silent: SceneFn = (c) => {
   // s13 MS high angle: smoke over the sea; the scribes freeze, a stylus is lowered, the king stares in shock
   const set = throneSet(c, { sunY: 260 });
-  const lower = easeInOut(bt(c, 1, 0.3, 1.0));
-  const shock = c.local >= c.beatT(2) - 0.25;
+  const lower = easeOutBack(bt(c, 1, 0.3, 0.5));
   let smoke = '';
   for (let i = 0; i < 6; i++) { const x = 300 + i * 260; for (let q = 0; q < 6; q++) { const up = (q / 6 + c.t * 0.06) % 1; smoke += `<circle cx="${(x + 26 * Math.sin(q + i) * up).toFixed(1)}" cy="${(640 - 220 * up).toFixed(1)}" r="${(16 + 40 * up).toFixed(1)}" fill="#7d7470" opacity="${(0.45 * (1 - up)).toFixed(2)}"/>`; } }
-  let hero = `<g transform="translate(1440 860) scale(.9)">${seatedXerxes(c, { expr: shock ? 'shocked' : 'worried', armR: 'down' })}</g>`;
+  let hero = `<g transform="translate(1440 860) scale(.9)">${seatedXerxes(c, { ...exch(c, 2, 'worried', 'shocked'), armR: 'down' })}</g>`;
   [300, 640, 980].forEach((x, i) => {
     hero += `<g transform="translate(${x} ${960 + i * 14}) scale(1.2)">${scribe(c.t, 30 + i, { write: i === 1 ? 0.5 * (1 - lower) : 0.4, look: 1, frozen: true, expr: 'worried' })}</g>`;
   });
@@ -276,12 +275,12 @@ function cliffs(narrow: number): string {   // the strait's rocky shores closing
 const strait_fleet: SceneFn = (c) => {
   // s02 EWS high angle pull-out: rows of Persian ships appear, oars lift and wait for the order
   const b = strait_base_cached(c, 'dawn');
-  const appear = easeInOut(bt(c, 1, 0.2, 1.2)), lift = easeOutBack(bt(c, 2, 0.3, 0.6));
+  const appear = easeInOut(bt(c, 1, 0.25, 0.6)), lift = easeOutBack(bt(c, 2, 0.3, 0.5));
   let fleet = '';
   for (let row = 0; row < 4; row++) for (let i = 0; i < 9; i++) {
     const x = 140 + i * 205 + (row % 2) * 100, y = 640 + row * 105, k = 0.13 + row * 0.035;
     const on = Math.min(1, Math.max(0, appear * 4 - row));
-    fleet += `<g opacity="${on.toFixed(2)}" transform="translate(${x} ${y + Math.sin(c.t * 1.2 + i + row) * 3}) scale(${k.toFixed(3)})">${warship(lift > 0.5 ? 0 : c.t, 'persian', 0.2, i)}</g>`;
+    fleet += `<g opacity="${on.toFixed(2)}" transform="translate(${(x - 46 * lift * (row + 1)).toFixed(1)} ${y + Math.sin(c.t * 1.2 + i + row) * 3}) scale(${k.toFixed(3)})">${warship(c.t, 'persian', 0.2 + 0.8 * lift, i)}</g>`;   // on the order: oars bite, the fleet lurches forward
   }
   return L(c, 0.05, b.sky) + L(c, 0.2, b.far) + L(c, 0.5, b.sea) + L(c, 1, fleet);
 };
@@ -290,7 +289,7 @@ function strait_base_cached(c: ShotCtx, time: 'dawn' | 'dusk') { return straitBa
 const strait_enter: SceneFn = (c) => {
   // s09 EWS high angle track: the sun clears the hills, the Persian fleet surges into the narrows, the cliffs close in
   const b = straitBase(c, 'dawn', 0.5);
-  const surge = easeInOut(bt(c, 1, 0.3, 2.5)), close = easeInOut(bt(c, 2, 0.6, 1.4));
+  const surge = easeInOut(bt(c, 1, 0.3, 1.2)), close = easeOutBack(bt(c, 2, 0.35, 0.7));
   let fleet = '';
   for (let i = 0; i < 14; i++) {
     const lane = i % 4, x = 1700 - surge * 520 - (i * 120) % 900 + lane * 40, y = 640 + lane * 90 + (i % 3) * 20, k = 0.12 + lane * 0.03;
@@ -303,7 +302,7 @@ const strait_jam: SceneFn = (c) => {
   // s10 WS eye level, handheld: hulls bump, a ship swings sideways, oars snap
   const b = straitBase(c, 'dawn', 0.9);
   const bump = bt(c, 0, 0.1, 0.4), swing = easeOutBack(bt(c, 1, 0.3, 0.8)), snap = bt(c, 2, 0.05, 0.3);
-  const jolt = Math.sin(bump * Math.PI) * 14;
+  const jolt = Math.sin(bump * Math.PI) * 44;
   const ships = [[360, 760, 0.3, 0], [1560, 740, 0.3, 0.3], [520, 820, 0.42, 0], [1300, 790, 0.4, 0.5], [900, 900, 0.5, 0], [1500, 960, 0.48, 0], [300, 1010, 0.62, 0]];
   let fleet = '';
   ships.forEach(([x, y, k, br], i) => {
@@ -335,7 +334,7 @@ const strait_ram: SceneFn = (c) => {
 const strait_closed: SceneFn = (c) => {
   // s14 EWS high angle pull-out at dusk: smoke over the wrecks, the Greek ships ring them
   const b = straitBase(c, 'dusk', 0.9);
-  const smokeUp = easeInOut(bt(c, 0, 0.4, 2)), ring = easeInOut(bt(c, 1, 0.3, 1.5));
+  const smokeUp = easeOutBack(bt(c, 0, 0.3, 0.7)), ring = easeOutBack(bt(c, 1, 0.3, 0.7));
   let s = '';
   for (let i = 0; i < 9; i++) {
     const x = 300 + i * 170, y = 760 + (i % 3) * 50;
@@ -353,8 +352,8 @@ const strait_closed: SceneFn = (c) => {
 // ---------- THE NIGHT CROSSING ----------
 const night_crossing: SceneFn = (c) => {
   // s05 WS tracking: the moon comes out, a man in a small boat, he pulls the oars, ripples spread, he looks back
-  const moon = easeInOut(bt(c, 0, 0.4, 1.2)), there = easeInOut(bt(c, 1, 0.3, 0.8)), look = c.local >= c.beatT(4) - 0.3;
-  const row = (Math.sin(c.local * 3.2) + 1) / 2 * (c.local >= c.beatT(2) - 0.3 ? 1 : 0.3);
+  const moon = easeOutBack(bt(c, 0, 0.3, 0.6)), there = easeOutBack(bt(c, 1, 0.3, 0.5)), look = c.local >= c.beatT(4) - 0.3;
+  const row = (Math.sin(c.local * 3.6) + 1) / 2 * (c.local >= c.beatT(2) - 0.3 ? 1.4 : 0.3);
   const sky = skyGrad(c, 'nsky', [[0, '#0b1430'], [1, '#22355a']]) + glow(c, 'moon', 1450, 230, 260 * moon, '#cfe0ff', 0.6) +
     `<circle cx="1450" cy="230" r="46" fill="#eef3ff" opacity="${(0.3 + 0.7 * moon).toFixed(2)}"/>` +
     bg(`M1260 ${250 - 60 * moon} q60 -40 160 -10 q80 -30 150 10 q40 30 -30 40 l-260 0 q-60 -10 -20 -40 Z`, '#1c2a4a', 3);
@@ -362,7 +361,7 @@ const night_crossing: SceneFn = (c) => {
     [[300, 548], [640, 530], [1180, 545]].map(([x, y]) => glow(c, `fire${x}`, x, y, 26, '#ffb347', 0.9)).join('') + farFleet(c.t, 18, 610, 41, 0.08).replace(/#4a3022/g, '#121a2c');
   const sea = `<rect x="-300" y="600" width="${W + 600}" height="700" fill="#14284a"/>` + waves(c.t, 51, 610, 1080, 110, '#5a7fb0', 10) +
     `<path d="M1300 610 L1600 610 L1700 1080 L1200 1080 Z" fill="#cfe0ff" opacity="${(0.12 * moon).toFixed(2)}"/>`;
-  const bx = 960 + 40 * Math.sin(c.local * 0.5);
+  const bx = 960 + 40 * Math.sin(c.local * 0.5) - 260 * (1 - there);   // the boat glides in on "slave"
   let boat = bg('M-200 -10 Q0 40 200 -10 L170 -70 L-180 -70 Z', '#3a2a1e', 5) + ln('M-180 -60 L170 -60', 4, '#5a4030');
   boat += `<g transform="translate(-10 -40) scale(.55) ${look ? 'scale(-1 1)' : ''}">${sicinnus(c.t, row, look ? 'worried' : 'stern', blinkAt(c.t, 77))}</g>`;
   boat += `<path d="M-120 -20 L${(-260 - 40 * row).toFixed(0)} ${(40 - 20 * row).toFixed(0)}" stroke="${OUT}" stroke-width="7"/><path d="M-120 -20 L${(-260 - 40 * row).toFixed(0)} ${(40 - 20 * row).toFixed(0)}" stroke="#b58a56" stroke-width="3"/>`;
@@ -393,9 +392,8 @@ const camp_message: SceneFn = (c) => {
 const camp_themistocles: SceneFn = (c) => {
   // s07 CU push-in: "Tell the king the Greeks will run. Tell him to strike now." — sly look, points to the sea, fist closes
   const point = easeOutBack(bt(c, 1, 0.35, 0.7)), fist = easeOutBack(bt(c, 2, 0.25, 0.4));
-  const expr = c.local >= c.beatT(0) - 0.25 ? 'sly' : 'stern';
   const arm = fist > 0 ? { from: 'point', to: 'fist_up', k: fist } : { from: 'down', to: 'point', k: point };
-  const hero = `<g transform="translate(900 1250) scale(2.7)">${themistocles.draw({ expr, breath: breathe(c.t, 2), blink: blinkAt(c.t, 2),
+  const hero = `<g transform="translate(900 1250) scale(2.7)">${themistocles.draw({ ...exch(c, 0, 'stern', 'sly'), breath: breathe(c.t, 2), blink: blinkAt(c.t, 2),
     mouth: mouthAt(c.t, LIP, 'THEMISTOCLES'), armL: arm as any, armR: 'down' })}</g>`;
   return L(c, 0.3, tent(c)) + L(c, 1, hero);
 };
@@ -403,13 +401,13 @@ const camp_themistocles: SceneFn = (c) => {
 // ---------- THE SHORE (the battle hymn) ----------
 const shore_hymn: SceneFn = (c) => {
   // s11 WS low angle push-in: Greek soldiers on the rocks raise their shields and sing
-  const reveal = easeInOut(bt(c, 0, 0.3, 0.9)), raise = easeOutBack(bt(c, 1, 0.35, 0.7)), sing = c.local >= c.beatT(2) - 0.15 ? 1 : 0;
+  const reveal = easeInOut(bt(c, 0, 0.3, 0.5)), raise = easeOutBack(bt(c, 1, 0.35, 0.7)), sing = c.local >= c.beatT(2) - 0.15 ? 1 : 0;
   const b = straitBase(c, 'dawn', 0.6);
   const rocks = bg('M-200 1100 L-200 820 Q300 760 700 800 Q1100 750 1500 800 Q1800 780 2120 820 L2120 1100 Z', '#7e5f44', 5);
   let men = '';
   for (let i = 0; i < 9; i++) {
     const x = 160 + i * 205, y = 900 + (i % 2) * 40;
-    men += `<g opacity="${Math.min(1, reveal * 3 - i * 0.25).toFixed(2)}" transform="translate(${x} ${y}) scale(.72)">${singer(c.t, i, sing, raise)}</g>`;
+    men += `<g opacity="${Math.max(0, Math.min(1, reveal * 4 - i * 0.3)).toFixed(2)}" transform="translate(${x} ${y}) scale(.72)">${singer(c.t, i, sing, raise)}</g>`;
   }
   const ships = `<g transform="translate(1500 700) scale(.22)">${warship(c.t, 'greek', 0.6, 1)}</g><g transform="translate(500 690) scale(.18)">${warship(c.t, 'greek', 0.6, 2)}</g>`;
   return L(c, 0.05, b.sky) + L(c, 0.25, b.far) + L(c, 0.5, b.sea + ships) + L(c, 1, rocks + men);
