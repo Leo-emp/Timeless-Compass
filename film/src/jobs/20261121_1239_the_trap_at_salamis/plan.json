@@ -1,0 +1,6832 @@
+{
+ "fps": 24,
+ "frames": 17308,
+ "width": 1920,
+ "height": 1080,
+ "shots": [
+  {
+   "id": "s01",
+   "line": 0,
+   "place": "aigaleos",
+   "scene": "aigaleos_dawn",
+   "size": "ews",
+   "angle": "low",
+   "camera": {
+    "move": "crane_up",
+    "amount": 0.12
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "fade_black",
+    "frames": 14
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "dawn",
+     "kind": "reveal",
+     "do": "sun rises over the strait",
+     "word_frame": 5,
+     "frame": -1
+    },
+    {
+     "word": "climbed",
+     "kind": "gesture",
+     "do": "the king climbs the hill",
+     "word_frame": 34,
+     "frame": 28
+    },
+    {
+     "word": "down",
+     "kind": "gesture",
+     "do": "secondary action on 'down': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 85,
+     "frame": 79
+    },
+    {
+     "word": "throne",
+     "kind": "reveal",
+     "do": "the golden throne",
+     "word_frame": 116,
+     "frame": 110
+    }
+   ],
+   "sfx": [
+    {
+     "word": "dawn",
+     "sound": "wind_fs711106",
+     "db": -26,
+     "at": 0.22
+    }
+   ],
+   "music": {
+    "cue": "hook",
+    "from_word": "At",
+    "until": "s09",
+    "at": 0.0
+   },
+   "start_f": 0,
+   "end_f": 150
+  },
+  {
+   "id": "s02",
+   "line": 1,
+   "place": "strait",
+   "scene": "strait_fleet_persian",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "navy",
+     "kind": "reveal",
+     "do": "the Persian fleet fills the bay",
+     "word_frame": 173,
+     "frame": 167
+    },
+    {
+     "word": "war",
+     "kind": "object",
+     "do": "the fleet appears row by row",
+     "word_frame": 212,
+     "frame": 206
+    },
+    {
+     "word": "morning",
+     "kind": "object",
+     "do": "oars lift",
+     "word_frame": 239,
+     "frame": 233
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 150,
+   "end_f": 269
+  },
+  {
+   "id": "s03",
+   "line": 2,
+   "place": "aigaleos",
+   "scene": "aigaleos_scribes",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "scribes",
+     "kind": "reveal",
+     "do": "scribes unroll scrolls",
+     "word_frame": 295,
+     "frame": 289
+    },
+    {
+     "word": "name",
+     "kind": "gesture",
+     "do": "a reed pen dips in ink",
+     "word_frame": 338,
+     "frame": 332
+    },
+    {
+     "word": "fleet",
+     "kind": "gesture",
+     "do": "secondary action on 'fleet': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 384,
+     "frame": 378
+    }
+   ],
+   "sfx": [
+    {
+     "word": "write",
+     "sound": "quill_writing_fs320017",
+     "db": -20,
+     "at": 13.52
+    }
+   ],
+   "music": null,
+   "start_f": 269,
+   "end_f": 418
+  },
+  {
+   "id": "s04",
+   "line": 3,
+   "place": "strait",
+   "scene": "strait_dawn_wide",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 10
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "strait",
+     "kind": "reveal",
+     "do": "the narrow strait below",
+     "word_frame": 441,
+     "frame": 435
+    },
+    {
+     "word": "Greek",
+     "kind": "reveal",
+     "do": "the Greek fleet at Salamis",
+     "word_frame": 468,
+     "frame": 462
+    }
+   ],
+   "sfx": [
+    {
+     "word": "strait",
+     "sound": "sea_waves_fs196717",
+     "db": -24,
+     "at": 18.36
+    }
+   ],
+   "music": null,
+   "start_f": 418,
+   "end_f": 539
+  },
+  {
+   "id": "s05",
+   "line": 4,
+   "place": "strait",
+   "scene": "strait_dawn_fleet",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "still",
+     "kind": "reveal",
+     "do": "the ships have not moved",
+     "word_frame": 545,
+     "frame": 539
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 539,
+   "end_f": 587
+  },
+  {
+   "id": "s06",
+   "line": 5,
+   "place": "salamis",
+   "scene": "salamis_families",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "ships",
+     "kind": "gesture",
+     "do": "secondary action on 'ships': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 617,
+     "frame": 611
+    },
+    {
+     "word": "families",
+     "kind": "reveal",
+     "do": "families on the shore watching",
+     "word_frame": 661,
+     "frame": 655
+    },
+    {
+     "word": "lost",
+     "kind": "gesture",
+     "do": "secondary action on 'lost': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 706,
+     "frame": 700
+    },
+    {
+     "word": "run",
+     "kind": "expression",
+     "do": "a mother pulls her child close",
+     "word_frame": 759,
+     "frame": 753
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 587,
+   "end_f": 792
+  },
+  {
+   "id": "s07",
+   "line": 6,
+   "place": "aigaleos",
+   "scene": "aigaleos_xerxes",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "come",
+     "kind": "gesture",
+     "do": "Xerxes waves a hand at the sea",
+     "word_frame": 800,
+     "frame": 794
+    },
+    {
+     "word": "mine",
+     "kind": "expression",
+     "do": "a small proud smile",
+     "word_frame": 859,
+     "frame": 853
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 792,
+   "end_f": 895
+  },
+  {
+   "id": "s08",
+   "line": 7,
+   "place": "aigaleos",
+   "scene": "aigaleos_xerxes_scribes",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "Write",
+     "kind": "gesture",
+     "do": "he points at the scribes",
+     "word_frame": 895,
+     "frame": 889
+    },
+    {
+     "word": "remember",
+     "kind": "object",
+     "do": "the scribes bow and write",
+     "word_frame": 964,
+     "frame": 958
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 895,
+   "end_f": 1007
+  },
+  {
+   "id": "s09",
+   "line": 8,
+   "place": "aigaleos",
+   "scene": "aigaleos_scroll",
+   "size": "ecu",
+   "angle": "high",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "would",
+     "kind": "gesture",
+     "do": "secondary action on 'would': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 1045,
+     "frame": 1039
+    },
+    {
+     "word": "list",
+     "kind": "object",
+     "do": "the blank scroll",
+     "word_frame": 1080,
+     "frame": 1074
+    },
+    {
+     "word": "riddle",
+     "kind": "reveal",
+     "do": "smoke curls across the scroll",
+     "word_frame": 1126,
+     "frame": 1120
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1007,
+   "end_f": 1157
+  },
+  {
+   "id": "s10",
+   "line": 9,
+   "place": "delphi",
+   "scene": "delphi_ext",
+   "size": "ews",
+   "angle": "low",
+   "camera": {
+    "move": "crane_down",
+    "amount": 0.12
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "fade_black",
+    "frames": 14
+   },
+   "era_items": [
+    "delphi_temple"
+   ],
+   "beats": [
+    {
+     "word": "Months",
+     "kind": "reveal",
+     "do": "the mountain temple of Apollo",
+     "word_frame": 1157,
+     "frame": 1151
+    },
+    {
+     "word": "knelt",
+     "kind": "gesture",
+     "do": "two messengers kneel at the door",
+     "word_frame": 1203,
+     "frame": 1197
+    },
+    {
+     "word": "Delphi",
+     "kind": "gesture",
+     "do": "secondary action on 'Delphi': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 1244,
+     "frame": 1238
+    }
+   ],
+   "sfx": [
+    {
+     "word": "temple",
+     "sound": "wind_fs687449",
+     "db": -24,
+     "at": 50.82
+    }
+   ],
+   "music": null,
+   "start_f": 1157,
+   "end_f": 1276
+  },
+  {
+   "id": "s11",
+   "line": 10,
+   "place": "delphi",
+   "scene": "delphi_messengers",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "delphi_temple"
+   ],
+   "beats": [
+    {
+     "word": "question",
+     "kind": "expression",
+     "do": "the messengers look up",
+     "word_frame": 1308,
+     "frame": 1302
+    },
+    {
+     "word": "survive",
+     "kind": "gesture",
+     "do": "one clasps his hands",
+     "word_frame": 1339,
+     "frame": 1333
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1276,
+   "end_f": 1368
+  },
+  {
+   "id": "s12",
+   "line": 11,
+   "place": "delphi",
+   "scene": "delphi_pythia",
+   "size": "ms",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "delphi_temple"
+   ],
+   "beats": [
+    {
+     "word": "priestess",
+     "kind": "reveal",
+     "do": "smoke parts: the Pythia on her tripod",
+     "word_frame": 1391,
+     "frame": 1385
+    },
+    {
+     "word": "hope",
+     "kind": "expression",
+     "do": "her eyes open",
+     "word_frame": 1421,
+     "frame": 1415
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1368,
+   "end_f": 1469
+  },
+  {
+   "id": "s13",
+   "line": 12,
+   "place": "delphi",
+   "scene": "delphi_pythia_cu",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "delphi_temple"
+   ],
+   "beats": [
+    {
+     "word": "Flee",
+     "kind": "gesture",
+     "do": "she points out into the dark",
+     "word_frame": 1514,
+     "frame": 1508
+    },
+    {
+     "word": "earth",
+     "kind": "object",
+     "do": "smoke whirls",
+     "word_frame": 1543,
+     "frame": 1537
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1469,
+   "end_f": 1570
+  },
+  {
+   "id": "s14",
+   "line": 13,
+   "place": "delphi",
+   "scene": "delphi_beg",
+   "size": "ms",
+   "angle": "high",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "delphi_temple"
+   ],
+   "beats": [
+    {
+     "word": "terrified",
+     "kind": "expression",
+     "do": "the messengers recoil",
+     "word_frame": 1588,
+     "frame": 1582
+    },
+    {
+     "word": "olive",
+     "kind": "object",
+     "do": "they raise olive branches",
+     "word_frame": 1645,
+     "frame": 1639
+    },
+    {
+     "word": "asking",
+     "kind": "gesture",
+     "do": "secondary action on 'asking': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 1678,
+     "frame": 1672
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1570,
+   "end_f": 1725
+  },
+  {
+   "id": "s15",
+   "line": 14,
+   "place": "delphi",
+   "scene": "delphi_riddle",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "delphi_temple"
+   ],
+   "beats": [
+    {
+     "word": "riddle",
+     "kind": "reveal",
+     "do": "the Pythia leans forward",
+     "word_frame": 1778,
+     "frame": 1772
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1725,
+   "end_f": 1823
+  },
+  {
+   "id": "s16",
+   "line": 15,
+   "place": "delphi",
+   "scene": "delphi_pythia_cu",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.12
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "delphi_temple"
+   ],
+   "beats": [
+    {
+     "word": "wall",
+     "kind": "object",
+     "do": "a vision of wooden planks in the smoke",
+     "word_frame": 1836,
+     "frame": 1830
+    },
+    {
+     "word": "taken",
+     "kind": "expression",
+     "do": "her stare",
+     "word_frame": 1874,
+     "frame": 1868
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1823,
+   "end_f": 1900
+  },
+  {
+   "id": "s17",
+   "line": 16,
+   "place": "delphi",
+   "scene": "delphi_messengers",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "delphi_temple"
+   ],
+   "beats": [
+    {
+     "word": "stranger",
+     "kind": "expression",
+     "do": "the messengers glance at each other",
+     "word_frame": 1937,
+     "frame": 1931
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 1900,
+   "end_f": 2004
+  },
+  {
+   "id": "s18",
+   "line": 17,
+   "place": "delphi",
+   "scene": "delphi_pythia_cu",
+   "size": "ecu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.14
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "delphi_temple"
+   ],
+   "beats": [
+    {
+     "word": "Salamis",
+     "kind": "reveal",
+     "do": "an island shape forms in the smoke",
+     "word_frame": 2016,
+     "frame": 2010
+    },
+    {
+     "word": "destroy",
+     "kind": "object",
+     "do": "the smoke darkens",
+     "word_frame": 2047,
+     "frame": 2041
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 2004,
+   "end_f": 2112
+  },
+  {
+   "id": "s19",
+   "line": 18,
+   "place": "opensea",
+   "scene": "opensea_messengers",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "track",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 12
+   },
+   "era_items": [
+    "trireme"
+   ],
+   "beats": [
+    {
+     "word": "sailed",
+     "kind": "object",
+     "do": "a small ship sails home",
+     "word_frame": 2125,
+     "frame": 2119
+    },
+    {
+     "word": "riddle",
+     "kind": "expression",
+     "do": "the messengers brood at the rail",
+     "word_frame": 2151,
+     "frame": 2145
+    }
+   ],
+   "sfx": [
+    {
+     "word": "sailed",
+     "sound": "oars_rowing_water_fs249707",
+     "db": -22,
+     "at": 88.54
+    }
+   ],
+   "music": null,
+   "start_f": 2112,
+   "end_f": 2201
+  },
+  {
+   "id": "s20",
+   "line": 19,
+   "place": "athens",
+   "scene": "athens_pnyx",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "crane_down",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 12
+   },
+   "era_items": [
+    "chiton_himation"
+   ],
+   "beats": [
+    {
+     "word": "wood",
+     "kind": "reveal",
+     "do": "the assembly on the hill",
+     "word_frame": 2215,
+     "frame": 2209
+    },
+    {
+     "word": "argued",
+     "kind": "gesture",
+     "do": "men shout and point",
+     "word_frame": 2247,
+     "frame": 2241
+    }
+   ],
+   "sfx": [
+    {
+     "word": "argued",
+     "sound": "crowd_walla_fs173013",
+     "db": -22,
+     "at": 93.62
+    }
+   ],
+   "music": null,
+   "start_f": 2201,
+   "end_f": 2298
+  },
+  {
+   "id": "s21",
+   "line": 20,
+   "place": "acropolis",
+   "scene": "acropolis_hedge",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "acropolis_archaic"
+   ],
+   "beats": [
+    {
+     "word": "hedge",
+     "kind": "reveal",
+     "do": "the old thorn hedge",
+     "word_frame": 2335,
+     "frame": 2329
+    },
+    {
+     "word": "Acropolis",
+     "kind": "reveal",
+     "do": "the rock behind it",
+     "word_frame": 2360,
+     "frame": 2354
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 2298,
+   "end_f": 2394
+  },
+  {
+   "id": "s22",
+   "line": 21,
+   "place": "athens",
+   "scene": "athens_themistocles",
+   "size": "ms",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation"
+   ],
+   "beats": [
+    {
+     "word": "one",
+     "kind": "reveal",
+     "do": "a man steps out of the crowd",
+     "word_frame": 2398,
+     "frame": 2392
+    },
+    {
+     "word": "Themistocles",
+     "kind": "reveal",
+     "do": "Themistocles",
+     "word_frame": 2467,
+     "frame": 2461
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 2394,
+   "end_f": 2516
+  },
+  {
+   "id": "s23",
+   "line": 22,
+   "place": "athens",
+   "scene": "athens_crowd_split",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation"
+   ],
+   "beats": [
+    {
+     "word": "admired",
+     "kind": "gesture",
+     "do": "half the crowd cheers",
+     "word_frame": 2533,
+     "frame": 2527
+    },
+    {
+     "word": "trust",
+     "kind": "expression",
+     "do": "the other half fold their arms",
+     "word_frame": 2584,
+     "frame": 2578
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 2516,
+   "end_f": 2618
+  },
+  {
+   "id": "s24",
+   "line": 23,
+   "place": "athens",
+   "scene": "athens_themistocles",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation"
+   ],
+   "beats": [
+    {
+     "word": "ships",
+     "kind": "gesture",
+     "do": "he points to the harbour",
+     "word_frame": 2676,
+     "frame": 2670
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 2618,
+   "end_f": 2706
+  },
+  {
+   "id": "s25",
+   "line": 24,
+   "place": "athens",
+   "scene": "athens_scroll_word",
+   "size": "ecu",
+   "angle": "high",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation"
+   ],
+   "beats": [
+    {
+     "word": "word",
+     "kind": "object",
+     "do": "his finger on the word DIVINE",
+     "word_frame": 2722,
+     "frame": 2716
+    },
+    {
+     "word": "Salamis",
+     "kind": "gesture",
+     "do": "secondary action on 'Salamis': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 2785,
+     "frame": 2779
+    },
+    {
+     "word": "cruel",
+     "kind": "reveal",
+     "do": "he taps it twice",
+     "word_frame": 2824,
+     "frame": 2818
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 2706,
+   "end_f": 2872
+  },
+  {
+   "id": "s26",
+   "line": 25,
+   "place": "athens",
+   "scene": "athens_themistocles",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation"
+   ],
+   "beats": [
+    {
+     "word": "sure",
+     "kind": "expression",
+     "do": "a knowing look",
+     "word_frame": 2896,
+     "frame": 2890
+    },
+    {
+     "word": "built",
+     "kind": "gesture",
+     "do": "he turns toward the sea",
+     "word_frame": 2956,
+     "frame": 2950
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 2872,
+   "end_f": 2995
+  },
+  {
+   "id": "s27",
+   "line": 26,
+   "place": "laurium",
+   "scene": "laurium_mine",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "hope"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 12
+   },
+   "era_items": [
+    "laurium_mines"
+   ],
+   "beats": [
+    {
+     "word": "silver",
+     "kind": "reveal",
+     "do": "a miner lifts a shining lump",
+     "word_frame": 3019,
+     "frame": 3013
+    },
+    {
+     "word": "share",
+     "kind": "gesture",
+     "do": "citizens hold out their hands",
+     "word_frame": 3052,
+     "frame": 3046
+    },
+    {
+     "word": "warships",
+     "kind": "reveal",
+     "do": "the silver tipped into a shipwright's hands",
+     "word_frame": 3111,
+     "frame": 3105
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 2995,
+   "end_f": 3166
+  },
+  {
+   "id": "s28",
+   "line": 27,
+   "place": "shipyard",
+   "scene": "shipyard",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.12
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "walls",
+     "kind": "reveal",
+     "do": "rows of new triremes on the slipways",
+     "word_frame": 3234,
+     "frame": 3228
+    },
+    {
+     "word": "wood",
+     "kind": "object",
+     "do": "hammering on the hulls",
+     "word_frame": 3249,
+     "frame": 3243
+    }
+   ],
+   "sfx": [
+    {
+     "word": "wood",
+     "sound": "wood_creak_fs506664",
+     "db": -22,
+     "at": 135.36
+    }
+   ],
+   "music": null,
+   "start_f": 3166,
+   "end_f": 3271
+  },
+  {
+   "id": "s29",
+   "line": 28,
+   "place": "athens",
+   "scene": "athens_pnyx",
+   "size": "ws",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation"
+   ],
+   "beats": [
+    {
+     "word": "largest",
+     "kind": "reveal",
+     "do": "the fleet in the harbour beyond",
+     "word_frame": 3303,
+     "frame": 3297
+    },
+    {
+     "word": "vote",
+     "kind": "gesture",
+     "do": "hands go up",
+     "word_frame": 3349,
+     "frame": 3343
+    },
+    {
+     "word": "sea",
+     "kind": "expression",
+     "do": "Themistocles nods",
+     "word_frame": 3409,
+     "frame": 3403
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 3271,
+   "end_f": 3437
+  },
+  {
+   "id": "s30",
+   "line": 29,
+   "place": "hellespont",
+   "scene": "hellespont",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "track",
+    "amount": 0.12
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 14
+   },
+   "era_items": [
+    "hellespont_bridge",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "coming",
+     "kind": "reveal",
+     "do": "an army marching on a bridge of ships",
+     "word_frame": 3461,
+     "frame": 3455
+    },
+    {
+     "word": "Xerxes",
+     "kind": "gesture",
+     "do": "secondary action on 'Xerxes': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 3517,
+     "frame": 3511
+    },
+    {
+     "word": "bridges",
+     "kind": "object",
+     "do": "ships lashed side by side",
+     "word_frame": 3563,
+     "frame": 3557
+    },
+    {
+     "word": "sea",
+     "kind": "object",
+     "do": "columns march over the water",
+     "word_frame": 3628,
+     "frame": 3622
+    }
+   ],
+   "sfx": [
+    {
+     "word": "marched",
+     "sound": "footsteps_march_army_fs240732",
+     "db": -16,
+     "at": 149.56
+    }
+   ],
+   "music": null,
+   "start_f": 3437,
+   "end_f": 3655
+  },
+  {
+   "id": "s31",
+   "line": 30,
+   "place": "hellespont",
+   "scene": "hellespont_close",
+   "size": "ms",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "hellespont_bridge",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "stop",
+     "kind": "expression",
+     "do": "the bridge sways under ten thousand feet",
+     "word_frame": 3664,
+     "frame": 3658
+    },
+    {
+     "word": "walk",
+     "kind": "object",
+     "do": "endless feet on the planks",
+     "word_frame": 3685,
+     "frame": 3679
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 3655,
+   "end_f": 3743
+  },
+  {
+   "id": "s32",
+   "line": 31,
+   "place": "thermopylae",
+   "scene": "thermopylae",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 12
+   },
+   "era_items": [
+    "thermopylae_pass"
+   ],
+   "beats": [
+    {
+     "word": "Spartans",
+     "kind": "reveal",
+     "do": "the red line in the pass",
+     "word_frame": 3753,
+     "frame": 3747
+    },
+    {
+     "word": "pass",
+     "kind": "gesture",
+     "do": "secondary action on 'pass': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 3788,
+     "frame": 3782
+    },
+    {
+     "word": "held",
+     "kind": "object",
+     "do": "shields locked",
+     "word_frame": 3829,
+     "frame": 3823
+    },
+    {
+     "word": "died",
+     "kind": "reveal",
+     "do": "one spear left standing",
+     "word_frame": 3862,
+     "frame": 3856
+    }
+   ],
+   "sfx": [
+    {
+     "word": "tried",
+     "sound": "shield_hit_wood_fs812518",
+     "db": -18,
+     "at": 156.82
+    }
+   ],
+   "music": null,
+   "start_f": 3743,
+   "end_f": 3906
+  },
+  {
+   "id": "s33",
+   "line": 32,
+   "place": "opensea",
+   "scene": "opensea_fleet_south",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "track",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 12
+   },
+   "era_items": [
+    "trireme"
+   ],
+   "beats": [
+    {
+     "word": "fleet",
+     "kind": "reveal",
+     "do": "the Greek fleet turning south",
+     "word_frame": 3916,
+     "frame": 3910
+    },
+    {
+     "word": "Salamis",
+     "kind": "reveal",
+     "do": "Salamis ahead",
+     "word_frame": 3958,
+     "frame": 3952
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 3906,
+   "end_f": 3995
+  },
+  {
+   "id": "s34",
+   "line": 33,
+   "place": "hellespont",
+   "scene": "hellespont_army_road",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.12
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "hellespont_bridge",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "largest",
+     "kind": "reveal",
+     "do": "the Persian army pouring south",
+     "word_frame": 4031,
+     "frame": 4025
+    },
+    {
+     "word": "Athens",
+     "kind": "reveal",
+     "do": "Athens on the horizon",
+     "word_frame": 4078,
+     "frame": 4072
+    }
+   ],
+   "sfx": [
+    {
+     "word": "army",
+     "sound": "footsteps_march_army_fs333907",
+     "db": -16,
+     "at": 168.32
+    }
+   ],
+   "music": null,
+   "start_f": 3995,
+   "end_f": 4121
+  },
+  {
+   "id": "s35",
+   "line": 34,
+   "place": "athens",
+   "scene": "athens_streets_empty",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "fade_black",
+    "frames": 14
+   },
+   "era_items": [
+    "chiton_himation"
+   ],
+   "beats": [
+    {
+     "word": "ever",
+     "kind": "gesture",
+     "do": "secondary action on 'ever': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 4164,
+     "frame": 4158
+    },
+    {
+     "word": "left",
+     "kind": "reveal",
+     "do": "an empty street, a door left open",
+     "word_frame": 4205,
+     "frame": 4199
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 4121,
+   "end_f": 4242
+  },
+  {
+   "id": "s36",
+   "line": 35,
+   "place": "harbour",
+   "scene": "harbour_evac",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "track",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation",
+    "small_boat"
+   ],
+   "beats": [
+    {
+     "word": "carried",
+     "kind": "object",
+     "do": "families carry bundles to the boats",
+     "word_frame": 4242,
+     "frame": 4236
+    },
+    {
+     "word": "Women",
+     "kind": "gesture",
+     "do": "secondary action on 'Women': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 4298,
+     "frame": 4292
+    },
+    {
+     "word": "rowed",
+     "kind": "object",
+     "do": "boats push off",
+     "word_frame": 4341,
+     "frame": 4335
+    }
+   ],
+   "sfx": [
+    {
+     "word": "harbour",
+     "sound": "harbour_water_fs254125",
+     "db": -22,
+     "at": 178.22
+    }
+   ],
+   "music": null,
+   "start_f": 4242,
+   "end_f": 4406
+  },
+  {
+   "id": "s37",
+   "line": 36,
+   "place": "opensea",
+   "scene": "opensea_boats_salamis",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "track",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme"
+   ],
+   "beats": [
+    {
+     "word": "Salamis",
+     "kind": "reveal",
+     "do": "boats crossing to the island",
+     "word_frame": 4426,
+     "frame": 4420
+    },
+    {
+     "word": "just",
+     "kind": "gesture",
+     "do": "secondary action on 'just': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 4465,
+     "frame": 4459
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 4406,
+   "end_f": 4507
+  },
+  {
+   "id": "s38",
+   "line": 37,
+   "place": "salamis",
+   "scene": "salamis_shore_look",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "see",
+     "kind": "expression",
+     "do": "a girl looks back across the water",
+     "word_frame": 4534,
+     "frame": 4528
+    },
+    {
+     "word": "homes",
+     "kind": "reveal",
+     "do": "Athens across the strait",
+     "word_frame": 4550,
+     "frame": 4544
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 4507,
+   "end_f": 4591
+  },
+  {
+   "id": "s39",
+   "line": 38,
+   "place": "athens",
+   "scene": "athens_streets_empty",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 10
+   },
+   "era_items": [
+    "chiton_himation"
+   ],
+   "beats": [
+    {
+     "word": "king",
+     "kind": "reveal",
+     "do": "Persian soldiers march in",
+     "word_frame": 4599,
+     "frame": 4593
+    },
+    {
+     "word": "empty",
+     "kind": "reveal",
+     "do": "empty streets",
+     "word_frame": 4661,
+     "frame": 4655
+    }
+   ],
+   "sfx": [
+    {
+     "word": "marched",
+     "sound": "footsteps_march_close_fs200321",
+     "db": -18,
+     "at": 191.8
+    }
+   ],
+   "music": null,
+   "start_f": 4591,
+   "end_f": 4695
+  },
+  {
+   "id": "s40",
+   "line": 39,
+   "place": "acropolis",
+   "scene": "acropolis_defenders",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 10
+   },
+   "era_items": [
+    "acropolis_archaic"
+   ],
+   "beats": [
+    {
+     "word": "handful",
+     "kind": "reveal",
+     "do": "a few old men on the rock",
+     "word_frame": 4704,
+     "frame": 4698
+    },
+    {
+     "word": "Acropolis",
+     "kind": "gesture",
+     "do": "secondary action on 'Acropolis': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 4744,
+     "frame": 4738
+    },
+    {
+     "word": "poor",
+     "kind": "expression",
+     "do": "they look at each other",
+     "word_frame": 4798,
+     "frame": 4792
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 4695,
+   "end_f": 4831
+  },
+  {
+   "id": "s41",
+   "line": 40,
+   "place": "acropolis",
+   "scene": "acropolis_barricade",
+   "size": "ms",
+   "angle": "low",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "acropolis_archaic"
+   ],
+   "beats": [
+    {
+     "word": "barricade",
+     "kind": "object",
+     "do": "planks hammered across the gate",
+     "word_frame": 4843,
+     "frame": 4837
+    },
+    {
+     "word": "timber",
+     "kind": "object",
+     "do": "a beam dropped into place",
+     "word_frame": 4873,
+     "frame": 4867
+    }
+   ],
+   "sfx": [
+    {
+     "word": "barricade",
+     "sound": "wood_crash_fs443293",
+     "db": -18,
+     "at": 201.8
+    }
+   ],
+   "music": null,
+   "start_f": 4831,
+   "end_f": 4923
+  },
+  {
+   "id": "s42",
+   "line": 41,
+   "place": "acropolis",
+   "scene": "acropolis_defenders",
+   "size": "cu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "hope"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "acropolis_archaic"
+   ],
+   "beats": [
+    {
+     "word": "wooden",
+     "kind": "expression",
+     "do": "an old man touches the planks, hopeful",
+     "word_frame": 4953,
+     "frame": 4947
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 4923,
+   "end_f": 5022
+  },
+  {
+   "id": "s43",
+   "line": 42,
+   "place": "acropolis",
+   "scene": "acropolis_cliff_climb",
+   "size": "ws",
+   "angle": "low",
+   "camera": {
+    "move": "crane_up",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "acropolis_archaic"
+   ],
+   "beats": [
+    {
+     "word": "gate",
+     "kind": "reveal",
+     "do": "the gate is quiet",
+     "word_frame": 5061,
+     "frame": 5055
+    },
+    {
+     "word": "climbed",
+     "kind": "object",
+     "do": "Persians climbing the back cliff",
+     "word_frame": 5082,
+     "frame": 5076
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 5022,
+   "end_f": 5143
+  },
+  {
+   "id": "s44",
+   "line": 43,
+   "place": "acropolis",
+   "scene": "acropolis_burning",
+   "size": "ews",
+   "angle": "eye",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "acropolis_archaic"
+   ],
+   "beats": [
+    {
+     "word": "killed",
+     "kind": "reveal",
+     "do": "the Persians on the summit",
+     "word_frame": 5166,
+     "frame": 5160
+    },
+    {
+     "word": "temples",
+     "kind": "gesture",
+     "do": "secondary action on 'temples': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 5206,
+     "frame": 5200
+    },
+    {
+     "word": "fire",
+     "kind": "object",
+     "do": "flames rise from the temple",
+     "word_frame": 5252,
+     "frame": 5246
+    }
+   ],
+   "sfx": [
+    {
+     "word": "fire",
+     "sound": "fire_roar_fs196619",
+     "db": -14,
+     "at": 218.84
+    }
+   ],
+   "music": {
+    "cue": "tension",
+    "from_word": "killed",
+    "until": "s47",
+    "at": 215.24
+   },
+   "start_f": 5143,
+   "end_f": 5291
+  },
+  {
+   "id": "s45",
+   "line": 44,
+   "place": "acropolis",
+   "scene": "acropolis_temple_fire",
+   "size": "ms",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "acropolis_archaic"
+   ],
+   "beats": [
+    {
+     "word": "temples",
+     "kind": "reveal",
+     "do": "the old temple of Athena in flames",
+     "word_frame": 5296,
+     "frame": 5290
+    },
+    {
+     "word": "burned",
+     "kind": "object",
+     "do": "a roof beam falls",
+     "word_frame": 5334,
+     "frame": 5328
+    }
+   ],
+   "sfx": [
+    {
+     "word": "burned",
+     "sound": "building_collapse_fs508546",
+     "db": -16,
+     "at": 222.26
+    }
+   ],
+   "music": null,
+   "start_f": 5291,
+   "end_f": 5393
+  },
+  {
+   "id": "s46",
+   "line": 45,
+   "place": "acropolis",
+   "scene": "acropolis_barricade_burnt",
+   "size": "cu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "acropolis_archaic"
+   ],
+   "beats": [
+    {
+     "word": "barricade",
+     "kind": "reveal",
+     "do": "the planks, charred",
+     "word_frame": 5397,
+     "frame": 5391
+    },
+    {
+     "word": "oracle's",
+     "kind": "gesture",
+     "do": "secondary action on 'oracle's': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 5458,
+     "frame": 5452
+    },
+    {
+     "word": "else",
+     "kind": "expression",
+     "do": "smoke drifts up",
+     "word_frame": 5495,
+     "frame": 5489
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 5393,
+   "end_f": 5525
+  },
+  {
+   "id": "s47",
+   "line": 46,
+   "place": "salamis",
+   "scene": "salamis_shore_smoke",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "night",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 10
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "families",
+     "kind": "reveal",
+     "do": "families on the shore",
+     "word_frame": 5551,
+     "frame": 5545
+    },
+    {
+     "word": "smoke",
+     "kind": "object",
+     "do": "smoke over the far city",
+     "word_frame": 5571,
+     "frame": 5565
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 5525,
+   "end_f": 5638
+  },
+  {
+   "id": "s48",
+   "line": 47,
+   "place": "road",
+   "scene": "road_rider",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "track",
+    "amount": 0.12
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "rider",
+     "kind": "object",
+     "do": "a horseman galloping east",
+     "word_frame": 5654,
+     "frame": 5648
+    },
+    {
+     "word": "with",
+     "kind": "gesture",
+     "do": "secondary action on 'with': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 5690,
+     "frame": 5684
+    },
+    {
+     "word": "fallen",
+     "kind": "reveal",
+     "do": "dust behind him",
+     "word_frame": 5737,
+     "frame": 5731
+    }
+   ],
+   "sfx": [
+    {
+     "word": "rider",
+     "sound": "horse_hooves_gallop_fs165532",
+     "db": -16,
+     "at": 235.6
+    }
+   ],
+   "music": null,
+   "start_f": 5638,
+   "end_f": 5767
+  },
+  {
+   "id": "s49",
+   "line": 48,
+   "place": "salamis",
+   "scene": "salamis_camp_night",
+   "size": "ws",
+   "angle": "high",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "fade_black",
+    "frames": 10
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "blow",
+     "kind": "reveal",
+     "do": "the Greek camp at night",
+     "word_frame": 5793,
+     "frame": 5787
+    },
+    {
+     "word": "abandon",
+     "kind": "expression",
+     "do": "commanders turn away",
+     "word_frame": 5853,
+     "frame": 5847
+    }
+   ],
+   "sfx": [
+    {
+     "word": "blow",
+     "sound": "camp_fire_crackle_fs410736",
+     "db": -22,
+     "at": 241.38
+    }
+   ],
+   "music": null,
+   "start_f": 5767,
+   "end_f": 5883
+  },
+  {
+   "id": "s50",
+   "line": 49,
+   "place": "salamis",
+   "scene": "salamis_beach_ships",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "track",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "Salamis",
+     "kind": "gesture",
+     "do": "secondary action on 'Salamis': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 5925,
+     "frame": 5919
+    },
+    {
+     "word": "panicked",
+     "kind": "object",
+     "do": "men running to their ships",
+     "word_frame": 5961,
+     "frame": 5955
+    },
+    {
+     "word": "voted",
+     "kind": "gesture",
+     "do": "a commander shouts orders",
+     "word_frame": 6020,
+     "frame": 6014
+    }
+   ],
+   "sfx": [
+    {
+     "word": "panicked",
+     "sound": "crowd_murmur_fs452955",
+     "db": -20,
+     "at": 248.38
+    }
+   ],
+   "music": null,
+   "start_f": 5883,
+   "end_f": 6067
+  },
+  {
+   "id": "s51",
+   "line": 50,
+   "place": "salamis",
+   "scene": "salamis_beach_ships",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "handheld",
+    "amount": 0.5
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "Eurybiades",
+     "kind": "reveal",
+     "do": "Eurybiades shouting on the beach",
+     "word_frame": 6101,
+     "frame": 6095
+    },
+    {
+     "word": "hold",
+     "kind": "gesture",
+     "do": "men push past him",
+     "word_frame": 6128,
+     "frame": 6122
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 6067,
+   "end_f": 6155
+  },
+  {
+   "id": "s52",
+   "line": 51,
+   "place": "council",
+   "scene": "council_fire",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "cities",
+     "kind": "gesture",
+     "do": "a commander points south",
+     "word_frame": 6213,
+     "frame": 6207
+    },
+    {
+     "word": "lost",
+     "kind": "expression",
+     "do": "another shrugs",
+     "word_frame": 6273,
+     "frame": 6267
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 6155,
+   "end_f": 6306
+  },
+  {
+   "id": "s53",
+   "line": 52,
+   "place": "council",
+   "scene": "council_themistocles",
+   "size": "cu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "open",
+     "kind": "gesture",
+     "do": "secondary action on 'open': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 6360,
+     "frame": 6354
+    },
+    {
+     "word": "surround",
+     "kind": "expression",
+     "do": "Themistocles' face hardens",
+     "word_frame": 6406,
+     "frame": 6400
+    },
+    {
+     "word": "crush",
+     "kind": "object",
+     "do": "firelight flares",
+     "word_frame": 6430,
+     "frame": 6424
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 6306,
+   "end_f": 6459
+  },
+  {
+   "id": "s54",
+   "line": 53,
+   "place": "salamis",
+   "scene": "salamis_shore_smoke",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "families",
+     "kind": "reveal",
+     "do": "sleeping families by the shore",
+     "word_frame": 6469,
+     "frame": 6463
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 6459,
+   "end_f": 6535
+  },
+  {
+   "id": "s55",
+   "line": 54,
+   "place": "council",
+   "scene": "council_fire",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "handheld",
+    "amount": 0.5
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "argued",
+     "kind": "gesture",
+     "do": "Themistocles argues, arms wide",
+     "word_frame": 6539,
+     "frame": 6533
+    },
+    {
+     "word": "Admiral",
+     "kind": "gesture",
+     "do": "secondary action on 'Admiral': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 6587,
+     "frame": 6581
+    },
+    {
+     "word": "Adeimantus",
+     "kind": "reveal",
+     "do": "Adeimantus rises",
+     "word_frame": 6620,
+     "frame": 6614
+    },
+    {
+     "word": "enough",
+     "kind": "gesture",
+     "do": "secondary action on 'enough': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 6648,
+     "frame": 6642
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 6535,
+   "end_f": 6696
+  },
+  {
+   "id": "s56",
+   "line": 55,
+   "place": "council",
+   "scene": "council_adeimantus",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "silent",
+     "kind": "gesture",
+     "do": "Adeimantus jabs a finger",
+     "word_frame": 6700,
+     "frame": 6694
+    },
+    {
+     "word": "city",
+     "kind": "expression",
+     "do": "a sneer",
+     "word_frame": 6734,
+     "frame": 6728
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 6696,
+   "end_f": 6782
+  },
+  {
+   "id": "s57",
+   "line": 56,
+   "place": "council",
+   "scene": "council_themistocles",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "night",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "ships",
+     "kind": "gesture",
+     "do": "Themistocles points to the fleet",
+     "word_frame": 6809,
+     "frame": 6803
+    },
+    {
+     "word": "greater",
+     "kind": "expression",
+     "do": "a cold smile",
+     "word_frame": 6855,
+     "frame": 6849
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 6782,
+   "end_f": 6898
+  },
+  {
+   "id": "s58",
+   "line": 57,
+   "place": "council",
+   "scene": "council_eurybiades",
+   "size": "ms",
+   "angle": "low",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "temper",
+     "kind": "expression",
+     "do": "Eurybiades' face reddens",
+     "word_frame": 6928,
+     "frame": 6922
+    },
+    {
+     "word": "staff",
+     "kind": "gesture",
+     "do": "he raises his staff",
+     "word_frame": 6960,
+     "frame": 6954
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 6898,
+   "end_f": 7018
+  },
+  {
+   "id": "s59",
+   "line": 58,
+   "place": "council",
+   "scene": "council_themistocles",
+   "size": "cu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.12
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "Strike",
+     "kind": "expression",
+     "do": "Themistocles does not flinch",
+     "word_frame": 7018,
+     "frame": 7012
+    },
+    {
+     "word": "listen",
+     "kind": "gesture",
+     "do": "he opens his hands",
+     "word_frame": 7063,
+     "frame": 7057
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 7018,
+   "end_f": 7084
+  },
+  {
+   "id": "s60",
+   "line": 59,
+   "place": "council",
+   "scene": "council_fire",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "card",
+     "kind": "gesture",
+     "do": "Themistocles steps forward",
+     "word_frame": 7110,
+     "frame": 7104
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 7084,
+   "end_f": 7163
+  },
+  {
+   "id": "s61",
+   "line": 60,
+   "place": "council",
+   "scene": "council_themistocles",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "Italy",
+     "kind": "gesture",
+     "do": "he points west, over the sea",
+     "word_frame": 7231,
+     "frame": 7225
+    },
+    {
+     "word": "ships",
+     "kind": "expression",
+     "do": "a hard stare",
+     "word_frame": 7281,
+     "frame": 7275
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 7163,
+   "end_f": 7306
+  },
+  {
+   "id": "s62",
+   "line": 61,
+   "place": "council",
+   "scene": "council_fire",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "fleet",
+     "kind": "reveal",
+     "do": "the commanders look at each other",
+     "word_frame": 7360,
+     "frame": 7354
+    },
+    {
+     "word": "gave",
+     "kind": "gesture",
+     "do": "heads bow one by one",
+     "word_frame": 7388,
+     "frame": 7382
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 7306,
+   "end_f": 7444
+  },
+  {
+   "id": "s63",
+   "line": 62,
+   "place": "council",
+   "scene": "council_themistocles",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "won",
+     "kind": "expression",
+     "do": "a tired breath",
+     "word_frame": 7448,
+     "frame": 7442
+    },
+    {
+     "word": "morning",
+     "kind": "object",
+     "do": "the fire burns low",
+     "word_frame": 7518,
+     "frame": 7512
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 7444,
+   "end_f": 7547
+  },
+  {
+   "id": "s64",
+   "line": 63,
+   "place": "persiancamp",
+   "scene": "persiancamp_tent",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 12
+   },
+   "era_items": [
+    "persian_robe",
+    "throne"
+   ],
+   "beats": [
+    {
+     "word": "council",
+     "kind": "reveal",
+     "do": "Xerxes' war council in a great tent",
+     "word_frame": 7595,
+     "frame": 7589
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 7547,
+   "end_f": 7635
+  },
+  {
+   "id": "s65",
+   "line": 64,
+   "place": "persiancamp",
+   "scene": "persiancamp_tent",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "track",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "persian_robe",
+    "throne"
+   ],
+   "beats": [
+    {
+     "word": "commanders",
+     "kind": "gesture",
+     "do": "commanders bow one by one",
+     "word_frame": 7664,
+     "frame": 7658
+    },
+    {
+     "word": "Attack",
+     "kind": "expression",
+     "do": "Xerxes smiles",
+     "word_frame": 7720,
+     "frame": 7714
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 7635,
+   "end_f": 7724
+  },
+  {
+   "id": "s66",
+   "line": 65,
+   "place": "persiancamp",
+   "scene": "persiancamp_artemisia",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "persian_robe",
+    "throne"
+   ],
+   "beats": [
+    {
+     "word": "voice",
+     "kind": "reveal",
+     "do": "Artemisia steps forward",
+     "word_frame": 7758,
+     "frame": 7752
+    },
+    {
+     "word": "Artemisia",
+     "kind": "reveal",
+     "do": "the queen of Halicarnassus",
+     "word_frame": 7794,
+     "frame": 7788
+    },
+    {
+     "word": "commanded",
+     "kind": "gesture",
+     "do": "secondary action on 'commanded': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 7861,
+     "frame": 7855
+    },
+    {
+     "word": "fleet",
+     "kind": "gesture",
+     "do": "secondary action on 'fleet': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 7907,
+     "frame": 7901
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 7724,
+   "end_f": 7944
+  },
+  {
+   "id": "s67",
+   "line": 66,
+   "place": "persiancamp",
+   "scene": "persiancamp_artemisia",
+   "size": "cu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "persian_robe",
+    "throne"
+   ],
+   "beats": [
+    {
+     "word": "Spare",
+     "kind": "gesture",
+     "do": "she raises a hand",
+     "word_frame": 7944,
+     "frame": 7938
+    },
+    {
+     "word": "king",
+     "kind": "gesture",
+     "do": "secondary action on 'king': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 7975,
+     "frame": 7969
+    },
+    {
+     "word": "sea",
+     "kind": "expression",
+     "do": "a grave look",
+     "word_frame": 8022,
+     "frame": 8016
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 7944,
+   "end_f": 8050
+  },
+  {
+   "id": "s68",
+   "line": 67,
+   "place": "persiancamp",
+   "scene": "persiancamp_xerxes",
+   "size": "ms",
+   "angle": "low",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "persian_robe",
+    "throne"
+   ],
+   "beats": [
+    {
+     "word": "thanked",
+     "kind": "gesture",
+     "do": "Xerxes nods",
+     "word_frame": 8055,
+     "frame": 8049
+    },
+    {
+     "word": "ignored",
+     "kind": "expression",
+     "do": "he turns away",
+     "word_frame": 8084,
+     "frame": 8078
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 8050,
+   "end_f": 8131
+  },
+  {
+   "id": "s69",
+   "line": 68,
+   "place": "salamis",
+   "scene": "salamis_tent_them",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "fade_black",
+    "frames": 12
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "found",
+     "kind": "gesture",
+     "do": "secondary action on 'found': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 8186,
+     "frame": 8180
+    },
+    {
+     "word": "life",
+     "kind": "expression",
+     "do": "Themistocles alone, thinking",
+     "word_frame": 8227,
+     "frame": 8221
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 8131,
+   "end_f": 8255
+  },
+  {
+   "id": "s70",
+   "line": 69,
+   "place": "salamis",
+   "scene": "salamis_tent_them",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "Sicinnus",
+     "kind": "reveal",
+     "do": "Sicinnus enters",
+     "word_frame": 8271,
+     "frame": 8265
+    },
+    {
+     "word": "children",
+     "kind": "object",
+     "do": "a child's wax tablet on his belt",
+     "word_frame": 8323,
+     "frame": 8317
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 8255,
+   "end_f": 8367
+  },
+  {
+   "id": "s71",
+   "line": 70,
+   "place": "salamis",
+   "scene": "salamis_tent_them",
+   "size": "cu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "boat",
+     "kind": "gesture",
+     "do": "Themistocles grips his shoulder",
+     "word_frame": 8378,
+     "frame": 8372
+    },
+    {
+     "word": "Persians",
+     "kind": "gesture",
+     "do": "secondary action on 'Persians': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 8415,
+     "frame": 8409
+    },
+    {
+     "word": "exactly",
+     "kind": "expression",
+     "do": "close, intense",
+     "word_frame": 8455,
+     "frame": 8449
+    }
+   ],
+   "sfx": [],
+   "music": {
+    "cue": "tension",
+    "from_word": "Take",
+    "until": "s78",
+    "at": 348.64
+   },
+   "start_f": 8367,
+   "end_f": 8492
+  },
+  {
+   "id": "s72",
+   "line": 71,
+   "place": "nightsea",
+   "scene": "nightsea_sicinnus",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "track",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 10
+   },
+   "era_items": [
+    "small_boat"
+   ],
+   "beats": [
+    {
+     "word": "dark",
+     "kind": "reveal",
+     "do": "a small boat on the black water",
+     "word_frame": 8504,
+     "frame": 8498
+    },
+    {
+     "word": "rowed",
+     "kind": "object",
+     "do": "oars dip",
+     "word_frame": 8533,
+     "frame": 8527
+    },
+    {
+     "word": "enemy",
+     "kind": "gesture",
+     "do": "secondary action on 'enemy': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 8573,
+     "frame": 8567
+    }
+   ],
+   "sfx": [
+    {
+     "word": "rowed",
+     "sound": "oars_rowing_water_fs588308",
+     "db": -18,
+     "at": 355.56
+    }
+   ],
+   "music": null,
+   "start_f": 8492,
+   "end_f": 8612
+  },
+  {
+   "id": "s73",
+   "line": 72,
+   "place": "persianship",
+   "scene": "persianship_deck",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "phoenician_ship",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "master",
+     "kind": "gesture",
+     "do": "Sicinnus bows to the Persian officers",
+     "word_frame": 8623,
+     "frame": 8617
+    },
+    {
+     "word": "Greeks",
+     "kind": "gesture",
+     "do": "secondary action on 'Greeks': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 8676,
+     "frame": 8670
+    },
+    {
+     "word": "run",
+     "kind": "expression",
+     "do": "the officers lean in",
+     "word_frame": 8725,
+     "frame": 8719
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 8612,
+   "end_f": 8725
+  },
+  {
+   "id": "s74",
+   "line": 73,
+   "place": "persianship",
+   "scene": "persianship_deck",
+   "size": "cu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "phoenician_ship",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "Stop",
+     "kind": "gesture",
+     "do": "Sicinnus spreads his hands",
+     "word_frame": 8746,
+     "frame": 8740
+    },
+    {
+     "word": "fight",
+     "kind": "expression",
+     "do": "a sly look",
+     "word_frame": 8794,
+     "frame": 8788
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 8725,
+   "end_f": 8805
+  },
+  {
+   "id": "s75",
+   "line": 74,
+   "place": "nightsea",
+   "scene": "nightsea_sicinnus",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "track",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "small_boat"
+   ],
+   "beats": [
+    {
+     "word": "back",
+     "kind": "object",
+     "do": "the small boat comes back",
+     "word_frame": 8843,
+     "frame": 8837
+    },
+    {
+     "word": "wait",
+     "kind": "expression",
+     "do": "the camp waits in the dark",
+     "word_frame": 8899,
+     "frame": 8893
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 8805,
+   "end_f": 8934
+  },
+  {
+   "id": "s76",
+   "line": 75,
+   "place": "aigaleos",
+   "scene": "aigaleos_xerxes_night",
+   "size": "ms",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "dream",
+     "kind": "expression",
+     "do": "Xerxes hears it and smiles",
+     "word_frame": 8956,
+     "frame": 8950
+    },
+    {
+     "word": "trapped",
+     "kind": "gesture",
+     "do": "he closes his fist",
+     "word_frame": 9001,
+     "frame": 8995
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 8934,
+   "end_f": 9068
+  },
+  {
+   "id": "s77",
+   "line": 76,
+   "place": "salamis",
+   "scene": "salamis_tent_them",
+   "size": "cu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "risk",
+     "kind": "expression",
+     "do": "Themistocles waits, sweating",
+     "word_frame": 9094,
+     "frame": 9088
+    },
+    {
+     "word": "found",
+     "kind": "gesture",
+     "do": "secondary action on 'found': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 9125,
+     "frame": 9119
+    },
+    {
+     "word": "traitor",
+     "kind": "object",
+     "do": "the lamp gutters",
+     "word_frame": 9182,
+     "frame": 9176
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 9068,
+   "end_f": 9208
+  },
+  {
+   "id": "s78",
+   "line": 77,
+   "place": "salamis",
+   "scene": "salamis_camp_night",
+   "size": "ws",
+   "angle": "high",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "scatter",
+     "kind": "object",
+     "do": "ships ready to flee at dawn",
+     "word_frame": 9274,
+     "frame": 9268
+    },
+    {
+     "word": "finished",
+     "kind": "expression",
+     "do": "the camp asleep",
+     "word_frame": 9330,
+     "frame": 9324
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 9208,
+   "end_f": 9360
+  },
+  {
+   "id": "s79",
+   "line": 78,
+   "place": "persiancamp",
+   "scene": "persiancamp_xerxes",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "persian_robe",
+    "throne"
+   ],
+   "beats": [
+    {
+     "word": "believed",
+     "kind": "expression",
+     "do": "Xerxes: decided",
+     "word_frame": 9375,
+     "frame": 9369
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 9360,
+   "end_f": 9433
+  },
+  {
+   "id": "s80",
+   "line": 79,
+   "place": "strait",
+   "scene": "strait_night_close",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 12
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "slipped",
+     "kind": "object",
+     "do": "Persian ships glide out",
+     "word_frame": 9469,
+     "frame": 9463
+    },
+    {
+     "word": "closed",
+     "kind": "reveal",
+     "do": "the channels sealed",
+     "word_frame": 9496,
+     "frame": 9490
+    },
+    {
+     "word": "Salamis",
+     "kind": "gesture",
+     "do": "secondary action on 'Salamis': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 9534,
+     "frame": 9528
+    }
+   ],
+   "sfx": [
+    {
+     "word": "slipped",
+     "sound": "ship_creak_wood_fs411087",
+     "db": -20,
+     "at": 394.56
+    }
+   ],
+   "music": null,
+   "start_f": 9433,
+   "end_f": 9570
+  },
+  {
+   "id": "s81",
+   "line": 80,
+   "place": "psyttaleia",
+   "scene": "psyttaleia_landing",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "salamis_strait",
+    "hoplite_athenian"
+   ],
+   "beats": [
+    {
+     "word": "island",
+     "kind": "reveal",
+     "do": "soldiers landing on the islet",
+     "word_frame": 9616,
+     "frame": 9610
+    },
+    {
+     "word": "ready",
+     "kind": "gesture",
+     "do": "secondary action on 'ready': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 9660,
+     "frame": 9654
+    },
+    {
+     "word": "swam",
+     "kind": "object",
+     "do": "spears waiting at the waterline",
+     "word_frame": 9700,
+     "frame": 9694
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 9570,
+   "end_f": 9721
+  },
+  {
+   "id": "s82",
+   "line": 81,
+   "place": "strait",
+   "scene": "strait_night_rowers",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "rowers",
+     "kind": "object",
+     "do": "tired Persian rowers at the oars",
+     "word_frame": 9771,
+     "frame": 9765
+    },
+    {
+     "word": "never",
+     "kind": "expression",
+     "do": "a rower nods off",
+     "word_frame": 9840,
+     "frame": 9834
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 9721,
+   "end_f": 9877
+  },
+  {
+   "id": "s83",
+   "line": 82,
+   "place": "council",
+   "scene": "council_fire",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "handheld",
+    "amount": 0.5
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "arguing",
+     "kind": "gesture",
+     "do": "the council still shouting",
+     "word_frame": 9901,
+     "frame": 9895
+    },
+    {
+     "word": "shut",
+     "kind": "reveal",
+     "do": "behind them, the dark sea",
+     "word_frame": 9966,
+     "frame": 9960
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 9877,
+   "end_f": 10004
+  },
+  {
+   "id": "s84",
+   "line": 83,
+   "place": "nightsea",
+   "scene": "nightsea_aristides",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "track",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "small_boat"
+   ],
+   "beats": [
+    {
+     "word": "boat",
+     "kind": "reveal",
+     "do": "a small boat slips between Persian hulls",
+     "word_frame": 10046,
+     "frame": 10040
+    }
+   ],
+   "sfx": [
+    {
+     "word": "boat",
+     "sound": "oars_rowing_water_fs249707",
+     "db": -20,
+     "at": 418.58
+    }
+   ],
+   "music": null,
+   "start_f": 10004,
+   "end_f": 10105
+  },
+  {
+   "id": "s85",
+   "line": 84,
+   "place": "nightsea",
+   "scene": "nightsea_aristides",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "small_boat"
+   ],
+   "beats": [
+    {
+     "word": "Aristides",
+     "kind": "reveal",
+     "do": "Aristides at the oars",
+     "word_frame": 10114,
+     "frame": 10108
+    },
+    {
+     "word": "exile",
+     "kind": "gesture",
+     "do": "secondary action on 'exile': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 10175,
+     "frame": 10169
+    },
+    {
+     "word": "rival",
+     "kind": "expression",
+     "do": "grim, determined",
+     "word_frame": 10246,
+     "frame": 10240
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 10105,
+   "end_f": 10280
+  },
+  {
+   "id": "s86",
+   "line": 85,
+   "place": "council",
+   "scene": "council_aristides",
+   "size": "cu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "longer",
+     "kind": "gesture",
+     "do": "secondary action on 'longer': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 10334,
+     "frame": 10328
+    },
+    {
+     "word": "surrounded",
+     "kind": "expression",
+     "do": "Aristides, wet and grave",
+     "word_frame": 10376,
+     "frame": 10370
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 10280,
+   "end_f": 10405
+  },
+  {
+   "id": "s87",
+   "line": 86,
+   "place": "council",
+   "scene": "council_themistocles",
+   "size": "cu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "night",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "smiled",
+     "kind": "expression",
+     "do": "Themistocles smiles",
+     "word_frame": 10420,
+     "frame": 10414
+    },
+    {
+     "word": "what",
+     "kind": "gesture",
+     "do": "secondary action on 'what': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 10469,
+     "frame": 10463
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 10405,
+   "end_f": 10522
+  },
+  {
+   "id": "s88",
+   "line": 87,
+   "place": "council",
+   "scene": "council_two",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "night",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "message",
+     "kind": "gesture",
+     "do": "Themistocles grips Aristides' arm",
+     "word_frame": 10568,
+     "frame": 10562
+    },
+    {
+     "word": "run",
+     "kind": "expression",
+     "do": "Aristides stares",
+     "word_frame": 10620,
+     "frame": 10614
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 10522,
+   "end_f": 10644
+  },
+  {
+   "id": "s89",
+   "line": 88,
+   "place": "council",
+   "scene": "council_two",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "problem",
+     "kind": "expression",
+     "do": "Themistocles glances at the council",
+     "word_frame": 10655,
+     "frame": 10649
+    },
+    {
+     "word": "told",
+     "kind": "gesture",
+     "do": "secondary action on 'told': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 10698,
+     "frame": 10692
+    },
+    {
+     "word": "believe",
+     "kind": "gesture",
+     "do": "he shakes his head",
+     "word_frame": 10742,
+     "frame": 10736
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 10644,
+   "end_f": 10781
+  },
+  {
+   "id": "s90",
+   "line": 89,
+   "place": "council",
+   "scene": "council_two",
+   "size": "cu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "tell",
+     "kind": "gesture",
+     "do": "he pushes Aristides forward",
+     "word_frame": 10787,
+     "frame": 10781
+    },
+    {
+     "word": "they",
+     "kind": "gesture",
+     "do": "secondary action on 'they': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 10834,
+     "frame": 10828
+    },
+    {
+     "word": "trick",
+     "kind": "expression",
+     "do": "a wry look",
+     "word_frame": 10860,
+     "frame": 10854
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 10781,
+   "end_f": 10888
+  },
+  {
+   "id": "s91",
+   "line": 90,
+   "place": "council",
+   "scene": "council_fire",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "enemy",
+     "kind": "reveal",
+     "do": "Aristides steps into the firelight",
+     "word_frame": 10902,
+     "frame": 10896
+    },
+    {
+     "word": "told",
+     "kind": "gesture",
+     "do": "secondary action on 'told': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 10950,
+     "frame": 10944
+    },
+    {
+     "word": "believe",
+     "kind": "expression",
+     "do": "the commanders scoff",
+     "word_frame": 10989,
+     "frame": 10983
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 10888,
+   "end_f": 11017
+  },
+  {
+   "id": "s92",
+   "line": 91,
+   "place": "salamis",
+   "scene": "salamis_beach_ships",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "ship",
+     "kind": "reveal",
+     "do": "a lone ship glides in from the dark",
+     "word_frame": 11026,
+     "frame": 11020
+    },
+    {
+     "word": "dark",
+     "kind": "gesture",
+     "do": "secondary action on 'dark': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 11052,
+     "frame": 11046
+    },
+    {
+     "word": "fleet",
+     "kind": "gesture",
+     "do": "secondary action on 'fleet': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 11101,
+     "frame": 11095
+    },
+    {
+     "word": "said",
+     "kind": "gesture",
+     "do": "secondary action on 'said': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 11137,
+     "frame": 11131
+    },
+    {
+     "word": "Surrounded",
+     "kind": "expression",
+     "do": "its crew shouting",
+     "word_frame": 11185,
+     "frame": 11179
+    }
+   ],
+   "sfx": [
+    {
+     "word": "ship",
+     "sound": "ship_creak_wood_fs483355",
+     "db": -20,
+     "at": 459.4
+    }
+   ],
+   "music": null,
+   "start_f": 11017,
+   "end_f": 11216
+  },
+  {
+   "id": "s93",
+   "line": 92,
+   "place": "strait",
+   "scene": "strait_night_close",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "Nobody",
+     "kind": "reveal",
+     "do": "the ring of Persian ships",
+     "word_frame": 11216,
+     "frame": 11210
+    },
+    {
+     "word": "Greeks",
+     "kind": "gesture",
+     "do": "secondary action on 'Greeks': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 11262,
+     "frame": 11256
+    },
+    {
+     "word": "narrows",
+     "kind": "reveal",
+     "do": "the narrow strait",
+     "word_frame": 11307,
+     "frame": 11301
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 11216,
+   "end_f": 11340
+  },
+  {
+   "id": "s94",
+   "line": 93,
+   "place": "strait",
+   "scene": "strait_dawn_wide",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 12
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "three",
+     "kind": "reveal",
+     "do": "the small Greek fleet",
+     "word_frame": 11361,
+     "frame": 11355
+    },
+    {
+     "word": "thousand",
+     "kind": "reveal",
+     "do": "the vast Persian fleet",
+     "word_frame": 11406,
+     "frame": 11400
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 11340,
+   "end_f": 11476
+  },
+  {
+   "id": "s95",
+   "line": 94,
+   "place": "aigaleos",
+   "scene": "aigaleos_dawn",
+   "size": "ws",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "fade_black",
+    "frames": 12
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "Dawn",
+     "kind": "reveal",
+     "do": "the sun over the hill",
+     "word_frame": 11476,
+     "frame": 11470
+    },
+    {
+     "word": "Xerxes",
+     "kind": "gesture",
+     "do": "secondary action on 'Xerxes': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 11530,
+     "frame": 11524
+    },
+    {
+     "word": "throne",
+     "kind": "gesture",
+     "do": "Xerxes sits",
+     "word_frame": 11572,
+     "frame": 11566
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 11476,
+   "end_f": 11606
+  },
+  {
+   "id": "s96",
+   "line": 95,
+   "place": "salamis",
+   "scene": "salamis_shore_hymn",
+   "size": "ms",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "hope"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "Themistocles",
+     "kind": "reveal",
+     "do": "Themistocles stands before the men",
+     "word_frame": 11636,
+     "frame": 11630
+    },
+    {
+     "word": "front",
+     "kind": "gesture",
+     "do": "secondary action on 'front': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 11669,
+     "frame": 11663
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 11606,
+   "end_f": 11709
+  },
+  {
+   "id": "s97",
+   "line": 96,
+   "place": "council",
+   "scene": "council_themistocles_dawn",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "council_tent",
+    "chiton_himation",
+    "staff"
+   ],
+   "beats": [
+    {
+     "word": "best",
+     "kind": "gesture",
+     "do": "he raises his fist",
+     "word_frame": 11751,
+     "frame": 11745
+    },
+    {
+     "word": "worst",
+     "kind": "gesture",
+     "do": "secondary action on 'worst': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 11798,
+     "frame": 11792
+    },
+    {
+     "word": "Choose",
+     "kind": "expression",
+     "do": "fierce",
+     "word_frame": 11830,
+     "frame": 11824
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 11709,
+   "end_f": 11863
+  },
+  {
+   "id": "s98",
+   "line": 97,
+   "place": "salamis",
+   "scene": "salamis_shore_hymn",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "hope"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "sing",
+     "kind": "gesture",
+     "do": "the Greeks begin to sing",
+     "word_frame": 11925,
+     "frame": 11919
+    }
+   ],
+   "sfx": [
+    {
+     "word": "sing",
+     "sound": "chant_men_voices_fs319253",
+     "db": -16,
+     "at": 496.88
+    }
+   ],
+   "music": {
+    "cue": "battle",
+    "from_word": "sing",
+    "until": "s118",
+    "at": 496.88
+   },
+   "start_f": 11863,
+   "end_f": 11952
+  },
+  {
+   "id": "s99",
+   "line": 98,
+   "place": "strait",
+   "scene": "strait_dawn_fleet",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "hymn",
+     "kind": "object",
+     "do": "the sound rolls over the water",
+     "word_frame": 11964,
+     "frame": 11958
+    },
+    {
+     "word": "across",
+     "kind": "gesture",
+     "do": "secondary action on 'across': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 12008,
+     "frame": 12002
+    },
+    {
+     "word": "afraid",
+     "kind": "expression",
+     "do": "Persian rowers glance at each other",
+     "word_frame": 12061,
+     "frame": 12055
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 11952,
+   "end_f": 12098
+  },
+  {
+   "id": "s100",
+   "line": 99,
+   "place": "salamis",
+   "scene": "salamis_shore_hymn",
+   "size": "ws",
+   "angle": "low",
+   "camera": {
+    "move": "crane_up",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "sons",
+     "kind": "gesture",
+     "do": "secondary action on 'sons': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 12161,
+     "frame": 12155
+    },
+    {
+     "word": "Free",
+     "kind": "gesture",
+     "do": "spears raised",
+     "word_frame": 12195,
+     "frame": 12189
+    },
+    {
+     "word": "wives",
+     "kind": "reveal",
+     "do": "families behind them",
+     "word_frame": 12239,
+     "frame": 12233
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 12098,
+   "end_f": 12270
+  },
+  {
+   "id": "s101",
+   "line": 100,
+   "place": "strait",
+   "scene": "strait_enter",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "track",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "pushed",
+     "kind": "object",
+     "do": "the Persian fleet pours into the strait",
+     "word_frame": 12290,
+     "frame": 12284
+    },
+    {
+     "word": "trap",
+     "kind": "gesture",
+     "do": "secondary action on 'trap': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 12336,
+     "frame": 12330
+    },
+    {
+     "word": "slept",
+     "kind": "expression",
+     "do": "tired rowers",
+     "word_frame": 12378,
+     "frame": 12372
+    }
+   ],
+   "sfx": [
+    {
+     "word": "pushed",
+     "sound": "oars_rowing_water_fs588307",
+     "db": -16,
+     "at": 512.08
+    }
+   ],
+   "music": null,
+   "start_f": 12270,
+   "end_f": 12386
+  },
+  {
+   "id": "s102",
+   "line": 101,
+   "place": "strait",
+   "scene": "strait_enter",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "narrow",
+     "kind": "reveal",
+     "do": "the cliffs close in on both sides",
+     "word_frame": 12430,
+     "frame": 12424
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 12386,
+   "end_f": 12483
+  },
+  {
+   "id": "s103",
+   "line": 102,
+   "place": "strait",
+   "scene": "strait_ram",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "track",
+    "amount": 0.12
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "Ameinias",
+     "kind": "reveal",
+     "do": "one Greek ship surges forward",
+     "word_frame": 12536,
+     "frame": 12530
+    },
+    {
+     "word": "ram",
+     "kind": "object",
+     "do": "its ram drives at a Persian hull",
+     "word_frame": 12594,
+     "frame": 12588
+    }
+   ],
+   "sfx": [
+    {
+     "word": "ram",
+     "sound": "wood_crash_fs500901",
+     "db": -10,
+     "at": 524.76
+    }
+   ],
+   "music": null,
+   "start_f": 12483,
+   "end_f": 12655
+  },
+  {
+   "id": "s104",
+   "line": 103,
+   "place": "strait",
+   "scene": "strait_ram_hit",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "handheld",
+    "amount": 0.8
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "smashed",
+     "kind": "object",
+     "do": "bronze bursts through planks",
+     "word_frame": 12663,
+     "frame": 12657
+    },
+    {
+     "word": "locked",
+     "kind": "object",
+     "do": "the two ships lock",
+     "word_frame": 12709,
+     "frame": 12703
+    }
+   ],
+   "sfx": [
+    {
+     "word": "smashed",
+     "sound": "wood_crash_fs443293",
+     "db": -10,
+     "at": 527.64
+    }
+   ],
+   "music": null,
+   "start_f": 12655,
+   "end_f": 12776
+  },
+  {
+   "id": "s105",
+   "line": 104,
+   "place": "strait",
+   "scene": "strait_jam",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "numbers",
+     "kind": "reveal",
+     "do": "the Persian ships pile up",
+     "word_frame": 12782,
+     "frame": 12776
+    },
+    {
+     "word": "jammed",
+     "kind": "object",
+     "do": "hulls jam together",
+     "word_frame": 12846,
+     "frame": 12840
+    }
+   ],
+   "sfx": [
+    {
+     "word": "jammed",
+     "sound": "ship_creak_wood_fs636201",
+     "db": -14,
+     "at": 535.24
+    }
+   ],
+   "music": null,
+   "start_f": 12776,
+   "end_f": 12906
+  },
+  {
+   "id": "s106",
+   "line": 105,
+   "place": "strait",
+   "scene": "strait_jam_close",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "handheld",
+    "amount": 0.9
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "rammed",
+     "kind": "object",
+     "do": "a Persian ship rams its own",
+     "word_frame": 12912,
+     "frame": 12906
+    },
+    {
+     "word": "snapped",
+     "kind": "object",
+     "do": "oars snap",
+     "word_frame": 12960,
+     "frame": 12954
+    },
+    {
+     "word": "cracked",
+     "kind": "object",
+     "do": "a hull splits",
+     "word_frame": 12989,
+     "frame": 12983
+    }
+   ],
+   "sfx": [
+    {
+     "word": "snapped",
+     "sound": "wood_crash_fs500901",
+     "db": -12,
+     "at": 539.98
+    }
+   ],
+   "music": null,
+   "start_f": 12906,
+   "end_f": 13024
+  },
+  {
+   "id": "s107",
+   "line": 106,
+   "place": "strait",
+   "scene": "strait_swim",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "drowned",
+     "kind": "object",
+     "do": "Persians sinking in their robes",
+     "word_frame": 13069,
+     "frame": 13063
+    },
+    {
+     "word": "swam",
+     "kind": "object",
+     "do": "Greeks swim toward Salamis",
+     "word_frame": 13123,
+     "frame": 13117
+    }
+   ],
+   "sfx": [
+    {
+     "word": "swam",
+     "sound": "water_splash_fs425140",
+     "db": -16,
+     "at": 546.78
+    }
+   ],
+   "music": null,
+   "start_f": 13024,
+   "end_f": 13186
+  },
+  {
+   "id": "s108",
+   "line": 107,
+   "place": "strait",
+   "scene": "strait_ram",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "track",
+    "amount": 0.12
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "ramming",
+     "kind": "object",
+     "do": "a Greek ship rams",
+     "word_frame": 13237,
+     "frame": 13231
+    },
+    {
+     "word": "backing",
+     "kind": "object",
+     "do": "backs water",
+     "word_frame": 13250,
+     "frame": 13244
+    },
+    {
+     "word": "again",
+     "kind": "object",
+     "do": "rams again",
+     "word_frame": 13286,
+     "frame": 13280
+    }
+   ],
+   "sfx": [
+    {
+     "word": "again",
+     "sound": "wood_crash_fs443293",
+     "db": -12,
+     "at": 553.58
+    }
+   ],
+   "music": null,
+   "start_f": 13186,
+   "end_f": 13313
+  },
+  {
+   "id": "s109",
+   "line": 108,
+   "place": "strait",
+   "scene": "strait_admiral",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "handheld",
+    "amount": 0.6
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "brother",
+     "kind": "reveal",
+     "do": "a Persian admiral on his flagship",
+     "word_frame": 13337,
+     "frame": 13331
+    },
+    {
+     "word": "killed",
+     "kind": "object",
+     "do": "he falls",
+     "word_frame": 13389,
+     "frame": 13383
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 13313,
+   "end_f": 13435
+  },
+  {
+   "id": "s110",
+   "line": 109,
+   "place": "psyttaleia",
+   "scene": "psyttaleia_fight",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "handheld",
+    "amount": 0.6
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "salamis_strait",
+    "hoplite_athenian"
+   ],
+   "beats": [
+    {
+     "word": "Aristides",
+     "kind": "reveal",
+     "do": "Athenians storm the islet",
+     "word_frame": 13484,
+     "frame": 13478
+    },
+    {
+     "word": "ashore",
+     "kind": "gesture",
+     "do": "secondary action on 'ashore': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 13521,
+     "frame": 13515
+    },
+    {
+     "word": "survived",
+     "kind": "object",
+     "do": "the last Persian falls",
+     "word_frame": 13576,
+     "frame": 13570
+    }
+   ],
+   "sfx": [
+    {
+     "word": "Aristides",
+     "sound": "war_cry_shout_fs521830",
+     "db": -14,
+     "at": 561.84
+    }
+   ],
+   "music": null,
+   "start_f": 13435,
+   "end_f": 13608
+  },
+  {
+   "id": "s111",
+   "line": 110,
+   "place": "aigaleos",
+   "scene": "aigaleos_scribes",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "writing",
+     "kind": "object",
+     "do": "the scribes keep writing",
+     "word_frame": 13649,
+     "frame": 13643
+    }
+   ],
+   "sfx": [
+    {
+     "word": "writing",
+     "sound": "quill_writing_fs524948",
+     "db": -20,
+     "at": 568.7
+    }
+   ],
+   "music": null,
+   "start_f": 13608,
+   "end_f": 13678
+  },
+  {
+   "id": "s112",
+   "line": 111,
+   "place": "aigaleos",
+   "scene": "aigaleos_xerxes_scribes",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "brave",
+     "kind": "gesture",
+     "do": "Xerxes points to the water",
+     "word_frame": 13736,
+     "frame": 13730
+    },
+    {
+     "word": "wrote",
+     "kind": "object",
+     "do": "a scribe writes a name",
+     "word_frame": 13800,
+     "frame": 13794
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 13678,
+   "end_f": 13837
+  },
+  {
+   "id": "s113",
+   "line": 112,
+   "place": "aigaleos",
+   "scene": "aigaleos_xerxes_watch",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "believe",
+     "kind": "expression",
+     "do": "Xerxes' eyes widen",
+     "word_frame": 13877,
+     "frame": 13871
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 13837,
+   "end_f": 13920
+  },
+  {
+   "id": "s114",
+   "line": 113,
+   "place": "strait",
+   "scene": "strait_artemisia_chase",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "track",
+    "amount": 0.12
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "Artemisia",
+     "kind": "reveal",
+     "do": "Artemisia's ship fleeing",
+     "word_frame": 13920,
+     "frame": 13914
+    },
+    {
+     "word": "warned",
+     "kind": "gesture",
+     "do": "secondary action on 'warned': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 13958,
+     "frame": 13952
+    },
+    {
+     "word": "Athenian",
+     "kind": "reveal",
+     "do": "an Athenian ship close behind",
+     "word_frame": 14000,
+     "frame": 13994
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 13920,
+   "end_f": 14064
+  },
+  {
+   "id": "s115",
+   "line": 114,
+   "place": "strait",
+   "scene": "strait_artemisia_ram",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "handheld",
+    "amount": 0.8
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "rammed",
+     "kind": "object",
+     "do": "she turns and rams a ship",
+     "word_frame": 14108,
+     "frame": 14102
+    },
+    {
+     "word": "sank",
+     "kind": "object",
+     "do": "it goes down",
+     "word_frame": 14137,
+     "frame": 14131
+    }
+   ],
+   "sfx": [
+    {
+     "word": "rammed",
+     "sound": "wood_crash_fs500901",
+     "db": -10,
+     "at": 587.84
+    }
+   ],
+   "music": null,
+   "start_f": 14064,
+   "end_f": 14176
+  },
+  {
+   "id": "s116",
+   "line": 115,
+   "place": "strait",
+   "scene": "strait_artemisia_ram",
+   "size": "cu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "own",
+     "kind": "reveal",
+     "do": "a Persian banner sinking under the water",
+     "word_frame": 14237,
+     "frame": 14231
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 14176,
+   "end_f": 14275
+  },
+  {
+   "id": "s117",
+   "line": 116,
+   "place": "aigaleos",
+   "scene": "aigaleos_xerxes_watch",
+   "size": "ms",
+   "angle": "low",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "thought",
+     "kind": "expression",
+     "do": "Xerxes applauds",
+     "word_frame": 14305,
+     "frame": 14299
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 14275,
+   "end_f": 14371
+  },
+  {
+   "id": "s118",
+   "line": 117,
+   "place": "aigaleos",
+   "scene": "aigaleos_xerxes",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "men",
+     "kind": "expression",
+     "do": "bitter",
+     "word_frame": 14374,
+     "frame": 14368
+    },
+    {
+     "word": "women",
+     "kind": "gesture",
+     "do": "he turns to his court",
+     "word_frame": 14399,
+     "frame": 14393
+    },
+    {
+     "word": "women",
+     "occurrence": 2,
+     "kind": "expression",
+     "do": "his lip curls as he says it: contempt for his own captains",
+     "word_frame": 14430,
+     "frame": 14424
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 14371,
+   "end_f": 14474
+  },
+  {
+   "id": "s119",
+   "line": 118,
+   "place": "aigaleos",
+   "scene": "aigaleos_xerxes",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "Write",
+     "kind": "gesture",
+     "do": "he waves at the scribes",
+     "word_frame": 14474,
+     "frame": 14468
+    },
+    {
+     "word": "first",
+     "kind": "expression",
+     "do": "a proud smile",
+     "word_frame": 14520,
+     "frame": 14514
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 14474,
+   "end_f": 14550
+  },
+  {
+   "id": "s120",
+   "line": 119,
+   "place": "strait",
+   "scene": "strait_artemisia_ram",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "survived",
+     "kind": "object",
+     "do": "the sunken ship's mast slips under",
+     "word_frame": 14606,
+     "frame": 14600
+    },
+    {
+     "word": "truth",
+     "kind": "reveal",
+     "do": "empty water",
+     "word_frame": 14635,
+     "frame": 14629
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 14550,
+   "end_f": 14671
+  },
+  {
+   "id": "s121",
+   "line": 120,
+   "place": "aigaleos",
+   "scene": "aigaleos_xerxes_watch",
+   "size": "ms",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "commander",
+     "kind": "reveal",
+     "do": "Artemisia's ship far below",
+     "word_frame": 14683,
+     "frame": 14677
+    },
+    {
+     "word": "praised",
+     "kind": "expression",
+     "do": "Xerxes beams",
+     "word_frame": 14739,
+     "frame": 14733
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 14671,
+   "end_f": 14772
+  },
+  {
+   "id": "s122",
+   "line": 121,
+   "place": "strait",
+   "scene": "strait_wreckage",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 14
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "evening",
+     "kind": "reveal",
+     "do": "the strait at sunset",
+     "word_frame": 14776,
+     "frame": 14770
+    },
+    {
+     "word": "wreckage",
+     "kind": "object",
+     "do": "wreckage drifting",
+     "word_frame": 14820,
+     "frame": 14814
+    }
+   ],
+   "sfx": [
+    {
+     "word": "evening",
+     "sound": "sea_waves_fs693727",
+     "db": -20,
+     "at": 615.68
+    }
+   ],
+   "music": {
+    "cue": "emotional",
+    "from_word": "By",
+    "until": "s127",
+    "at": 615.48
+   },
+   "start_f": 14772,
+   "end_f": 14851
+  },
+  {
+   "id": "s123",
+   "line": 122,
+   "place": "aigaleos",
+   "scene": "aigaleos_xerxes_watch",
+   "size": "ws",
+   "angle": "low",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "throne",
+     "kind": "reveal",
+     "do": "the king on his throne",
+     "word_frame": 14858,
+     "frame": 14852
+    },
+    {
+     "word": "down",
+     "kind": "object",
+     "do": "a ship sinks below",
+     "word_frame": 14917,
+     "frame": 14911
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 14851,
+   "end_f": 14946
+  },
+  {
+   "id": "s124",
+   "line": 123,
+   "place": "aigaleos",
+   "scene": "aigaleos_xerxes_robes",
+   "size": "ms",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "tore",
+     "kind": "gesture",
+     "do": "Xerxes tears his robe",
+     "word_frame": 14956,
+     "frame": 14950
+    },
+    {
+     "word": "full",
+     "kind": "gesture",
+     "do": "secondary action on 'full': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 15010,
+     "frame": 15004
+    },
+    {
+     "word": "army",
+     "kind": "reveal",
+     "do": "his army watching",
+     "word_frame": 15045,
+     "frame": 15039
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 14946,
+   "end_f": 15077
+  },
+  {
+   "id": "s125",
+   "line": 124,
+   "place": "aigaleos",
+   "scene": "aigaleos_captains",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "blame",
+     "kind": "gesture",
+     "do": "Phoenician captains point",
+     "word_frame": 15115,
+     "frame": 15109
+    },
+    {
+     "word": "beheaded",
+     "kind": "reveal",
+     "do": "guards step forward",
+     "word_frame": 15167,
+     "frame": 15161
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 15077,
+   "end_f": 15195
+  },
+  {
+   "id": "s126",
+   "line": 125,
+   "place": "aigaleos",
+   "scene": "aigaleos_scroll",
+   "size": "ecu",
+   "angle": "high",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribes",
+    "aigaleos"
+   ],
+   "beats": [
+    {
+     "word": "heroes",
+     "kind": "object",
+     "do": "the scroll full of names",
+     "word_frame": 15266,
+     "frame": 15260
+    },
+    {
+     "word": "lost",
+     "kind": "object",
+     "do": "the scribe's hand stops",
+     "word_frame": 15308,
+     "frame": 15302
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 15195,
+   "end_f": 15342
+  },
+  {
+   "id": "s127",
+   "line": 126,
+   "place": "acropolis",
+   "scene": "acropolis_burnt_far",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "acropolis_archaic"
+   ],
+   "beats": [
+    {
+     "word": "burned",
+     "kind": "reveal",
+     "do": "smoke over Athens",
+     "word_frame": 15402,
+     "frame": 15396
+    },
+    {
+     "word": "sea",
+     "kind": "object",
+     "do": "the strait beyond",
+     "word_frame": 15442,
+     "frame": 15436
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 15342,
+   "end_f": 15469
+  },
+  {
+   "id": "s128",
+   "line": 127,
+   "place": "hellespont",
+   "scene": "hellespont",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 10
+   },
+   "era_items": [
+    "hellespont_bridge",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "bridges",
+     "kind": "reveal",
+     "do": "the bridge of ships",
+     "word_frame": 15539,
+     "frame": 15533
+    },
+    {
+     "word": "trap",
+     "kind": "expression",
+     "do": "guards nervously watching the sea",
+     "word_frame": 15562,
+     "frame": 15556
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 15469,
+   "end_f": 15605
+  },
+  {
+   "id": "s129",
+   "line": 128,
+   "place": "nightsea",
+   "scene": "nightsea_sicinnus",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "track",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "night",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "small_boat"
+   ],
+   "beats": [
+    {
+     "word": "boat",
+     "kind": "object",
+     "do": "the small boat again",
+     "word_frame": 15630,
+     "frame": 15624
+    },
+    {
+     "word": "Sicinnus",
+     "kind": "reveal",
+     "do": "Sicinnus at the oars",
+     "word_frame": 15692,
+     "frame": 15686
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 15605,
+   "end_f": 15692
+  },
+  {
+   "id": "s130",
+   "line": 129,
+   "place": "persianship",
+   "scene": "persianship_deck",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "phoenician_ship",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "stopped",
+     "kind": "gesture",
+     "do": "Sicinnus bows",
+     "word_frame": 15748,
+     "frame": 15742
+    },
+    {
+     "word": "bridges",
+     "kind": "gesture",
+     "do": "secondary action on 'bridges': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 15787,
+     "frame": 15781
+    },
+    {
+     "word": "friend",
+     "kind": "expression",
+     "do": "the officers nod, relieved",
+     "word_frame": 15825,
+     "frame": 15819
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 15692,
+   "end_f": 15848
+  },
+  {
+   "id": "s131",
+   "line": 130,
+   "place": "road",
+   "scene": "road_xerxes_home",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "trick",
+     "kind": "reveal",
+     "do": "the king's column turns north",
+     "word_frame": 15905,
+     "frame": 15899
+    },
+    {
+     "word": "home",
+     "kind": "object",
+     "do": "the road away from Greece",
+     "word_frame": 15939,
+     "frame": 15933
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 15848,
+   "end_f": 15969
+  },
+  {
+   "id": "s132",
+   "line": 131,
+   "place": "road",
+   "scene": "road_xerxes_home",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "messages",
+     "kind": "reveal",
+     "do": "a small boat on the water",
+     "word_frame": 15972,
+     "frame": 15966
+    },
+    {
+     "word": "start",
+     "kind": "gesture",
+     "do": "secondary action on 'start': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 16032,
+     "frame": 16026
+    },
+    {
+     "word": "war",
+     "kind": "object",
+     "do": "the king's column heads north",
+     "word_frame": 16078,
+     "frame": 16072
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 15969,
+   "end_f": 16104
+  },
+  {
+   "id": "s133",
+   "line": 132,
+   "place": "salamis",
+   "scene": "salamis_tent_them",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "hope"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "chiton_himation",
+    "salamis_strait"
+   ],
+   "beats": [
+    {
+     "word": "promise",
+     "kind": "gesture",
+     "do": "Themistocles hands Sicinnus a scroll",
+     "word_frame": 16132,
+     "frame": 16126
+    },
+    {
+     "word": "messages",
+     "kind": "gesture",
+     "do": "secondary action on 'messages': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 16186,
+     "frame": 16180
+    },
+    {
+     "word": "rich",
+     "kind": "expression",
+     "do": "Sicinnus bows, free",
+     "word_frame": 16243,
+     "frame": 16237
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 16104,
+   "end_f": 16280
+  },
+  {
+   "id": "s134",
+   "line": 133,
+   "place": "athens",
+   "scene": "athens_scroll_word",
+   "size": "ecu",
+   "angle": "high",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "fade_black",
+    "frames": 12
+   },
+   "era_items": [
+    "chiton_himation"
+   ],
+   "beats": [
+    {
+     "word": "wall",
+     "kind": "object",
+     "do": "the oracle's words",
+     "word_frame": 16296,
+     "frame": 16290
+    }
+   ],
+   "sfx": [],
+   "music": {
+    "cue": "ending",
+    "from_word": "So",
+    "until": "s141",
+    "at": 678.34
+   },
+   "start_f": 16280,
+   "end_f": 16327
+  },
+  {
+   "id": "s135",
+   "line": 134,
+   "place": "acropolis",
+   "scene": "acropolis_barricade_burnt",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "acropolis_archaic"
+   ],
+   "beats": [
+    {
+     "word": "hedge",
+     "kind": "reveal",
+     "do": "the old hedge",
+     "word_frame": 16341,
+     "frame": 16335
+    },
+    {
+     "word": "barricade",
+     "kind": "reveal",
+     "do": "the burnt barricade",
+     "word_frame": 16370,
+     "frame": 16364
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 16327,
+   "end_f": 16436
+  },
+  {
+   "id": "s136",
+   "line": 135,
+   "place": "shipyard",
+   "scene": "shipyard",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "ships",
+     "kind": "reveal",
+     "do": "the fleet of triremes",
+     "word_frame": 16449,
+     "frame": 16443
+    },
+    {
+     "word": "years",
+     "kind": "gesture",
+     "do": "secondary action on 'years': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 16513,
+     "frame": 16507
+    },
+    {
+     "word": "trusted",
+     "kind": "reveal",
+     "do": "Themistocles among the shipwrights",
+     "word_frame": 16569,
+     "frame": 16563
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 16436,
+   "end_f": 16596
+  },
+  {
+   "id": "s137",
+   "line": 136,
+   "place": "strait",
+   "scene": "strait_wreckage",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.12
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "triumph"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "trireme",
+    "phoenician_ship",
+    "salamis_strait",
+    "bronze_ram"
+   ],
+   "beats": [
+    {
+     "word": "numbers",
+     "kind": "reveal",
+     "do": "the empty strait",
+     "word_frame": 16659,
+     "frame": 16653
+    },
+    {
+     "word": "message",
+     "kind": "reveal",
+     "do": "one small boat on the water",
+     "word_frame": 16706,
+     "frame": 16700
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 16596,
+   "end_f": 16760
+  },
+  {
+   "id": "s138",
+   "line": 137,
+   "place": "acropolis",
+   "scene": "acropolis_olive",
+   "size": "cu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "hope"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 12
+   },
+   "era_items": [
+    "acropolis_archaic",
+    "sacred_olive"
+   ],
+   "beats": [
+    {
+     "word": "Herodotus",
+     "kind": "gesture",
+     "do": "secondary action on 'Herodotus': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 16810,
+     "frame": 16804
+    },
+    {
+     "word": "olive",
+     "kind": "reveal",
+     "do": "the burned stump",
+     "word_frame": 16851,
+     "frame": 16845
+    },
+    {
+     "word": "green",
+     "kind": "object",
+     "do": "a green shoot",
+     "word_frame": 16914,
+     "frame": 16908
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 16760,
+   "end_f": 16949
+  },
+  {
+   "id": "s139",
+   "line": 138,
+   "place": "acropolis",
+   "scene": "acropolis_olive",
+   "size": "ecu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "hope"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "acropolis_archaic",
+    "sacred_olive"
+   ],
+   "beats": [
+    {
+     "word": "grow",
+     "kind": "object",
+     "do": "the leaf unfurls",
+     "word_frame": 16958,
+     "frame": 16952
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 16949,
+   "end_f": 17004
+  },
+  {
+   "id": "s140",
+   "line": 139,
+   "place": "athens",
+   "scene": "athens_pnyx",
+   "size": "ws",
+   "angle": "high",
+   "camera": {
+    "move": "static",
+    "amount": 0
+   },
+   "grade": {
+    "time": "noon",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 10
+   },
+   "era_items": [
+    "chiton_himation"
+   ],
+   "beats": [
+    {
+     "word": "trusted",
+     "kind": "reveal",
+     "do": "the assembly votes again",
+     "word_frame": 17040,
+     "frame": 17034
+    },
+    {
+     "word": "throw",
+     "kind": "gesture",
+     "do": "hands go up against him",
+     "word_frame": 17098,
+     "frame": 17092
+    },
+    {
+     "word": "saved",
+     "kind": "gesture",
+     "do": "secondary action on 'saved': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 17134,
+     "frame": 17128
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 17004,
+   "end_f": 17171
+  },
+  {
+   "id": "s141",
+   "line": 140,
+   "place": "exile",
+   "scene": "exile_court",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "Themistocles",
+     "kind": "reveal",
+     "do": "an old Themistocles in Persian robes",
+     "word_frame": 17171,
+     "frame": 17165
+    },
+    {
+     "word": "Persia",
+     "kind": "gesture",
+     "do": "secondary action on 'Persia': a glance, a turn or a breath that keeps the shot alive",
+     "word_frame": 17220,
+     "frame": 17214
+    },
+    {
+     "word": "one",
+     "kind": "expression",
+     "do": "he looks out at the sea",
+     "word_frame": 17269,
+     "frame": 17263
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_f": 17171,
+   "end_f": 17308
+  }
+ ]
+}

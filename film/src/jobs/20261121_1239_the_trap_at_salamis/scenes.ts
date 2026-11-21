@@ -1,0 +1,703 @@
+// ============================================================================================================
+// LONG — "The Trap at Salamis" (16:9, ~13 min). Plan 7. Sets grown from this story's own engine proof (never
+// published): throne hill (Mount Aigaleos), the strait, the night sea, the Greek camp, the shore. New sets drawn fresh
+// for this film: Delphi, Athens (Pnyx + Acropolis), Laurium + the shipyard, the trireme, the Hellespont, Thermopylae.
+// Era sheet: jobs/20261121-1239-the-trap-at-salamis/era.json (NO Parthenon in 480 BC). Registry cast (r19).
+// Every action lands on its word (actions centred on the word), cross-fades, eased starts (r28-r30).
+// ============================================================================================================
+import type { SceneFn, ShotCtx } from '../../film/sequence';
+import { OUT, bg, hand, limb, ln, rng, sh, shade, wrap } from '../../kit/core';
+import { aspis, head, hair, hopliteBody, pole } from '../../kit/cast';
+import { anticipate, beat, blinkAt, breathe, easeInOut, easeOutBack, tween } from '../../kit/anim';
+import { camLayer } from '../../kit/camera';
+import { mouthAt } from '../../kit/lipsync';
+import { card } from '../../kit/tags';
+import * as xerxes from '../../characters/xerxes';
+import * as themistocles from '../../characters/themistocles';
+import lip from './lipsync.json';
+
+const W = 1920, H = 1080;
+const L = (c: ShotCtx, depth: number, s: string) => camLayer(c.local, depth, c.cam, s);
+/** 0..1 progress of beat i's action, centred on its word (the action is mid-motion when the word is heard). */
+const bt = (c: ShotCtx, i: number, lead = 0.3, dur = 0.6) => i < c.shot.beats.length ? beat(c.local, c.beatT(i), Math.max(lead, dur * 0.5), dur) : 0;   // an unplanned beat never fires   // centred on the word
+const LIP = (lip as any).lines;
+/** Index of the planned beat on this word (scenes name their beats by word, so added beats never shift an action). */
+const bi = (c: ShotCtx, word: string): number => { const i = c.shot.beats.findIndex((b: any) => b.word.toLowerCase() === word.toLowerCase()); return i < 0 ? 99 : i; };
+/** Place an SVG fragment at x,y with scale k (and an optional rotation in degrees). */
+const at = (x: number, y: number, k: number, svg: string, rot = 0) => `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})${rot ? ` rotate(${rot.toFixed(2)})` : ''} scale(${k})">${svg}</g>`;
+/** Expression change landing on beat i: cross-fade from -> to over ~0.2 s (never a one-frame snap). */
+const exch = (c: ShotCtx, i: number, from: any, to: any) => ({ expr: from, exprTo: to, exprMix: tween(c.local, c.beatT(i) - 0.16, c.beatT(i) + 0.04, 0, 1) });
+
+// ---------- shared drawing for this video ----------
+function skyGrad(c: ShotCtx, name: string, stops: [number, string][]): string {
+  const id = c.pid(name);
+  return `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">${stops.map(([o, col]) => `<stop offset="${o}" stop-color="${col}"/>`).join('')}</linearGradient></defs>` +
+    `<rect x="-300" y="-300" width="${W + 600}" height="${H + 600}" fill="url(#${id})"/>`;
+}
+function glow(c: ShotCtx, name: string, x: number, y: number, r: number, col: string, op = 1): string {
+  const id = c.pid(name);
+  return `<defs><radialGradient id="${id}"><stop offset="0" stop-color="${col}" stop-opacity="${op}"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></radialGradient></defs>` +
+    `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#${id})"/>`;
+}
+function waves(t: number, seed: number, y0: number, y1: number, n: number, col: string, speed = 20): string {
+  const R = rng(seed); let s = '';
+  for (let i = 0; i < n; i++) {
+    const y = y0 + Math.pow(R(), 1.3) * (y1 - y0), k = 0.4 + (y - y0) / (y1 - y0) * 1.4, w = 14 * k + R() * 16 * k;
+    const x = wrap(R() * (W + 400) + t * speed * k, W + 400) - 200;
+    s += `<path d="M${x.toFixed(1)} ${(y + 2 * Math.sin(t * 2 + i)).toFixed(1)} q${w / 2} ${-4 * k} ${w} 0" stroke="${col}" stroke-width="${(1.6 + k).toFixed(1)}" fill="none" stroke-linecap="round" opacity=".7"/>`;
+  }
+  return s;
+}
+function pine(x: number, y: number, k: number, col = '#4b6a3a'): string {
+  return `<g transform="translate(${x} ${y}) scale(${k})">${sh('rect', { x: -4, y: -8, width: 8, height: 24 }, '#5a3a24')}` +
+    bg('M0 -78 L28 -28 L12 -30 L34 4 L-34 4 L-12 -30 L-28 -28 Z', col, 4) + '</g>';
+}
+// a warship seen from the side, bow to the LEFT. kind greek: dark hull + painted eye; persian: curved stern, sun band.
+// Sails are down: triremes fought under oars (era sheet: trireme, persian_ship).
+function warship(t: number, kind: 'greek' | 'persian', oarSpeed = 0.8, ph = 0, broken = 0): string {
+  const hull = kind === 'greek' ? '#3d2a1e' : '#5a3424', band = kind === 'greek' ? '#b5452c' : '#d9b443';
+  let s = `<path d="M480 6 Q700 24 960 16" stroke="#e6f3f5" stroke-width="9" fill="none" stroke-linecap="round" opacity=".6"/>`;
+  // oars (behind the hull): rowing cycle with a ripple bow -> stern; broken = share of snapped oars
+  let i = 0;
+  for (let x = -380; x <= 380; x += 38, i++) {
+    const p = t * Math.PI * 2 * oarSpeed + ph - i * 0.12, lift = Math.max(0, Math.cos(p));
+    const snapped = broken > 0 && (i * 7919) % 10 < broken * 10;
+    const bx = x - 70 + (snapped ? 0 : 30 * Math.sin(p)), by = snapped ? -20 : 44 - 26 * lift;
+    s += `<path d="M${x} -52 L${bx.toFixed(1)} ${by.toFixed(1)}" stroke="${OUT}" stroke-width="7" stroke-linecap="round"/><path d="M${x} -52 L${bx.toFixed(1)} ${by.toFixed(1)}" stroke="#b58a56" stroke-width="3" stroke-linecap="round"/>`;
+  }
+  const d = kind === 'greek'
+    ? 'M-470 -6 L-470 -40 Q-480 -108 -436 -122 L400 -122 Q474 -136 500 -200 Q518 -248 490 -288 Q534 -266 534 -200 Q530 -116 446 -38 Q300 4 -400 4 Z'
+    : 'M-460 -6 L-466 -46 Q-470 -104 -430 -118 L380 -118 Q470 -128 520 -190 Q560 -250 520 -300 Q580 -270 572 -190 Q556 -100 450 -36 Q300 4 -400 4 Z';
+  s += bg(d, hull, 6) + `<path d="M-462 -98 L410 -98 Q470 -104 500 -146" stroke="${band}" stroke-width="13" fill="none"/>`;
+  s += `<path d="M-470 -40 L-470 -6 L-400 4 L300 4 Q380 -4 446 -38 Z" fill="rgba(0,0,0,.25)"/>`;
+  for (let x = -400; x <= 400; x += 38) s += `<circle cx="${x}" cy="-52" r="5" fill="#1a120c"/>`;
+  s += bg('M-470 -12 L-560 -24 L-470 -38 Z', '#c99a45', 4);                                          // bronze ram
+  if (kind === 'greek') s += bg('M-452 -90 Q-430 -106 -406 -90 Q-430 -76 -452 -90 Z', '#f2ede0', 3) + `<circle cx="-429" cy="-90" r="7" fill="${OUT}"/>`;
+  else s += `<circle cx="-410" cy="-84" r="16" fill="#d9b443" stroke="${OUT}" stroke-width="3"/><circle cx="-410" cy="-84" r="7" fill="#b5452c"/>`; // sun emblem
+  // marines on deck: small helmeted heads + shields along the rail
+  for (let k = 0; k < 8; k++) {
+    const x = -300 + k * 80;
+    s += `<circle cx="${x}" cy="-142" r="16" fill="${kind === 'greek' ? '#c99a45' : '#e7dcc6'}" stroke="${OUT}" stroke-width="4"/>`;
+    s += `<ellipse cx="${x + 22}" cy="-128" rx="20" ry="22" fill="${kind === 'greek' ? '#b23a2a' : '#7a5a2a'}" stroke="${OUT}" stroke-width="4"/>`;
+  }
+  return s;
+}
+// generic extras (not registered characters): Persian scribe, parasol bearer, the slave Sicinnus, Greek soldier
+function scribe(t: number, seed: number, pose: { write?: number; look?: number; frozen?: boolean; expr?: any } = {}): string {
+  const skin = '#c98f62';
+  let s = `<ellipse cx="0" cy="-4" rx="70" ry="12" fill="rgba(0,0,0,.15)"/>`;
+  // kneeling: robe as a mound, board on the knees
+  s += bg('M-60 -4 Q-70 -110 -40 -150 L40 -150 Q70 -110 64 -4 Z', '#2f5a7a', 5) + ln('M-30 -130 L-40 -10 M10 -140 L14 -10', 3, 'rgba(0,0,0,.25)');
+  s += sh('rect', { x: -46, y: -100, width: 92, height: 40, rx: 4 }, '#c9a66b') + ln('M-36 -88 L30 -88 M-36 -76 L22 -76', 2.5, '#6b4a2a');
+  const w = pose.write ?? 0;                                                         // 0..1 writing stroke
+  const hx = -10 + 40 * w, hy = -78 - 10 * Math.sin(w * Math.PI);
+  s += limb(`M30 -140 Q40 -100 ${hx + 10} ${hy}`, 16, '#2f5a7a') + pole(hx, hy - 30, hx + 4, hy + 6, '#6b4a2a') + hand(hx, hy, skin);
+  const lift = pose.frozen ? 0 : breathe(t, seed) * -1.5;
+  s += `<g transform="translate(0 ${lift.toFixed(2)}) scale(.62) translate(0 ${-30 + (pose.look ?? 0) * -10})">${head(skin, pose.expr ?? 'neutral', { blink: !pose.frozen && blinkAt(t, seed), beard: '#1c1612' })}` +
+    sh('path', { d: 'M-58 -300 Q-60 -376 0 -380 Q60 -376 58 -300 Z' }, '#e7dcc6') + '</g>';                  // Persian felt cap
+  return s;
+}
+function sicinnus(t: number, row: number, expr: any = 'worried', blink = false): string {
+  const skin = '#c9935f';
+  let s = bg('M-46 -238 Q0 -248 46 -238 L50 -120 L-50 -120 Z', '#a8946e', 6);                       // plain slave's tunic
+  const a = -0.5 + row;                                                                           // rowing arms
+  s += limb(`M-44 -222 Q${-90 - 30 * a} -190 ${-110 - 40 * a} -168`, 18, skin) + hand(-110 - 40 * a, -168, skin);
+  s += limb(`M44 -222 Q${-40 - 30 * a} -170 ${-96 - 40 * a} -150`, 18, skin) + hand(-96 - 40 * a, -150, skin);
+  s += head(skin, expr, { blink }) + sh('path', { d: 'M-60 -300 Q-64 -360 0 -364 Q64 -360 60 -300 Q50 -334 0 -336 Q-50 -334 -60 -300 Z' }, '#2a1d14');
+  return s;
+}
+function singer(t: number, seed: number, singing: number, raise: number): string {
+  const skin = ['#d8a87c', '#cf9e72', '#e0b48c'][seed % 3];
+  let s = hopliteBody(skin, false);
+  s += limb(`M-44 -222 Q-80 ${-210 - 40 * raise} -82 ${-190 - 60 * raise}`, 20, skin) + hand(-82, -186 - 60 * raise, skin);
+  s += aspis(56, -170, 78, undefined, (['owl', 'star', 'crescent', 'none'] as const)[seed % 4]);   // Athenian blazons
+  const open = singing > 0 && Math.sin(t * 9 + seed) > -0.6;
+  s += `<g transform="translate(0 ${(breathe(t, seed) * -1.5).toFixed(2)})">${head(skin, singing ? 'stern' : 'neutral', { blink: blinkAt(t, seed), beard: '#3a2a1e', extra: true })}`;
+  if (open) s += `<ellipse cx="0" cy="-260" rx="12" ry="${(6 + 6 * singing).toFixed(1)}" fill="#7a2b22" stroke="${OUT}" stroke-width="4"/>`;
+  s += hair.corinthian() + '</g>';
+  return s;
+}
+
+// ---------- THRONE HILL (Mount Aigaleos at dawn) ----------
+function cloud(x: number, y: number, k: number, col = '#fbe7cf'): string {
+  return `<g transform="translate(${x.toFixed(1)} ${y}) scale(${k})">${bg('M0 40 Q-14 8 26 6 Q34 -22 72 -10 Q100 -34 132 -4 Q172 -6 166 40 Z', col, 4)}<path d="M22 34 Q80 24 150 34" stroke="#e9c7a6" stroke-width="5" fill="none"/></g>`;
+}
+function birds(t: number, seed: number, n: number): string {   // gulls drifting and flapping
+  const R = rng(seed); let s = '';
+  for (let i = 0; i < n; i++) {
+    const x = wrap(R() * W + t * (18 + R() * 14), W + 200) - 100, y = 160 + R() * 260, f = 7 * Math.sin(t * 8 + i * 2), k = 0.6 + R() * 0.6;
+    s += `<path d="M${(x - 14 * k).toFixed(1)} ${(y - f * 0.2).toFixed(1)} Q${(x - 7 * k).toFixed(1)} ${(y - 8 * k - f).toFixed(1)} ${x.toFixed(1)} ${y} Q${(x + 7 * k).toFixed(1)} ${(y - 8 * k - f).toFixed(1)} ${(x + 14 * k).toFixed(1)} ${(y - f * 0.2).toFixed(1)}" stroke="${OUT}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  }
+  return s;
+}
+function dawnSky(c: ShotCtx, sunY: number): string {
+  const t = c.t;   // clouds and birds drift on the global clock so they continue across cuts
+  return skyGrad(c, 'dsky', [[0, '#e8a074'], [0.5, '#f6cd94'], [1, '#fde8c2']]) + glow(c, 'dsun', 1380, sunY, 320, '#fff3cf') +
+    `<circle cx="1380" cy="${sunY}" r="58" fill="#fff4d2" stroke="#f0c47a" stroke-width="4"/>` +
+    cloud(wrap(240 + t * 4, W + 400) - 200, 110, 1.3) + cloud(wrap(820 + t * 3, W + 400) - 200, 200, 0.9) +
+    cloud(wrap(1560 + t * 5, W + 400) - 200, 90, 1.1) + cloud(wrap(1120 + t * 2, W + 400) - 200, 300, 0.6, '#f6d8b8') + birds(t, 5, 7);
+}
+function salamisHills(): string {   // Salamis island across the strait (far layer), aerial haze
+  return bg('M-200 560 L80 470 L260 500 L420 440 L620 500 L800 470 L1000 520 L1000 600 L-200 600 Z', '#b7a2b8', 3) +
+    bg('M900 600 L1100 520 L1300 545 L1500 500 L1700 540 L2100 520 L2100 610 L900 610 Z', '#a993ad', 3);
+}
+function farFleet(t: number, n: number, y: number, seed: number, scale = 0.1): string {
+  const R = rng(seed); let s = '';
+  for (let i = 0; i < n; i++) {
+    const x = 200 + R() * 1500, yy = y + R() * 60, k = scale * (0.7 + (yy - y) / 60 * 0.6);
+    s += `<g transform="translate(${x.toFixed(1)} ${(yy + Math.sin(t * 1.3 + i) * 2).toFixed(1)}) scale(${k.toFixed(3)})"><path d="M-460 -10 Q0 10 460 -10 L420 -110 L-440 -110 Z" fill="#4a3022" stroke="${OUT}" stroke-width="24"/></g>`;
+  }
+  return s;
+}
+function throneSet(c: ShotCtx, opts: { sunY?: number } = {}): { sky: string; far: string; mid: string; ground: string } {
+  const t = c.local;
+  const sky = dawnSky(c, opts.sunY ?? 330);
+  let town = '';                                                   // Salamis town on the far shore: small houses + a temple
+  for (let i = 0; i < 14; i++) { const x = 380 + i * 26 + (i % 3) * 6, y = 548 + (i % 2) * 8; town += `<rect x="${x}" y="${y - 14}" width="20" height="14" fill="#e8dcc4" stroke="${OUT}" stroke-width="2"/><path d="M${x - 2} ${y - 14} L${x + 10} ${y - 22} L${x + 22} ${y - 14} Z" fill="#b5674a" stroke="${OUT}" stroke-width="2"/>`; }
+  town += `<path d="M700 540 L760 520 L820 540 Z" fill="#f2ead8" stroke="${OUT}" stroke-width="2"/>` + [706, 722, 738, 754, 770, 786, 802].map((x) => `<rect x="${x}" y="540" width="5" height="18" fill="#f2ead8" stroke="${OUT}" stroke-width="1.5"/>`).join('');
+  const far = salamisHills() + town + `<rect x="-200" y="590" width="${W + 400}" height="200" fill="#8fb3c0"/>` + waves(t, 11, 600, 760, 70, '#e3f1f4', 6) + farFleet(t, 26, 640, 3);
+  let camp = '';                                                    // the Persian camp on the lower slope (tents + banners)
+  const R = rng(77);
+  for (let i = 0; i < 22; i++) {
+    const x = 60 + R() * 760, y = 735 + R() * 40, k = 0.7 + (y - 735) / 40 * 0.5, col = ['#e9e0c8', '#d9c39a', '#b5452c', '#e2d6b4'][i % 4];
+    camp += `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) scale(${k.toFixed(2)})">${bg('M-22 0 L0 -26 L22 0 Z', col, 2.5)}<path d="M0 -26 L0 -36" stroke="${OUT}" stroke-width="2"/></g>`;
+  }
+  for (let i = 0; i < 4; i++) { const x = 140 + i * 180; camp += `<path d="M${x} 740 L${x} 690" stroke="${OUT}" stroke-width="3"/><path d="M${x} 690 L${x + 26} 697 L${x} 704 Z" fill="#7a2a5e" stroke="${OUT}" stroke-width="2"/>`; }
+  for (let i = 0; i < 3; i++) { const x = 220 + i * 260; for (let q = 0; q < 5; q++) { const up = (q / 5 + t * 0.07) % 1; camp += `<circle cx="${(x + 14 * Math.sin(q + i) * up).toFixed(1)}" cy="${(730 - 150 * up).toFixed(1)}" r="${(6 + 16 * up).toFixed(1)}" fill="#a49a92" opacity="${(0.4 * (1 - up) * Math.min(1, up * 6)).toFixed(3)}"/>`; } }
+  const mid = bg('M-200 760 Q300 690 760 720 Q1200 690 1500 730 Q1800 700 2120 740 L2120 1300 L-200 1300 Z', '#a5835f', 5) + camp +
+    pine(140, 740, 1.1) + pine(260, 720, 0.8) + pine(1760, 730, 1.0) + pine(1860, 745, 0.7) + pine(1620, 735, 0.6) +
+    Array.from({ length: 9 }, (_, i) => `<g transform="translate(${980 + i * 70} ${738 + (i % 2) * 6}) scale(.22)">${guard(t, 60 + i)}</g>`).join('') +   // guards along the ridge
+    [1000, 1300, 1580].map((x, i) => `<path d="M${x} 740 L${x} 640" stroke="${OUT}" stroke-width="4"/><path d="M${x} 640 Q${x + 30} ${646 + 4 * Math.sin(t * 2 + i)} ${x + 54} 642 L${x + 54} 672 Q${x + 30} ${676 + 4 * Math.sin(t * 2 + i)} ${x} 670 Z" fill="#7a2a5e" stroke="${OUT}" stroke-width="3"/><circle cx="${x + 26}" cy="656" r="6" fill="#d9b443"/>`).join('');
+  const rock = (x: number, y: number, k: number) => `<g transform="translate(${x} ${y}) scale(${k})">${bg('M-60 10 Q-70 -30 -24 -44 Q20 -56 54 -26 Q70 0 60 10 Z', '#9a7b5c', 4)}<path d="M-30 -30 Q0 -40 30 -24" stroke="#c4a27c" stroke-width="5" fill="none" stroke-linecap="round"/></g>`;
+  const shrub = (x: number, y: number, k: number) => `<g transform="translate(${x} ${y}) scale(${k})">${bg('M-34 0 Q-40 -30 -14 -34 Q-4 -52 16 -40 Q40 -40 36 -12 Q42 0 34 0 Z', '#6f8a44', 4)}</g>`;
+  const ground = bg('M-200 860 Q500 820 960 840 Q1400 820 2120 860 L2120 1300 L-200 1300 Z', '#8c6a4a', 5) +
+    ln('M100 900 q60 -10 120 4 M1500 910 q60 -12 130 2 M700 960 q50 -8 100 3', 4, '#6e5238') +
+    rock(90, 1010, 1.4) + rock(1830, 1030, 1.6) + rock(1640, 1060, 0.9) + shrub(260, 1040, 1.2) + shrub(1500, 1050, 1.0) + shrub(40, 950, 0.8);
+  return { sky, far, mid, ground };
+}
+function throne(): string {   // golden Achaemenid throne on a stepped dais, lion feet (era: throne)
+  return bg('M-170 0 L170 0 L150 -40 L-150 -40 Z', '#c9b28a', 5) + bg('M-140 -40 L140 -40 L124 -70 L-124 -70 Z', '#d8c39a', 5) +
+    bg('M-80 -380 Q0 -410 80 -380 L80 -170 L-80 -170 Z', '#e2b23f', 6) + ln('M-60 -360 L60 -360 M-60 -330 L60 -330', 4, '#a8822a') +
+    sh('circle', { cx: -94, cy: -78, r: 12 }, '#e2b23f') + sh('circle', { cx: 94, cy: -78, r: 12 }, '#e2b23f');
+}
+function seatFront(): string {   // the seat + armrests drawn IN FRONT of the king's legs = he is sitting
+  return bg('M-100 -190 L100 -190 L100 -130 L-100 -130 Z', '#e2b23f', 6) + ln('M-100 -170 L100 -170', 4, '#a8822a') +
+    bg('M-112 -232 L-92 -232 L-92 -76 L-112 -76 Z', '#d9a536', 5) + bg('M92 -232 L112 -232 L112 -76 L92 -76 Z', '#d9a536', 5) +
+    bg('M-60 -76 L60 -76 L50 -70 L-50 -70 Z', '#c99a45', 4);
+}
+function parasol(t: number): string {   // royal parasol held by an attendant (era: parasol)
+  const sw = Math.sin(t * 0.9) * 1.5;
+  return `<g transform="rotate(${sw.toFixed(2)} 0 0)">` + pole(0, -560, 0, -120, '#6a4428') +
+    bg('M-150 -560 Q0 -660 150 -560 Q75 -580 0 -578 Q-75 -580 -150 -560 Z', '#7a2a5e', 5) + ln('M-150 -560 L150 -560', 4, '#d9b443') + '</g>';
+}
+function guard(t: number, seed: number): string {   // a royal guard: long robe, wicker shield, spear (Persepolis guards)
+  const skin = '#c98f62';
+  let s = `<ellipse cx="0" cy="-4" rx="60" ry="10" fill="rgba(0,0,0,.14)"/>` + bg('M-44 -238 Q0 -248 44 -238 Q56 -120 66 -8 L-66 -8 Q-56 -120 -44 -238 Z', '#b5793a', 5);
+  s += ln('M-60 -40 L60 -40', 6, '#5b2a6e') + pole(-70, -470, -70, -8, '#6a4428') + sh('path', { d: 'M-70 -500 L-78 -470 L-62 -470 Z' }, '#bdbdbd');
+  s += limb('M-44 -222 Q-72 -210 -70 -190', 18, '#b5793a') + hand(-70, -186, skin);
+  s += sh('path', { d: 'M30 -230 L80 -230 L86 -110 L24 -110 Z' }, '#c9a96e') + ln('M34 -210 L80 -210 M32 -180 L82 -180 M30 -150 L84 -150', 3, '#8a6a3a');
+  s += `<g transform="translate(0 ${(breathe(t, seed) * -1.2).toFixed(2)})">${head(skin, 'stern', { beard: '#1c1612', blink: blinkAt(t, seed), extra: true })}` +
+    sh('path', { d: 'M-60 -300 Q-62 -372 0 -376 Q62 -372 60 -300 Z' }, '#e7dcc6') + '</g>';
+  return s;
+}
+function seatedXerxes(c: ShotCtx, pose: any): string {
+  const mouth = mouthAt(c.t, LIP, 'XERXES');
+  const p = { breath: breathe(c.t, 1), blink: blinkAt(c.t, 1), mouth, ...pose };
+  return throne() + `<g transform="translate(0 -40)">${xerxes.draw(p)}</g>` + seatFront();
+}
+
+const throne_wide: SceneFn = (c) => {
+  // s01 EWS, low angle, crane down: dawn breaks, the king settles, gold catches the light, the strait opens below
+  const sunY = tween(c.local, c.beatT(bi(c, 'dawn')) - 0.35, c.beatT(bi(c, 'dawn')) + 0.5, 470, 330, easeOutBack);
+  const set = throneSet(c, { sunY });
+  const gleam = bt(c, bi(c, 'throne'), 0.1, 0.8);
+  const settle = easeOutBack(bt(c, bi(c, 'climbed'), 0.4, 0.8));
+  let hero = `<g transform="translate(1190 ${905 + 30 * (1 - settle)}) scale(.9)">${parasol(c.t)}` +
+    `<g transform="translate(-300 20) scale(.85)">${guard(c.t, 41)}</g><g transform="translate(320 20) scale(.85)">${guard(c.t, 42)}</g>` +
+    `<g transform="translate(-180 40)">${scribe(c.t, 4, { look: 1 })}</g>` + seatedXerxes(c, { expr: 'stern', armR: 'down' }) + '</g>';
+  if (gleam > 0 && gleam < 1) hero += glow(c, 'gleam', 1190, 640, 160 * Math.sin(gleam * Math.PI), '#fff8d0', 0.9);
+  return L(c, 0.05, set.sky) + L(c, 0.2, set.far) + L(c, 0.6, set.mid) + L(c, 1, hero) + L(c, 1.15, set.ground + pine(-20, 1100, 2.2, '#3e5a30')) +
+    card(1440, 60, 420, 62, 'SALAMIS · 480 BC', 27, tween(c.local, 0.6, 1.6, 0, 1));
+};
+
+const throne_xerxes: SceneFn = (c) => {
+  // s03 CU low angle push-in: "Today, Greece ends." — chin lifts on "Today", cold stare on "ends"
+  const set = throneSet(c);
+  const lift = anticipate(bt(c, 0, 0.3, 0.6));
+  const hero = `<g transform="translate(960 ${1330 - 30 * lift}) scale(2.6)">${parasol(c.t)}${seatedXerxes(c, { ...exch(c, 1, 'neutral', 'stern'), armR: 'down' })}</g>`;
+  return L(c, 0.05, set.sky) + L(c, 0.25, set.far) + L(c, 1, hero);
+};
+
+const throne_scribes: SceneFn = (c) => {
+  // s04 MS high angle pan: three scribes ready; styluses rise, the first stroke, they look up at the king
+  const set = throneSet(c);
+  const raise = easeOutBack(bt(c, 0)), stroke = bt(c, 1, 0.1, 0.9), look = easeInOut(bt(c, 2));
+  let hero = `<g transform="translate(1500 760) scale(.8)">${seatedXerxes(c, { expr: 'sly' })}</g>`;
+  [380, 760, 1140].forEach((x, i) => {
+    hero += `<g transform="translate(${x} ${930 + i * 18}) scale(1.25)">${scribe(c.t, 10 + i, { write: raise * 0.3 + stroke * 0.7 * (i === 1 ? 1 : 0.6), look })}</g>`;
+  });
+  return L(c, 0.05, set.sky) + L(c, 0.2, set.far) + L(c, 0.6, set.mid) + L(c, 1, set.ground + hero);
+};
+
+const throne_believe: SceneFn = (c) => {
+  // s08 MS push-in after a whip: Xerxes smiles on "believed", waves the fleet forward on "word"
+  const set = throneSet(c, { sunY: 300 });
+  const wave = easeOutBack(bt(c, 1, 0.35, 0.7));
+  const hero = `<g transform="translate(960 1000) scale(1.25)">${parasol(c.t)}${seatedXerxes(c, { ...exch(c, 0, 'neutral', 'sly'), armR: { from: 'down', to: 'point', k: wave } })}</g>` +
+    `<g transform="translate(420 1020) scale(1.1)">${scribe(c.t, 21, { write: 0.2, look: 1, expr: 'neutral' })}</g>`;
+  return L(c, 0.05, set.sky) + L(c, 0.2, set.far) + L(c, 0.6, set.mid) + L(c, 1, set.ground + hero);
+};
+
+const throne_silent: SceneFn = (c) => {
+  // s13 MS high angle: smoke over the sea; the scribes freeze, a stylus is lowered, the king stares in shock
+  const set = throneSet(c, { sunY: 260 });
+  const lower = easeOutBack(bt(c, 1, 0.3, 0.5));
+  let smoke = '';
+  for (let i = 0; i < 6; i++) { const x = 300 + i * 260; for (let q = 0; q < 6; q++) { const up = (q / 6 + c.t * 0.06) % 1; smoke += `<circle cx="${(x + 26 * Math.sin(q + i) * up).toFixed(1)}" cy="${(640 - 220 * up).toFixed(1)}" r="${(16 + 40 * up).toFixed(1)}" fill="#7d7470" opacity="${(0.45 * (1 - up) * Math.min(1, up * 6)).toFixed(3)}"/>`; } }
+  let hero = `<g transform="translate(1440 860) scale(.9)">${seatedXerxes(c, { ...exch(c, 2, 'worried', 'shocked'), armR: 'down' })}</g>`;
+  [300, 640, 980].forEach((x, i) => {
+    hero += `<g transform="translate(${x} ${960 + i * 14}) scale(1.2)">${scribe(c.t, 30 + i, { write: i === 1 ? 0.5 * (1 - lower) : 0.4, look: 1, frozen: true, expr: 'worried' })}</g>`;
+  });
+  return L(c, 0.05, set.sky) + L(c, 0.2, set.far + smoke) + L(c, 0.6, set.mid) + L(c, 1, set.ground + hero);
+};
+
+// ---------- THE STRAIT ----------
+function straitBase(c: ShotCtx, time: 'dawn' | 'dusk', narrow = 0): { sky: string; far: string; sea: string } {
+  const sky = time === 'dawn' ? dawnSky(c, 300) : skyGrad(c, 'dusk', [[0, '#4f3a6e'], [0.55, '#d77c56'], [1, '#f2b06a']]) + glow(c, 'dsunk', 1500, 520, 300, '#ffcf8a', 0.8);
+  const far = bg(`M-200 520 L200 ${450 - narrow * 40} L520 480 L760 430 L900 520 L900 560 L-200 560 Z`, '#a993ad', 3) +
+    bg(`M1000 560 L1200 ${470 - narrow * 40} L1500 500 L1800 440 L2120 480 L2120 560 Z`, '#9c86a3', 3);
+  const sea = skyGrad(c, 'sea', [[0, time === 'dawn' ? '#6fa6ba' : '#7a6f8a'], [1, time === 'dawn' ? '#285f7c' : '#3a3a58']]).replace('y="-300"', 'y="550"') +
+    waves(c.t, 21, 570, 1080, 140, time === 'dawn' ? '#dcf0f3' : '#c9b9c9', 18);
+  return { sky, far, sea };
+}
+function cliffs(narrow: number): string {   // the strait's rocky shores closing in from both sides
+  const k = narrow * 160;
+  let s = bg(`M-200 1100 L-200 380 Q${100 + k} 460 ${180 + k} 640 Q${250 + k} 820 ${200 + k} 1100 Z`, '#8b6b4f', 5) +
+    bg(`M2120 1100 L2120 380 Q${1820 - k} 460 ${1740 - k} 640 Q${1670 - k} 820 ${1720 - k} 1100 Z`, '#7f6148', 5) +
+    pine(80 + k, 520, 0.9) + pine(1840 - k, 500, 0.9) + pine(30 + k, 600, 0.7) + pine(1890 - k, 590, 0.7);
+  for (let i = 0; i < 6; i++) s += `<path d="M${40 + k * 0.6} ${560 + i * 80} q50 -10 ${90 + i * 8} 6 M${1880 - k * 0.6} ${560 + i * 80} q-50 -10 ${-90 - i * 8} 6" stroke="#5e442e" stroke-width="4" fill="none" stroke-linecap="round"/>`;   // rock strata
+  s += `<g transform="translate(${150 + k} 470)">${bg('M-18 0 L-18 -60 L18 -60 L18 0 Z', '#c4a27c', 3)}${bg('M-26 -60 L0 -84 L26 -60 Z', '#9a5a3a', 3)}</g>`;   // a lookout hut on the Salamis shore
+  return s;
+}
+
+const strait_fleet: SceneFn = (c) => {
+  // s02 EWS high angle pull-out: rows of Persian ships appear, oars lift and wait for the order
+  const b = strait_base_cached(c, 'dawn');
+  const appear = easeInOut(bt(c, 1, 0.25, 0.6)), lift = easeOutBack(bt(c, 2, 0.3, 0.5));
+  let fleet = '';
+  for (let row = 0; row < 4; row++) for (let i = 0; i < 9; i++) {
+    const x = 140 + i * 205 + (row % 2) * 100, y = 640 + row * 105, k = 0.13 + row * 0.035;
+    const on = Math.min(1, Math.max(0, appear * 4 - row));
+    fleet += `<g opacity="${on.toFixed(2)}" transform="translate(${(x - 46 * lift * (row + 1)).toFixed(1)} ${y + Math.sin(c.t * 1.2 + i + row) * 3}) scale(${k.toFixed(3)})">${warship(c.t, 'persian', 0.2 + 0.8 * lift, i)}</g>`;   // on the order: oars bite, the fleet lurches forward
+  }
+  return L(c, 0.05, b.sky) + L(c, 0.2, b.far) + L(c, 0.5, b.sea) + L(c, 1, fleet);
+};
+function strait_base_cached(c: ShotCtx, time: 'dawn' | 'dusk') { return straitBase(c, time); }
+
+const strait_enter: SceneFn = (c) => {
+  // s09 EWS high angle track: the sun clears the hills, the Persian fleet surges into the narrows, the cliffs close in
+  const b = straitBase(c, 'dawn', 0.5);
+  const surge = easeInOut(bt(c, 1, 0.3, 1.2)), close = easeOutBack(bt(c, 2, 0.35, 0.7));
+  let fleet = '';
+  for (let i = 0; i < 14; i++) {
+    const lane = i % 4, x = 1700 - surge * 520 - (i * 120) % 900 + lane * 40, y = 640 + lane * 90 + (i % 3) * 20, k = 0.12 + lane * 0.03;
+    fleet += `<g transform="translate(${x.toFixed(1)} ${y}) scale(${k.toFixed(3)})">${warship(c.t, 'persian', 1.0, i)}</g>`;
+  }
+  return L(c, 0.05, b.sky) + L(c, 0.2, b.far) + L(c, 0.5, b.sea) + L(c, 0.9, fleet) + L(c, 1.2, cliffs(0.4 + close * 0.5));
+};
+
+const strait_jam: SceneFn = (c) => {
+  // s10 WS eye level, handheld: hulls bump, a ship swings sideways, oars snap
+  const b = straitBase(c, 'dawn', 0.9);
+  const bump = bt(c, 0, 0.1, 0.4), swing = easeOutBack(bt(c, 1, 0.3, 0.8)), snap = bt(c, 2, 0.05, 0.3);
+  const jolt = Math.sin(bump * Math.PI) * 44;
+  const ships = [[360, 760, 0.3, 0], [1560, 740, 0.3, 0.3], [520, 820, 0.42, 0], [1300, 790, 0.4, 0.5], [900, 900, 0.5, 0], [1500, 960, 0.48, 0], [300, 1010, 0.62, 0]];
+  let fleet = '';
+  ships.forEach(([x, y, k, br], i) => {
+    const rot = (i === 3 ? -14 * swing : (i === 4 ? 3 * Math.sin(bump * Math.PI) : 0)) + 2.2 * Math.sin(c.t * 1.7 + i * 1.3);   // every hull rolls in the crowd
+    fleet += `<g transform="translate(${(x + (i === 4 ? jolt : 0) + 12 * Math.sin(c.t * 0.9 + i)).toFixed(1)} ${(y + 6 * Math.sin(c.t * 1.6 + i)).toFixed(1)}) rotate(${rot.toFixed(2)}) scale(${k})">${warship(c.t, 'persian', 0.9, i, i === 4 ? snap : br)}</g>`;
+  });
+  let splinters = '';
+  if (snap > 0 && snap < 1) { const R = rng(5); for (let i = 0; i < 10; i++) { const a = R() * Math.PI * 2, d = 80 * snap; splinters += `<rect x="${(900 + Math.cos(a) * d).toFixed(1)}" y="${(860 + Math.sin(a) * d - 40 * snap).toFixed(1)}" width="16" height="4" fill="#b58a56" stroke="${OUT}" stroke-width="2" transform="rotate(${(a * 57).toFixed(0)} 900 860)"/>`; } }
+  return L(c, 0.05, b.sky) + L(c, 0.25, b.far) + L(c, 0.5, b.sea) + L(c, 1, fleet + splinters) + L(c, 1.25, cliffs(0.95));
+};
+
+const strait_ram: SceneFn = (c) => {
+  // s12 CU low angle, handheld, letterbox: a Greek warship charges, oars dig in, the ram strikes, planks burst
+  const b = straitBase(c, 'dawn', 0.9);
+  const charge = easeInOut(bt(c, 0, 0.3, 1.6)), dig = bt(c, 1), hit = bt(c, 2, 0.08, 0.25), burst = bt(c, 3, 0.1, 1.2);
+  const gx = -420 + charge * 760 + (hit >= 1 ? 24 : 0);
+  let s = `<g transform="translate(1380 760) rotate(${(10 + (hit >= 1 ? 4 * (1 - burst) : 0)).toFixed(2)}) scale(1.05)">${warship(c.t, 'persian', 0.3, 2, hit >= 1 ? 0.6 : 0)}</g>`;
+  s += `<g transform="translate(${gx.toFixed(1)} 1010) rotate(${(-9 - 2 * Math.sin(c.t * 2)).toFixed(2)}) scale(1.35)">${warship(c.t, 'greek', 1.2 + dig * 0.6, 0)}</g>`;
+  s += waves(c.t, 99, 960, 1080, 30, '#e9f6f8', 40);
+  if (hit > 0) {
+    const R = rng(9); let parts = '';
+    for (let i = 0; i < 18; i++) { const a = -Math.PI * R(), d = 260 * burst + 40 * hit; parts += `<rect x="${(960 + Math.cos(a) * d).toFixed(1)}" y="${(880 + Math.sin(a) * d + 300 * burst * burst).toFixed(1)}" width="${18 + R() * 20}" height="6" fill="#8a5a36" stroke="${OUT}" stroke-width="2.5" transform="rotate(${(R() * 180).toFixed(0)} ${960} 880)"/>`; }
+    s += parts + `<ellipse cx="980" cy="980" rx="${(120 + 240 * burst).toFixed(1)}" ry="${(40 + 80 * burst).toFixed(1)}" fill="#e8f6f8" opacity="${(0.9 * (1 - burst)).toFixed(2)}"/>`;
+    s += glow(c, 'hit', 960, 880, 260 * Math.sin(Math.min(1, hit) * Math.PI / 2) * (1 - burst * 0.8), '#fff1c0', 0.9);
+  }
+  return L(c, 0.05, b.sky) + L(c, 0.3, b.far) + L(c, 0.6, b.sea) + L(c, 1, s);
+};
+
+const strait_closed: SceneFn = (c) => {
+  // s14 EWS high angle pull-out at dusk: smoke over the wrecks, the Greek ships ring them
+  const b = straitBase(c, 'dusk', 0.9);
+  const smokeUp = easeOutBack(bt(c, 0, 0.3, 0.7)), ring = easeOutBack(bt(c, 1, 0.3, 0.7));
+  let s = '';
+  for (let i = 0; i < 9; i++) {
+    const x = 300 + i * 170, y = 760 + (i % 3) * 50;
+    s += `<g transform="translate(${x} ${y}) rotate(${(i % 2 ? 18 : -12)}) scale(.16)">${warship(0, 'persian', 0, i, 0.7)}</g>`;
+    for (let q = 0; q < 5; q++) { const up = (q / 5 + c.t * 0.08) % 1 * smokeUp; s += `<circle cx="${(x + 30 * Math.sin(q * 2 + i) * up).toFixed(1)}" cy="${(y - 20 - 260 * up).toFixed(1)}" r="${(14 + 34 * up).toFixed(1)}" fill="#4f4648" opacity="${(0.5 * (1 - up) * Math.min(1, up * 6)).toFixed(3)}"/>`; }
+    s += `<circle cx="${x}" cy="${y - 10}" r="${(10 + 6 * Math.sin(c.t * 8 + i)).toFixed(1)}" fill="#ff9a3c" opacity=".85"/>`;
+  }
+  for (let i = 0; i < 8; i++) {
+    const a = Math.PI * (0.1 + i * 0.11), x = 960 + Math.cos(a) * (900 - 120 * ring), y = 1000 - Math.sin(a) * (180 - 20 * ring);
+    s += `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(.13)">${warship(c.t, 'greek', 0.4, i)}</g>`;
+  }
+  return L(c, 0.05, b.sky) + L(c, 0.2, b.far) + L(c, 0.5, b.sea) + L(c, 1, s);
+};
+
+// ---------- THE NIGHT CROSSING ----------
+const night_crossing: SceneFn = (c) => {
+  // s05 WS tracking: the moon comes out, a man in a small boat, he pulls the oars, ripples spread, he looks back
+  const moon = easeOutBack(bt(c, 0, 0.3, 0.6)), there = easeOutBack(bt(c, 1, 0.3, 0.5)), look = c.local >= c.beatT(4) - 0.3;
+  const row = (Math.sin(c.local * 3.6) + 1) / 2 * (c.local >= c.beatT(2) - 0.3 ? 1.4 : 0.3);
+  const sky = skyGrad(c, 'nsky', [[0, '#0b1430'], [1, '#22355a']]) + glow(c, 'moon', 1450, 230, 260 * moon, '#cfe0ff', 0.6) +
+    `<circle cx="1450" cy="230" r="46" fill="#eef3ff" opacity="${(0.3 + 0.7 * moon).toFixed(2)}"/>` +
+    bg(`M1260 ${250 - 60 * moon} q60 -40 160 -10 q80 -30 150 10 q40 30 -30 40 l-260 0 q-60 -10 -20 -40 Z`, '#1c2a4a', 3);
+  const Rs = rng(17); let stars = '';
+  for (let i = 0; i < 60; i++) stars += `<circle cx="${(Rs() * W).toFixed(0)}" cy="${(Rs() * 420).toFixed(0)}" r="${(0.8 + Rs() * 1.6).toFixed(1)}" fill="#dfe8ff" opacity="${(0.4 + 0.5 * Math.abs(Math.sin(c.t * 2 + i))).toFixed(2)}"/>`;
+  let lanterns = '';                                                // the Persian fleet waiting in the dark: lantern lights on the water
+  for (let i = 0; i < 16; i++) { const x = 160 + i * 112 + (i % 3) * 20, y = 622 + (i % 4) * 12; lanterns += glow(c, `ln${i}`, x, y, 18, '#ffcf70', 0.9) + `<path d="M${x} ${y + 8} L${x} ${y + 40}" stroke="#ffcf70" stroke-width="3" opacity="${(0.3 + 0.2 * Math.sin(c.t * 3 + i)).toFixed(2)}"/>`; }
+  const far = stars + lanterns + bg('M-200 560 L200 500 L520 530 L900 480 L1300 540 L1700 500 L2120 540 L2120 600 L-200 600 Z', '#16223c', 3) +
+    [[300, 548], [640, 530], [1180, 545]].map(([x, y]) => glow(c, `fire${x}`, x, y, 26, '#ffb347', 0.9)).join('') + farFleet(c.t, 18, 610, 41, 0.08).replace(/#4a3022/g, '#121a2c');
+  const sea = `<rect x="-300" y="600" width="${W + 600}" height="700" fill="#14284a"/>` + waves(c.t, 51, 610, 1080, 150, '#6a8fc0', 34) +
+    `<path d="M1300 610 L1600 610 L1700 1080 L1200 1080 Z" fill="#cfe0ff" opacity="${(0.12 * moon).toFixed(2)}"/>` +
+    Array.from({ length: 18 }, (_, i) => `<rect x="${(1260 + (i * 53) % 420).toFixed(0)}" y="${(640 + i * 24).toFixed(0)}" width="${(30 + 20 * Math.abs(Math.sin(c.t * 3 + i))).toFixed(1)}" height="3" fill="#e6efff" opacity="${(moon * (0.3 + 0.5 * Math.abs(Math.sin(c.t * 4 + i * 1.7)))).toFixed(2)}"/>`).join('');
+  const bx = 960 + 40 * Math.sin(c.local * 0.5) - 260 * (1 - there);   // the boat glides in on "slave"
+  let boat = bg('M-200 -10 Q0 40 200 -10 L170 -70 L-180 -70 Z', '#3a2a1e', 5) + ln('M-180 -60 L170 -60', 4, '#5a4030');
+  boat += `<g transform="translate(-10 -40) scale(.55) ${look ? 'scale(-1 1)' : ''}">${sicinnus(c.t, row, look ? 'worried' : 'stern', blinkAt(c.t, 77))}</g>`;
+  boat += `<path d="M-120 -20 L${(-260 - 40 * row).toFixed(0)} ${(40 - 20 * row).toFixed(0)}" stroke="${OUT}" stroke-width="7"/><path d="M-120 -20 L${(-260 - 40 * row).toFixed(0)} ${(40 - 20 * row).toFixed(0)}" stroke="#b58a56" stroke-width="3"/>`;
+  const ripple = bt(c, 3, 0.1, 1.5);
+  if (ripple > 0) boat += `<ellipse cx="-260" cy="44" rx="${(30 + 140 * ripple).toFixed(1)}" ry="${(8 + 30 * ripple).toFixed(1)}" fill="none" stroke="#9cc0e8" stroke-width="3" opacity="${(1 - ripple).toFixed(2)}"/>`;
+  const bob = 10 * Math.sin(c.t * 1.9), rock = 3.5 * Math.sin(c.t * 1.5 + 0.7);          // the swell lifts and tilts the little boat
+  return L(c, 0.05, sky) + L(c, 0.2, far) + L(c, 0.5, sea) + L(c, 1, `<g opacity="${(0.2 + 0.8 * there).toFixed(2)}" transform="translate(${bx.toFixed(1)} ${(840 + bob).toFixed(1)}) rotate(${rock.toFixed(2)}) scale(1.2)">${boat}</g>`);
+};
+
+// ---------- THEMISTOCLES' TENT (lamplight) ----------
+function tent(c: ShotCtx): string {
+  const flick = 0.9 + 0.1 * Math.sin(c.t * 13) * Math.sin(c.t * 7.3);
+  return `<rect x="-300" y="-300" width="${W + 600}" height="${H + 600}" fill="#2a1c16"/>` +
+    bg('M-200 1100 L-200 120 Q960 -60 2120 120 L2120 1100 Z', '#5a3e2c', 5) + ln('M300 60 L200 1100 M960 10 L960 1100 M1620 60 L1720 1100', 6, '#3e2a1e') +
+    glow(c, 'lamp', 1180, 720, 700 * flick, '#ffb85c', 0.55) +
+    bg('M1120 760 L1240 760 L1220 820 L1140 820 Z', '#a8643a', 4) + sh('ellipse', { cx: 1180, cy: 760, rx: 60, ry: 14 }, '#c4844a') +        // clay oil lamp on a stand
+    `<path d="M1236 748 q10 -26 2 -44 q16 18 6 44 Z" fill="#ffd27a" stroke="#e8902a" stroke-width="2" transform="scale(1 ${flick.toFixed(3)})" transform-origin="1240 748"/>` +
+    bg('M1100 820 L1260 820 L1250 1100 L1110 1100 Z', '#6a4428', 5) +
+    bg('M-100 1000 L2020 1000 L2120 1100 L-200 1100 Z', '#7a3a2a', 4) + ln('M-100 1030 L2020 1030', 5, '#d9b443') +              // rug
+    `<g transform="translate(300 860)">${bg('M-150 0 L150 0 L130 40 L-130 40 Z', '#6a4428', 4)}${bg('M-130 -6 L130 -6 L120 -2 L-120 -2 Z', '#e8d6a0', 3)}` +          // war table + the strait drawn on a hide
+    `<path d="M-90 -4 Q-30 -10 0 -4 Q40 2 90 -4" stroke="#2f6f8e" stroke-width="3" fill="none"/></g>` +
+    `<g transform="translate(1620 700)">${pole(0, -200, 0, 300, '#6a4428')}${pole(40, -220, 40, 300, '#6a4428')}${sh('circle', { cx: 80, cy: 60, r: 70 }, '#c99a45')}${sh('circle', { cx: 80, cy: 60, r: 56 }, '#b23a2a')}</g>`;   // spears + a shield against the tent wall
+}
+const camp_message: SceneFn = (c) => {
+  // s06 MS push-in: Themistocles leans in, presses the sealed tablet into the slave's hands, the lamp lights his face
+  const lean = easeInOut(bt(c, 0)), give = easeOutBack(bt(c, 1, 0.35, 0.7)), nod = bt(c, 2);
+  const tm = `<g transform="translate(${760 + 30 * lean} 1040) scale(1.15) rotate(${(4 * lean).toFixed(2)} 0 -200)">${themistocles.draw({
+    expr: 'stern', breath: breathe(c.t, 2), blink: blinkAt(c.t, 2), armL: { from: 'down', to: 'point', k: give }, armR: 'down' })}</g>`;
+  const tablet = `<g transform="translate(${tween(c.local, c.beatT(1) - 0.35, c.beatT(1) + 0.35, 640, 980, easeInOut).toFixed(1)} 760)">${sh('rect', { x: -30, y: -20, width: 60, height: 40, rx: 4 }, '#c9a66b')}${sh('circle', { cx: 0, cy: 0, r: 8 }, '#9b2b22')}</g>`;
+  const slave = `<g transform="translate(1300 1040) scale(1.1) scale(-1 1)">${sicinnus(c.t, 0.5, nod > 0 ? 'worried' : 'neutral', blinkAt(c.t, 78)).replace(/-110 -/g, '-110 -')}</g>`;
+  return L(c, 0.2, tent(c)) + L(c, 1, tm + slave + tablet);
+};
+const camp_themistocles: SceneFn = (c) => {
+  // s07 CU push-in: "Tell the king the Greeks will run. Tell him to strike now." — sly look, points to the sea, fist closes
+  const point = easeOutBack(bt(c, 1, 0.35, 0.7)), fist = easeOutBack(bt(c, 2, 0.25, 0.4));
+  const arm = fist > 0 ? { from: 'point', to: 'fist_up', k: fist } : { from: 'down', to: 'point', k: point };
+  const hero = `<g transform="translate(900 1250) scale(2.7)">${themistocles.draw({ ...exch(c, 0, 'stern', 'sly'), breath: breathe(c.t, 2), blink: blinkAt(c.t, 2),
+    mouth: mouthAt(c.t, LIP, 'THEMISTOCLES'), armL: arm as any, armR: 'down' })}</g>`;
+  return L(c, 0.3, tent(c)) + L(c, 1, hero);
+};
+
+// ---------- THE SHORE (the battle hymn) ----------
+const shore_hymn: SceneFn = (c) => {
+  // s11 WS low angle push-in: Greek soldiers on the rocks raise their shields and sing
+  const reveal = easeInOut(bt(c, 0, 0.3, 0.5)), raise = easeOutBack(bt(c, 1, 0.35, 0.7)), sing = c.local >= c.beatT(2) - 0.15 ? 1 : 0;
+  const b = straitBase(c, 'dawn', 0.6);
+  const rocks = bg('M-200 1100 L-200 820 Q300 760 700 800 Q1100 750 1500 800 Q1800 780 2120 820 L2120 1100 Z', '#7e5f44', 5);
+  let men = '';
+  for (let i = 0; i < 9; i++) {
+    const x = 160 + i * 205, y = 900 + (i % 2) * 40;
+    men += `<g opacity="${Math.max(0, Math.min(1, reveal * 4 - i * 0.3)).toFixed(2)}" transform="translate(${x} ${y}) scale(.72)">${singer(c.t, i, sing, raise)}</g>`;
+  }
+  const ships = `<g transform="translate(1500 700) scale(.22)">${warship(c.t, 'greek', 0.6, 1)}</g><g transform="translate(500 690) scale(.18)">${warship(c.t, 'greek', 0.6, 2)}</g>`;
+  return L(c, 0.05, b.sky) + L(c, 0.25, b.far) + L(c, 0.5, b.sea + ships) + L(c, 1, rocks + men);
+};
+
+
+// =============================== CHAPTER 1 — cold open + Delphi (drawn for this film) ===============================
+/** Which line this shot shows (one scene can serve several lines with different beats). */
+const lineOf = (c: ShotCtx) => (c.shot as any).line as number;
+/** A civilian of 480 BC (era: chiton_himation). kind: man | woman | child. Hands free, robe draped. */
+function civilian(t: number, seed: number, o: { kind?: 'man' | 'woman' | 'child'; expr?: any; to?: any; mix?: number; arm?: number; hold?: 'none' | 'bundle' | 'child'; look?: number } = {}): string {
+  const kind = o.kind ?? 'man', skin = ['#d8a87c', '#cf9e72', '#e0b48c', '#c99566'][seed % 4];
+  const robe = kind === 'woman' ? ['#8e5a7a', '#5a7a8e', '#a8643a', '#6f7a4a'][seed % 4] : ['#e6dcc6', '#b8a68a', '#8a9a7a', '#c9b48a'][seed % 4];
+  const k = kind === 'child' ? 0.62 : 1;
+  let s = `<g transform="scale(${k})"><ellipse cx="0" cy="-4" rx="62" ry="11" fill="rgba(0,0,0,.15)"/>`;
+  s += bg('M-46 -238 Q0 -250 46 -238 Q58 -120 64 -8 L-64 -8 Q-58 -120 -46 -238 Z', robe, 5);               // chiton / peplos to the feet
+  s += `<path d="M-46 -236 Q10 -170 52 -60" stroke="rgba(0,0,0,.18)" stroke-width="18" fill="none"/>`;      // himation drape
+  const a = o.arm ?? 0;                                                                                     // 0 down .. 1 raised
+  s += limb(`M44 -222 Q${70 + 10 * a} ${-180 - 70 * a} ${56 + 20 * a} ${-140 - 140 * a}`, 18, robe) + hand(56 + 20 * a, -140 - 140 * a, skin);
+  if (o.hold === 'bundle') s += bg('M-70 -170 Q-96 -150 -86 -110 Q-40 -96 -20 -126 Q-24 -170 -70 -170 Z', '#c9b48a', 4) + limb('M-44 -222 Q-80 -190 -60 -140', 18, robe) + hand(-56, -136, skin);
+  else if (o.hold === 'child') s += limb('M-44 -222 Q-86 -200 -70 -150', 18, robe) + hand(-66, -146, skin);
+  else s += limb('M-44 -222 Q-60 -180 -52 -140', 18, robe) + hand(-52, -134, skin);
+  const lift = (breathe(t, seed) * -1.4).toFixed(2), look = (o.look ?? 0) * 14;
+  s += `<g transform="translate(${look} ${lift})">` + head(skin, o.expr ?? 'neutral', { beard: kind === 'man' ? '#3a2a1e' : undefined, blink: blinkAt(t, seed), extra: true, to: o.to, mix: o.mix });
+  s += kind === 'woman'
+    ? sh('path', { d: 'M-64 -300 Q-70 -372 0 -380 Q70 -372 64 -300 L70 -210 Q40 -250 46 -300 Q0 -330 -46 -300 Q-40 -250 -70 -210 Z' }, '#3a2a1e') +   // long hair
+      `<path d="M-70 -320 Q0 -400 70 -320 L78 -230 Q60 -300 0 -330 Q-60 -300 -78 -230 Z" fill="${robe}" stroke="${OUT}" stroke-width="4" opacity=".92"/>`  // veil
+    : sh('path', { d: 'M-60 -300 Q-64 -362 0 -366 Q64 -362 60 -300 Q50 -334 0 -336 Q-50 -334 -60 -300 Z' }, kind === 'child' ? '#4a3222' : '#3a2a1e');
+  return s + '</g></g>';
+}
+
+// ---------- cold open ----------
+const aigaleos_dawn: SceneFn = (c) => throne_wide(c);       // the proof's opening, beats: dawn (sun) / climbed (settle) / throne (gleam)
+const aigaleos_scribes: SceneFn = (c) => {
+  // scribes unroll their scrolls on "scribes", a reed pen dips on "name"
+  const set = throneSet(c);
+  const raise = easeInOut(bt(c, 0, 0.3, 0.8)), stroke = bt(c, 1, 0.2, 0.9), look = tween(c.local, 0.2, 1.2, 0, 1);
+  let hero = `<g transform="translate(1500 760) scale(.8)">${seatedXerxes(c, { expr: 'stern' })}</g>`;
+  [380, 760, 1140].forEach((x, i) => {
+    hero += `<g transform="translate(${x} ${930 + i * 18}) scale(1.25)">${scribe(c.t, 10 + i, { write: raise * 0.3 + stroke * 0.7 * (i === 1 ? 1 : 0.6), look })}</g>`;
+  });
+  return L(c, 0.05, set.sky) + L(c, 0.2, set.far) + L(c, 0.6, set.mid) + L(c, 1, set.ground + hero);
+};
+function greekFleetAtSalamis(c: ShotCtx, n: number, y0: number, k0: number, stir = 0): string {
+  let s = '';
+  for (let row = 0; row < 3; row++) for (let i = 0; i < n; i++) {
+    const x = 160 + i * (1600 / n) + (row % 2) * 60, y = y0 + row * 50, k = k0 + row * 0.02;
+    s += `<g transform="translate(${x.toFixed(0)} ${(y + Math.sin(c.t * 1.1 + i + row) * 2).toFixed(1)}) scale(${k.toFixed(3)})">${warship(c.t, 'greek', 0.05 + stir * 0.1, i + row)}</g>`;
+  }
+  return s;
+}
+const strait_dawn_wide: SceneFn = (c) => {
+  // EWS high pull-out: the strait opens on "strait"; the Greek fleet is revealed on the Salamis shore on "Greek"
+  const b = straitBase(c, 'dawn');
+  const open = easeInOut(bt(c, 0, 0.3, 1.0)), show = easeInOut(bt(c, 1, 0.3, 0.9));
+  const mist = `<rect x="-200" y="520" width="${W + 400}" height="600" fill="#f4e4d0" opacity="${(0.55 * (1 - open)).toFixed(3)}"/>`;
+  const fleet = `<g opacity="${show.toFixed(2)}">${greekFleetAtSalamis(c, 9, 640, 0.09)}</g>`;
+  return L(c, 0.05, b.sky) + L(c, 0.2, b.far) + L(c, 0.5, b.sea + fleet) + L(c, 1.2, cliffs(0.15)) + mist;
+};
+const strait_dawn_fleet: SceneFn = (c) => {
+  // WS: the Greek ships, oars shipped, have not moved — a gull settles on a stern post on "still"
+  const b = straitBase(c, 'dawn');
+  const land = easeInOut(bt(c, 0, 0.3, 0.9));
+  const fleet = greekFleetAtSalamis(c, 6, 700, 0.16);
+  const gx = 1700 - 520 * land, gy = 380 + 220 * land - 60 * Math.sin(land * Math.PI);
+  const gull = `<path d="M${gx - 18} ${gy} Q${gx - 9} ${gy - 12 + 10 * land * Math.sin(c.t * 10)} ${gx} ${gy} Q${gx + 9} ${gy - 12} ${gx + 18} ${gy}" stroke="${OUT}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  return L(c, 0.05, b.sky) + L(c, 0.2, b.far) + L(c, 0.5, b.sea) + L(c, 0.8, fleet + gull);
+};
+const salamis_families: SceneFn = (c) => {
+  // MS: families on the Salamis shore look across the water; a mother pulls her child close on "run"
+  const b = straitBase(c, 'dawn');
+  const pull = easeInOut(bt(c, bi(c, 'run'), 0.3, 0.8)), turn = easeInOut(bt(c, bi(c, 'families'), 0.3, 0.8));
+  const shore = bg('M-200 860 Q400 800 960 830 Q1500 800 2120 850 L2120 1300 L-200 1300 Z', '#b59a70', 5) +
+    pine(120, 860, 1.4, '#41603a') + pine(1820, 850, 1.2, '#41603a');
+  let people = '';
+  [[260, 'man', 0], [470, 'woman', 1], [1340, 'man', 2], [1560, 'woman', 3], [1760, 'child', 4]].forEach(([x, kind, s]) => {
+    people += at(x as number, 1010, 1.15, civilian(c.t, s as number, { kind: kind as any, expr: 'worried', look: -turn }));
+  });
+  // the mother and her child, centre: she draws the child in against her
+  people += at(900 + 30 * pull, 1040, 1.4, civilian(c.t, 6, { kind: 'woman', expr: 'worried', to: 'grief', mix: pull, hold: 'child' }));
+  people += at(1010 - 60 * pull, 1050, 1.4, civilian(c.t, 7, { kind: 'child', expr: 'worried', arm: 0.3 * pull }));
+  return L(c, 0.05, b.sky) + L(c, 0.2, b.far + greekFleetAtSalamis(c, 8, 640, 0.07)) + L(c, 0.5, b.sea) + L(c, 1, shore + people);
+};
+const aigaleos_xerxes: SceneFn = (c) => {
+  // CU low push-in: he lifts a hand at the sea on "come", a small proud smile on "mine"
+  const set = throneSet(c);
+  const wave = anticipate(bt(c, 0, 0.3, 0.7), 0.2);
+  const hero = `<g transform="translate(960 1330) scale(2.6)">${parasol(c.t)}${seatedXerxes(c, { ...exch(c, 1, 'stern', 'sly'), armR: { from: 'down', to: 'open', k: Math.max(0, Math.min(1, wave)) } })}</g>`;
+  return L(c, 0.05, set.sky) + L(c, 0.25, set.far) + L(c, 1, hero);
+};
+const aigaleos_xerxes_scribes: SceneFn = (c) => {
+  // MS: he points at the scribes on "Write"; they bow and write on "remember"
+  const set = throneSet(c, { sunY: 300 });
+  const point = easeOutBack(bt(c, 0, 0.3, 0.6)), bow = easeInOut(bt(c, 1, 0.3, 0.8));
+  let hero = `<g transform="translate(1200 1000) scale(1.25)">${parasol(c.t)}${seatedXerxes(c, { expr: 'stern', armR: { from: 'down', to: 'point', k: Math.min(1, point) } })}</g>`;
+  [360, 640].forEach((x, i) => { hero += `<g transform="translate(${x} ${1020 + i * 10}) rotate(${(-8 * bow).toFixed(2)}) scale(1.1)">${scribe(c.t, 21 + i, { write: 0.2 + 0.7 * bow, look: 1 - bow })}</g>`; });
+  return L(c, 0.05, set.sky) + L(c, 0.2, set.far) + L(c, 0.6, set.mid) + L(c, 1, set.ground + hero);
+};
+const aigaleos_scroll: SceneFn = (c) => {
+  // ECU: the scroll. line 7: the blank list on "list", smoke curls across it on "riddle".
+  // line 122 (aftermath): the scroll is full of names on "heroes"; the scribe's hand stops on "lost".
+  const late = lineOf(c) > 60;   // the aftermath shot of the same scroll
+  const ink = late ? 1 : 0.12, smoke = late ? 0 : easeInOut(bt(c, bi(c, 'riddle'), 0.3, 1.0)), stop = late ? easeInOut(bt(c, bi(c, 'lost'), 0.3, 0.6)) : 0;
+  let s = skyGrad(c, 'scrollbg', [[0, '#6a4a2e'], [1, '#3a2818']]);
+  s += bg('M240 160 L1680 140 L1700 960 L220 980 Z', '#ead6a4', 7) + bg('M200 140 Q170 560 200 1000 L260 1000 Q240 560 260 140 Z', '#c9b07a', 6) + bg('M1660 120 Q1690 560 1660 980 L1720 980 Q1750 560 1720 120 Z', '#c9b07a', 6);
+  const R = rng(9);
+  for (let r = 0; r < 12; r++) {                                   // lines of Aramaic-style script (shapes, not letters)
+    const y = 250 + r * 58, n = Math.round((late ? 1 : (r < 2 ? 1 : 0)) * 14);
+    for (let q = 0; q < n; q++) { const x = 320 + q * 92 + R() * 20, w = 40 + R() * 40; s += `<path d="M${x.toFixed(0)} ${y} q${(w / 2).toFixed(0)} -10 ${w.toFixed(0)} 0 m6 -14 l0 18" stroke="#3a2414" stroke-width="5" fill="none" stroke-linecap="round" opacity="${ink}"/>`; }
+  }
+  if (smoke > 0) for (let i = 0; i < 9; i++) { const u = (i / 9 + c.t * 0.08) % 1; s += `<circle cx="${(300 + smoke * 1300 * u + 60 * Math.sin(i + c.t)).toFixed(0)}" cy="${(700 - 400 * u).toFixed(0)}" r="${(40 + 120 * u).toFixed(0)}" fill="#8a7e76" opacity="${(0.5 * smoke * Math.min(1, u * 5) * (1 - u)).toFixed(3)}"/>`; }
+  // the scribe's hand + reed pen
+  const hx = 1200 + (late ? 0 : 60 * Math.sin(c.t * 4)) * (1 - stop), hy = 640 + (late ? -40 * stop : 0);
+  s += limb(`M1900 1100 Q1500 900 ${hx + 30} ${hy + 20}`, 60, '#2f5a7a') + pole(hx - 40, hy - 120, hx + 10, hy + 10, '#6b4a2a') + `<g transform="translate(${hx} ${hy}) scale(2.4)">${hand(0, 0, '#c98f62')}</g>`;
+  return L(c, 0.3, s);
+};
+
+// ---------- DELPHI ----------
+function parnassus(c: ShotCtx): string {   // the Phaedriades cliffs above the sanctuary, cypresses, an eagle circling
+  let s = skyGrad(c, 'dsky2', [[0, '#7fa8c8'], [0.6, '#cfe0e0'], [1, '#efe6cc']]);
+  s += bg('M-200 760 L-200 160 Q200 90 420 200 Q600 100 800 180 Q1000 60 1240 190 Q1480 80 1700 200 Q1900 120 2120 180 L2120 760 Z', '#b9a48a', 5);
+  for (let i = 0; i < 14; i++) s += `<path d="M${-100 + i * 160} ${200 + (i % 3) * 30} q${30 + (i % 4) * 10} 200 ${10 + (i % 2) * 30} 460" stroke="#8e7a62" stroke-width="6" fill="none" stroke-linecap="round"/>`;   // cliff faces
+  const ex = wrap(300 + c.t * 40, W + 400) - 200, ey = 260 + 30 * Math.sin(c.t * 0.7);
+  s += `<path d="M${ex - 30} ${ey} Q${ex - 14} ${ey - 16 + 6 * Math.sin(c.t * 3)} ${ex} ${ey} Q${ex + 14} ${ey - 16} ${ex + 30} ${ey}" stroke="${OUT}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  return s;
+}
+function cypress(x: number, y: number, k: number): string {
+  return at(x, y, k, bg('M0 -260 Q34 -150 30 -20 Q0 0 -30 -20 Q-34 -150 0 -260 Z', '#3e5a34', 4) + sh('rect', { x: -5, y: -20, width: 10, height: 24 }, '#5a3a24'));
+}
+function doricTemple(t: number, k = 1): string {   // the 6th-century temple of Apollo: painted entablature, columns, steps
+  let s = bg('M-560 0 L560 0 L540 -36 L-540 -36 Z', '#d9ccb0', 5) + bg('M-520 -36 L520 -36 L504 -66 L-504 -66 Z', '#e4d8bc', 5);
+  for (let i = 0; i < 6; i++) { const x = -430 + i * 172; s += bg(`M${x - 36} -66 L${x + 36} -66 L${x + 30} -400 L${x - 30} -400 Z`, '#efe6d0', 5) + ln(`M${x - 12} -80 L${x - 10} -390 M${x + 12} -80 L${x + 10} -390`, 3, '#cbbd9c'); }
+  s += bg('M-520 -400 L520 -400 L520 -470 L-520 -470 Z', '#e8dcc0', 5) + bg('M-520 -470 L520 -470 L520 -500 L-520 -500 Z', '#2f5a8a', 4);   // architrave + painted frieze band
+  for (let i = 0; i < 14; i++) s += sh('rect', { x: -500 + i * 74, y: -470, width: 20, height: 70 }, '#9a3a2a');                                  // triglyphs, painted
+  s += bg('M-560 -500 L0 -640 L560 -500 Z', '#e8dcc0', 5) + bg('M-470 -514 L0 -612 L470 -514 Z', '#b5452c', 3);                                  // pediment, painted
+  s += bg('M-90 -66 L90 -66 L90 -330 L-90 -330 Z', '#2a1c14', 4);                                                                                   // the dark doorway
+  const smoke = (0.5 + 0.5 * Math.sin(t * 1.3));
+  s += `<circle cx="0" cy="-360" r="${(40 + 14 * smoke).toFixed(1)}" fill="#9a8e86" opacity=".45"/>`;
+  return `<g transform="scale(${k})">${s}</g>`;
+}
+function messenger(t: number, seed: number, o: { kneel?: number; look?: number; branch?: number; expr?: any; to?: any; mix?: number; recoil?: number } = {}): string {
+  // an Athenian envoy in himation: kneeling (kneel 1) or standing; raises an olive branch (branch 0..1)
+  const skin = ['#d8a87c', '#cf9e72'][seed % 2], robe = ['#e6dcc6', '#c9b48a'][seed % 2];
+  const kn = o.kneel ?? 1, br = o.branch ?? 0, rc = o.recoil ?? 0;
+  let s = `<ellipse cx="0" cy="-4" rx="80" ry="12" fill="rgba(0,0,0,.18)"/>`;
+  s += kn > 0.5
+    ? bg('M-70 -4 Q-80 -110 -50 -170 L50 -170 Q80 -110 74 -4 Z', robe, 5)                       // kneeling: robe as a mound
+    : bg('M-46 -238 Q0 -250 46 -238 Q58 -120 64 -8 L-64 -8 Q-58 -120 -46 -238 Z', robe, 5);
+  const top = kn > 0.5 ? -170 : -238;
+  const ax = 70 + 30 * br, ay = top + 30 - 160 * br;
+  s += limb(`M40 ${top + 16} Q${70 + 20 * br} ${top - 20 - 60 * br} ${ax} ${ay}`, 18, robe) + hand(ax, ay, skin);
+  if (br > 0.05) {                                                                                  // the olive branch
+    s += `<path d="M${ax} ${ay} Q${ax + 30} ${ay - 60} ${ax + 20} ${ay - 130}" stroke="#5a3a24" stroke-width="6" fill="none" stroke-linecap="round" opacity="${Math.min(1, br * 3).toFixed(2)}"/>`;
+    for (let l = 0; l < 6; l++) { const ly = ay - 30 - l * 18, lx = ax + 18 + (l % 2 ? 14 : -10); s += `<ellipse cx="${lx}" cy="${ly}" rx="14" ry="6" fill="#7a9a4a" stroke="${OUT}" stroke-width="2.5" transform="rotate(${l % 2 ? 30 : -30} ${lx} ${ly})" opacity="${Math.min(1, br * 3).toFixed(2)}"/>`; }
+  }
+  s += limb(`M-40 ${top + 16} Q-70 ${top + 60} -50 ${top + 110}`, 18, robe) + hand(-50, top + 114, skin);
+  s += `<g transform="translate(${(-20 * rc).toFixed(1)} ${(top + 238 + breathe(t, seed) * -1.4 + 14 * (o.look ?? 0) * -1).toFixed(1)}) rotate(${(-10 * rc).toFixed(2)})">` +
+    head(skin, o.expr ?? 'worried', { beard: '#3a2a1e', blink: blinkAt(t, seed + 3), extra: true, to: o.to, mix: o.mix }) +
+    sh('path', { d: 'M-60 -300 Q-64 -362 0 -366 Q64 -362 60 -300 Q50 -334 0 -336 Q-50 -334 -60 -300 Z' }, '#3a2a1e') + '</g>';
+  return s;
+}
+function adyton(c: ShotCtx, lamp = 1): string {   // the dark inner room: stone walls, the bronze tripod, smoke, one lamp
+  const f = 0.92 + 0.08 * Math.sin(c.t * 11) * Math.sin(c.t * 6.7);
+  let s = `<rect x="-300" y="-300" width="${W + 600}" height="${H + 600}" fill="#1c1612"/>`;
+  const R = rng(17);                              // polygonal masonry: big irregular fitted stones (Delphi's walls)
+  for (let r = 0; r < 6; r++) for (let i = 0; i < 9; i++) {
+    const x = -160 + i * 250 + (r % 2) * 110 + R() * 30, y = -40 + r * 160 + R() * 20, w = 210 + R() * 60, h = 140 + R() * 30;
+    const j = () => (R() - 0.5) * 40;
+    s += `<path d="M${x + j()} ${y + j()} L${x + w * 0.55 + j()} ${y - 10 + j()} L${x + w + j()} ${y + 14 + j()} L${x + w - 10 + j()} ${y + h + j()} L${x + w * 0.4 + j()} ${y + h + 12 + j()} L${x - 8 + j()} ${y + h * 0.6 + j()} Z" fill="${['#2e241c', '#33281e', '#2a2119'][(r + i) % 3]}" stroke="#120d09" stroke-width="6" stroke-linejoin="round"/>`;
+  }
+  s += glow(c, 'lamp', 1500, 520, 700 * f * lamp, '#ffb35c', 0.55) + glow(c, 'cleft', 960, 900, 420, '#9fb39a', 0.25);   // lamp + the greenish breath of the cleft
+  s += bg('M1470 560 L1530 560 L1520 600 L1480 600 Z', '#a8643a', 3) + `<path d="M1500 548 q8 -22 0 -40 q14 16 6 40 Z" fill="#ffd27a" stroke="#e8902a" stroke-width="2"/>`;
+  s += bg('M-200 900 L2120 900 L2120 1300 L-200 1300 Z', '#2a2018', 4) + bg('M820 900 Q960 870 1100 900 Q960 930 820 900 Z', '#0c0a08', 3);   // floor + the cleft in the rock
+  return s;
+}
+function smokeColumn(c: ShotCtx, x: number, y: number, strength = 1, swirl = 0, shape: 'none' | 'planks' | 'island' = 'none', reveal = 0): string {
+  let s = '';
+  for (let q = 0; q < 14; q++) {
+    const u = (q / 14 + c.t * 0.05) % 1;
+    const cx = x + (50 + 220 * swirl) * Math.sin(q * 1.7 + c.t * (0.6 + swirl)) * u, cy = y - 620 * u;
+    s += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(40 + 150 * u).toFixed(1)}" fill="#8a8478" opacity="${(0.35 * strength * (1 - u) * Math.min(1, u * 5)).toFixed(3)}"/>`;
+  }
+  if (shape === 'planks' && reveal > 0) for (let i = 0; i < 6; i++) s += `<rect x="${x - 220 + i * 76}" y="${y - 520}" width="58" height="300" rx="8" fill="none" stroke="#d9c7a0" stroke-width="6" opacity="${(0.7 * reveal).toFixed(2)}"/>`;
+  if (shape === 'island' && reveal > 0) s += `<path d="M${x - 300} ${y - 300} Q${x - 200} ${y - 420} ${x - 40} ${y - 400} Q${x + 120} ${y - 470} ${x + 300} ${y - 330} Q${x + 100} ${y - 280} ${x - 300} ${y - 300} Z" fill="none" stroke="#d9c7a0" stroke-width="7" opacity="${(0.75 * reveal).toFixed(2)}"/>`;
+  return s;
+}
+function pythia(c: ShotCtx, o: { open?: number; point?: number; lean?: number; expr?: any; to?: any; mix?: number } = {}): string {
+  // the Pythia: an older woman in white with a laurel wreath, seated high on the bronze tripod
+  const skin = '#d9b08a', p = o.point ?? 0, lean = o.lean ?? 0;
+  let s = ln('M-150 0 L-80 -170 M150 0 L80 -170 M0 6 L0 -170', 16, '#6a4a1a') + ln('M-150 0 L-80 -170 M150 0 L80 -170 M0 6 L0 -170', 7, '#c99a45');   // splayed tripod legs
+  s += bg('M-150 -170 Q0 -110 150 -170 Q150 -220 0 -228 Q-150 -220 -150 -170 Z', '#b58a3a', 5) + ln('M-140 -196 Q0 -150 140 -196', 4, '#e2c070');      // the deep bronze bowl
+  s += `<g transform="translate(0 70) rotate(${(8 * lean).toFixed(2)} 0 -260)">`;
+  s += bg('M-72 -240 Q-98 -380 -58 -500 L58 -500 Q98 -380 78 -240 Z', '#efe8da', 5) + `<path d="M-40 -490 Q-10 -380 -50 -260" stroke="rgba(0,0,0,.12)" stroke-width="14" fill="none"/>` +
+    ln('M-84 -330 Q0 -312 86 -330', 8, '#c99a45');                                                          // a gold sash at the waist
+  s += `<g transform="translate(0 -70)">` + bg('M-110 -205 Q-150 -170 -130 -120 Q-100 -100 -70 -118 Q-40 -96 0 -116 Q40 -96 70 -118 Q100 -100 130 -120 Q150 -170 110 -205 Q0 -232 -110 -205 Z', '#efe8da', 5) +
+    ln('M-80 -200 Q-90 -160 -84 -116 M-20 -206 Q-26 -160 -20 -112 M44 -204 Q50 -160 46 -114 M96 -196 Q104 -160 100 -120', 3, 'rgba(0,0,0,.14)') + '</g>';   // the lap drawn IN FRONT of the torso
+  s += limb(`M44 -486 Q${110 + 60 * p} ${-470 - 60 * p} ${120 + 140 * p} ${-430 - 80 * p}`, 18, '#efe8da') + hand(120 + 140 * p, -430 - 80 * p, skin);           // pointing arm
+  s += limb('M-44 -486 Q-90 -420 -60 -340', 18, '#efe8da') + `<g transform="translate(-58 -330)">${pole(0, -60, 0, 60, '#5a7a3a')}</g>` + hand(-60, -336, skin);   // a laurel sprig in hand
+  const mouth = mouthAt(c.t, LIP, 'PYTHIA');
+  s += `<g transform="translate(0 -250)">` + head(skin, o.expr ?? 'neutral', { blink: (o.open ?? 1) < 0.5 || blinkAt(c.t, 77), extra: true, to: o.to, mix: o.mix });
+  s += sh('path', { d: 'M-64 -300 Q-70 -372 0 -380 Q70 -372 64 -300 L72 -200 Q44 -250 48 -300 Q0 -330 -48 -300 Q-44 -250 -72 -200 Z' }, '#9a9088');   // greying hair
+  for (let i = 0; i < 9; i++) { const a = Math.PI * (0.15 + 0.7 * i / 8); s += `<ellipse cx="${(-70 * Math.cos(a)).toFixed(1)}" cy="${(-318 - 40 * Math.sin(a)).toFixed(1)}" rx="16" ry="7" fill="#6f8a44" stroke="${OUT}" stroke-width="2.5"/>`; }   // laurel wreath
+  if (mouth && mouth !== 'closed') s += `<ellipse cx="0" cy="-252" rx="${mouth === 'wide' ? 13 : 9}" ry="${mouth === 'wide' ? 11 : 7}" fill="#5a2018" stroke="${OUT}" stroke-width="4"/>`;
+  return s + '</g></g>';
+}
+const delphi_ext: SceneFn = (c) => {
+  // EWS crane down: the mountain sanctuary on "Months"; two messengers kneel at the temple door on "knelt"
+  const down = easeOutBack(bt(c, 1, 0.3, 0.8));
+  const card_ = card(1440, 60, 420, 62, 'DELPHI · 481 BC', 27, tween(c.local, 0.6, 1.6, 0, 1));
+  const ground = bg('M-200 820 Q900 780 2120 820 L2120 1300 L-200 1300 Z', '#c9b48a', 5) + ln('M-200 900 L2120 880', 6, 'rgba(0,0,0,.12)');
+  const temple = at(980, 850, 0.95, doricTemple(c.t));
+  const men = at(900, 1010 + 40 * (1 - down), 0.7, messenger(c.t, 0, { kneel: down, look: 1 })) + at(1060, 1012 + 40 * (1 - down), 0.7, messenger(c.t, 1, { kneel: down, look: 1 }));
+  return L(c, 0.05, parnassus(c)) + L(c, 0.5, cypress(260, 830, 1.2) + cypress(1700, 820, 1.4) + cypress(1820, 840, 1.0) + ground) + L(c, 0.8, temple) + L(c, 1, men) + card_;
+};
+const delphi_messengers: SceneFn = (c) => {
+  // MS inside: the messengers look up on "question"; one clasps his hands on "survive"
+  const up = easeInOut(bt(c, 0, 0.3, 0.7)), clasp = easeOutBack(bt(c, 1, 0.3, 0.6));
+  const men = at(760, 1000, 1.5, messenger(c.t, 0, { kneel: 1, look: up, expr: 'worried' })) + at(1160, 1006, 1.5, messenger(c.t, 1, { kneel: 1, look: up, branch: 0, expr: 'worried', to: 'shocked', mix: 0.3 * clasp }));
+  const hands = clasp > 0 ? `<g transform="translate(1250 ${(840 - 40 * clasp).toFixed(0)}) scale(1.5)" opacity="${Math.min(1, clasp).toFixed(2)}">${hand(0, 0, '#cf9e72')}${hand(16, -4, '#cf9e72')}</g>` : '';
+  return L(c, 0.3, adyton(c)) + L(c, 0.7, smokeColumn(c, 960, 900, 0.6)) + L(c, 1, men + hands);
+};
+const delphi_pythia: SceneFn = (c) => {
+  // MS low push-in: the smoke parts and the Pythia appears on her tripod on "priestess"; her eyes open on "hope"
+  const part = easeInOut(bt(c, 0, 0.3, 1.0)), eyes = bt(c, 1, 0.2, 0.4);
+  const veil = `<rect x="600" y="0" width="720" height="${H}" fill="#6f6a62" opacity="${(0.75 * (1 - part)).toFixed(3)}"/>`;
+  return L(c, 0.3, adyton(c)) + L(c, 0.6, smokeColumn(c, 960, 900, 1)) + L(c, 1, at(960, 960, 1.3, pythia(c, { open: eyes > 0.5 ? 1 : 0, expr: 'stern' })) + veil);
+};
+const delphi_pythia_cu: SceneFn = (c) => {
+  // CU of the Pythia. line 11: she points into the dark on "Flee", smoke whirls on "earth".
+  // line 14: wooden planks form in the smoke on "wall", her stare on "taken".
+  // line 16: an island forms in the smoke on "Salamis", the smoke darkens on "destroy".
+  // line 132 (outro): the island in the smoke on "Salamis", her eyes close on "did".
+  const ln_ = lineOf(c);
+  const a0 = easeInOut(bt(c, 0, 0.3, 0.8)), a1 = easeInOut(bt(c, 1, 0.3, 0.8));
+  let point = 0, swirl = 0, shape: 'none' | 'planks' | 'island' = 'none', reveal = 0, dark = 0, open = 1, expr: any = 'stern';
+  if (ln_ === 12) { point = anticipate(bt(c, 0, 0.3, 0.7), 0.2); swirl = a1; }
+  else if (ln_ === 15) { shape = 'planks'; reveal = a0; expr = 'stern'; }
+  else if (ln_ === 17) { shape = 'island'; reveal = a0; dark = a1; }
+  else { shape = 'island'; reveal = a0; open = 1 - a1; expr = 'neutral'; }
+  const shade_ = `<rect x="-200" y="-200" width="${W + 400}" height="${H + 400}" fill="#0a0604" opacity="${(0.4 * dark).toFixed(3)}"/>`;
+  return L(c, 0.3, adyton(c)) + L(c, 0.6, smokeColumn(c, 1380, 980, 1, swirl, shape, reveal)) +
+    L(c, 1, at(700, 1900, 2.6, pythia(c, { point: Math.max(0, Math.min(1, point)), open, expr, to: ln_ === 15 ? 'shocked' : undefined, mix: ln_ === 15 ? 0.4 * a1 : 0 }))) + shade_;
+};
+const delphi_beg: SceneFn = (c) => {
+  // MS high: the messengers recoil on "terrified", then raise olive branches on "olive"
+  const rc = easeOutBack(bt(c, 0, 0.3, 0.6)), br = easeInOut(bt(c, 1, 0.3, 0.9));
+  const men = at(760, 1000, 1.4, messenger(c.t, 0, { kneel: 1, recoil: rc * (1 - br * 0.6), branch: br, expr: 'shocked', to: 'worried', mix: br })) +
+    at(1160, 1006, 1.4, messenger(c.t, 1, { kneel: 1, recoil: rc * (1 - br * 0.6), branch: br * 0.9, expr: 'shocked', to: 'worried', mix: br }));
+  return L(c, 0.3, adyton(c)) + L(c, 0.6, smokeColumn(c, 1500, 900, 0.7)) + L(c, 1, men);
+};
+const delphi_riddle: SceneFn = (c) => {
+  // MS: the Pythia leans forward on "riddle"; the lamp flares
+  const lean = easeInOut(bt(c, 0, 0.3, 0.8));
+  return L(c, 0.3, adyton(c, 1 + 0.3 * Math.sin(lean * Math.PI))) + L(c, 0.6, smokeColumn(c, 960, 900, 1, 0.3 * lean)) +
+    L(c, 1, at(1100, 1000, 1.3, pythia(c, { lean, expr: 'neutral', to: 'stern', mix: lean })) + at(420, 1020, 1.1, messenger(c.t, 0, { kneel: 1, look: 1, branch: 1 })));
+};
+function openSea(c: ShotCtx, time: 'dawn' | 'dusk'): { sky: string; sea: string } {
+  const sky = time === 'dawn' ? dawnSky(c, 330) : skyGrad(c, 'osky', [[0, '#4f3a6e'], [0.55, '#d77c56'], [1, '#f2b06a']]) + glow(c, 'osun', 1500, 520, 320, '#ffcf8a', 0.8);
+  const sea = `<rect x="-200" y="560" width="${W + 400}" height="700" fill="${time === 'dawn' ? '#4f8aa6' : '#5a5a7e'}"/>` + waves(c.t, 41, 570, 1080, 160, time === 'dawn' ? '#dcf0f3' : '#d9b9b0', 30) +
+    bg('M-200 560 L300 520 L520 545 L760 515 L900 560 Z', '#8a7a9a', 3);
+  return { sky, sea };
+}
+const opensea_messengers: SceneFn = (c) => {
+  // WS track at dusk: a small ship carries the messengers home on "sailed"; they brood at the rail on "riddle"
+  const s0 = openSea(c, 'dusk'), brood = easeInOut(bt(c, 1, 0.3, 0.8));
+  const ship = at(980 - c.local * 22, 820 + Math.sin(c.t * 1.4) * 6, 0.34, warship(c.t, 'greek', 0.6, 2));
+  const men = at(980 - c.local * 22 - 40, 760 + Math.sin(c.t * 1.4) * 6 + 10 * brood, 0.42, messenger(c.t, 0, { kneel: 0, expr: 'worried', to: 'grief', mix: brood }));
+  return L(c, 0.05, s0.sky) + L(c, 0.5, s0.sea) + L(c, 1, ship + men);
+};
+
+export const SCENES: Record<string, SceneFn> = {
+  strait_fleet_persian: strait_fleet,                    // the Persian fleet fills the bay (beats: appear / lift)
+  aigaleos_dawn, aigaleos_scribes, strait_dawn_wide, strait_dawn_fleet, salamis_families, aigaleos_xerxes, aigaleos_xerxes_scribes, aigaleos_scroll,
+  delphi_ext, delphi_messengers, delphi_pythia, delphi_pythia_cu, delphi_beg, delphi_riddle, opensea_messengers,
+};
