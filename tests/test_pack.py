@@ -17,6 +17,15 @@ def _age(p: Path, seconds: float):
     os.utime(p, (t, t))
 
 
+def _score_thumbs(d, passed=True):
+    """Score both thumbnails the way `tc qa ... --of <jpg>` does (content-hashed) + a clean tc thumb report."""
+    from tc import qa
+    ans = {k: {"pass": passed, "score": w} for k, w in qa.CHECKLISTS["thumbnail"].items()}
+    for v in "ab":
+        qa.record(d, "thumbnail", ans, subject=f"thumbnail_{v}", content_hash=qa.file_hash(d / "thumb" / f"thumbnail_{v}.jpg"))
+    (d / "thumb" / "report.json").write_text(json.dumps({v: {"problems": []} for v in "ab"}), encoding="utf-8")
+
+
 @pytest.fixture
 def jobdir(tmp_path):
     d = tmp_path / "jobs" / "20261121-0919-x"
@@ -28,7 +37,7 @@ def jobdir(tmp_path):
     (d / "master.mp4").write_bytes(b"VIDEO-BYTES")
     for v in "ab":
         (d / "thumb" / f"thumbnail_{v}.jpg").write_bytes(b"JPG" + v.encode())
-    (d / "qa" / "thumbnail.json").write_text(json.dumps({"video": {"passed": True, "total": 92}}), encoding="utf-8")
+    _score_thumbs(d)
     (d / "script.md").write_text('## hook\nXERXES: "Lay down your weapons." [dramatised]\nThey did not run. [src: f-1]\n', encoding="utf-8")
     (d / "sources.json").write_text(json.dumps({"f-1": {"claim": "c", "cites": ["Herodotus, Histories 7.202"]},
                                                 "f-2": {"claim": "d", "cites": ["Herodotus, Histories 7.202", "Plutarch, Sayings 225c"]}}),
@@ -45,8 +54,28 @@ def test_pack_refuses_missing_parts(jobdir):
 
 
 def test_pack_refuses_unpassed_thumbnail_qa(jobdir):
-    (jobdir / "qa" / "thumbnail.json").write_text(json.dumps({"video": {"passed": False, "total": 70}}), encoding="utf-8")
-    assert any("thumbnail checklist" in p for p in pack.pack_problems(jobdir))
+    _score_thumbs(jobdir, passed=False)
+    assert any("thumbnail_a" in p and "checklist" in p for p in pack.pack_problems(jobdir))
+
+
+def test_pack_refuses_a_thumbnail_changed_after_scoring(jobdir):
+    (jobdir / "thumb" / "thumbnail_b.jpg").write_bytes(b"REDRAWN")      # redrawn, never re-scored
+    probs = pack.pack_problems(jobdir)
+    assert any("thumbnail_b" in p and "checklist" in p for p in probs) and not any("thumbnail_a" in p for p in probs)
+
+
+def test_pack_refuses_measured_thumb_problems(jobdir):
+    (jobdir / "thumb" / "report.json").write_text(json.dumps({"a": {"problems": ["file is 2.3 MB"]}, "b": {"problems": []}}),
+                                                  encoding="utf-8")
+    assert any("tc thumb" in p for p in pack.pack_problems(jobdir))
+    (jobdir / "thumb" / "report.json").unlink()
+    assert any("tc thumb" in p for p in pack.pack_problems(jobdir))
+
+
+def test_pack_refuses_master_older_than_the_film(jobdir):
+    (jobdir / "film.mp4").write_bytes(b"f")                              # re-rendered after the master was muxed
+    _age(jobdir / "master.mp4", 50)
+    assert any("film.mp4" in p for p in pack.pack_problems(jobdir))
 
 
 def test_pack_refuses_stale_master(jobdir):

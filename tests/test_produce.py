@@ -115,3 +115,9 @@ def test_motion_step_blocks_on_a_crash():
     assert produce.motion_ok(1, "problem: snap at frame 4\nmotion: 1 problem(s)\n") is True    # problems = report, not crash
     assert produce.motion_ok(1, "") is False
     assert produce.motion_ok(2, "Traceback ...") is False
+
+
+def test_spoken_hash_keeps_what_changes_the_audio():
+    a = "## build\nHe was surrounded. [src: f-1]\nThey ran.\n"
+    assert produce.spoken_hash(a) != produce.spoken_hash(a.replace("surrounded.", "surrounded. {beat}"))   # a pause is heard
+    assert produce.spoken_hash(a) != produce.spoken_hash(a.replace("They ran.", "## payoff\nThey ran."))  # new SSML block

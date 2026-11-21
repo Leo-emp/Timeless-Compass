@@ -11,6 +11,7 @@ import * as xerxes from '../../characters/xerxes';
 import { at, columns, passSet, sky, spartan } from './scenes';
 
 export const THUMB_SIZE = { w: 1080, h: 1920 };
+/** The ONLY words drawn (bigWords reads them from here), so tc thumb counts exactly what is on screen. */
 export const WORDS: Record<'a' | 'b', string[]> = { a: ['TAKE', 'THEM'], b: ['ONE', 'LAST', 'CHANCE'] };
 
 const W = 1080, H = 1920;
@@ -47,7 +48,7 @@ function thumbA(): string {
   s += at(560, 2560, 3.4, leonidas.draw({ expr: 'stern', breath: 0, blink: false }));
   s += `<circle cx="262" cy="790" r="30" fill="#fff3c4" opacity=".35"/><path d="M262 730 Q267 785 322 790 Q267 795 262 850 Q257 795 202 790 Q257 785 262 730 Z" fill="#fffbe8"/>`;   // the spear tip glints
   s += `<rect width="${W}" height="${H}" fill="#ff6a2a" opacity=".08"/>` + vignette('thA_v', 0.8);
-  s += topBand('thA_b') + bigWords('TAKE THEM', 330, 250);
+  s += topBand('thA_b') + bigWords(WORDS.a.join(' '), 330, 250);
   return s;
 }
 
@@ -66,7 +67,7 @@ function thumbB(): string {
   s += `<defs><radialGradient id="thB_hope"><stop offset="0" stop-color="#ffc070" stop-opacity=".6"/><stop offset="1" stop-color="#ffc070" stop-opacity="0"/></radialGradient></defs>` +
        `<ellipse cx="720" cy="1780" rx="520" ry="240" fill="url(#thB_hope)"/>`;   // warm light on the 300: the one hope in frame
   s += vignette('thB_v', 0.7);
-  s += topBand('thB_b', 700) + bigWords('ONE LAST', 250, 210) + bigWords('CHANCE', 480, 250, '#ffcf5a');
+  s += topBand('thB_b', 700) + bigWords(WORDS.b.slice(0, 2).join(' '), 250, 210) + bigWords(WORDS.b.slice(2).join(' '), 480, 250, '#ffcf5a');
   return s;
 }
 

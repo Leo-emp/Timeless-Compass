@@ -30,19 +30,29 @@ def _upload(d: Path) -> dict:
 
 
 def pack_problems(d: Path) -> list[str]:
+    from tc import qa
     probs = []
-    master, mix = d / "master.mp4", d / "mix.wav"
+    master = d / "master.mp4"
     if not master.exists():
         probs.append("no master.mp4 (run tc produce)")
-    elif mix.exists() and master.stat().st_mtime < mix.stat().st_mtime:
-        probs.append("master.mp4 is older than mix.wav (stale master: run tc produce)")
-    for v in "ab":
-        if not (d / "thumb" / f"thumbnail_{v}.jpg").exists():
+    else:
+        for src in ("mix.wav", "film.mp4"):                  # the master must be muxed from the newest picture + sound
+            if (d / src).exists() and master.stat().st_mtime < (d / src).stat().st_mtime:
+                probs.append(f"master.mp4 is older than {src} (stale master: run tc produce)")
+    jpgs = {v: d / "thumb" / f"thumbnail_{v}.jpg" for v in "ab"}
+    for v, jpg in jpgs.items():
+        if not jpg.exists():
             probs.append(f"no thumb/thumbnail_{v}.jpg (run tc thumb)")
-    qa = d / "qa" / "thumbnail.json"
-    entries = json.loads(qa.read_text(encoding="utf-8")).values() if qa.exists() else []
-    if not entries or not all(e.get("passed") for e in entries):
-        probs.append("the thumbnail checklist has not passed (tc qa <id> thumbnail)")
+        elif not qa.passed(d, "thumbnail", f"thumbnail_{v}", qa.file_hash(jpg)):
+            probs.append(f"thumbnail_{v}: the thumbnail checklist has not passed on THIS file "
+                         f"(tc qa <id> thumbnail ... --subject thumbnail_{v} --of {jpg.as_posix()})")
+    rep = d / "thumb" / "report.json"
+    if not rep.exists() or any(j.exists() and rep.stat().st_mtime < j.stat().st_mtime for j in jpgs.values()):
+        probs.append("no current tc thumb report (run tc thumb)")
+    else:
+        bad = [p for v in json.loads(rep.read_text(encoding="utf-8")).values() for p in v.get("problems", [])]
+        if bad:
+            probs.append(f"tc thumb found problems: {'; '.join(bad)}")
     if not (d / "upload.json").exists():
         probs.append("no upload.json (title, description base, tags)")
     else:

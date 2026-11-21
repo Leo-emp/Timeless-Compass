@@ -56,9 +56,9 @@ def plan_steps(d: Path, film: Path) -> list[str]:
 
 
 def spoken_hash(script_text: str) -> str:
-    """Hash of what is HEARD: markers ({beat} {loop}), tags ([src: ..] [dramatised]) and headings removed."""
-    lines = [ln for ln in script_text.splitlines() if not ln.lstrip().startswith("#")]
-    t = re.sub(r"\{[a-z_]+\}|\[[^\]]*\]", " ", "\n".join(lines))
+    """Hash of what is HEARD. Kept: words, {beat} (a voiced pause) and ## headings (each section is its own SSML
+    block). Dropped: {loop} and tags ([src: ..] [dramatised] [source: ..]) - they never reach the voice."""
+    t = re.sub(r"\{loop\}|\[[^\]]*\]", " ", script_text)
     return hashlib.sha256(" ".join(t.split()).encode("utf-8")).hexdigest()
 
 
