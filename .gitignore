@@ -41,3 +41,4 @@ spike/lib_stills/
 
 # rendered videos stay local
 proof/*.mp4
+/packs/
