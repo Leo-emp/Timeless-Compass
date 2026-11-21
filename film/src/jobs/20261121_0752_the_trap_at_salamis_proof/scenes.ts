@@ -160,7 +160,7 @@ function throneSet(c: ShotCtx, opts: { sunY?: number } = {}): { sky: string; far
     camp += `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) scale(${k.toFixed(2)})">${bg('M-22 0 L0 -26 L22 0 Z', col, 2.5)}<path d="M0 -26 L0 -36" stroke="${OUT}" stroke-width="2"/></g>`;
   }
   for (let i = 0; i < 4; i++) { const x = 140 + i * 180; camp += `<path d="M${x} 740 L${x} 690" stroke="${OUT}" stroke-width="3"/><path d="M${x} 690 L${x + 26} 697 L${x} 704 Z" fill="#7a2a5e" stroke="${OUT}" stroke-width="2"/>`; }
-  for (let i = 0; i < 3; i++) { const x = 220 + i * 260; for (let q = 0; q < 5; q++) { const up = (q / 5 + t * 0.07) % 1; camp += `<circle cx="${(x + 14 * Math.sin(q + i) * up).toFixed(1)}" cy="${(730 - 150 * up).toFixed(1)}" r="${(6 + 16 * up).toFixed(1)}" fill="#a49a92" opacity="${(0.4 * (1 - up)).toFixed(2)}"/>`; } }
+  for (let i = 0; i < 3; i++) { const x = 220 + i * 260; for (let q = 0; q < 5; q++) { const up = (q / 5 + t * 0.07) % 1; camp += `<circle cx="${(x + 14 * Math.sin(q + i) * up).toFixed(1)}" cy="${(730 - 150 * up).toFixed(1)}" r="${(6 + 16 * up).toFixed(1)}" fill="#a49a92" opacity="${(0.4 * (1 - up) * Math.min(1, up * 6)).toFixed(3)}"/>`; } }
   const mid = bg('M-200 760 Q300 690 760 720 Q1200 690 1500 730 Q1800 700 2120 740 L2120 1300 L-200 1300 Z', '#a5835f', 5) + camp +
     pine(140, 740, 1.1) + pine(260, 720, 0.8) + pine(1760, 730, 1.0) + pine(1860, 745, 0.7) + pine(1620, 735, 0.6);
   const rock = (x: number, y: number, k: number) => `<g transform="translate(${x} ${y}) scale(${k})">${bg('M-60 10 Q-70 -30 -24 -44 Q20 -56 54 -26 Q70 0 60 10 Z', '#9a7b5c', 4)}<path d="M-30 -30 Q0 -40 30 -24" stroke="#c4a27c" stroke-width="5" fill="none" stroke-linecap="round"/></g>`;
@@ -248,7 +248,7 @@ const throne_silent: SceneFn = (c) => {
   const set = throneSet(c, { sunY: 260 });
   const lower = easeOutBack(bt(c, 1, 0.3, 0.5));
   let smoke = '';
-  for (let i = 0; i < 6; i++) { const x = 300 + i * 260; for (let q = 0; q < 6; q++) { const up = (q / 6 + c.t * 0.06) % 1; smoke += `<circle cx="${(x + 26 * Math.sin(q + i) * up).toFixed(1)}" cy="${(640 - 220 * up).toFixed(1)}" r="${(16 + 40 * up).toFixed(1)}" fill="#7d7470" opacity="${(0.45 * (1 - up)).toFixed(2)}"/>`; } }
+  for (let i = 0; i < 6; i++) { const x = 300 + i * 260; for (let q = 0; q < 6; q++) { const up = (q / 6 + c.t * 0.06) % 1; smoke += `<circle cx="${(x + 26 * Math.sin(q + i) * up).toFixed(1)}" cy="${(640 - 220 * up).toFixed(1)}" r="${(16 + 40 * up).toFixed(1)}" fill="#7d7470" opacity="${(0.45 * (1 - up) * Math.min(1, up * 6)).toFixed(3)}"/>`; } }
   let hero = `<g transform="translate(1440 860) scale(.9)">${seatedXerxes(c, { ...exch(c, 2, 'worried', 'shocked'), armR: 'down' })}</g>`;
   [300, 640, 980].forEach((x, i) => {
     hero += `<g transform="translate(${x} ${960 + i * 14}) scale(1.2)">${scribe(c.t, 30 + i, { write: i === 1 ? 0.5 * (1 - lower) : 0.4, look: 1, frozen: true, expr: 'worried' })}</g>`;
@@ -339,7 +339,7 @@ const strait_closed: SceneFn = (c) => {
   for (let i = 0; i < 9; i++) {
     const x = 300 + i * 170, y = 760 + (i % 3) * 50;
     s += `<g transform="translate(${x} ${y}) rotate(${(i % 2 ? 18 : -12)}) scale(.16)">${warship(0, 'persian', 0, i, 0.7)}</g>`;
-    for (let q = 0; q < 5; q++) { const up = (q / 5 + c.t * 0.08) % 1 * smokeUp; s += `<circle cx="${(x + 30 * Math.sin(q * 2 + i) * up).toFixed(1)}" cy="${(y - 20 - 260 * up).toFixed(1)}" r="${(14 + 34 * up).toFixed(1)}" fill="#4f4648" opacity="${(0.5 * (1 - up)).toFixed(2)}"/>`; }
+    for (let q = 0; q < 5; q++) { const up = (q / 5 + c.t * 0.08) % 1 * smokeUp; s += `<circle cx="${(x + 30 * Math.sin(q * 2 + i) * up).toFixed(1)}" cy="${(y - 20 - 260 * up).toFixed(1)}" r="${(14 + 34 * up).toFixed(1)}" fill="#4f4648" opacity="${(0.5 * (1 - up) * Math.min(1, up * 6)).toFixed(3)}"/>`; }
     s += `<circle cx="${x}" cy="${y - 10}" r="${(10 + 6 * Math.sin(c.t * 8 + i)).toFixed(1)}" fill="#ff9a3c" opacity=".85"/>`;
   }
   for (let i = 0; i < 8; i++) {
