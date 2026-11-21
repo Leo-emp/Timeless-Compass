@@ -124,10 +124,16 @@ def notify(text: str, env: dict) -> bool:
     tok, chat = env.get("TC_TELEGRAM_BOT_TOKEN"), env.get("TC_TELEGRAM_CHAT_ID")
     if not tok or not chat:
         return False
-    from tc.http import post_bytes
+    # sent from Python (not curl): the token is part of the URL and must never sit on a process command line
+    import urllib.request
     body = json.dumps({"chat_id": chat, "text": text}).encode("utf-8")
-    status, _, _ = post_bytes(f"https://api.telegram.org/bot{tok}/sendMessage", body, {"Content-Type": "application/json"})
-    return status == 200
+    req = urllib.request.Request(f"https://api.telegram.org/bot{tok}/sendMessage", data=body,
+                                 headers={"Content-Type": "application/json"}, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return r.status == 200
+    except Exception:                                    # no details: an error message could echo the URL (token)
+        return False
 
 
 def make_pack(job_id: str) -> int:

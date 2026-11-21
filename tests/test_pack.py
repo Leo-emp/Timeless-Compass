@@ -98,3 +98,25 @@ def test_posting_slot_long_and_short():
     assert pack.posting_slot("long", sat).startswith("2026-11-21 17:00 UTC")      # Sat 17:00 still ahead
     assert pack.posting_slot("long", datetime(2026, 11, 21, 18, 0, tzinfo=timezone.utc)).startswith("2026-11-24 17:00 UTC")  # next Tue
     assert pack.posting_slot("short", sat).startswith("2026-11-22 15:00 UTC")
+
+
+def test_notify_keeps_the_token_off_any_command_line(monkeypatch):
+    import subprocess
+    import urllib.request
+    seen = {}
+
+    def no_subprocess(*a, **k):
+        raise AssertionError("notify must not start a process (the token would sit in its argv)")
+
+    class Resp:
+        status = 200
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+
+    def fake_urlopen(req, timeout=0):
+        seen["url"] = req.full_url
+        return Resp()
+    monkeypatch.setattr(subprocess, "run", no_subprocess)
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    assert pack.notify("hi", {"TC_TELEGRAM_BOT_TOKEN": "t", "TC_TELEGRAM_CHAT_ID": "1"}) is True
+    assert seen["url"].endswith("/sendMessage")
