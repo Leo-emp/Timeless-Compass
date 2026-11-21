@@ -192,7 +192,7 @@ const pass_scout: SceneFn = (c) => {
   const fingers = Math.max(0, Math.min(5, Math.ceil(count * 5)));
   const scout = at(860, 1980 - 140 * peek + 40 * widen + 14 * Math.sin(Math.min(1, count) * Math.PI * 5), 1.5, persian(c.t, 7, { back: widen })) + `<g transform="translate(${(860 - 130).toFixed(0)} ${(1660 + 180 * (1 - handUp)).toFixed(0)}) scale(1.6)">${Array.from({ length: fingers }, (_, i) => `<rect x="${i * 26}" y="0" width="18" height="${(52 - (i === 4 ? 12 : 0))}" rx="8" fill="#c98f62" stroke="${OUT}" stroke-width="2.5"/>`).join('')}</g>`;
   const rock = bg('M560 2100 Q600 1780 860 1720 Q1100 1700 1200 1820 L1200 2100 Z', '#8b6b4f', 6);
-  return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid + Array.from({ length: 10 }, (_, i) => `<path d="M${380 + i * 72} 1170 L${380 + i * 72} ${(1170 - 230 * tips).toFixed(0)}" stroke="#8b5a2b" stroke-width="11"/><ellipse cx="${380 + i * 72}" cy="${(1180 - 120 * tips).toFixed(0)}" rx="30" ry="18" fill="#b23a2a" stroke="#2b211c" stroke-width="3"/><path d="M${372 + i * 72} ${(1172 - 230 * tips).toFixed(0)} l8 -26 l8 26 Z" fill="#bdbdbd" stroke="#2b211c" stroke-width="2"/>`).join('') + p.ground + men) + LP(c, 1.1, scout + rock);
+  return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid + Array.from({ length: 10 }, (_, i) => `<path d="M${380 + i * 72} 1170 L${380 + i * 72} ${(1170 - 230 * tips).toFixed(0)}" stroke="#8b5a2b" stroke-width="11"/><ellipse cx="${380 + i * 72}" cy="${(1196 - 44 * tips).toFixed(0)}" rx="30" ry="18" fill="#b23a2a" stroke="#2b211c" stroke-width="3"/><path d="M${372 + i * 72} ${(1172 - 230 * tips).toFixed(0)} l8 -26 l8 26 Z" fill="#bdbdbd" stroke="#2b211c" stroke-width="2"/>`).join('') + p.ground + men) + LP(c, 1.1, scout + rock);
 };
 const pass_comb: SceneFn = (c) => {
   const p = passSet(c, 'noon'), laugh = easeInOut(bt(c, 2, 0.25, 0.4)), hop = Math.sin(Math.min(1, bt(c, 2, 0.1, 0.5)) * Math.PI);
@@ -237,7 +237,7 @@ const pass_waves: SceneFn = (c) => {
   for (let i = 0; i < 7; i++) wall += at(420 + i * 100, 1430 + (i % 2) * 14, 0.4, spartan(c.t, i, { helmet: 'closed', arms: 'thrust', k: 1 }));
   let foes = '';
   for (let r = 0; r < 3; r++) for (let i = 0; i < 6; i++) {
-    const x = 1150 - pour * 300 + i * 70 + r * 40 - (hit > 0 ? 0 : 0), y = 1480 + r * 70;
+    const x = 1150 - pour * 420 + i * 70 + r * 40 - (hit > 0 ? 0 : 0), y = 1480 + r * 70;
     foes += at(x + (hit > 0 && r === 0 ? 30 * Math.pow(Math.sin(hit * Math.PI), 2) : 0), y, 0.38 + r * 0.04, persian(c.t, i + r * 6, { run: 1, back: r === 0 ? Math.min(1, hit * 2) : 0 }));
   }
   const ring = hit > 0 && hit < 1 ? `<circle cx="760" cy="1100" r="${(40 + 200 * hit).toFixed(0)}" fill="none" stroke="#fff3d6" stroke-width="${(18 * (1 - hit)).toFixed(1)}" opacity="${(0.9 * (1 - hit)).toFixed(2)}"/>` : '';
