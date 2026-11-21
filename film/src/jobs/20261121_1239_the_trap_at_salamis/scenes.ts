@@ -1071,7 +1071,7 @@ const road_rider: SceneFn = (c) => {
 /** Athens from a high view: the city packed with houses, the Acropolis (480 BC temple, NO Parthenon), the agora with its
  *  colonnade, roads, olives and cypresses, the old wall, the harbour + ships far away, and the assembly on the Pnyx
  *  (a dense crowd arguing around the speaker's stone). act: 0..1 how hard the crowd argues / votes. */
-function athensBird(c: ShotCtx, o: { argue?: number; vote?: number; reveal?: number; focus?: number } = {}): string {
+function athensBird(c: ShotCtx, o: { argue?: number; vote?: number; reveal?: number; focus?: number; zoom?: number; cx?: number; cy?: number } = {}): string {
   const t = c.t, argue = o.argue ?? 0, vote = o.vote ?? 0;
   const R = rng(4242);
   // sky band + distant hills + the sea with the harbour and ships (the top of the frame is far away)
@@ -1125,17 +1125,20 @@ function athensBird(c: ShotCtx, o: { argue?: number; vote?: number; reveal?: num
   let pnyx = poly2([[-200, 1300], [-200, 820], [200, 760], [620, 780], [860, 900], [900, 1300]], '#c4ad80');
   for (let r = 0; r < 4; r++) pnyx += `<path d="M-120 ${880 + r * 80} Q330 ${790 + r * 80} 780 ${920 + r * 70}" stroke="#a08a62" stroke-width="3" fill="none"/>`;
   pnyx += poly2([[300, 830], [380, 828], [384, 812], [304, 814]], '#d9c39a');                                            // the bema
-  pnyx += tiny(342, 812, 1.25, 77, argue > 0.2 ? 'point' : 'talk', t, { robe: '#f2ead8' });                               // the speaker
+  pnyx += (o.zoom ?? 1) > 1.5 ? at(342, 812, 0.17, themSpeaker(c, { expr: 'stern', armR: 'point' })) : tiny(342, 812, 1.25, 77, argue > 0.2 ? 'point' : 'talk', t, { robe: '#f2ead8' });   // the speaker (Themistocles up close)
   for (let i = 0; i < 150; i++) {
     const a = Math.PI * (0.05 + 0.9 * R()), rr = 120 + R() * 360, x = 340 + Math.cos(a) * rr * 1.35, y = 830 + Math.sin(a) * rr * 0.55;
     if (y < 845) continue;
     const loud = argue * (i % 3 === 0 ? 1 : 0.4), hands = vote > 0.1 && i % 4 !== 0;
-    pnyx += tiny(x, y, 0.9 + (y - 830) / 600, 100 + i, hands ? 'point' : loud > 0.5 ? (i % 2 ? 'point' : 'talk') : (i % 5 ? 'stand' : 'talk'), t, { flip: x > 342 });
+    const ss = 0.9 + (y - 830) / 600, det = (o.zoom ?? 1) > 1.5;
+    pnyx += det ? at(x, y, 0.13 * ss, civilian(t, 100 + i, { kind: i % 5 === 3 ? 'woman' : 'man', expr: (['stern', 'worried', 'neutral', 'sly'] as const)[i % 4], arm: hands ? 0.8 + 0.2 * Math.sin(t * 4 + i) : loud * 0.5 }))
+      : tiny(x, y, ss, 100 + i, hands ? 'point' : loud > 0.5 ? (i % 2 ? 'point' : 'talk') : (i % 5 ? 'stand' : 'talk'), t, { flip: x > 342 });
   }
   const reveal = o.reveal ?? 1;
   // one layer for the whole town (roads first, then far -> near), so a camera move never slides streets off the houses
   const town = road_ + rows.slice(0, 2).join('') + acro + rows.slice(2, 4).join('') + agora + rows.slice(4).join('');
-  return L(c, 0.05, g) + L(c, 0.7, town) + L(c, 0.85, `<g opacity="${(0.6 + 0.4 * reveal).toFixed(2)}">${pnyx}</g>`);
+  const z = o.zoom ?? 1, zx = o.cx ?? 960, zy = o.cy ?? 540, zt = (svg: string) => z === 1 ? svg : `<g transform="translate(960 540) scale(${z}) translate(${-zx} ${-zy})">${svg}</g>`;
+  return L(c, 0.05, zt(g)) + L(c, 0.7, zt(town)) + L(c, 0.85, zt(`<g opacity="${(0.6 + 0.4 * reveal).toFixed(2)}">${pnyx}</g>`));
 }
 function poly2(pts: number[][], fill: string, w = 2.2): string {
   return `<path d="M${pts.map((p) => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' L')} Z" fill="${fill}" stroke="${OUT}" stroke-width="${w}" stroke-linejoin="round"/>`;
@@ -1144,7 +1147,8 @@ const athens_bird: SceneFn = (c) => {
   // line 19: the whole city argues ("argued"); line 28: the assembly votes ("vote"); outro: they vote him out ("throw")
   const ln_ = lineOf(c);
   const argue = easeInOut(bw(c, ln_ === 19 ? 'argued' : 'vote', 0.3, 0.9)), vote = ln_ === 19 ? 0 : easeOutBack(bw(c, ln_ === 28 ? 'vote' : 'throw', 0.3, 0.7));
-  return athensBird(c, { argue, vote: Math.min(1, vote), reveal: easeInOut(bw(c, 'wood', 0.3, 1.0)) });
+  const close = ln_ === 28;                                   // the vote: a CLOSE bird's-eye on the assembly (people big, faces readable)
+  return athensBird(c, { argue, vote: Math.min(1, vote), reveal: ln_ === 19 ? easeInOut(bw(c, 'wood', 0.3, 1.0)) : 1, zoom: close ? 2.6 : 1, cx: 380, cy: 900 });
 };
 
 // ---------- bird's-eye: THE STRAIT OF SALAMIS ----------
@@ -1233,11 +1237,11 @@ const delphi_ext_bird: SceneFn = (c) => {
 };
 
 // ---------- bird's-eye: THE HELLESPONT ----------
-const hellespont_bird: SceneFn = (c) => {
+function hellespontDraw(c: ShotCtx, z = 1, zx = 960, zy = 600, swayWord = 'bridges'): string {
   // two shores (Asia far, Europe near), two bridges of ships lashed side by side, columns of soldiers marching over them;
   // the king's parasol on "Xerxes", the bridges sway on "bridges", a second column on "sea". Aftermath: guards watching.
   const t = c.t, ln_ = lineOf(c), dusk = ln_ > 100, R = rng(55);
-  const king = easeInOut(bw(c, 'Xerxes', 0.3, 1.2)), swayB = Math.sin(Math.min(1, bw(c, 'bridges', 0.3, 1.2)) * Math.PI), more = easeInOut(bw(c, 'sea', 0.3, 1.0)), rev = easeInOut(bw(c, dusk ? 'bridges' : 'coming', 0.3, 1.0));
+  const king = easeInOut(bw(c, 'Xerxes', 0.3, 1.2)), swayB = Math.sin(Math.min(1, bw(c, swayWord, 0.3, 1.2)) * Math.PI), more = easeInOut(bw(c, 'sea', 0.3, 1.0)), rev = easeInOut(bw(c, dusk ? 'bridges' : 'coming', 0.3, 1.0));
   let g = (dusk ? skyGrad(c, 'hbD', [[0, '#4f3a6e'], [1, '#f2b06a']]) : skyGrad(c, 'hbS', [[0, '#e8a074'], [1, '#fde8c2']])).replace(`height="${H + 600}"`, 'height="760"');
   g += seaTop(c.pid('hbSea'), -200, 160, 2120, 1300, t, dusk ? '#4a4a6e' : '#4f8aa6', 13);
   g += poly2([[-200, 160], [2120, 150], [2120, 300], [1400, 330], [700, 310], [-200, 330]], dusk ? '#7a6a6a' : '#b59a70');        // Asia
@@ -1256,8 +1260,11 @@ const hellespont_bird: SceneFn = (c) => {
   for (let i = 0; i < 22; i++) { const x = 60 + (i * 197) % 1900, y = 380 + (i * 89) % 560; if (Math.abs(x - 520) < 140 || Math.abs(x - 1040) < 140) continue; b += shipTop(x, y, 0.42, i % 3 ? 'boat' : 'persian', t, 0.3, i); }   // supply boats + escort ships
   for (let i = 0; i < 50; i++) b += tiny(40 + i * 40, 300 - (i % 3) * 14, 0.7, 1500 + i, (['stand', 'walk', 'talk'] as const)[i % 3], t, { spear: i % 2 === 0 });   // the army waiting on the Asian shore
   for (let i = 0; i < 40; i++) b += tiny(60 + i * 50, 1030 + (i % 3) * 16, 0.85, 1600 + i, 'walk', t, { spear: true, robe: '#b5793a' });   // landing in Europe
-  return L(c, 0.05, g) + L(c, 0.8, `<g opacity="${(0.5 + 0.5 * rev).toFixed(2)}">${b}</g>`);
+  const zt = (svg: string) => z === 1 ? svg : `<g transform="translate(960 540) scale(${z}) translate(${-zx} ${-zy})">${svg}</g>`;
+  return L(c, 0.05, zt(g)) + L(c, 0.8, zt(`<g opacity="${(0.5 + 0.5 * rev).toFixed(2)}">${b}</g>`));
 };
+const hellespont_bird: SceneFn = (c) => hellespontDraw(c);
+const hellespont_close_bird: SceneFn = (c) => hellespontDraw(c, 3.2, 520, 640, 'stop');   // CLOSE bird's-eye on one bridge: soldiers big
 const hellespont_army_road_bird: SceneFn = (c) => {
   // the Persian army pours south across the plain ("largest"); Athens on the horizon ("Athens"); villages smoke
   const t = c.t, R = rng(66), pour = easeInOut(bw(c, 'largest', 0.3, 1.6)), city = easeInOut(bw(c, 'Athens', 0.3, 1.0));
@@ -1274,10 +1281,11 @@ const hellespont_army_road_bird: SceneFn = (c) => {
   for (let i = 0; i < 260; i++) {
     const u = ((i / 260) * (0.25 + 0.75 * pour) + t * 0.004) % 1, lane = (i % 7) - 3;
     const bx = -100 + 1700 * u, by = 1300 - 1050 * u + Math.sin(u * 9) * 40, s = 0.4 + 1.0 * (1 - u);
-    army += tiny(bx + lane * 18 * s, by + lane * 12 * s, s, 2000 + i, 'walk', t, { spear: true, shield: i % 3 === 0 ? '#c9a96e' : undefined, robe: ['#b5793a', '#7a5a8e', '#4f7a6a', '#a8463a'][i % 4] });
+    army += at(bx + lane * 18 * s, by + lane * 12 * s + Math.abs(Math.sin(t * 6 + i)) * -2 * s, 0.066 * s, guard(t, 2000 + i));
     if (i % 40 === 0) army += `<path d="M${bx} ${by - 40 * s} l0 ${-30 * s} l${22 * s} ${6 * s} l${-22 * s} ${6 * s}" fill="#7a2a5e" stroke="${OUT}" stroke-width="1.4"/>`;   // banners
   }
-  return L(c, 0.05, g) + L(c, 0.9, army);
+  const zt = (svg: string) => `<g transform="translate(960 540) scale(1.7) translate(-640 -860)">${svg}</g>`;   // medium: the column big enough to read
+  return L(c, 0.05, zt(g)) + L(c, 0.9, zt(army));
 };
 
 export const SCENES: Record<string, SceneFn> = {
@@ -1285,7 +1293,7 @@ export const SCENES: Record<string, SceneFn> = {
   aigaleos_dawn, aigaleos_scribes, strait_dawn_wide: strait_dawn_wide_bird, strait_dawn_fleet: strait_dawn_fleet_bird, salamis_families, aigaleos_xerxes, aigaleos_xerxes_scribes, aigaleos_scroll,
   delphi_ext: delphi_ext_bird, delphi_messengers, delphi_pythia, delphi_pythia_cu, delphi_beg, delphi_riddle, opensea_messengers,
   athens_pnyx: athens_bird, athens_pnyx_old: athens_pnyx, acropolis_hedge, athens_themistocles, athens_crowd_split, athens_scroll_word, laurium_mine, shipyard,
-  hellespont: hellespont_bird, hellespont_close, thermopylae, opensea_fleet_south, hellespont_army_road: hellespont_army_road_bird,
+  hellespont: hellespont_bird, hellespont_close, hellespont_close_bird, thermopylae, opensea_fleet_south, hellespont_army_road: hellespont_army_road_bird,
   athens_streets_empty, harbour_evac, opensea_boats_salamis, salamis_shore_look, acropolis_defenders, acropolis_barricade,
   acropolis_cliff_climb, acropolis_burning, acropolis_temple_fire, acropolis_barricade_burnt, salamis_shore_smoke, road_rider,
   road_xerxes_home: road_rider,

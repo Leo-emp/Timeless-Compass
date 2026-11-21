@@ -111,6 +111,17 @@ export function tiny(x: number, y: number, s = 1, seed = 0, act: Act = 'stand', 
   if (o.spear) g += line(arm[0], arm[1] + 8, arm[0] + 2, arm[1] - 26, '#6a4428', 1.6) + `<path d="M${arm[0] + 2} ${arm[1] - 26} l-2 -6 l4 0 Z" fill="#bdbdbd"/>`;
   if (o.shield) g += `<circle cx="-7" cy="-16" r="6" fill="${o.shield}" stroke="${OUT}" stroke-width="1.2"/>`;
   g += `<circle cx="0" cy="-27" r="5.2" fill="${skin}" stroke="${OUT}" stroke-width="1.3"/>`;
+  if (s >= 1.6) {                          // CLOSE bird's-eye: the figure is big on screen, so it gets a face and costume detail
+    const hairC = ['#3a2a1e', '#1c1612', '#5a3a24', '#2a1d14'][seed % 4], man = seed % 3 !== 1;
+    g += `<path d="M-5.2 -28 Q-5 -33.5 0 -33.6 Q5 -33.5 5.2 -28 Q3 -30.5 0 -30.6 Q-3 -30.5 -5.2 -28 Z" fill="${hairC}"/>`;          // hair
+    if (man) g += `<path d="M-4.4 -25.6 Q0 -20.2 4.4 -25.6 Q2.6 -23.4 0 -23.4 Q-2.6 -23.4 -4.4 -25.6 Z" fill="${hairC}"/>`;          // beard
+    const mood = (seed * 13) % 4;                                                                                                    // brows set the mood
+    g += `<circle cx="-1.9" cy="-27.6" r=".75" fill="${OUT}"/><circle cx="1.9" cy="-27.6" r=".75" fill="${OUT}"/>`;
+    g += mood === 0 ? `<path d="M-3 -29.6 L-0.9 -28.9 M3 -29.6 L0.9 -28.9" stroke="${OUT}" stroke-width=".7"/>` :                    // angry
+      mood === 1 ? `<path d="M-3 -29 L-0.9 -29.6 M3 -29 L0.9 -29.6" stroke="${OUT}" stroke-width=".7"/>` :                             // worried
+      `<path d="M-3 -29.4 L-1 -29.4 M3 -29.4 L1 -29.4" stroke="${OUT}" stroke-width=".6"/>`;
+    g += `<path d="M-6.6 -14 L6.6 -14" stroke="${shadeOf(robe, 0.6)}" stroke-width="1.6"/>` + `<path d="M-6 -21.5 L6 -21.5" stroke="${shadeOf(robe, 0.7)}" stroke-width="1"/>`;   // belt + neckline
+  }
   if (o.hat) g += `<path d="M-5.5 -28 Q0 -36 5.5 -28 Z" fill="${o.hat}" stroke="${OUT}" stroke-width="1.1"/>`;
   return `<g transform="translate(${f(x)} ${f(y)}) scale(${k.toFixed(3)} ${s.toFixed(3)})">${g}</g>`;
 }
