@@ -283,7 +283,7 @@ function cliffs(narrow: number): string {   // the strait's rocky shores closing
 const strait_fleet: SceneFn = (c) => {
   // s02 EWS high angle pull-out: rows of Persian ships appear, oars lift and wait for the order
   const b = strait_base_cached(c, 'dawn');
-  const appear = easeInOut(bt(c, 1, 0.25, 0.6)), lift = easeOutBack(bt(c, 2, 0.3, 0.5));
+  const appear = easeInOut(bt(c, 0, 0.25, 1.8)), lift = easeOutBack(bt(c, bi(c, 'morning') < 99 ? bi(c, 'morning') : 2, 0.3, 0.5));
   let fleet = '';
   for (let row = 0; row < 4; row++) for (let i = 0; i < 9; i++) {
     const x = 140 + i * 205 + (row % 2) * 100, y = 640 + row * 105, k = 0.13 + row * 0.035;
@@ -462,10 +462,12 @@ const aigaleos_dawn: SceneFn = (c) => throne_wide(c);       // the proof's openi
 const aigaleos_scribes: SceneFn = (c) => {
   // scribes unroll their scrolls on "scribes", a reed pen dips on "name"
   const set = throneSet(c);
-  const raise = easeInOut(bt(c, 0, 0.3, 0.8)), stroke = bt(c, 1, 0.2, 0.9), look = tween(c.local, 0.2, 1.2, 0, 1);
+  const raise = easeInOut(bt(c, bi(c, 'scribes'), 0.3, 0.8)), stroke = bt(c, bi(c, 'name'), 0.2, 0.9), look = easeInOut(bt(c, bi(c, 'fleet'), 0.3, 0.6));
   let hero = `<g transform="translate(1500 760) scale(.8)">${seatedXerxes(c, { expr: 'stern' })}</g>`;
   [380, 760, 1140].forEach((x, i) => {
     hero += `<g transform="translate(${x} ${930 + i * 18}) scale(1.25)">${scribe(c.t, 10 + i, { write: raise * 0.3 + stroke * 0.7 * (i === 1 ? 1 : 0.6), look })}</g>`;
+    const w = 150 * raise;                                    // the scroll unrolls across the board
+    if (w > 2) hero += `<g transform="translate(${x - 70} ${930 + i * 18 - 150})"><rect x="0" y="0" width="${w.toFixed(0)}" height="46" rx="6" fill="#ead6a4" stroke="${OUT}" stroke-width="4"/><circle cx="${w.toFixed(0)}" cy="23" r="14" fill="#c9b07a" stroke="${OUT}" stroke-width="4"/></g>`;
   });
   return L(c, 0.05, set.sky) + L(c, 0.2, set.far) + L(c, 0.6, set.mid) + L(c, 1, set.ground + hero);
 };
@@ -482,7 +484,7 @@ const strait_dawn_wide: SceneFn = (c) => {
   const b = straitBase(c, 'dawn');
   const open = easeInOut(bt(c, 0, 0.3, 1.0)), show = easeInOut(bt(c, 1, 0.3, 0.9));
   const mist = `<rect x="-200" y="520" width="${W + 400}" height="600" fill="#f4e4d0" opacity="${(0.55 * (1 - open)).toFixed(3)}"/>`;
-  const fleet = `<g opacity="${show.toFixed(2)}">${greekFleetAtSalamis(c, 9, 640, 0.09)}</g>`;
+  const fleet = `<g opacity="${show.toFixed(2)}" transform="translate(0 ${(30 * (1 - show)).toFixed(1)})">${greekFleetAtSalamis(c, 8, 650, 0.12)}</g>`;
   return L(c, 0.05, b.sky) + L(c, 0.2, b.far) + L(c, 0.5, b.sea + fleet) + L(c, 1.2, cliffs(0.15)) + mist;
 };
 const strait_dawn_fleet: SceneFn = (c) => {
@@ -501,8 +503,9 @@ const salamis_families: SceneFn = (c) => {
   const shore = bg('M-200 860 Q400 800 960 830 Q1500 800 2120 850 L2120 1300 L-200 1300 Z', '#b59a70', 5) +
     pine(120, 860, 1.4, '#41603a') + pine(1820, 850, 1.2, '#41603a');
   let people = '';
-  [[260, 'man', 0], [470, 'woman', 1], [1340, 'man', 2], [1560, 'woman', 3], [1760, 'child', 4]].forEach(([x, kind, s]) => {
-    people += at(x as number, 1010, 1.15, civilian(c.t, s as number, { kind: kind as any, expr: 'worried', look: -turn }));
+  const pointShips = easeOutBack(bt(c, bi(c, 'ships'), 0.3, 0.7)), bowHead = easeInOut(bt(c, bi(c, 'lost'), 0.3, 0.8));
+  [[260, 'man', 0], [470, 'woman', 1], [1340, 'man', 2], [1560, 'woman', 3], [1760, 'child', 4]].forEach(([x, kind, s], k) => {
+    people += at(x as number, 1010 + (k === 3 ? 12 * bowHead : 0), 1.15, civilian(c.t, s as number, { kind: kind as any, expr: 'worried', to: k === 3 ? 'grief' : undefined, mix: k === 3 ? bowHead : 0, arm: k === 0 ? Math.min(1, pointShips) : 0, look: -turn }));
   });
   // the mother and her child, centre: she draws the child in against her
   people += at(900 + 30 * pull, 1040, 1.4, civilian(c.t, 6, { kind: 'woman', expr: 'worried', to: 'grief', mix: pull, hold: 'child' }));
@@ -636,7 +639,8 @@ const delphi_ext: SceneFn = (c) => {
   const down = easeOutBack(bt(c, 1, 0.3, 0.8));
   const card_ = card(1440, 60, 420, 62, 'DELPHI · 481 BC', 27, tween(c.local, 0.6, 1.6, 0, 1));
   const ground = bg('M-200 820 Q900 780 2120 820 L2120 1300 L-200 1300 Z', '#c9b48a', 5) + ln('M-200 900 L2120 880', 6, 'rgba(0,0,0,.12)');
-  const temple = at(980, 850, 0.95, doricTemple(c.t));
+  const puff = easeInOut(bt(c, bi(c, 'Delphi'), 0.3, 1.2));
+  const temple = at(980, 850, 0.95, doricTemple(c.t)) + Array.from({ length: 5 }, (_, i) => `<circle cx="${(980 + 30 * Math.sin(i * 2 + c.t)).toFixed(0)}" cy="${(560 - 160 * puff - i * 40).toFixed(0)}" r="${(30 + 50 * puff + i * 10).toFixed(0)}" fill="#a49a92" opacity="${(0.45 * puff * (1 - i * 0.15)).toFixed(3)}"/>`).join('');
   const men = at(900, 1010 + 40 * (1 - down), 0.7, messenger(c.t, 0, { kneel: down, look: 1 })) + at(1060, 1012 + 40 * (1 - down), 0.7, messenger(c.t, 1, { kneel: down, look: 1 }));
   return L(c, 0.05, parnassus(c)) + L(c, 0.5, cypress(260, 830, 1.2) + cypress(1700, 820, 1.4) + cypress(1820, 840, 1.0) + ground) + L(c, 0.8, temple) + L(c, 1, men) + card_;
 };
@@ -661,7 +665,7 @@ const delphi_pythia_cu: SceneFn = (c) => {
   const ln_ = lineOf(c);
   const a0 = easeInOut(bt(c, 0, 0.3, 0.8)), a1 = easeInOut(bt(c, 1, 0.3, 0.8));
   let point = 0, swirl = 0, shape: 'none' | 'planks' | 'island' = 'none', reveal = 0, dark = 0, open = 1, expr: any = 'stern';
-  if (ln_ === 12) { point = anticipate(bt(c, 0, 0.3, 0.7), 0.2); swirl = a1; }
+  if (ln_ === 12) { point = anticipate(bt(c, 0, 0.3, 1.1), 0.15); swirl = a1; }
   else if (ln_ === 15) { shape = 'planks'; reveal = a0; expr = 'stern'; }
   else if (ln_ === 17) { shape = 'island'; reveal = a0; dark = a1; }
   else { shape = 'island'; reveal = a0; open = 1 - a1; expr = 'neutral'; }
