@@ -37,10 +37,17 @@ def test_music_only_where_a_cue_is_named():
 def test_mux_refuses_length_mismatch(tmp_path):
     with pytest.raises(ValueError, match="length"):
         filmjob.mux(tmp_path / "v.mp4", tmp_path / "a.wav", tmp_path / "o.mp4",
-                    probe=lambda p: 10.0 if p.name == "v.mp4" else 10.5, runner=lambda *a, **k: None)
+                    probe=lambda p: 10.0 if p.name == "v.mp4" else 9.5, runner=lambda *a, **k: None)
 
 
 def test_music_cue_can_span_shots_until():
     import copy
     t = copy.deepcopy(TIMED); t["shots"][0]["music"]["until"] = "s2"
     assert filmjob.music_from_plan(t, TRACKS)["cues"][0]["dur"] == 10.0
+
+
+def test_mux_trims_a_short_music_tail(tmp_path):
+    calls = []
+    filmjob.mux(tmp_path / "v.mp4", tmp_path / "a.wav", tmp_path / "o.mp4",
+                probe=lambda p: 52.3 if p.name == "v.mp4" else 54.3, runner=lambda cmd, **k: calls.append(cmd))
+    assert "-t" in calls[0] and calls[0][calls[0].index("-t") + 1] == "52.300"

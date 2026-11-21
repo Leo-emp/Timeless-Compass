@@ -93,10 +93,13 @@ def _probe(path: Path) -> float:
 def mux(video: Path, audio: Path, out: Path, probe=_probe, runner=subprocess.run) -> Path:
     """Silent cloud render + the mix -> master. Refuses if they differ by more than 0.1 s (it would drift out of sync)."""
     v, a = probe(video), probe(audio)
-    if abs(v - a) > 0.1:
+    # the audio may run up to 3 s past the picture (a music fade-out tail) and is trimmed with a short fade;
+    # shorter audio, or a much longer one, means the mix and the video are out of step
+    if a < v - 0.1 or a > v + 3.0:
         raise ValueError(f"video length {v:.2f} s and audio length {a:.2f} s differ: re-render or re-mix first")
     runner(["ffmpeg", "-v", "error", "-y", "-i", str(video), "-i", str(audio), "-map", "0:v", "-map", "1:a",
-            "-c:v", "copy", "-c:a", "aac", "-b:a", "256k", "-shortest", str(out)], check=True)
+            "-af", f"afade=t=out:st={max(0.0, v - 0.6):.2f}:d=0.6", "-t", f"{v:.3f}",
+            "-c:v", "copy", "-c:a", "aac", "-b:a", "256k", str(out)], check=True)
     return out
 
 
