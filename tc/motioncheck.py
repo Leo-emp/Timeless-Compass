@@ -13,6 +13,9 @@ from pathlib import Path
 from tc.cli import register
 
 SNAP_FACTOR, SNAP_MIN = 6.0, 0.08
+# ...and sudden against what was happening just before (median of the previous SNAP_PREV frames): an eased
+# move of a big figure ramps up and is NOT a snap; a pop, a teleport or a jerky start still is.
+SNAP_LOCAL, SNAP_PREV = 2.5, 4
 FREEZE_DIFF, FREEZE_S = 0.0015, 3.0
 FREEZE_MEAN = 0.0003      # whole-frame change below this = nothing alive at all (measured: day ~0.0008, night ~0.0004, still ~0)
 BEAT_BEFORE, BEAT_AFTER, BEAT_FACTOR = 8, 4, 2.0
@@ -62,7 +65,8 @@ def motion_problems(diffs: list[float], fps: int, cuts: list[int] = (), beats: l
     med = statistics.median(diffs) or 1e-6
     cut_frames = {c + k for c in cuts for k in (-1, 0, 1)}
     for i, d in enumerate(diffs):
-        if i > 0 and d > max(SNAP_FACTOR * med, SNAP_MIN) and i not in cut_frames:
+        prev = statistics.median(diffs[max(0, i - SNAP_PREV):i]) if i > 0 else 0.0
+        if i > 0 and d > max(SNAP_FACTOR * med, SNAP_MIN) and d > SNAP_LOCAL * max(prev, 1e-6) and i not in cut_frames:
             probs.append(f"snap at frame {i} (change {d:.3f}, typical {med:.4f})")
     run_start = None
     series, limit = (mean_diffs, FREEZE_MEAN) if mean_diffs is not None else (diffs, FREEZE_DIFF)

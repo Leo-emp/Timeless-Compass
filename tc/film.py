@@ -138,6 +138,17 @@ def _pick(ranges: list[tuple[int, int]], only: str) -> list[tuple[int, int]]:
     return ranges[int(lo): int(hi or lo) + 1]
 
 
+def clear_parts(to: Path) -> int:
+    """Remove part-* files/folders left by an earlier render of this job, so a re-render never
+    mixes old and new parts (gh also refuses to overwrite them). Other files are kept. Returns how many."""
+    import shutil
+    n = 0
+    for p in Path(to).glob("part-*"):
+        shutil.rmtree(p) if p.is_dir() else p.unlink()
+        n += 1
+    return n
+
+
 @register("film", "2D film engine renders: parts / render / fetch / join / speed", _args)
 def _cmd_film(args) -> int:
     if args.action == "parts":
@@ -158,6 +169,8 @@ def _cmd_film(args) -> int:
         return 0
     if args.action == "fetch":
         to = Path(args.to); to.mkdir(parents=True, exist_ok=True)
+        if clear_parts(to):
+            print("cleared parts from an earlier render")
         if args.on == "github":
             subprocess.run(["gh", "run", "download", args.id, "-D", str(to)], check=True)
         else:

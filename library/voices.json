@@ -45,6 +45,11 @@
       "provider": "fish",
       "reference_id": "cf270b96152440379e8cb6a42f6c7997",
       "use": "Themistocles: quick, persuasive Athenian orator, mid-40s"
+    },
+    "dienekes": {
+      "provider": "fish",
+      "reference_id": "3746ddb505dd4959b57bfff29264c64f",
+      "use": "Dienekes: gruff Spartan veteran (extra)"
     }
   }
 }

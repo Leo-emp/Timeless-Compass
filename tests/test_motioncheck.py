@@ -1,3 +1,4 @@
+import math
 # Tests for the motion check (`tc motion`): snaps, frozen stretches, and nothing happening on a beat (r29, r30).
 from tc.motioncheck import motion_problems
 
@@ -39,3 +40,17 @@ def test_slow_steady_action_counts_as_a_beat():
         d[f] = 0.019                     # below the 2x peak, but steady change all through the window
     d[100] = 0.0; d[130] = 0.0
     assert not any("beat" in p for p in motion_problems(d, 24, beats=[120]))
+
+
+def test_snap_is_sudden_against_the_frames_just_before():
+    from tc.motioncheck import motion_problems
+    quiet = [0.004] * 60
+    # a smooth eased move of a big figure: change ramps up and down over ~1 s -> not a snap
+    ramp = [0.004 + 0.12 * (math.sin(math.pi * i / 24) ** 2) for i in range(25)]
+    assert not [p for p in motion_problems(quiet + ramp + quiet, 24) if "snap" in p]
+    # a pop (one frame jumps out of stillness) is still a snap
+    assert [p for p in motion_problems(quiet + [0.2] + quiet, 24) if "snap" in p]
+    # a jerky start (still, then instantly full speed) is still a snap
+    assert [p for p in motion_problems(quiet + [0.12] * 20 + quiet, 24) if "snap" in p]
+    # a teleport in the middle of a slow move is still a snap
+    assert [p for p in motion_problems(quiet + [0.03] * 10 + [0.25] + [0.03] * 10 + quiet, 24) if "snap" in p]

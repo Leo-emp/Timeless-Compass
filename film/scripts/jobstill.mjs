@@ -12,6 +12,8 @@ fs.writeFileSync(entry, `import plan from '../src/jobs/${slug}/plan.json';\nimpo
   `import { frameAt } from '../src/film/sequence';\nexport const draw = (f: number) => frameAt(f, plan as any, SCENES);\n`);
 try {
   const js = await bundleDraw(path.relative(FILM, entry), 'draw', 'f(t)');
-  const { elements } = await renderToPng({ js, arg: Number(frameS), outPng });
+  const plan = JSON.parse(fs.readFileSync(path.join(FILM, 'src', 'jobs', slug, 'plan.json'), 'utf8'));
+  // the still is the job's own frame size (1920x1080 long, 1080x1920 Shorts)
+  const { elements } = await renderToPng({ js, arg: Number(frameS), outPng, W: plan.width ?? 1920, H: plan.height ?? 1080 });
   console.log(`${outPng}: ${elements.length} tagged elements`);
 } finally { fs.rmSync(entry, { force: true }); }

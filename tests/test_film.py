@@ -68,3 +68,15 @@ def test_join_finds_parts_in_artifact_subfolders(tmp_path):
 def test_concat_list_gives_each_part_its_exact_duration(tmp_path):
     txt = concat_list([tmp_path / "part-0-23.mp4", tmp_path / "part-24-71.mp4"])
     assert "duration 1.000000" in txt and "duration 2.000000" in txt
+
+
+def test_clear_parts_removes_stale_parts_before_a_new_fetch(tmp_path):
+    # a re-render must never mix old parts with new ones (and gh refuses to overwrite them)
+    from tc.film import clear_parts
+    (tmp_path / "part-0-485").mkdir()
+    (tmp_path / "part-0-485" / "part-0-485.mp4").write_bytes(b"old")
+    (tmp_path / "part-486-970.mp4").write_bytes(b"old")
+    (tmp_path / "notes.txt").write_text("keep")
+    assert clear_parts(tmp_path) == 2
+    assert not (tmp_path / "part-0-485").exists() and not (tmp_path / "part-486-970.mp4").exists()
+    assert (tmp_path / "notes.txt").exists()

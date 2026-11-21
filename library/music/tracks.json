@@ -1,4 +1,46 @@
 {
   "_note": "Music catalogue (tc music add). Tag every track: moods (tension, menace, mystery, grief, triumph, awe, hope, dread), intensity 1-5, era (ancient | epic | modern), shape (slow_build | steady | hit | fade_out), length_s, tempo_bpm, peak_s, licence, source. Sources: YouTube Audio Library, Pixabay Music, FMA CC0/CC-BY. Files in library/music/files/ (git-ignored). Rule r11: music only at chosen moments.",
-  "tracks": []
+  "tracks": [
+    {
+      "id": "epic_dark_fantasy_fs701688",
+      "file": "epic_dark_fantasy_fs701688.mp3",
+      "moods": [
+        "dread",
+        "mystery",
+        "awe"
+      ],
+      "intensity": 3,
+      "era": [
+        "epic"
+      ],
+      "shape": "slow_build",
+      "length_s": 125.58,
+      "tempo_bpm": 0,
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "credit": "",
+      "url": "https://freesound.org/s/701688/",
+      "lufs": -15.7
+    },
+    {
+      "id": "war_around_us_fs608811",
+      "file": "war_around_us_fs608811.mp3",
+      "moods": [
+        "tension",
+        "triumph"
+      ],
+      "intensity": 5,
+      "era": [
+        "epic"
+      ],
+      "shape": "hit",
+      "length_s": 99.07,
+      "tempo_bpm": 0,
+      "source": "freesound",
+      "licence": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "credit": "",
+      "url": "https://freesound.org/s/608811/",
+      "lufs": -11.8
+    }
+  ]
 }
