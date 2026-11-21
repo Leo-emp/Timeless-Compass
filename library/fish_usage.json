@@ -13,6 +13,30 @@
       "text": "My men have become women, and my women men.",
       "file": "line_000_xerxes_2da22966.mp3",
       "cached": false
+    },
+    {
+      "date": "2026-11-21T07:15:32",
+      "job": "plan3-voicetest",
+      "speaker": "LEONIDAS",
+      "voice": "leonidas",
+      "reference_id": "d1ac8678a66a43eba8c2c2a3a6d9a689",
+      "model": "s2.1-pro-free",
+      "bytes": 19,
+      "text": "Come and take them.",
+      "file": "film\\out\\voicetest\\leonidas.mp3",
+      "cached": false
+    },
+    {
+      "date": "2026-11-21T07:15:38",
+      "job": "plan3-voicetest",
+      "speaker": "THEMISTOCLES",
+      "voice": "themistocles",
+      "reference_id": "cf270b96152440379e8cb6a42f6c7997",
+      "model": "s2.1-pro-free",
+      "bytes": 59,
+      "text": "Fight here, in the narrows, and their numbers mean nothing.",
+      "file": "film\\out\\voicetest\\themistocles.mp3",
+      "cached": false
     }
   ]
 }

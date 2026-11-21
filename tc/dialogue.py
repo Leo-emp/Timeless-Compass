@@ -90,7 +90,12 @@ def load_voices(path: Path | None = None) -> dict:
 def voice_for(speaker: str, voice_key: str | None, voices: dict, mapping: dict | None = None) -> tuple[str, dict]:
     """Which voice speaks this line: the (key) on the line, else the job's mapping, else the speaker's own name."""
     chars = voices.get("characters", {})
-    key = voice_key or (mapping or {}).get(speaker) or re.sub(r"[^a-z0-9]+", "_", speaker.lower()).strip("_")
+    key = voice_key or (mapping or {}).get(speaker)
+    if not key:                                   # the registry: the character's one locked voice (r19, r26)
+        from tc import characters
+        cid = characters.resolve(speaker)
+        key = characters.load_sheet(cid).get("voice") if cid else None
+    key = key or re.sub(r"[^a-z0-9]+", "_", speaker.lower()).strip("_")
     if key not in chars:
         raise DialogueError(f"no voice for {speaker!r} (looked for {key!r}); add it to jobs/<id>/cast_voices.json "
                             f"or write NAME (voice): ... ; voices: {sorted(chars)}")
