@@ -50,6 +50,26 @@
       "provider": "fish",
       "reference_id": "3746ddb505dd4959b57bfff29264c64f",
       "use": "Dienekes: gruff Spartan veteran (extra)"
+    },
+    "pythia": {
+      "provider": "fish",
+      "reference_id": "9b0338d549914b28b652600e511869ab",
+      "use": "the Pythia at Delphi: eerie, low, otherworldly"
+    },
+    "adeimantus": {
+      "provider": "fish",
+      "reference_id": "683788ea516848b2ba8f9c2cedbc4b45",
+      "use": "Adeimantus of Corinth: confident, dismissive"
+    },
+    "aristides": {
+      "provider": "fish",
+      "reference_id": "b0a6fbad47a14281b2be0cecee135b08",
+      "use": "Aristides: calm, older, grave"
+    },
+    "sicinnus": {
+      "provider": "fish",
+      "reference_id": "212f54ee2f694407bffaa561dc6b5a1c",
+      "use": "Sicinnus, the tutor-slave: steady, persuasive"
     }
   }
 }
