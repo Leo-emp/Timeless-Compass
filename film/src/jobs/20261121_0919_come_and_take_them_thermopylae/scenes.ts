@@ -54,7 +54,7 @@ function pine(x: number, y: number, k: number, col = '#46643a'): string {
 
 // ---------- figures (extras, drawn for this video) ----------
 /** A Spartan hoplite. helmet 'up' shows the face, 'closed' is the battle look. arms: 'spear' | 'comb' | 'rest'. */
-function spartan(t: number, seed: number, o: { helmet?: 'up' | 'closed'; arms?: 'spear' | 'comb' | 'rest' | 'thrust'; expr?: Expr; k?: number; shield?: boolean } = {}): string {
+function spartan(t: number, seed: number, o: { helmet?: 'up' | 'closed'; arms?: 'spear' | 'comb' | 'rest' | 'thrust'; expr?: Expr; to?: Expr; mix?: number; amp?: number; k?: number; shield?: boolean } = {}): string {
   const skin = ['#d8a87c', '#cf9e72', '#dcae84', '#c99566'][seed % 4];
   let s = `<ellipse cx="0" cy="-4" rx="70" ry="12" fill="rgba(0,0,0,.15)"/>` + hopliteBody(skin, true);
   const arms = o.arms ?? 'spear';
@@ -64,7 +64,7 @@ function spartan(t: number, seed: number, o: { helmet?: 'up' | 'closed'; arms?: 
     s += `<g transform="rotate(${ang.toFixed(1)} -82 -190)">${pole(-82, -480, -82, -6, '#8b5a2b', `sp${seed}`)}${sh('path', { d: 'M-82 -530 L-92 -480 L-72 -480 Z' }, '#bdbdbd')}</g>`;
     s += limb('M-44 -222 Q-80 -210 -82 -190', 20, skin) + hand(-82, -186, skin, `sp${seed}`);
   } else if (arms === 'comb') {                                   // combing the long hair before battle (Herodotus 7.208)
-    const k = o.k ?? 0, cy = -330 + 60 * Math.sin(k * Math.PI * 2);
+    const k = o.k ?? 0, cy = -330 + 60 * (o.amp ?? 1) * Math.sin(k * Math.PI * 2);
     s += limb(`M-44 -222 Q-96 -270 -70 ${cy.toFixed(0)}`, 20, skin) + sh('rect', { x: -96, y: cy - 22, width: 12, height: 44, rx: 3 }, '#efe0b8') + hand(-74, cy, skin);
   } else {
     s += limb('M-44 -222 Q-62 -180 -54 -140', 20, skin) + hand(-54, -134, skin);
@@ -75,7 +75,7 @@ function spartan(t: number, seed: number, o: { helmet?: 'up' | 'closed'; arms?: 
   if (o.helmet === 'closed') s += head(skin, 'stern', { extra: true }) + corinthClosed('fan');
   else {
     s += sh('path', { d: 'M-62 -300 Q-76 -240 -58 -200 L-36 -210 Q-50 -258 -44 -300 Z' }, '#3a2a1e') + sh('path', { d: 'M62 -300 Q76 -240 58 -200 L36 -210 Q50 -258 44 -300 Z' }, '#3a2a1e');
-    s += head(skin, o.expr ?? 'neutral', { beard: '#3a2a1e', blink: blinkAt(t, seed), extra: true }) + (arms === 'comb' ? sh('path', { d: 'M-60 -300 Q-64 -366 0 -368 Q64 -366 60 -300 Q52 -336 0 -338 Q-52 -336 -60 -300 Z' }, '#3a2a1e') : hair.corinthian());
+    s += head(skin, o.expr ?? 'neutral', { beard: '#3a2a1e', blink: blinkAt(t, seed), extra: true, to: o.to, mix: o.mix }) + (arms === 'comb' ? sh('path', { d: 'M-60 -300 Q-64 -366 0 -368 Q64 -366 60 -300 Q52 -336 0 -338 Q-52 -336 -60 -300 Z' }, '#3a2a1e') : hair.corinthian());
   }
   return s + '</g>';
 }
@@ -89,7 +89,7 @@ function persian(t: number, seed: number, o: { run?: number; back?: number; gold
   s += pole(-70, -470, -70, -10, '#6a4428') + sh('circle', { cx: -70, cy: -6, r: 10 }, '#d9b443') + sh('path', { d: 'M-70 -500 L-78 -470 L-62 -470 Z' }, '#bdbdbd');
   s += limb('M-44 -222 Q-72 -210 -70 -190', 18, robe) + hand(-70, -186, skin);
   s += sh('path', { d: 'M28 -232 L82 -232 L88 -110 L22 -110 Z' }, '#c9a96e') + ln('M32 -212 L82 -212 M30 -182 L84 -182 M28 -152 L86 -152', 3, '#8a6a3a');
-  s += `<g transform="translate(0 ${(breathe(t, seed + 9) * -1.2).toFixed(2)})">${head(skin, o.back ? 'shocked' : 'stern', { beard: '#1c1612', blink: blinkAt(t, seed + 9), extra: true })}` +
+  s += `<g transform="translate(0 ${(breathe(t, seed + 9) * -1.2).toFixed(2)})">${head(skin, 'stern', { beard: '#1c1612', blink: blinkAt(t, seed + 9), extra: true, to: 'shocked', mix: Math.min(1, o.back ?? 0) })}` +
     sh('path', { d: 'M-60 -300 Q-62 -372 0 -376 Q62 -372 60 -300 Z' }, '#e7dcc6') + '</g>';
   return s;
 }
@@ -130,8 +130,8 @@ function passSet(c: ShotCtx, time: string): { sky: string; far: string; mid: str
 }
 
 // ---------- THE PERSIAN HOST + THE CAMP ----------
-function plainSet(c: ShotCtx, time: string): { sky: string; far: string; ground: string } {
-  const s0 = sky(c, time, 780, 300);
+function plainSet(c: ShotCtx, time: string, sunX = 780, sunY = 300): { sky: string; far: string; ground: string } {
+  const s0 = sky(c, time, sunX, sunY);
   const far = bg('M-200 820 L200 740 L460 780 L760 720 L1280 780 L1280 860 L-200 860 Z', '#a993ad', 3) + bg('M-200 860 L1280 860 L1280 2100 L-200 2100 Z', time === 'noon' ? '#c2a86e' : '#b89a62', 4);
   let tents = '';
   const R = rng(55);
@@ -179,37 +179,38 @@ const army_nations: SceneFn = (c) => {
   return L(c, 0.05, set.sky) + L(c, 0.25, set.far + set.ground) + L(c, 0.8, banners) + L(c, 1, rows);
 };
 const pass_envoy: SceneFn = (c) => {
-  const p = passSet(c, 'noon'), walk = easeInOut(tween(c.local, 0, c.dur, 0, 1));
+  const p = passSet(c, 'noon'), walk = tween(c.local, c.beatT(0) - 0.3, c.dur, 0, 1, (x) => x), pair = easeOutBack(bt(c, 3, 0.3, 0.8));
   const cardOp = tween(c.local, c.beatT(1) - 0.3, c.beatT(1) + 0.4, 0, 1);
-  return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 0.9, p.ground + at(980 - 300 * walk, 1640, 0.85, herald(c.t))) +
+  return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 0.9, p.ground + at(980 - 300 * walk, 1640, 0.85, herald(c.t)) + `<g opacity="${Math.min(1, pair).toFixed(2)}">${at(560, 1440 + 30 * (1 - pair), 0.42, spartan(c.t, 1, { helmet: 'closed' }))}${at(660, 1440 + 30 * (1 - pair), 0.42, spartan(c.t, 2, { helmet: 'closed' }))}</g>`) +
     card(240, 120, 600, 76, 'THERMOPYLAE · 480 BC', 34, cardOp);
 };
 const pass_scout: SceneFn = (c) => {
-  const p = passSet(c, 'noon'), peek = easeOutBack(bt(c, 0)), count = bt(c, 1, 0.2, 1.2);
+  const p = passSet(c, 'noon'), peek = easeOutBack(bt(c, 0, 0.3, 0.9)), count = bt(c, 1, 0.2, 1.2), handUp = easeOutBack(bt(c, 1, 0.3, 0.6)), tips = easeInOut(bt(c, 2, 0.3, 0.9)), widen = easeInOut(bt(c, 3, 0.3, 0.5));
   let men = '';
   for (let i = 0; i < 5; i++) men += at(470 + i * 130, 1440, 0.42, spartan(c.t, i, { helmet: 'up' }));
-  const fingers = Math.min(5, Math.floor(count * 5) + 1);
-  const scout = at(860, 1980 - 140 * peek, 1.5, persian(c.t, 7, {})) + `<g transform="translate(${(860 - 100).toFixed(0)} ${(1680).toFixed(0)})">${Array.from({ length: fingers }, (_, i) => `<rect x="${i * 14}" y="0" width="9" height="${(26 - (i === 4 ? 6 : 0))}" rx="4" fill="#c98f62" stroke="${OUT}" stroke-width="2.5"/>`).join('')}</g>`;
+  const fingers = Math.max(0, Math.min(5, Math.ceil(count * 5)));
+  const scout = at(860, 1980 - 140 * peek, 1.5, persian(c.t, 7, { back: widen })) + `<g transform="translate(${(860 - 100).toFixed(0)} ${(1680 + 120 * (1 - handUp)).toFixed(0)})">${Array.from({ length: fingers }, (_, i) => `<rect x="${i * 14}" y="0" width="9" height="${(26 - (i === 4 ? 6 : 0))}" rx="4" fill="#c98f62" stroke="${OUT}" stroke-width="2.5"/>`).join('')}</g>`;
   const rock = bg('M560 2100 Q600 1780 860 1720 Q1100 1700 1200 1820 L1200 2100 Z', '#8b6b4f', 6);
-  return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid + p.ground + men) + LP(c, 1.1, scout + rock);
+  return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid + Array.from({ length: 10 }, (_, i) => `<path d="M${380 + i * 72} 1170 L${380 + i * 72} ${(1170 - 110 * tips).toFixed(0)}" stroke="#8b5a2b" stroke-width="6"/><path d="M${372 + i * 72} ${(1172 - 110 * tips).toFixed(0)} l8 -26 l8 26 Z" fill="#bdbdbd" stroke="#2b211c" stroke-width="2"/>`).join('') + p.ground + men) + LP(c, 1.1, scout + rock);
 };
 const pass_comb: SceneFn = (c) => {
-  const p = passSet(c, 'noon'), laugh = c.local >= c.beatT(2) - 0.2;
+  const p = passSet(c, 'noon'), laugh = easeInOut(bt(c, 2, 0.25, 0.4)), hop = Math.sin(Math.min(1, bt(c, 2, 0.1, 0.5)) * Math.PI);
+  const amps = [tween(c.local, c.beatT(0) - 0.3, c.beatT(0) + 0.4, 0, 1), 0, tween(c.local, c.beatT(1) - 0.3, c.beatT(1) + 0.4, 0, 1)];
   let s = '';
   [[300, 1640, 0.85, 0], [620, 1700, 0.95, 1], [900, 1660, 0.88, 2]].forEach(([x, y, k, i]) => {
-    s += at(x, y, k, spartan(c.t, i, { helmet: 'up', arms: i === 1 ? 'rest' : 'comb', k: (c.local * 0.8 + i * 0.3) % 1, expr: laugh && i === 1 ? 'sly' : 'neutral', shield: false }));
+    s += at(x, y - (i === 1 ? 26 * hop : 0), k, spartan(c.t, i, { helmet: 'up', arms: i === 1 ? 'rest' : 'comb', amp: amps[i], k: (c.local * 0.8 + i * 0.3) % 1, expr: 'neutral', to: 'sly', mix: i === 1 ? laugh : 0, shield: false }));
   });
   s += at(620, 1880, 0.6, aspis(0, 0, 90, undefined, 'lambda'));             // a shield resting on the ground
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid + p.ground) + LP(c, 1, s);
 };
 const throne_laugh: SceneFn = (c) => {
   // the sun races across the sky = four days pass while the king waits
-  const days = tween(c.local, c.beatT(1) - 0.3, c.dur, 0, 4);
-  const set = plainSet(c, days % 1 > 0.5 ? 'dusk' : 'noon');
+  const days = tween(c.local, c.beatT(1) - 0.3, c.dur, 0, 2, (x) => x);
+  const dimDay = days > 0 ? 0.42 * Math.pow(Math.cos(days * Math.PI), 2) * Math.min(1, days * 4) : 0;   // darkest when the sun is down (hides its wrap)
   const sunX = -100 + (days % 1) * 1300, sunY = 700 - 500 * Math.sin((days % 1) * Math.PI);
-  const sunL = `<circle cx="${sunX.toFixed(0)}" cy="${sunY.toFixed(0)}" r="54" fill="#fff4d2" stroke="#f0c47a" stroke-width="4"/>`;
-  return L(c, 0.05, set.sky + sunL) + L(c, 0.25, set.far + set.ground) +
-    L(c, 1, at(540, 2150, 2.0, throneSeat(c, { ...exch(c, 0, 'neutral', 'sly'), armR: c.local > c.beatT(2) - 0.3 ? 'hip' : 'down' })));
+  const set = plainSet(c, 'noon', sunX, sunY);   // the set's own sun is the one that crosses the sky
+  return L(c, 0.05, set.sky) + L(c, 0.25, set.far + set.ground) +
+    L(c, 1, at(540, 2150, 2.0, throneSeat(c, { ...exch(c, 0, 'neutral', 'sly'), armR: { from: 'down', to: 'hip', k: easeInOut(bt(c, 2, 0.3, 0.6)) } }))) + `<rect width="${W}" height="${H}" fill="#2a1838" opacity="${dimDay.toFixed(3)}"/>`;
 };
 const pass_firm: SceneFn = (c) => {
   const p = passSet(c, 'dawn');
@@ -219,7 +220,7 @@ const pass_firm: SceneFn = (c) => {
 };
 const pass_demand: SceneFn = (c) => {
   const p = passSet(c, 'noon'), point = easeOutBack(bt(c, 0)), stand = easeOutBack(bt(c, 2));
-  const leo = at(380, 1760 - 40 * stand, 1.0, leonidas.draw({ ...exch(c, 1, 'neutral', 'stern'), breath: breathe(c.t, 5), blink: blinkAt(c.t, 5) }));
+  const leo = at(380, 1760 - 40 * stand - 24 * easeOutBack(bt(c, 1, 0.3, 0.5)), 1.0, leonidas.draw({ ...exch(c, 1, 'neutral', 'stern'), breath: breathe(c.t, 5), blink: blinkAt(c.t, 5) }));
   const her = at(900, 1900, 1.25, herald(c.t, point));
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid + p.ground) + LP(c, 1, leo + her);
 };
@@ -230,37 +231,37 @@ const pass_leonidas: SceneFn = (c) => {
     LP(c, 1, at(540, 2380, 3.0, leonidas.draw({ expr: 'stern', mouth, breath: breathe(c.t, 5), blink: blinkAt(c.t, 5) })));
 };
 const pass_waves: SceneFn = (c) => {
-  const p = passSet(c, 'noon'), pour = easeInOut(tween(c.local, 0, c.dur, 0, 1)), hit = bt(c, 1, 0.1, 0.4), dust = bt(c, 2, 0.2, 1.4);
+  const p = passSet(c, 'noon'), pour = easeInOut(tween(c.local, c.beatT(0) - 0.3, c.dur, 0, 1)), hit = bt(c, 1, 0.1, 0.4), dust = bt(c, 2, 0.2, 1.4);
   let wall = '';
   for (let i = 0; i < 7; i++) wall += at(420 + i * 100, 1430 + (i % 2) * 14, 0.4, spartan(c.t, i, { helmet: 'closed', arms: 'thrust', k: 1 }));
   let foes = '';
   for (let r = 0; r < 3; r++) for (let i = 0; i < 6; i++) {
     const x = 1150 - pour * 420 + i * 70 + r * 40 - (hit > 0 ? 0 : 0), y = 1480 + r * 70;
-    foes += at(x + (hit > 0 && r === 0 ? 30 * Math.sin(hit * Math.PI) : 0), y, 0.38 + r * 0.04, persian(c.t, i + r * 6, { run: 1, back: hit > 0.5 && r === 0 ? 1 : 0 }));
+    foes += at(x + (hit > 0 && r === 0 ? 30 * Math.sin(hit * Math.PI) : 0), y, 0.38 + r * 0.04, persian(c.t, i + r * 6, { run: 1, back: r === 0 ? Math.min(1, hit * 2) : 0 }));
   }
-  const cloud = dust > 0 ? Array.from({ length: 10 }, (_, i) => `<circle cx="${(560 + i * 50).toFixed(0)}" cy="${(1520 - 60 * dust - (i % 3) * 20).toFixed(0)}" r="${(30 + 50 * dust).toFixed(0)}" fill="#d9c3a0" opacity="${(0.55 * (1 - dust * 0.7)).toFixed(2)}"/>`).join('') : '';
+  const cloud = dust > 0 ? Array.from({ length: 10 }, (_, i) => `<circle cx="${(560 + i * 50).toFixed(0)}" cy="${(1520 - 60 * dust - (i % 3) * 20).toFixed(0)}" r="${(30 + 50 * dust).toFixed(0)}" fill="#d9c3a0" opacity="${(0.55 * Math.min(1, dust * 6) * (1 - dust * 0.7)).toFixed(2)}"/>`).join('') : '';
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + wall + foes + cloud);
 };
 const pass_wall: SceneFn = (c) => {
-  const p = passSet(c, 'noon'), lock = easeOutBack(bt(c, 0, 0.3, 0.4)), bounce = bt(c, 1, 0.1, 0.6);
+  const p = passSet(c, 'noon'), lock = easeOutBack(bt(c, 0, 0.3, 0.7)), bounce = bt(c, 1, 0.1, 0.6);
   let s = '';
   for (let i = 0; i < 4; i++) s += at(160 + i * 250 - 20 * (1 - lock), 1880, 1.15, spartan(c.t, i, { helmet: 'closed', arms: 'thrust', k: lock }));
-  for (let i = 0; i < 3; i++) s += at(300 + i * 280 + 60 * Math.sin(bounce * Math.PI), 1260 - 40 * Math.sin(bounce * Math.PI), 0.7, persian(c.t, i, { back: bounce > 0.2 ? 1 : 0 }), -12 * Math.sin(bounce * Math.PI));
+  for (let i = 0; i < 3; i++) s += at(300 + i * 280 + 60 * Math.sin(bounce * Math.PI), 1260 - 40 * Math.sin(bounce * Math.PI), 0.7, persian(c.t, i, { back: Math.min(1, bounce * 3) }), -12 * Math.sin(bounce * Math.PI));
   return L(c, 0.05, p.sky) + LP(c, 0.3, p.far + p.mid + p.ground) + LP(c, 1, s);
 };
 const pass_feint: SceneFn = (c) => {
   const p = passSet(c, 'noon'), away = easeInOut(bt(c, 0, 0.3, 0.5)), wheel = easeOutBack(bt(c, 1, 0.3, 0.4)), fall = bt(c, 2, 0.2, 0.8);
-  const dir = wheel > 0.5 ? 1 : (away > 0.5 ? -1 : 1);
+  const dir = Math.max(-1, Math.min(1, 1 - 2 * away + 2 * Math.min(1, wheel)));
   let s = '';
   for (let i = 0; i < 5; i++) s += at(380 + i * 150 - 80 * away + 80 * wheel, 1620, 0.62, `<g transform="scale(${dir} 1)">${spartan(c.t, i, { helmet: 'closed', arms: 'thrust', k: wheel })}</g>`);
-  for (let i = 0; i < 4; i++) s += at(1000 + i * 120 - 200 * away + 260 * fall, 1700, 0.55, persian(c.t, i + 2, { run: 1 - fall, back: fall > 0.2 ? 1 : 0 }), fall * 20);
+  for (let i = 0; i < 4; i++) s += at(1000 + i * 120 - 200 * away + 260 * fall, 1700, 0.55, persian(c.t, i + 2, { run: 1 - fall, back: Math.min(1, fall * 3) }), fall * 20);
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + s);
 };
 const throne_leap: SceneFn = (c) => {
   const set = plainSet(c, 'noon');
-  const jump = Math.max(...[0, 1, 2].map((i) => Math.sin(Math.min(1, bt(c, i, 0.2, 0.5)) * Math.PI)));
+  const jump = Math.max(...[0, 1, 2].map((i) => Math.sin(Math.min(1, bt(c, i, 0.25, 0.75)) * Math.PI)));
   return L(c, 0.05, set.sky) + L(c, 0.25, set.far + set.ground) +
-    L(c, 1, at(540, 2200 - 160 * jump, 2.0, throneSeat(c, { ...exch(c, 0, 'stern', 'shocked'), armR: jump > 0.3 ? 'raise' : 'down' })));
+    L(c, 1, at(540, 2200 - 90 * jump, 2.0, throneSeat(c, { ...exch(c, 0, 'stern', 'shocked'), armR: { from: 'down', to: 'raise', k: jump } })));
 };
 const pass_warning: SceneFn = (c) => {
   const p = passSet(c, 'noon'), point = easeOutBack(bt(c, 1)), dark = easeInOut(bt(c, 2, 0.3, 1.0));
@@ -278,10 +279,10 @@ const pass_dienekes: SceneFn = (c) => {
   return L(c, 0.05, p.sky) + LP(c, 0.3, p.far + p.mid) + LP(c, 1, at(540, 2380, 3.0, face)) + `<rect width="${W}" height="${H}" fill="#1a1020" opacity="${(0.32 * shade).toFixed(2)}"/>`;
 };
 const pass_immortals: SceneFn = (c) => {
-  const p = passSet(c, 'noon'), charge = easeInOut(bt(c, 0, 0.3, 1.0)), back = bt(c, 1, 0.15, 0.7);
+  const p = passSet(c, 'noon'), charge = easeInOut(bt(c, 0, 0.3, 1.6)), back = easeInOut(bt(c, 1, 0.2, 1.0));
   let s = '';
   for (let i = 0; i < 6; i++) s += at(380 + i * 120, 1460, 0.45, spartan(c.t, i, { helmet: 'closed', arms: 'thrust', k: 1 }));
-  for (let r = 0; r < 2; r++) for (let i = 0; i < 6; i++) s += at(1150 - 380 * charge + 300 * back + i * 75, 1540 + r * 80, 0.44, persian(c.t, i + r * 6, { gold: true, run: 1 - back, back: back > 0.2 ? 1 : 0 }), back * 16 * (i % 2 ? 1 : -1));
+  for (let r = 0; r < 2; r++) for (let i = 0; i < 6; i++) s += at(1150 - 380 * charge + 300 * back + i * 75, 1540 + r * 80, 0.44, persian(c.t, i + r * 6, { gold: true, run: 1 - back, back: Math.min(1, back * 3) }), back * 16 * (i % 2 ? 1 : -1));
   return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + s);
 };
 const pass_dusk: SceneFn = (c) => {
@@ -308,11 +309,11 @@ function ephialtes(t: number, kneel = 1): string {   // a local Greek in a rough
     `<g transform="translate(0 ${(80 * (1 - kneel)).toFixed(0)}) scale(.9) translate(0 160)">${head(skin, 'sly', { beard: '#4a3222', blink: blinkAt(t, 44), extra: true })}${sh('path', { d: 'M-60 -300 Q-64 -362 0 -366 Q64 -362 60 -300 Q50 -334 0 -336 Q-50 -334 -60 -300 Z' }, '#4a3222')}</g>`;
 }
 const tent_ephialtes: SceneFn = (c) => {
-  const kneel = easeOutBack(bt(c, 1)), lean = easeInOut(bt(c, 2));
-  return L(c, 0.2, tentSet(c)) + L(c, 1, at(700, 1980, 1.9, throneSeat(c, { expr: lean > 0.3 ? 'sly' : 'neutral' }), -4 * lean) + at(300, 1640, 1.9, ephialtes(c.t, kneel)));
+  const kneel = easeOutBack(bt(c, 1, 0.3, 0.9)), lean = easeInOut(bt(c, 2, 0.3, 0.9));
+  return L(c, 0.2, tentSet(c)) + L(c, 1, at(700, 1980, 1.9, throneSeat(c, { expr: 'neutral', exprTo: 'sly', exprMix: lean }), -4 * lean) + at(300, 1640, 1.9, ephialtes(c.t, kneel)));
 };
 const tent_map: SceneFn = (c) => {
-  const trace = easeInOut(tween(c.local, c.beatT(0) - 0.3, c.beatT(2) + 0.2, 0, 1));
+  const trace = tween(c.local, c.beatT(0) - 0.3, c.dur - 0.2, 0, 1, (x) => x);
   const path = 'M160 1500 Q300 1300 380 1180 Q470 1040 640 1000 Q780 960 880 760';
   const len = 1100;
   let map = bg('M60 600 L1020 640 L1000 1700 L80 1660 Z', '#e8d6a0', 6) + `<path d="M60 1300 Q500 1200 1000 1260" stroke="#2f6f8e" stroke-width="40" fill="none" opacity=".6"/>` +
@@ -331,16 +332,16 @@ const path_night: SceneFn = (c) => {
   s += `<path d="M${zig(0).join(' ')} ${Array.from({ length: 40 }, (_, i) => 'L' + zig((i + 1) / 40).join(' ')).join(' ')}" stroke="#4a5a74" stroke-width="22" fill="none" stroke-linejoin="round"/>`;
   for (let i = 0; i < 18; i++) { const u = (i / 18 + climb * 0.12) % 1, [x, y] = zig(u); s += at(x, y, 0.2 + (1 - u) * 0.22, persian(c.t, i, { run: 0.5 }).replace(/#b5793a|#7a5a8e|#4f7a6a|#a8463a/g, '#2a2a3a')); }
   s += pine(180, 1500, 1.2, '#1a3020') + pine(900, 1300, 1.0, '#1a3020') + pine(600, 1800, 1.4, '#1a3020') + pine(80, 1100, 0.8, '#1a3020');
-  return L(c, 0.05, sky(c, 'night', 820, 260)) + L(c, 1, s);
+  return L(c, 0.05, sky(c, 'night', 820, 260)) + L(c, 1, s) + `<rect width="${W}" height="${H}" fill="#000" opacity="${(0.65 * (1 - tween(c.local, c.beatT(0) - 0.3, c.beatT(0) + 0.8, 0, 1))).toFixed(3)}"/>`;
 };
 
 // ---------- DAWN: SURROUNDED, THE LAST STAND, THE STONE, THE WEAPONS ----------
 const pass_ridge: SceneFn = (c) => {
-  const p = passSet(c, 'dawn'), turn = easeOutBack(bt(c, 1, 0.35, 0.6)), show = easeInOut(bt(c, 2, 0.3, 0.8));
+  const p = passSet(c, 'dawn'), turn = easeInOut(bt(c, 1, 0.35, 0.9)), show = easeInOut(bt(c, 2, 0.3, 0.8));
   let ridge = '';
   for (let i = 0; i < 9; i++) ridge += at(40 + i * 44, 620 + (i % 2) * 14, 0.26, persian(c.t, i, {}));
   return L(c, 0.05, p.sky) + LP(c, 0.4, p.mid + `<g opacity="${show.toFixed(2)}">${ridge}</g>`) + LP(c, 0.8, p.ground) +
-    LP(c, 1, at(700, 2100, 1.6, `<g transform="scale(${turn > 0.5 ? -1 : 1} 1)">${leonidas.draw({ ...exch(c, 2, 'neutral', 'shocked'), breath: breathe(c.t, 5), blink: blinkAt(c.t, 5) })}</g>`));
+    LP(c, 1, at(700, 2100, 1.6, `<g transform="scale(${(1 - 2 * turn).toFixed(3)} 1)">${leonidas.draw({ ...exch(c, 2, 'neutral', 'shocked'), breath: breathe(c.t, 5), blink: blinkAt(c.t, 5) })}</g>`));
 };
 const pass_resolve: SceneFn = (c) => {
   const p = passSet(c, 'dawn');
@@ -350,7 +351,7 @@ const pass_resolve: SceneFn = (c) => {
     LP(c, 1, at(540, 2380 + nod, 3.0, leonidas.draw({ ...e, armL: c.local >= c.beatT(3) - 0.3 ? 'point' : 'hold_spear', breath: breathe(c.t, 5), blink: blinkAt(c.t, 5) })));
 };
 const pass_allies: SceneFn = (c) => {
-  const p = passSet(c, 'dawn'), go = tween(c.local, 0, c.dur, 0, 1);
+  const p = passSet(c, 'dawn'), go = tween(c.local, c.beatT(0) - 0.3, c.dur, 0, 1, (x) => x);
   let s = '';
   for (let i = 0; i < 12; i++) s += at(560 + i * 40 + go * 260, 1300 - i * 6 - go * 60, 0.2, spartan(c.t, i + 5, { helmet: 'up', shield: true }).replace(/#9b2b22/g, '#6a6a7a'));
   for (let i = 0; i < 5; i++) s += at(380 + i * 120, 1700, 0.62, spartan(c.t, i, { helmet: 'closed' }));
@@ -366,16 +367,17 @@ const pass_laststand: SceneFn = (c) => {
   return L(c, 0.05, p.sky) + LP(c, 0.3, p.mid + p.ground + `<g opacity="${(0.3 + 0.7 * fill).toFixed(2)}">${foes}</g>`) + LP(c, 1, men + dust);
 };
 const pass_stone: SceneFn = (c) => {
-  const p = passSet(c, 'dusk'), sway = Math.sin(c.t * 2) * 6;
+  const carve = tween(c.local, c.beatT(0) - 0.3, c.beatT(0) + 1.4, 0, 1, (x) => x), gust = 1 + 2.5 * Math.sin(Math.min(1, bt(c, 1, 0.2, 1.4)) * Math.PI), dim = tween(c.local, c.beatT(2) - 0.3, c.dur, 0, 1);
+  const p = passSet(c, 'dusk'), sway = Math.sin(c.t * 2) * 6 * gust;
   let grass = '';
   for (let i = 0; i < 26; i++) { const x = 60 + i * 40; grass += `<path d="M${x} 1900 q${(4 + sway).toFixed(1)} -40 ${(8 + sway * 1.6).toFixed(1)} -80" stroke="#6f8a44" stroke-width="5" fill="none" stroke-linecap="round"/>`; }
-  const stone = bg('M300 1900 L320 1180 Q540 1100 760 1180 L780 1900 Z', '#c9bba0', 6) + ln('M380 1300 L700 1300 M380 1360 L680 1360 M380 1420 L700 1420 M380 1480 L650 1480', 6, '#6e5e48');
-  return L(c, 0.05, p.sky) + LP(c, 0.3, p.far + p.mid) + LP(c, 1, stone + grass);
+  const stone = bg('M300 1900 L320 1180 Q540 1100 760 1180 L780 1900 Z', '#c9bba0', 6) + [[1300, 320], [1360, 300], [1420, 320], [1480, 270]].map(([y, w], i) => `<path d="M380 ${y} l${w} 0" stroke="#6e5e48" stroke-width="6" stroke-linecap="round" stroke-dasharray="${w}" stroke-dashoffset="${(w * (1 - Math.max(0, Math.min(1, carve * 4 - i)))).toFixed(1)}"/>`).join('');
+  return L(c, 0.05, p.sky) + LP(c, 0.3, p.far + p.mid) + LP(c, 1, stone + grass) + `<rect width="${W}" height="${H}" fill="#1a1020" opacity="${(0.38 * dim).toFixed(3)}"/>`;
 };
 const pass_weapons: SceneFn = (c) => {
   const p = passSet(c, 'dusk'), show = easeOutBack(bt(c, 1, 0.3, 0.8));
   const relic = at(760, 1250, 1.1 * (0.6 + 0.4 * show), pole(0, -560, 0, 0, '#8b5a2b') + sh('path', { d: 'M0 -610 L-10 -560 L10 -560 Z' }, '#bdbdbd') + aspis(-10, -120, 96, undefined, 'lambda'));
-  return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + relic);
+  return L(c, 0.05, p.sky) + LP(c, 0.2, p.far) + LP(c, 0.6, p.mid) + LP(c, 1, p.ground + relic) + `<rect width="${W}" height="${H}" fill="#ffb060" opacity="${(0.2 * tween(c.local, c.beatT(0) - 0.3, c.beatT(0) + 0.9, 0, 1)).toFixed(3)}"/>`;
 };
 
 export const SCENES: Record<string, SceneFn> = {
