@@ -15,12 +15,16 @@ import { OUT } from '../kit/core';
 export type ArmPose = 'down' | 'hip' | 'point' | 'raise' | 'hold_spear' | 'hold_shield' | 'fist_up' | 'open';
 export type Mouth = 'closed' | 'open' | 'wide' | 'o' | 'smile';
 
+/** An arm part-way between two poses (k = 0 -> from, 1 -> to), used to animate gestures smoothly. */
+export type ArmBlend = { from: ArmPose; to: ArmPose; k: number };
+
 export interface Pose {
   expr: Expr;
   blink?: boolean;
   mouth?: Mouth;          // set only while the character speaks (lip sync), otherwise the expression's mouth
-  armL?: ArmPose;         // viewer's left arm
-  armR?: ArmPose;         // viewer's right arm
+  armL?: ArmPose | ArmBlend;  // viewer's left arm (a pose, or a blend while a gesture is moving)
+  armR?: ArmPose | ArmBlend;  // viewer's right arm
+  breath?: number;        // -1..1 from anim.breathe(): shoulders + head rise and fall a little
   holds?: string;         // id of the prop the left hand grips (pole/aspis id) — the hand is tagged with it
   facing?: 1 | -1;        // -1 = mirrored (faces the other way)
 }
@@ -57,14 +61,21 @@ const ARM: Record<ArmPose, [number, number, number, number]> = {
   open: [-84, -200, -98, -172],
 };
 
-function arm(side: -1 | 1, pose: ArmPose, colour: string, skin: string, holds?: string): string {
-  const [cx, cy, hx, hy] = ARM[pose];
+function armPoints(pose: ArmPose | ArmBlend): [number, number, number, number] {
+  if (typeof pose === 'string') return ARM[pose];
+  const a = ARM[pose.from], b = ARM[pose.to], k = Math.min(1, Math.max(0, pose.k));
+  return [0, 1, 2, 3].map((i) => a[i] + (b[i] - a[i]) * k) as [number, number, number, number];
+}
+
+function arm(side: -1 | 1, pose: ArmPose | ArmBlend, colour: string, skin: string, holds?: string, lift = 0): string {
+  const [cx, cy, hx, hy] = armPoints(pose);
   const sx = 44 * side, k = -side;   // side -1 = left (x negative), mirror for the right arm
-  const d = `M${sx} -222 Q${cx * k} ${cy} ${hx * k} ${hy}`;
-  if (pose === 'open') {             // an open hand: palm shape instead of a fist
-    return limb(d, 20, colour) + `<g data-role="hand">${sh('ellipse', { cx: hx * k, cy: hy, rx: 13, ry: 17 }, skin)}</g>`;
+  const d = `M${sx} ${-222 + lift} Q${cx * k} ${cy + lift} ${hx * k} ${hy + lift}`;
+  const open = typeof pose === 'string' ? pose === 'open' : (pose.k < 0.5 ? pose.from : pose.to) === 'open';
+  if (open) {                        // an open hand: palm shape instead of a fist
+    return limb(d, 20, colour) + `<g data-role="hand">${sh('ellipse', { cx: hx * k, cy: hy + lift, rx: 13, ry: 17 }, skin)}</g>`;
   }
-  return limb(d, 20, colour) + hand(hx * k, hy, skin, holds);
+  return limb(d, 20, colour) + hand(hx * k, hy + lift, skin, holds);
 }
 
 const MOUTHS: Record<Mouth, string> = {
@@ -84,12 +95,13 @@ function mouth(m: Mouth, bgColour: string): string {
 export function figure(char: string, look: Look, pose: Pose, layers: Layers): string {
   const sleeve = layers.sleeve ?? look.skin;
   const f = pose.facing ?? 1;
+  const lift = (pose.breath ?? 0) * -2;                                     // breathing: upper body rises ~2 units
   let s = layers.back ?? '';
   s += layers.body;
-  s += arm(1, pose.armR ?? 'down', sleeve, look.skin);                       // far arm behind the props
+  s += arm(1, pose.armR ?? 'down', sleeve, look.skin, undefined, lift);      // far arm behind the props
   s += layers.front ?? '';
-  s += arm(-1, pose.armL ?? 'down', sleeve, look.skin, pose.holds);         // near arm: hand over the prop = grip
-  s += layers.head(pose);
+  s += arm(-1, pose.armL ?? 'down', sleeve, look.skin, pose.holds, lift);    // near arm: hand over the prop = grip
+  s += lift ? `<g transform="translate(0 ${lift.toFixed(2)})">${layers.head(pose)}</g>` : layers.head(pose);
   if (pose.mouth) s += mouth(pose.mouth, layers.mouthBg ?? look.skin);
   const { height, width } = look.build;
   return `<g data-figure="${char}" transform="scale(${f * width} ${height})">${s}</g>`;   // build + facing
