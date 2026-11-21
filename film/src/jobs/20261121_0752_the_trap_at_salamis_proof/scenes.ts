@@ -152,7 +152,10 @@ function farFleet(t: number, n: number, y: number, seed: number, scale = 0.1): s
 function throneSet(c: ShotCtx, opts: { sunY?: number } = {}): { sky: string; far: string; mid: string; ground: string } {
   const t = c.local;
   const sky = dawnSky(c, opts.sunY ?? 330);
-  const far = salamisHills() + `<rect x="-200" y="590" width="${W + 400}" height="200" fill="#8fb3c0"/>` + waves(t, 11, 600, 760, 70, '#e3f1f4', 6) + farFleet(t, 26, 640, 3);
+  let town = '';                                                   // Salamis town on the far shore: small houses + a temple
+  for (let i = 0; i < 14; i++) { const x = 380 + i * 26 + (i % 3) * 6, y = 548 + (i % 2) * 8; town += `<rect x="${x}" y="${y - 14}" width="20" height="14" fill="#e8dcc4" stroke="${OUT}" stroke-width="2"/><path d="M${x - 2} ${y - 14} L${x + 10} ${y - 22} L${x + 22} ${y - 14} Z" fill="#b5674a" stroke="${OUT}" stroke-width="2"/>`; }
+  town += `<path d="M700 540 L760 520 L820 540 Z" fill="#f2ead8" stroke="${OUT}" stroke-width="2"/>` + [706, 722, 738, 754, 770, 786, 802].map((x) => `<rect x="${x}" y="540" width="5" height="18" fill="#f2ead8" stroke="${OUT}" stroke-width="1.5"/>`).join('');
+  const far = salamisHills() + town + `<rect x="-200" y="590" width="${W + 400}" height="200" fill="#8fb3c0"/>` + waves(t, 11, 600, 760, 70, '#e3f1f4', 6) + farFleet(t, 26, 640, 3);
   let camp = '';                                                    // the Persian camp on the lower slope (tents + banners)
   const R = rng(77);
   for (let i = 0; i < 22; i++) {
@@ -162,7 +165,9 @@ function throneSet(c: ShotCtx, opts: { sunY?: number } = {}): { sky: string; far
   for (let i = 0; i < 4; i++) { const x = 140 + i * 180; camp += `<path d="M${x} 740 L${x} 690" stroke="${OUT}" stroke-width="3"/><path d="M${x} 690 L${x + 26} 697 L${x} 704 Z" fill="#7a2a5e" stroke="${OUT}" stroke-width="2"/>`; }
   for (let i = 0; i < 3; i++) { const x = 220 + i * 260; for (let q = 0; q < 5; q++) { const up = (q / 5 + t * 0.07) % 1; camp += `<circle cx="${(x + 14 * Math.sin(q + i) * up).toFixed(1)}" cy="${(730 - 150 * up).toFixed(1)}" r="${(6 + 16 * up).toFixed(1)}" fill="#a49a92" opacity="${(0.4 * (1 - up) * Math.min(1, up * 6)).toFixed(3)}"/>`; } }
   const mid = bg('M-200 760 Q300 690 760 720 Q1200 690 1500 730 Q1800 700 2120 740 L2120 1300 L-200 1300 Z', '#a5835f', 5) + camp +
-    pine(140, 740, 1.1) + pine(260, 720, 0.8) + pine(1760, 730, 1.0) + pine(1860, 745, 0.7) + pine(1620, 735, 0.6);
+    pine(140, 740, 1.1) + pine(260, 720, 0.8) + pine(1760, 730, 1.0) + pine(1860, 745, 0.7) + pine(1620, 735, 0.6) +
+    Array.from({ length: 9 }, (_, i) => `<g transform="translate(${980 + i * 70} ${738 + (i % 2) * 6}) scale(.22)">${guard(t, 60 + i)}</g>`).join('') +   // guards along the ridge
+    [1000, 1300, 1580].map((x, i) => `<path d="M${x} 740 L${x} 640" stroke="${OUT}" stroke-width="4"/><path d="M${x} 640 Q${x + 30} ${646 + 4 * Math.sin(t * 2 + i)} ${x + 54} 642 L${x + 54} 672 Q${x + 30} ${676 + 4 * Math.sin(t * 2 + i)} ${x} 670 Z" fill="#7a2a5e" stroke="${OUT}" stroke-width="3"/><circle cx="${x + 26}" cy="656" r="6" fill="#d9b443"/>`).join('');
   const rock = (x: number, y: number, k: number) => `<g transform="translate(${x} ${y}) scale(${k})">${bg('M-60 10 Q-70 -30 -24 -44 Q20 -56 54 -26 Q70 0 60 10 Z', '#9a7b5c', 4)}<path d="M-30 -30 Q0 -40 30 -24" stroke="#c4a27c" stroke-width="5" fill="none" stroke-linecap="round"/></g>`;
   const shrub = (x: number, y: number, k: number) => `<g transform="translate(${x} ${y}) scale(${k})">${bg('M-34 0 Q-40 -30 -14 -34 Q-4 -52 16 -40 Q40 -40 36 -12 Q42 0 34 0 Z', '#6f8a44', 4)}</g>`;
   const ground = bg('M-200 860 Q500 820 960 840 Q1400 820 2120 860 L2120 1300 L-200 1300 Z', '#8c6a4a', 5) +
@@ -267,9 +272,12 @@ function straitBase(c: ShotCtx, time: 'dawn' | 'dusk', narrow = 0): { sky: strin
 }
 function cliffs(narrow: number): string {   // the strait's rocky shores closing in from both sides
   const k = narrow * 160;
-  return bg(`M-200 1100 L-200 380 Q${100 + k} 460 ${180 + k} 640 Q${250 + k} 820 ${200 + k} 1100 Z`, '#8b6b4f', 5) +
+  let s = bg(`M-200 1100 L-200 380 Q${100 + k} 460 ${180 + k} 640 Q${250 + k} 820 ${200 + k} 1100 Z`, '#8b6b4f', 5) +
     bg(`M2120 1100 L2120 380 Q${1820 - k} 460 ${1740 - k} 640 Q${1670 - k} 820 ${1720 - k} 1100 Z`, '#7f6148', 5) +
-    pine(80 + k, 520, 0.9) + pine(1840 - k, 500, 0.9);
+    pine(80 + k, 520, 0.9) + pine(1840 - k, 500, 0.9) + pine(30 + k, 600, 0.7) + pine(1890 - k, 590, 0.7);
+  for (let i = 0; i < 6; i++) s += `<path d="M${40 + k * 0.6} ${560 + i * 80} q50 -10 ${90 + i * 8} 6 M${1880 - k * 0.6} ${560 + i * 80} q-50 -10 ${-90 - i * 8} 6" stroke="#5e442e" stroke-width="4" fill="none" stroke-linecap="round"/>`;   // rock strata
+  s += `<g transform="translate(${150 + k} 470)">${bg('M-18 0 L-18 -60 L18 -60 L18 0 Z', '#c4a27c', 3)}${bg('M-26 -60 L0 -84 L26 -60 Z', '#9a5a3a', 3)}</g>`;   // a lookout hut on the Salamis shore
+  return s;
 }
 
 const strait_fleet: SceneFn = (c) => {
@@ -357,7 +365,11 @@ const night_crossing: SceneFn = (c) => {
   const sky = skyGrad(c, 'nsky', [[0, '#0b1430'], [1, '#22355a']]) + glow(c, 'moon', 1450, 230, 260 * moon, '#cfe0ff', 0.6) +
     `<circle cx="1450" cy="230" r="46" fill="#eef3ff" opacity="${(0.3 + 0.7 * moon).toFixed(2)}"/>` +
     bg(`M1260 ${250 - 60 * moon} q60 -40 160 -10 q80 -30 150 10 q40 30 -30 40 l-260 0 q-60 -10 -20 -40 Z`, '#1c2a4a', 3);
-  const far = bg('M-200 560 L200 500 L520 530 L900 480 L1300 540 L1700 500 L2120 540 L2120 600 L-200 600 Z', '#16223c', 3) +
+  const Rs = rng(17); let stars = '';
+  for (let i = 0; i < 60; i++) stars += `<circle cx="${(Rs() * W).toFixed(0)}" cy="${(Rs() * 420).toFixed(0)}" r="${(0.8 + Rs() * 1.6).toFixed(1)}" fill="#dfe8ff" opacity="${(0.4 + 0.5 * Math.abs(Math.sin(c.t * 2 + i))).toFixed(2)}"/>`;
+  let lanterns = '';                                                // the Persian fleet waiting in the dark: lantern lights on the water
+  for (let i = 0; i < 16; i++) { const x = 160 + i * 112 + (i % 3) * 20, y = 622 + (i % 4) * 12; lanterns += glow(c, `ln${i}`, x, y, 18, '#ffcf70', 0.9) + `<path d="M${x} ${y + 8} L${x} ${y + 40}" stroke="#ffcf70" stroke-width="3" opacity="${(0.3 + 0.2 * Math.sin(c.t * 3 + i)).toFixed(2)}"/>`; }
+  const far = stars + lanterns + bg('M-200 560 L200 500 L520 530 L900 480 L1300 540 L1700 500 L2120 540 L2120 600 L-200 600 Z', '#16223c', 3) +
     [[300, 548], [640, 530], [1180, 545]].map(([x, y]) => glow(c, `fire${x}`, x, y, 26, '#ffb347', 0.9)).join('') + farFleet(c.t, 18, 610, 41, 0.08).replace(/#4a3022/g, '#121a2c');
   const sea = `<rect x="-300" y="600" width="${W + 600}" height="700" fill="#14284a"/>` + waves(c.t, 51, 610, 1080, 110, '#5a7fb0', 10) +
     `<path d="M1300 610 L1600 610 L1700 1080 L1200 1080 Z" fill="#cfe0ff" opacity="${(0.12 * moon).toFixed(2)}"/>`;
@@ -378,7 +390,11 @@ function tent(c: ShotCtx): string {
     glow(c, 'lamp', 1180, 720, 700 * flick, '#ffb85c', 0.55) +
     bg('M1120 760 L1240 760 L1220 820 L1140 820 Z', '#a8643a', 4) + sh('ellipse', { cx: 1180, cy: 760, rx: 60, ry: 14 }, '#c4844a') +        // clay oil lamp on a stand
     `<path d="M1236 748 q10 -26 2 -44 q16 18 6 44 Z" fill="#ffd27a" stroke="#e8902a" stroke-width="2" transform="scale(1 ${flick.toFixed(3)})" transform-origin="1240 748"/>` +
-    bg('M1100 820 L1260 820 L1250 1100 L1110 1100 Z', '#6a4428', 5);
+    bg('M1100 820 L1260 820 L1250 1100 L1110 1100 Z', '#6a4428', 5) +
+    bg('M-100 1000 L2020 1000 L2120 1100 L-200 1100 Z', '#7a3a2a', 4) + ln('M-100 1030 L2020 1030', 5, '#d9b443') +              // rug
+    `<g transform="translate(300 860)">${bg('M-150 0 L150 0 L130 40 L-130 40 Z', '#6a4428', 4)}${bg('M-130 -6 L130 -6 L120 -2 L-120 -2 Z', '#e8d6a0', 3)}` +          // war table + the strait drawn on a hide
+    `<path d="M-90 -4 Q-30 -10 0 -4 Q40 2 90 -4" stroke="#2f6f8e" stroke-width="3" fill="none"/></g>` +
+    `<g transform="translate(1620 700)">${pole(0, -200, 0, 300, '#6a4428')}${pole(40, -220, 40, 300, '#6a4428')}${sh('circle', { cx: 80, cy: 60, r: 70 }, '#c99a45')}${sh('circle', { cx: 80, cy: 60, r: 56 }, '#b23a2a')}</g>`;   // spears + a shield against the tent wall
 }
 const camp_message: SceneFn = (c) => {
   // s06 MS push-in: Themistocles leans in, presses the sealed tablet into the slave's hands, the lamp lights his face
