@@ -93,3 +93,35 @@ def job_timeline(dialogue: dict, voice: dict | None, fps: int = 24) -> dict:
                       "cues": timeline(cues, start or 0.0), "frames": frames(cues, fps)})
     return {"fps": fps, "note": "at = seconds into voice.wav (None until tc voice has run); frames start at 'at'",
             "lines": lines}
+
+
+# ---------------- 2D film engine (plan 4): the film reads lip sync from film/src/jobs/<id>/lipsync.json ----------------
+def write_film_lipsync(dialogue: dict, voice: dict | None, out: Path, fps: int = 24) -> Path:
+    """Write the absolute-time mouth cues the film kit's mouthAt() reads (film/src/kit/lipsync.ts)."""
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(job_timeline(dialogue, voice, fps), indent=1), encoding="utf-8")
+    return out
+
+
+def _cmd_lipsync(args) -> int:
+    import re
+    from tc import jobs
+    from tc.paths import ROOT
+    d = jobs.job_dir(args.job)
+    load = lambda f: json.loads((d / f).read_text(encoding="utf-8")) if (d / f).exists() else None
+    dialogue = load("dialogue.json")
+    if not dialogue:
+        print("no dialogue.json yet (tc dialogue <id>)")
+        return 1
+    slug = re.sub(r"[^a-z0-9_]", "_", args.job.lower())
+    print(write_film_lipsync(dialogue, load("voice.json"), ROOT / "film" / "src" / "jobs" / slug / "lipsync.json"))
+    return 0
+
+
+def _register():
+    from tc.cli import register
+    register("lipsync", "write the film's lip-sync cues (film/src/jobs/<id>/lipsync.json) from dialogue.json",
+             lambda p: p.add_argument("job"))(_cmd_lipsync)
+
+
+_register()

@@ -54,3 +54,13 @@ def test_job_lipsync_places_lines_on_the_voice_timeline():
     assert line["at"] == 12.5 and line["speaker"] == "XERXES"
     assert line["cues"][0]["start"] == 12.5
     assert out["fps"] == 24 and len(line["frames"]) == 24
+
+
+def test_film_lipsync_file_is_written(tmp_path):
+    from tc.lipsync import write_film_lipsync
+    dialogue = {"lines": [{"index": 3, "speaker": "XERXES", "voice": "xerxes", "lipsync": [{"start": 0.0, "end": 0.2, "value": "D"}]}]}
+    voice = {"dialogue_at": {"3": 12.5}}
+    out = write_film_lipsync(dialogue, voice, tmp_path / "lipsync.json")
+    import json
+    d = json.loads(out.read_text(encoding="utf-8"))
+    assert d["lines"][0]["speaker"] == "XERXES" and d["lines"][0]["cues"][0]["start"] == 12.5
