@@ -902,10 +902,168 @@ const hellespont_army_road: SceneFn = (c) => {
   return L(c, 0.05, sky) + L(c, 1, s);
 };
 
+// =============================== CHAPTER 3 — the city leaves, the Acropolis burns (drawn for this film) ===============================
+function streetSet(c: ShotCtx, time: 'dawn' | 'noon'): string {   // an Athenian street: whitewashed houses, tiled roofs, an open door
+  let s = time === 'dawn' ? dawnSky(c, 360) : noonSky(c, 'strsky');
+  s += bg('M-200 760 L2120 760 L2120 1300 L-200 1300 Z', '#c9b48a', 5) + ln('M-200 820 L2120 800 M-200 900 L2120 880', 4, 'rgba(0,0,0,.08)');
+  for (let i = 0; i < 6; i++) {
+    const x = -120 + i * 360, h = 300 + (i % 3) * 40;
+    s += bg(`M${x} 770 L${x + 320} 770 L${x + 320} ${770 - h} L${x} ${770 - h} Z`, ['#efe6d2', '#e6dcc4', '#f2ead8'][i % 3], 5) +
+      bg(`M${x - 20} ${770 - h} L${x + 160} ${700 - h} L${x + 340} ${770 - h} Z`, '#b5674a', 5) +
+      bg(`M${x + 130} 770 L${x + 190} 770 L${x + 190} 650 L${x + 130} 650 Z`, '#5a3a24', 4);
+  }
+  return s + at(1700, 690, 0.35, acropolisRock(1, 1));
+}
+const athens_streets_empty: SceneFn = (c) => {
+  // line 34: a door swings open on "left"; the street is empty. line 38: Persian soldiers march in on "king", nobody there on "empty"
+  const ln_ = lineOf(c), early = ln_ < 36;
+  let s = streetSet(c, early ? 'dawn' : 'noon');
+  if (early) {
+    const door = easeInOut(bw(c, 'left', 0.3, 0.9)), ever = easeInOut(bw(c, 'ever', 0.3, 0.8));
+    s += `<g transform="translate(850 770) scale(${(1 - 0.85 * door).toFixed(3)} 1)">${bg('M-60 0 L0 0 L0 -120 L-60 -120 Z', '#7a5234', 4)}</g>`;   // a door left swinging open
+    s += at(1300 + 300 * ever, 940, 0.9, civilian(c.t, 11, { kind: 'woman', expr: 'grief', hold: 'bundle', look: -1 }));                          // the last family leaving
+  } else {
+    const inn = easeInOut(bw(c, 'king', 0.3, 1.2)), look = easeInOut(bw(c, 'empty', 0.3, 0.8));
+    for (let i = 0; i < 6; i++) s += at(-200 + 700 * inn + i * 110, 960 + (i % 2) * 20, 0.75, guard(c.t, 400 + i), 6 * look * (i % 2 ? 1 : -1));
+  }
+  return L(c, 0.5, s);
+};
+function harbourSet(c: ShotCtx): string {
+  let s = dawnSky(c, 360) + `<rect x="-200" y="600" width="${W + 400}" height="700" fill="#5f97ae"/>` + waves(c.t, 111, 610, 1080, 120, '#dcf0f3', 16);
+  return s + bg('M-200 860 L800 860 L800 1300 L-200 1300 Z', '#c9b48a', 5) + ln('M-200 860 L800 860', 8, '#8e7656');    // the stone quay
+}
+function rowboat(t: number, seed: number, people = 3): string {
+  let s = bg('M-160 0 Q0 30 160 0 L140 -40 L-140 -40 Z', '#7a5234', 5);
+  for (let i = 0; i < people; i++) s += at(-90 + i * 80, -36, 0.32, civilian(t, seed + i, { kind: i % 2 ? 'woman' : 'child', expr: 'worried' }));
+  s += ln(`M-120 -20 L-200 ${(30 + 14 * Math.sin(t * 4 + seed)).toFixed(0)} M120 -20 L200 ${(30 + 14 * Math.sin(t * 4 + seed)).toFixed(0)}`, 6, '#b58a56');
+  return s;
+}
+const harbour_evac: SceneFn = (c) => {
+  // families carry bundles to the boats ("carried"), women lift children aboard ("Women"), the boats push off ("rowed")
+  const carry = easeInOut(bw(c, 'carried', 0.3, 1.0)), lift = easeOutBack(bw(c, 'Women', 0.3, 0.7)), row = easeInOut(bw(c, 'rowed', 0.3, 1.4));
+  let s = harbourSet(c);
+  for (let i = 0; i < 3; i++) s += at(1000 + i * 300 + 260 * row, 900 + i * 40 + Math.sin(c.t * 1.4 + i) * 4, 1.0, rowboat(c.t, 60 + i * 3));
+  for (let i = 0; i < 5; i++) s += at(80 + i * 150 + 200 * carry, 1000 + (i % 2) * 20, 1.0, civilian(c.t, 80 + i, { kind: i % 2 ? 'woman' : 'man', expr: 'worried', hold: 'bundle', arm: i === 2 ? Math.min(1, lift) : 0 }));
+  return L(c, 0.6, s);
+};
+const opensea_boats_salamis: SceneFn = (c) => {
+  // EWS: boats cross to the island ("Salamis"); the coast is close ("just")
+  const s0 = openSea(c, 'dawn'), cross = tween(c.local, 0, c.dur, 0, 1, (x) => x), near = easeInOut(bw(c, 'just', 0.3, 1.0));
+  const isle = bg(`M${1200 - 200 * near} 600 Q1450 ${520 - 30 * near} 1650 560 Q1850 520 2120 580 L2120 610 L${1200 - 200 * near} 610 Z`, '#8a7a6a', 3);
+  let boats = '';
+  for (let i = 0; i < 14; i++) boats += at(200 + i * 110 + 500 * cross, 700 + (i % 4) * 70, 0.18 + (i % 4) * 0.05, rowboat(c.t, 120 + i, 2));
+  return L(c, 0.05, s0.sky) + L(c, 0.3, isle) + L(c, 0.5, s0.sea) + L(c, 1, boats);
+};
+const salamis_shore_look: SceneFn = (c) => {
+  // a girl turns to look back across the water ("see"); Athens across the strait ("homes")
+  const look = easeInOut(bw(c, 'see', 0.3, 0.8)), city = easeInOut(bw(c, 'homes', 0.3, 1.0));
+  const b = straitBase(c, 'dawn');
+  const far = b.far + `<g opacity="${(0.4 + 0.6 * city).toFixed(2)}">${at(1300, 600, 0.3 + 0.08 * city, acropolisRock(1, 1))}</g>`;
+  const shore = bg('M-200 860 Q400 820 960 840 Q1500 820 2120 850 L2120 1300 L-200 1300 Z', '#b59a70', 5);
+  const girl = at(700, 1080, 1.6, `<g transform="scale(${(1 - 2 * look).toFixed(3)} 1)">${civilian(c.t, 9, { kind: 'child', expr: 'worried', to: 'grief', mix: city })}</g>`);
+  return L(c, 0.05, b.sky) + L(c, 0.2, far) + L(c, 0.5, b.sea) + L(c, 1, shore + girl + at(420, 1060, 1.3, civilian(c.t, 12, { kind: 'woman', expr: 'grief' })));
+};
+function summit(c: ShotCtx, time: 'noon' | 'dusk' | 'night', fire = 0): string {   // on the Acropolis: the temple, the gate with its barricade
+  let s = time === 'noon' ? noonSky(c, 'sumsky') : time === 'dusk' ? skyGrad(c, 'sumdusk', [[0, '#4f3a6e'], [0.55, '#d77c56'], [1, '#f2b06a']]) : skyGrad(c, 'sumnight', [[0, '#0b1430'], [1, '#26385c']]);
+  s += bg('M-200 820 L2120 820 L2120 1300 L-200 1300 Z', '#b59a74', 5);
+  s += at(1240, 830, 1.7, acropolisRock(1, 0, fire, c.t).replace('<g transform="scale(1)">', '<g transform="scale(1) translate(0 0)">')).replace(/M-520 0 Q-480 -150[^"]*Z/, 'M-520 0 L520 0 L520 -246 L-520 -246 Z');
+  return s;
+}
+const acropolis_defenders: SceneFn = (c) => {
+  // line 39: a few old men on the rock ("handful", "Acropolis"); they look at each other ("poor").
+  // line 41 (CU): an old man touches the planks, hopeful ("wooden")
+  const ln_ = lineOf(c);
+  let s = summit(c, 'noon');
+  if (ln_ === 39) {
+    const appear = easeInOut(bw(c, 'handful', 0.3, 0.9)), glance = easeInOut(bw(c, 'poor', 0.3, 0.6));
+    for (let i = 0; i < 4; i++) s += `<g opacity="${Math.min(1, appear * 2 - i * 0.3).toFixed(2)}">${at(380 + i * 170, 1080, 1.1, civilian(c.t, 140 + i, { kind: 'man', expr: 'worried', look: i % 2 ? glance : -glance }))}</g>`;
+  } else {
+    const touch = easeInOut(bw(c, 'wooden', 0.3, 0.9));
+    s += barricade(0) + at(620, 1500, 2.4, civilian(c.t, 141, { kind: 'man', expr: 'worried', to: 'neutral', mix: touch, arm: 0.4 * touch }));
+  }
+  return L(c, 0.6, s);
+};
+function barricade(burnt: number): string {   // planks and timber across the gate (era: wooden barricade)
+  let s = bg('M120 1080 L120 600 L320 600 L320 1080 Z', '#cbb894', 5) + bg('M720 1080 L720 600 L920 600 L920 1080 Z', '#cbb894', 5);   // gate posts
+  for (let i = 0; i < 8; i++) s += `<rect x="${310}" y="${640 + i * 55}" width="420" height="44" rx="6" fill="${burnt ? '#2a1c14' : '#9a6a3a'}" stroke="${OUT}" stroke-width="4" transform="rotate(${(i % 2 ? 2 : -2)} 520 ${662 + i * 55})"/>`;
+  return s;
+}
+const acropolis_barricade: SceneFn = (c) => {
+  // planks are hammered across the gate ("barricade"); a beam drops into place ("timber")
+  const ham = bw(c, 'barricade', 0.3, 1.2), beam = easeOutBack(bw(c, 'timber', 0.3, 0.6));
+  let s = summit(c, 'noon') + barricade(0);
+  s += `<rect x="290" y="${(400 + 210 * beam).toFixed(0)}" width="460" height="56" rx="8" fill="#7a5234" stroke="${OUT}" stroke-width="5"/>`;
+  s += at(1050, 1080, 1.2, civilian(c.t, 150, { kind: 'man', expr: 'stern', arm: 0.5 + 0.5 * Math.sin(ham * Math.PI * 6) * (ham > 0 && ham < 1 ? 1 : 0) }));
+  return L(c, 0.6, s);
+};
+const acropolis_cliff_climb: SceneFn = (c) => {
+  // the gate is quiet ("gate"); Persians climb the steep back cliff ("climbed")
+  const quiet = easeInOut(bw(c, 'gate', 0.3, 0.8)), climb = easeInOut(bw(c, 'climbed', 0.3, 2.0));
+  let s = skyGrad(c, 'clsky', [[0, '#4f3a6e'], [0.55, '#d77c56'], [1, '#f2b06a']]);
+  s += bg('M300 1300 L420 300 Q700 220 1100 260 L1300 1300 Z', '#9a7b5c', 6);
+  for (let i = 0; i < 10; i++) s += `<path d="M${440 + i * 80} ${360 + (i % 3) * 40} q20 300 ${(i % 2 ? 30 : -20)} 900" stroke="#7a5f44" stroke-width="6" fill="none"/>`;
+  for (let i = 0; i < 7; i++) { const u = Math.max(0, Math.min(1, climb * 1.4 - i * 0.08)); s += at(560 + i * 70, 1240 - 860 * u, 0.32, guard(c.t, 500 + i), -8); }
+  s += `<g opacity="${(0.5 + 0.5 * quiet).toFixed(2)}">${at(1600, 700, 0.6, barricade(0))}</g>`;
+  return L(c, 0.6, s);
+};
+const acropolis_burning: SceneFn = (c) => {
+  // Persians on the summit ("killed"), fire takes the temple ("fire")
+  const on = easeInOut(bw(c, 'killed', 0.3, 0.9)), fire = easeInOut(bw(c, 'fire', 0.3, 1.4));
+  let s = skyGrad(c, 'bsky', [[0, '#3a2440'], [0.55, '#b5583a'], [1, '#e8904a']]) + `<rect x="-200" y="700" width="${W + 400}" height="600" fill="#6a5a52"/>`;
+  s += at(960, 860, 1.1, acropolisRock(1, 0, fire, c.t));
+  for (let q = 0; q < 12; q++) { const u = (q / 12 + c.t * 0.06) % 1; s += `<circle cx="${(820 + 260 * Math.sin(q) * u).toFixed(0)}" cy="${(420 - 400 * u).toFixed(0)}" r="${(40 + 110 * u).toFixed(0)}" fill="#3a3030" opacity="${(0.5 * fire * (1 - u)).toFixed(3)}"/>`; }
+  for (let i = 0; i < 6; i++) s += `<g opacity="${on.toFixed(2)}">${at(700 + i * 90, 600, 0.18, guard(c.t, 600 + i))}</g>`;
+  return L(c, 0.6, s);
+};
+const acropolis_temple_fire: SceneFn = (c) => {
+  // the old temple of Athena in flames ("temples"); a roof beam falls ("burned")
+  const glowF = easeInOut(bw(c, 'temples', 0.3, 0.9)), drop = easeInOut(bw(c, 'burned', 0.3, 0.8));
+  let s = skyGrad(c, 'tfsky', [[0, '#2a1a24'], [1, '#b5583a']]);
+  s += at(960, 1180, 2.6, acropolisRock(1, 0, 0.6 + 0.4 * glowF, c.t));
+  s += `<rect x="760" y="${(260 + 600 * drop).toFixed(0)}" width="420" height="40" rx="6" fill="#3a2414" stroke="${OUT}" stroke-width="5" transform="rotate(${(25 * drop).toFixed(1)} 970 ${(280 + 600 * drop).toFixed(0)})"/>`;
+  return L(c, 0.6, s) + `<rect width="${W}" height="${H}" fill="#ff7a2a" opacity="${(0.12 * glowF).toFixed(3)}"/>`;
+};
+const acropolis_barricade_burnt: SceneFn = (c) => {
+  // the charred planks ("barricade"); smoke drifts ("else"). Outro (line ~132): the old hedge + the burnt barricade
+  const show = easeInOut(bw(c, 'barricade', 0.3, 0.9)), drift = easeInOut(bw(c, bi(c, 'else') < 99 ? 'else' : 'hedge', 0.3, 1.2));
+  let s = summit(c, 'night') + barricade(1);
+  for (let q = 0; q < 8; q++) { const u = (q / 8 + c.t * 0.05) % 1; s += `<circle cx="${(520 + 120 * Math.sin(q + c.t) * u + 300 * drift * u).toFixed(0)}" cy="${(700 - 500 * u).toFixed(0)}" r="${(30 + 90 * u).toFixed(0)}" fill="#6a6260" opacity="${(0.45 * (1 - u)).toFixed(3)}"/>`; }
+  return L(c, 0.6, `<g opacity="${(0.4 + 0.6 * show).toFixed(2)}">${s}</g>`);
+};
+const salamis_shore_smoke: SceneFn = (c) => {
+  // families on the shore ("families") watch the smoke rise over the far city ("smoke")
+  const fam = easeInOut(bw(c, 'families', 0.3, 0.8)), smoke = easeInOut(bw(c, 'smoke', 0.3, 1.4));
+  const sky = skyGrad(c, 'sssky', [[0, '#1a1a36'], [0.6, '#4a3a5a'], [1, '#8a5a4a']]);
+  let far = `<rect x="-200" y="600" width="${W + 400}" height="300" fill="#2e3a58"/>` + at(1300, 620, 0.3, acropolisRock(1, 0, 0.5, c.t));
+  for (let q = 0; q < 10; q++) { const u = (q / 10 + c.t * 0.05) % 1; far += `<circle cx="${(1300 + 80 * Math.sin(q) * u).toFixed(0)}" cy="${(520 - 380 * u).toFixed(0)}" r="${(20 + 80 * u).toFixed(0)}" fill="#4a4040" opacity="${(0.55 * smoke * (1 - u)).toFixed(3)}"/>`; }
+  let people = bg('M-200 880 Q960 840 2120 880 L2120 1300 L-200 1300 Z', '#4a3e34', 5);
+  for (let i = 0; i < 6; i++) people += at(200 + i * 160, 1080 - 20 * fam * (i % 2), 1.1, civilian(c.t, 170 + i, { kind: i % 3 === 1 ? 'woman' : i % 3 === 2 ? 'child' : 'man', expr: 'grief', look: 1 }));
+  return L(c, 0.05, sky) + L(c, 0.3, far) + L(c, 1, people);
+};
+const road_rider: SceneFn = (c) => {
+  // a horseman gallops east ("rider"); dust behind him ("fallen"). Aftermath variant: the king's column heads home.
+  const ln_ = lineOf(c);
+  const sky = dawnSky(c, 360);
+  let s = bg('M-200 700 Q900 660 2120 700 L2120 1300 L-200 1300 Z', '#b59a70', 5) + `<path d="M-200 960 Q900 900 2120 940" stroke="#d9c39a" stroke-width="110" fill="none"/>`;
+  if (ln_ < 60) {
+    const go = tween(c.local, c.beatT(bi(c, 'rider')) - 0.3, c.dur, 0, 1, (x) => x), dust = easeInOut(bw(c, 'fallen', 0.3, 1.0));
+    const x = -100 + 1900 * go, gal = Math.sin(c.t * 14);
+    s += at(x, 930, 0.9, bg('M-120 -60 Q-40 -110 80 -80 Q130 -60 120 -20 L-110 -20 Z', '#6a4428', 5) + ln(`M-90 -20 L${-110 + 20 * gal} 40 M-50 -20 L${-30 - 20 * gal} 40 M60 -20 L${40 + 20 * gal} 40 M100 -20 L${120 - 20 * gal} 40`, 12, '#5a3a24') + at(0, -80, 0.4, guard(c.t, 700)));
+    for (let q = 0; q < 6; q++) s += `<circle cx="${(x - 160 - q * 60).toFixed(0)}" cy="${(940 - q * 8).toFixed(0)}" r="${(20 + q * 12) * (0.5 + dust)}" fill="#d9c3a0" opacity="${(0.5 * (1 - q / 6)).toFixed(2)}"/>`;
+  } else {
+    const turn = easeInOut(bw(c, 'trick', 0.3, 1.2));
+    for (let i = 0; i < 30; i++) s += at(200 + i * 55 - 300 * turn, 930 - i * 4, 0.22 - i * 0.004, parasol(c.t).repeat(i === 6 ? 1 : 0) + guard(c.t, 800 + i));
+  }
+  return L(c, 0.05, sky) + L(c, 1, s);
+};
+
 export const SCENES: Record<string, SceneFn> = {
   strait_fleet_persian: strait_fleet,                    // the Persian fleet fills the bay (beats: appear / lift)
   aigaleos_dawn, aigaleos_scribes, strait_dawn_wide, strait_dawn_fleet, salamis_families, aigaleos_xerxes, aigaleos_xerxes_scribes, aigaleos_scroll,
   delphi_ext, delphi_messengers, delphi_pythia, delphi_pythia_cu, delphi_beg, delphi_riddle, opensea_messengers,
   athens_pnyx, acropolis_hedge, athens_themistocles, athens_crowd_split, athens_scroll_word, laurium_mine, shipyard,
   hellespont, hellespont_close, thermopylae, opensea_fleet_south, hellespont_army_road,
+  athens_streets_empty, harbour_evac, opensea_boats_salamis, salamis_shore_look, acropolis_defenders, acropolis_barricade,
+  acropolis_cliff_climb, acropolis_burning, acropolis_temple_fire, acropolis_barricade_burnt, salamis_shore_smoke, road_rider,
+  road_xerxes_home: road_rider,
 };
