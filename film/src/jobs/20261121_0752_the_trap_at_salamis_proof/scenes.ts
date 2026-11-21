@@ -314,8 +314,8 @@ const strait_jam: SceneFn = (c) => {
   const ships = [[360, 760, 0.3, 0], [1560, 740, 0.3, 0.3], [520, 820, 0.42, 0], [1300, 790, 0.4, 0.5], [900, 900, 0.5, 0], [1500, 960, 0.48, 0], [300, 1010, 0.62, 0]];
   let fleet = '';
   ships.forEach(([x, y, k, br], i) => {
-    const rot = i === 3 ? -14 * swing : (i === 4 ? 3 * Math.sin(bump * Math.PI) : 0);
-    fleet += `<g transform="translate(${x + (i === 4 ? jolt : 0)} ${y}) rotate(${rot.toFixed(2)}) scale(${k})">${warship(c.t, 'persian', 0.9, i, i === 4 ? snap : br)}</g>`;
+    const rot = (i === 3 ? -14 * swing : (i === 4 ? 3 * Math.sin(bump * Math.PI) : 0)) + 2.2 * Math.sin(c.t * 1.7 + i * 1.3);   // every hull rolls in the crowd
+    fleet += `<g transform="translate(${(x + (i === 4 ? jolt : 0) + 12 * Math.sin(c.t * 0.9 + i)).toFixed(1)} ${(y + 6 * Math.sin(c.t * 1.6 + i)).toFixed(1)}) rotate(${rot.toFixed(2)}) scale(${k})">${warship(c.t, 'persian', 0.9, i, i === 4 ? snap : br)}</g>`;
   });
   let splinters = '';
   if (snap > 0 && snap < 1) { const R = rng(5); for (let i = 0; i < 10; i++) { const a = R() * Math.PI * 2, d = 80 * snap; splinters += `<rect x="${(900 + Math.cos(a) * d).toFixed(1)}" y="${(860 + Math.sin(a) * d - 40 * snap).toFixed(1)}" width="16" height="4" fill="#b58a56" stroke="${OUT}" stroke-width="2" transform="rotate(${(a * 57).toFixed(0)} 900 860)"/>`; } }
@@ -371,15 +371,17 @@ const night_crossing: SceneFn = (c) => {
   for (let i = 0; i < 16; i++) { const x = 160 + i * 112 + (i % 3) * 20, y = 622 + (i % 4) * 12; lanterns += glow(c, `ln${i}`, x, y, 18, '#ffcf70', 0.9) + `<path d="M${x} ${y + 8} L${x} ${y + 40}" stroke="#ffcf70" stroke-width="3" opacity="${(0.3 + 0.2 * Math.sin(c.t * 3 + i)).toFixed(2)}"/>`; }
   const far = stars + lanterns + bg('M-200 560 L200 500 L520 530 L900 480 L1300 540 L1700 500 L2120 540 L2120 600 L-200 600 Z', '#16223c', 3) +
     [[300, 548], [640, 530], [1180, 545]].map(([x, y]) => glow(c, `fire${x}`, x, y, 26, '#ffb347', 0.9)).join('') + farFleet(c.t, 18, 610, 41, 0.08).replace(/#4a3022/g, '#121a2c');
-  const sea = `<rect x="-300" y="600" width="${W + 600}" height="700" fill="#14284a"/>` + waves(c.t, 51, 610, 1080, 110, '#5a7fb0', 10) +
-    `<path d="M1300 610 L1600 610 L1700 1080 L1200 1080 Z" fill="#cfe0ff" opacity="${(0.12 * moon).toFixed(2)}"/>`;
+  const sea = `<rect x="-300" y="600" width="${W + 600}" height="700" fill="#14284a"/>` + waves(c.t, 51, 610, 1080, 150, '#6a8fc0', 34) +
+    `<path d="M1300 610 L1600 610 L1700 1080 L1200 1080 Z" fill="#cfe0ff" opacity="${(0.12 * moon).toFixed(2)}"/>` +
+    Array.from({ length: 18 }, (_, i) => `<rect x="${(1260 + (i * 53) % 420).toFixed(0)}" y="${(640 + i * 24).toFixed(0)}" width="${(30 + 20 * Math.abs(Math.sin(c.t * 3 + i))).toFixed(1)}" height="3" fill="#e6efff" opacity="${(moon * (0.3 + 0.5 * Math.abs(Math.sin(c.t * 4 + i * 1.7)))).toFixed(2)}"/>`).join('');
   const bx = 960 + 40 * Math.sin(c.local * 0.5) - 260 * (1 - there);   // the boat glides in on "slave"
   let boat = bg('M-200 -10 Q0 40 200 -10 L170 -70 L-180 -70 Z', '#3a2a1e', 5) + ln('M-180 -60 L170 -60', 4, '#5a4030');
   boat += `<g transform="translate(-10 -40) scale(.55) ${look ? 'scale(-1 1)' : ''}">${sicinnus(c.t, row, look ? 'worried' : 'stern', blinkAt(c.t, 77))}</g>`;
   boat += `<path d="M-120 -20 L${(-260 - 40 * row).toFixed(0)} ${(40 - 20 * row).toFixed(0)}" stroke="${OUT}" stroke-width="7"/><path d="M-120 -20 L${(-260 - 40 * row).toFixed(0)} ${(40 - 20 * row).toFixed(0)}" stroke="#b58a56" stroke-width="3"/>`;
   const ripple = bt(c, 3, 0.1, 1.5);
   if (ripple > 0) boat += `<ellipse cx="-260" cy="44" rx="${(30 + 140 * ripple).toFixed(1)}" ry="${(8 + 30 * ripple).toFixed(1)}" fill="none" stroke="#9cc0e8" stroke-width="3" opacity="${(1 - ripple).toFixed(2)}"/>`;
-  return L(c, 0.05, sky) + L(c, 0.2, far) + L(c, 0.5, sea) + L(c, 1, `<g opacity="${(0.2 + 0.8 * there).toFixed(2)}" transform="translate(${bx.toFixed(1)} 840) scale(1.2)">${boat}</g>`);
+  const bob = 10 * Math.sin(c.t * 1.9), rock = 3.5 * Math.sin(c.t * 1.5 + 0.7);          // the swell lifts and tilts the little boat
+  return L(c, 0.05, sky) + L(c, 0.2, far) + L(c, 0.5, sea) + L(c, 1, `<g opacity="${(0.2 + 0.8 * there).toFixed(2)}" transform="translate(${bx.toFixed(1)} ${(840 + bob).toFixed(1)}) rotate(${rock.toFixed(2)}) scale(1.2)">${boat}</g>`);
 };
 
 // ---------- THEMISTOCLES' TENT (lamplight) ----------

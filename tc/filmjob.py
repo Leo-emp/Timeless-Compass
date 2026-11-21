@@ -74,7 +74,9 @@ def music_from_plan(timed: dict, tracks: dict) -> dict:
         if not wanted:
             continue
         used.add(wanted)
-        t = next(x for x in tracks["tracks"] if x["id"] == wanted)
+        t = next((x for x in tracks["tracks"] if x["id"] == wanted), None)
+        if t is None:
+            raise ValueError(f"music track {wanted!r} is not in library/music/tracks.json")
         at = m.get("at")
         at = s["start_f"] / fps if at is None else at
         # a cue lasts to the end of its shot, or to the end of the shot named in "until" (one piece across a sequence)
@@ -90,9 +92,12 @@ def _probe(path: Path) -> float:
     return float(out.strip())
 
 
-def mux(video: Path, audio: Path, out: Path, probe=_probe, runner=subprocess.run) -> Path:
+def mux(video: Path, audio: Path, out: Path, probe=_probe, runner=subprocess.run, expected: float | None = None) -> Path:
     """Silent cloud render + the mix -> master. Refuses if they differ by more than 0.1 s (it would drift out of sync)."""
     v, a = probe(video), probe(audio)
+    # the picture must match the voice it was planned on (a re-recorded, longer voice would otherwise be cut off)
+    if expected is not None and abs(v - expected) > 0.15:
+        raise ValueError(f"video {v:.2f} s does not match the voice {expected:.2f} s: re-plan (tc shotplan) and re-render")
     # the audio may run up to 3 s past the picture (a music fade-out tail) and is trimmed with a short fade;
     # shorter audio, or a much longer one, means the mix and the video are out of step
     if a < v - 0.1 or a > v + 3.0:
@@ -123,5 +128,5 @@ def _cmd_filmjob(args) -> int:
         (d / "music.json").write_text(json.dumps(music_from_plan(timed, music_mod.load_tracks()), indent=1), encoding="utf-8")
         print(f"index + cues written; composition: Job-{slug(args.job).replace("_", "-")}")
         return 0
-    print(mux(Path(args.video), d / "mix.wav", d / "master.mp4"))
+    print(mux(Path(args.video), d / "mix.wav", d / "master.mp4", expected=_probe(d / "voice.wav")))
     return 0

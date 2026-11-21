@@ -19,7 +19,7 @@ export interface TimedShot {
   camera: { move: string; amount: number; focus?: [number, number] };
   grade: { time: TimeOfDay; mood: Mood };
   transition_in: { kind: string; frames: number };
-  beats: { frame: number; do: string; kind: string; word?: string }[];
+  beats: { frame: number; word_frame?: number; do: string; kind: string; word?: string }[];
   sfx: unknown[]; letterbox?: boolean;
 }
 export interface TimedPlan { fps: number; frames: number; shots: TimedShot[] }
@@ -46,7 +46,7 @@ function drawShot(shot: TimedShot, frame: number, fps: number, scenes: Record<st
   const ctx: ShotCtx = {
     shot, fps, frame, t: frame / fps, local: (frame - shot.start_f) / fps, dur,
     cam: { move: shot.camera.move, amount: shot.camera.amount, t0: 0, t1: dur, focus: shot.camera.focus },
-    beatT: (i) => (shot.beats[i].frame + 6 - shot.start_f) / fps,
+    beatT: (i) => ((shot.beats[i].word_frame ?? shot.beats[i].frame + 6) - shot.start_f) / fps,   // when the action LANDS
     pid,
   };
   return withIdPrefix(shot.id, () => graded(shot.id, shot.grade.time, shot.grade.mood, fn({ ...ctx, pid })));

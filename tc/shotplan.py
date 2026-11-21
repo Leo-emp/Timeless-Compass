@@ -67,7 +67,7 @@ def plan_problems(plan: dict, timings: dict, total_s: float) -> list[str]:
     shots = plan.get("shots", [])
     if not shots:
         return ["the plan has no shots"]
-    seen_lines = set()
+    seen_lines, ids, prev_start = set(), {s.get("id") for s in shots}, None
     for s in shots:
         sid = s.get("id", "?")
         if s.get("size") not in SIZES:
@@ -89,6 +89,10 @@ def plan_problems(plan: dict, timings: dict, total_s: float) -> list[str]:
             probs.append(f"{sid}: its line {s.get('line')} / start_word was not found in the timings")
         else:
             events.append(start)
+            # shots must start strictly one after another (else a shot gets zero/negative length and vanishes)
+            if prev_start is not None and shots.index(s) > 0 and start <= prev_start:
+                probs.append(f"{sid}: starts at or before the previous shot ({start:.2f} s <= {prev_start:.2f} s) - check its start_word")
+            prev_start = start if shots.index(s) > 0 else 0.0
         for kind in ("beats", "sfx"):
             for b in s.get(kind, []):
                 ln_ = b.get("line", s["line"])          # a beat may sit on a word of a later line the shot also covers
@@ -97,6 +101,12 @@ def plan_problems(plan: dict, timings: dict, total_s: float) -> list[str]:
                     probs.append(f"{sid}: {kind[:-1] if kind == 'beats' else 'sfx'} word {b['word']!r} (occurrence {b.get('occurrence', 1)}) not heard in line {ln_}")
                 elif kind == "beats":
                     events.append(t)
+        m = s.get("music")
+        if m:
+            if m.get("from_word") and find_word(timings, m.get("line", s["line"]), m["from_word"]) is None:
+                probs.append(f"{sid}: music from_word {m['from_word']!r} not heard in line {m.get('line', s['line'])}")
+            if m.get("until") and m["until"] not in ids:
+                probs.append(f"{sid}: music until {m['until']!r} is not a shot in this plan")
     events = sorted(set(events + [total_s]))
     for a, b in zip(events, events[1:]):
         if b - a > MAX_GAP_S:
@@ -121,8 +131,11 @@ def resolve(plan: dict, timings: dict, total_s: float) -> dict:
     for i, s in enumerate(shots):
         s["start_f"] = round(starts[i] * fps)
         s["end_f"] = round(starts[i + 1] * fps) if i + 1 < len(shots) else total_f
-        s["beats"] = [dict(b, frame=round(find_word(timings, b.get("line", s["line"]), b["word"], b.get("occurrence", 1)) * fps) - b.get("lead", 6))
-                      for b in s.get("beats", [])]
+        beats = []
+        for b in s.get("beats", []):
+            wf = round(find_word(timings, b.get("line", s["line"]), b["word"], b.get("occurrence", 1)) * fps)
+            beats.append(dict(b, word_frame=wf, frame=wf - b.get("lead", 6)))   # word_frame = when the action must LAND
+        s["beats"] = beats
         s["sfx"] = [dict(x, at=find_word(timings, x.get("line", s["line"]), x["word"], x.get("occurrence", 1))) for x in s.get("sfx", [])]
         if s.get("music") and s["music"].get("from_word"):
             s["music"] = dict(s["music"], at=find_word(timings, s["music"].get("line", s["line"]), s["music"]["from_word"]))

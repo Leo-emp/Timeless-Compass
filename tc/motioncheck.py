@@ -33,7 +33,20 @@ def frame_diffs(video: Path, scale: int = 192, cols: int = 8, rows: int = 6) -> 
     return [0.0] + [float(x) for x in tiles.reshape(len(d), -1).max(axis=1)]
 
 
-def motion_problems(diffs: list[float], fps: int, cuts: list[int] = (), beats: list[int] = ()) -> list[str]:
+def frame_means(video: Path, scale: int = 192) -> list[float]:
+    """Whole-frame mean change per frame (for the freeze test), same decoding as frame_diffs."""
+    import numpy as np
+    w, h = scale, scale * 9 // 16
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(video), "-fps_mode", "passthrough", "-vf", f"scale={w}:{h},gblur=sigma=1.5,format=gray",
+                          "-f", "rawvideo", "-"], capture_output=True, check=True).stdout
+    f = np.frombuffer(raw, dtype=np.uint8)[: (len(raw) // (w * h)) * w * h].reshape(-1, h, w).astype(np.int16)
+    return [0.0] + [float(x) for x in (np.abs(np.diff(f, axis=0)).mean(axis=(1, 2)) / 255.0)] if len(f) > 1 else [0.0] * len(f)
+
+
+def motion_problems(diffs: list[float], fps: int, cuts: list[int] = (), beats: list[int] = (),
+                    mean_diffs: list[float] | None = None) -> list[str]:
+    """diffs = change of the most-changed tile per frame (snaps, beats); mean_diffs = whole-frame change (freezes):
+    one always-moving detail (waves, smoke) must not hide a scene whose action has frozen."""
     probs = []
     if not diffs:
         return ["no frames"]
@@ -43,7 +56,7 @@ def motion_problems(diffs: list[float], fps: int, cuts: list[int] = (), beats: l
         if i > 0 and d > max(SNAP_FACTOR * med, SNAP_MIN) and i not in cut_frames:
             probs.append(f"snap at frame {i} (change {d:.3f}, typical {med:.4f})")
     run_start = None
-    for i, d in enumerate(diffs + [1.0]):                       # sentinel closes a run at the end
+    for i, d in enumerate((mean_diffs if mean_diffs is not None else diffs) + [1.0]):                       # sentinel closes a run at the end
         if i > 0 and d < FREEZE_DIFF and i not in cut_frames:
             run_start = i if run_start is None else run_start
         else:
@@ -71,7 +84,8 @@ def _args(p):
 
 @register("motion", "motion check: snaps, frozen stretches, nothing happening on a beat", _args)
 def _cmd_motion(args) -> int:
-    probs = motion_problems(frame_diffs(Path(args.video)), args.fps, _ints(args.cuts), _ints(args.beats))
+    probs = motion_problems(frame_diffs(Path(args.video)), args.fps, _ints(args.cuts), _ints(args.beats),
+                            mean_diffs=frame_means(Path(args.video)))
     for p in probs:
         print("problem:", p)
     print("motion:", "OK" if not probs else f"{len(probs)} problem(s)")

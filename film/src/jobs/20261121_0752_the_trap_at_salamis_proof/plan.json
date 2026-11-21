@@ -32,24 +32,28 @@
      "word": "dawn",
      "do": "sun breaks over the mountains",
      "kind": "reveal",
+     "word_frame": 6,
      "frame": 0
     },
     {
      "word": "king",
      "do": "Xerxes settles on the throne",
      "kind": "gesture",
+     "word_frame": 29,
      "frame": 23
     },
     {
      "word": "throne",
      "do": "gold catches the light",
      "kind": "reveal",
+     "word_frame": 54,
      "frame": 48
     },
     {
      "word": "sea",
      "do": "the strait opens below",
      "kind": "reveal",
+     "word_frame": 76,
      "frame": 70
     }
    ],
@@ -99,18 +103,21 @@
      "word": "Below",
      "do": "the camera drops toward the water",
      "kind": "camera",
+     "word_frame": 110,
      "frame": 104
     },
     {
      "word": "thousand",
      "do": "rows of Persian ships appear",
      "kind": "reveal",
+     "word_frame": 126,
      "frame": 120
     },
     {
      "word": "order",
      "do": "oars lift and wait",
      "kind": "object",
+     "word_frame": 162,
      "frame": 156
     }
    ],
@@ -154,12 +161,14 @@
      "word": "Today",
      "do": "Xerxes lifts his chin",
      "kind": "expression",
+     "word_frame": 205,
      "frame": 199
     },
     {
      "word": "ends",
      "do": "a cold stern stare",
      "kind": "expression",
+     "word_frame": 227,
      "frame": 221
     }
    ],
@@ -196,18 +205,21 @@
      "word": "scribes",
      "do": "scribes raise their styluses",
      "kind": "gesture",
+     "word_frame": 262,
      "frame": 256
     },
     {
      "word": "write",
      "do": "the first stroke on the board",
      "kind": "object",
+     "word_frame": 288,
      "frame": 282
     },
     {
      "word": "victory",
      "do": "they look up at the king",
      "kind": "expression",
+     "word_frame": 311,
      "frame": 305
     }
    ],
@@ -251,30 +263,35 @@
      "word": "night",
      "do": "the moon comes out of cloud",
      "kind": "reveal",
+     "word_frame": 348,
      "frame": 342
     },
     {
      "word": "slave",
      "do": "a man in a small boat",
      "kind": "reveal",
+     "word_frame": 376,
      "frame": 370
     },
     {
      "word": "crossed",
      "do": "he pulls the oars",
      "kind": "gesture",
+     "word_frame": 392,
      "frame": 386
     },
     {
      "word": "water",
      "do": "ripples spread",
      "kind": "object",
+     "word_frame": 407,
      "frame": 401
     },
     {
      "word": "boat",
      "do": "he looks back over his shoulder",
      "kind": "expression",
+     "word_frame": 436,
      "frame": 430
     }
    ],
@@ -324,24 +341,28 @@
      "word": "secret",
      "do": "Themistocles leans in",
      "kind": "gesture",
+     "word_frame": 479,
      "frame": 473
     },
     {
      "word": "message",
      "do": "he presses the sealed tablet into the slave's hands",
      "kind": "object",
+     "word_frame": 486,
      "frame": 480
     },
     {
      "word": "Athenian",
      "do": "the slave nods, frightened",
      "kind": "expression",
+     "word_frame": 504,
      "frame": 498
     },
     {
      "word": "Themistocles",
      "do": "the lamp lights his face",
      "kind": "reveal",
+     "word_frame": 525,
      "frame": 519
     }
    ],
@@ -385,18 +406,21 @@
      "word": "king",
      "do": "a sly look",
      "kind": "expression",
+     "word_frame": 583,
      "frame": 577
     },
     {
      "word": "run",
      "do": "he points toward the sea",
      "kind": "gesture",
+     "word_frame": 603,
      "frame": 597
     },
     {
      "word": "now",
      "do": "his fist closes",
      "kind": "gesture",
+     "word_frame": 642,
      "frame": 636
     }
    ],
@@ -435,12 +459,14 @@
      "word": "believed",
      "do": "Xerxes smiles",
      "kind": "expression",
+     "word_frame": 683,
      "frame": 677
     },
     {
      "word": "word",
      "do": "he waves the fleet forward",
      "kind": "gesture",
+     "word_frame": 703,
      "frame": 697
     }
    ],
@@ -477,18 +503,21 @@
      "word": "light",
      "do": "the sun clears the hills",
      "kind": "reveal",
+     "word_frame": 741,
      "frame": 735
     },
     {
      "word": "fleet",
      "do": "Persian ships surge forward",
      "kind": "object",
+     "word_frame": 762,
      "frame": 756
     },
     {
      "word": "strait",
      "do": "the cliffs close in",
      "kind": "reveal",
+     "word_frame": 800,
      "frame": 794
     }
    ],
@@ -513,7 +542,7 @@
    "angle": "eye",
    "camera": {
     "move": "handheld",
-    "amount": 0.8
+    "amount": 1.3
    },
    "grade": {
     "time": "dawn",
@@ -532,18 +561,21 @@
      "word": "tight",
      "do": "hulls bump together",
      "kind": "object",
+     "word_frame": 854,
      "frame": 848
     },
     {
      "word": "ships",
      "do": "a ship swings sideways",
      "kind": "object",
+     "word_frame": 870,
      "frame": 864
     },
     {
      "word": "turn",
      "do": "oars snap",
      "kind": "object",
+     "word_frame": 888,
      "frame": 882
     }
    ],
@@ -594,18 +626,21 @@
      "word": "shore",
      "do": "a line of Greek soldiers on the rocks",
      "kind": "reveal",
+     "word_frame": 933,
      "frame": 927
     },
     {
      "word": "Greeks",
      "do": "they raise their shields",
      "kind": "gesture",
+     "word_frame": 950,
      "frame": 944
     },
     {
      "word": "sing",
      "do": "they sing",
      "kind": "gesture",
+     "word_frame": 969,
      "frame": 963
     }
    ],
@@ -649,24 +684,28 @@
      "word": "Greek",
      "do": "a Greek warship charges",
      "kind": "object",
+     "word_frame": 1012,
      "frame": 1006
     },
     {
      "word": "drove",
      "do": "oars dig in",
      "kind": "object",
+     "word_frame": 1029,
      "frame": 1023
     },
     {
      "word": "rams",
      "do": "the ram strikes",
      "kind": "object",
+     "word_frame": 1057,
      "frame": 1051
     },
     {
      "word": "hulls",
      "do": "planks burst",
      "kind": "object",
+     "word_frame": 1091,
      "frame": 1085
     }
    ],
@@ -723,18 +762,21 @@
      "word": "hill",
      "do": "the scribes stand frozen",
      "kind": "reveal",
+     "word_frame": 1132,
      "frame": 1126
     },
     {
      "word": "nothing",
      "do": "a stylus is lowered",
      "kind": "gesture",
+     "word_frame": 1167,
      "frame": 1161
     },
     {
      "word": "write",
      "do": "Xerxes stares, shocked",
      "kind": "expression",
+     "word_frame": 1187,
      "frame": 1181
     }
    ],
@@ -772,12 +814,14 @@
      "word": "trap",
      "do": "smoke rises over the strait",
      "kind": "reveal",
+     "word_frame": 1215,
      "frame": 1209
     },
     {
      "word": "closed",
      "do": "the Greek ships ring the wrecks",
      "kind": "reveal",
+     "word_frame": 1225,
      "frame": 1219
     }
    ],
