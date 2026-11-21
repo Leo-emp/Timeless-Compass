@@ -19,7 +19,7 @@
 | 4 Film craft + proof clip | done, reviewed |
 | 5 First autonomous Short | **done** — fresh review found 2 critical + 4 important bugs in `tc produce`; all fixed with tests |
 | 6 Thumbnails + upload pack | **done** — fresh review found 5 important bugs; all fixed with tests |
-| 7 First autonomous long video | **in progress** — whole front half done; chapters 1–2 (34 of 141 shots) drawn + rendered |
+| 7 First autonomous long video | **in progress** — whole front half done; chapters 1–3 (48 of 141 shots) drawn, 1–2 rendered |
 | 8 Results loop + anti-sameness | plan written, not built |
 | 9 2D maps | plan written, not built |
 
@@ -34,7 +34,7 @@ Tests: **393 Python + 72 TypeScript, all passing.** 85+ commits today, all pushe
 | Script | 1,906 words; **9 fresh viewers** — 8 NO-GO, each fixed, then **GO** ("would subscribe") |
 | Voice | 12:01, 7 character voices + narrator |
 | Shot plan | **all 141 shots**, every action pinned to its word, nothing static over 3 s — passes |
-| Drawing | shots 1–34 of 141 drawn (cold open, Delphi, Athens, silver + ships, Hellespont, Thermopylae); 107 to go |
+| Drawing | shots 1–48 of 141 drawn (cold open, Delphi, Athens, silver + ships, Hellespont, Thermopylae, the evacuation, the burning Acropolis); 93 to go. Chapter 3 is stills-only: the Acropolis fire (wide), the rider's horse and the night shots need another pass |
 | Render | chapters 1–2 rendered on GitHub (2:51); full render waits for the drawing |
 | Motion (ch 1–2) | 65 of 80 beats land clearly, 0 freezes; 1 snap + 15 subtle beats still to polish (not scored yet) |
 
@@ -54,4 +54,4 @@ Tests: **393 Python + 72 TypeScript, all passing.** 85+ commits today, all pushe
 
 ## Next session
 
-Draw the remaining 107 shots of the long video, chapter by chapter (the evacuation and the burning Acropolis → the council → the night message → the battle → the ending), still-gate each chapter, render, mix, thumbnails, pack. Then plans 8 and 9.
+Polish chapter 3, then draw the remaining 93 shots of the long video, chapter by chapter (the council → the night message → the battle → the ending), still-gate each chapter, render, mix, thumbnails, pack. Then plans 8 and 9.
