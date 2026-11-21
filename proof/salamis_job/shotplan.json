@@ -1,0 +1,709 @@
+{
+ "fps": 24,
+ "shots": [
+  {
+   "id": "s01",
+   "line": 0,
+   "place": "throne",
+   "scene": "throne_wide",
+   "size": "ews",
+   "angle": "low",
+   "camera": {
+    "move": "crane_down",
+    "amount": 0.1
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "fade_black",
+    "frames": 12
+   },
+   "era_items": [
+    "aigaleos",
+    "throne",
+    "parasol",
+    "strait"
+   ],
+   "beats": [
+    {
+     "word": "dawn",
+     "do": "sun breaks over the mountains",
+     "kind": "reveal"
+    },
+    {
+     "word": "king",
+     "do": "Xerxes settles on the throne",
+     "kind": "gesture"
+    },
+    {
+     "word": "throne",
+     "do": "gold catches the light",
+     "kind": "reveal"
+    },
+    {
+     "word": "sea",
+     "do": "the strait opens below",
+     "kind": "reveal"
+    }
+   ],
+   "sfx": [
+    {
+     "word": "dawn",
+     "sound": "wind_fs711106",
+     "db": -24
+    }
+   ],
+   "music": {
+    "cue": "hook",
+    "from_word": "At",
+    "until": "s03"
+   }
+  },
+  {
+   "id": "s02",
+   "line": 1,
+   "place": "strait",
+   "scene": "strait_fleet",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.12
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 12
+   },
+   "era_items": [
+    "strait",
+    "persian_ship",
+    "trireme"
+   ],
+   "beats": [
+    {
+     "word": "Below",
+     "do": "the camera drops toward the water",
+     "kind": "camera"
+    },
+    {
+     "word": "thousand",
+     "do": "rows of Persian ships appear",
+     "kind": "reveal"
+    },
+    {
+     "word": "order",
+     "do": "oars lift and wait",
+     "kind": "object"
+    }
+   ],
+   "sfx": [
+    {
+     "word": "ships",
+     "sound": "sea_waves_fs196717",
+     "db": -22
+    }
+   ],
+   "music": null
+  },
+  {
+   "id": "s03",
+   "line": 2,
+   "place": "throne",
+   "scene": "throne_xerxes",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "throne",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "Today",
+     "do": "Xerxes lifts his chin",
+     "kind": "expression"
+    },
+    {
+     "word": "ends",
+     "do": "a cold stern stare",
+     "kind": "expression"
+    }
+   ],
+   "sfx": [],
+   "music": null
+  },
+  {
+   "id": "s04",
+   "line": 3,
+   "place": "throne",
+   "scene": "throne_scribes",
+   "size": "ms",
+   "angle": "high",
+   "camera": {
+    "move": "pan_right",
+    "amount": 0.05
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "neutral"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "scribe_tablet",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "scribes",
+     "do": "scribes raise their styluses",
+     "kind": "gesture"
+    },
+    {
+     "word": "write",
+     "do": "the first stroke on the board",
+     "kind": "object"
+    },
+    {
+     "word": "victory",
+     "do": "they look up at the king",
+     "kind": "expression"
+    }
+   ],
+   "sfx": [
+    {
+     "word": "write",
+     "sound": "quill_writing_fs524948",
+     "db": -20
+    }
+   ],
+   "music": null
+  },
+  {
+   "id": "s05",
+   "line": 4,
+   "place": "night",
+   "scene": "night_crossing",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "track",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "night",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "fade_black",
+    "frames": 14
+   },
+   "era_items": [
+    "rowboat",
+    "strait"
+   ],
+   "beats": [
+    {
+     "word": "night",
+     "do": "the moon comes out of cloud",
+     "kind": "reveal"
+    },
+    {
+     "word": "slave",
+     "do": "a man in a small boat",
+     "kind": "reveal"
+    },
+    {
+     "word": "crossed",
+     "do": "he pulls the oars",
+     "kind": "gesture"
+    },
+    {
+     "word": "water",
+     "do": "ripples spread",
+     "kind": "object"
+    },
+    {
+     "word": "boat",
+     "do": "he looks back over his shoulder",
+     "kind": "expression"
+    }
+   ],
+   "sfx": [
+    {
+     "word": "crossed",
+     "sound": "oars_rowing_water_fs249707",
+     "db": -20
+    },
+    {
+     "word": "dark",
+     "sound": "night_crickets_fs568820",
+     "db": -28
+    }
+   ],
+   "music": null
+  },
+  {
+   "id": "s06",
+   "line": 5,
+   "place": "camp",
+   "scene": "camp_message",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.06
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 12
+   },
+   "era_items": [
+    "oil_lamp",
+    "chiton_himation"
+   ],
+   "beats": [
+    {
+     "word": "secret",
+     "do": "Themistocles leans in",
+     "kind": "gesture"
+    },
+    {
+     "word": "message",
+     "do": "he presses the sealed tablet into the slave's hands",
+     "kind": "object"
+    },
+    {
+     "word": "Athenian",
+     "do": "the slave nods, frightened",
+     "kind": "expression"
+    },
+    {
+     "word": "Themistocles",
+     "do": "the lamp lights his face",
+     "kind": "reveal"
+    }
+   ],
+   "sfx": [
+    {
+     "word": "message",
+     "sound": "camp_fire_crackle_fs508110",
+     "db": -26
+    }
+   ],
+   "music": null
+  },
+  {
+   "id": "s07",
+   "line": 6,
+   "place": "camp",
+   "scene": "camp_themistocles",
+   "size": "cu",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.07
+   },
+   "grade": {
+    "time": "interior",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "oil_lamp",
+    "chiton_himation"
+   ],
+   "beats": [
+    {
+     "word": "king",
+     "do": "a sly look",
+     "kind": "expression"
+    },
+    {
+     "word": "run",
+     "do": "he points toward the sea",
+     "kind": "gesture"
+    },
+    {
+     "word": "now",
+     "do": "his fist closes",
+     "kind": "gesture"
+    }
+   ],
+   "sfx": [],
+   "music": null,
+   "start_word": "Tell"
+  },
+  {
+   "id": "s08",
+   "line": 7,
+   "place": "throne",
+   "scene": "throne_believe",
+   "size": "ms",
+   "angle": "eye",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.05
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "hope"
+   },
+   "transition_in": {
+    "kind": "whip",
+    "frames": 10
+   },
+   "era_items": [
+    "throne",
+    "persian_robe",
+    "scribe_tablet"
+   ],
+   "beats": [
+    {
+     "word": "believed",
+     "do": "Xerxes smiles",
+     "kind": "expression"
+    },
+    {
+     "word": "word",
+     "do": "he waves the fleet forward",
+     "kind": "gesture"
+    }
+   ],
+   "sfx": [],
+   "music": null
+  },
+  {
+   "id": "s09",
+   "line": 8,
+   "place": "strait",
+   "scene": "strait_enter",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "track",
+    "amount": 0.08
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "strait",
+    "persian_ship"
+   ],
+   "beats": [
+    {
+     "word": "light",
+     "do": "the sun clears the hills",
+     "kind": "reveal"
+    },
+    {
+     "word": "fleet",
+     "do": "Persian ships surge forward",
+     "kind": "object"
+    },
+    {
+     "word": "strait",
+     "do": "the cliffs close in",
+     "kind": "reveal"
+    }
+   ],
+   "sfx": [
+    {
+     "word": "rowed",
+     "sound": "oars_rowing_water_fs588307",
+     "db": -18
+    }
+   ],
+   "music": null
+  },
+  {
+   "id": "s10",
+   "line": 9,
+   "place": "strait",
+   "scene": "strait_jam",
+   "size": "ws",
+   "angle": "eye",
+   "camera": {
+    "move": "handheld",
+    "amount": 0.8
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "persian_ship",
+    "strait"
+   ],
+   "beats": [
+    {
+     "word": "tight",
+     "do": "hulls bump together",
+     "kind": "object"
+    },
+    {
+     "word": "ships",
+     "do": "a ship swings sideways",
+     "kind": "object"
+    },
+    {
+     "word": "turn",
+     "do": "oars snap",
+     "kind": "object"
+    }
+   ],
+   "sfx": [
+    {
+     "word": "tight",
+     "sound": "ship_creak_wood_fs411087",
+     "db": -14
+    },
+    {
+     "word": "turn",
+     "sound": "wood_crash_fs443293",
+     "db": -12
+    }
+   ],
+   "music": null
+  },
+  {
+   "id": "s11",
+   "line": 10,
+   "place": "shore",
+   "scene": "shore_hymn",
+   "size": "ws",
+   "angle": "low",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.07
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "tension"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "aspis",
+    "trireme",
+    "strait"
+   ],
+   "beats": [
+    {
+     "word": "shore",
+     "do": "a line of Greek soldiers on the rocks",
+     "kind": "reveal"
+    },
+    {
+     "word": "Greeks",
+     "do": "they raise their shields",
+     "kind": "gesture"
+    },
+    {
+     "word": "sing",
+     "do": "they sing",
+     "kind": "gesture"
+    }
+   ],
+   "sfx": [
+    {
+     "word": "sing",
+     "sound": "chant_men_voices_fs319253",
+     "db": -14
+    }
+   ],
+   "music": null
+  },
+  {
+   "id": "s12",
+   "line": 11,
+   "place": "strait",
+   "scene": "strait_ram",
+   "size": "cu",
+   "angle": "low",
+   "camera": {
+    "move": "handheld",
+    "amount": 1.2
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "battle"
+   },
+   "transition_in": {
+    "kind": "flash_white",
+    "frames": 6
+   },
+   "era_items": [
+    "trireme",
+    "persian_ship"
+   ],
+   "beats": [
+    {
+     "word": "Greek",
+     "do": "a Greek warship charges",
+     "kind": "object"
+    },
+    {
+     "word": "drove",
+     "do": "oars dig in",
+     "kind": "object"
+    },
+    {
+     "word": "rams",
+     "do": "the ram strikes",
+     "kind": "object"
+    },
+    {
+     "word": "hulls",
+     "do": "planks burst",
+     "kind": "object"
+    }
+   ],
+   "sfx": [
+    {
+     "word": "rams",
+     "sound": "wood_crash_fs500901",
+     "db": -6
+    },
+    {
+     "word": "hulls",
+     "sound": "water_splash_fs398039",
+     "db": -12
+    }
+   ],
+   "music": {
+    "cue": "battle",
+    "from_word": "drove",
+    "until": "s14"
+   },
+   "letterbox": true
+  },
+  {
+   "id": "s13",
+   "line": 12,
+   "place": "throne",
+   "scene": "throne_silent",
+   "size": "ms",
+   "angle": "high",
+   "camera": {
+    "move": "push_in",
+    "amount": 0.05
+   },
+   "grade": {
+    "time": "dawn",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "dissolve",
+    "frames": 12
+   },
+   "era_items": [
+    "throne",
+    "scribe_tablet",
+    "persian_robe"
+   ],
+   "beats": [
+    {
+     "word": "hill",
+     "do": "the scribes stand frozen",
+     "kind": "reveal"
+    },
+    {
+     "word": "nothing",
+     "do": "a stylus is lowered",
+     "kind": "gesture"
+    },
+    {
+     "word": "write",
+     "do": "Xerxes stares, shocked",
+     "kind": "expression"
+    }
+   ],
+   "sfx": [],
+   "music": null
+  },
+  {
+   "id": "s14",
+   "line": 13,
+   "place": "strait",
+   "scene": "strait_closed",
+   "size": "ews",
+   "angle": "high",
+   "camera": {
+    "move": "pull_out",
+    "amount": 0.14
+   },
+   "grade": {
+    "time": "dusk",
+    "mood": "loss"
+   },
+   "transition_in": {
+    "kind": "cut",
+    "frames": 0
+   },
+   "era_items": [
+    "strait",
+    "persian_ship",
+    "trireme"
+   ],
+   "beats": [
+    {
+     "word": "trap",
+     "do": "smoke rises over the strait",
+     "kind": "reveal"
+    },
+    {
+     "word": "closed",
+     "do": "the Greek ships ring the wrecks",
+     "kind": "reveal"
+    }
+   ],
+   "sfx": [
+    {
+     "word": "trap",
+     "sound": "fire_crackle_fs676385",
+     "db": -22
+    }
+   ],
+   "music": null
+  }
+ ]
+}

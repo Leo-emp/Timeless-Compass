@@ -1,0 +1,105 @@
+{
+ "era": "Classical Greece + Achaemenid Persia",
+ "place": "Strait of Salamis and Mount Aigaleos, Attica",
+ "years": "480 BC",
+ "items": [
+  {
+   "id": "trireme",
+   "kind": "ship",
+   "name": "Greek trireme (three banks of oars, bronze ram, painted eye)",
+   "source": "Olympias reconstruction (Morrison & Coates 1986); Lenormant relief, Acropolis Museum",
+   "notes": ""
+  },
+  {
+   "id": "persian_ship",
+   "kind": "ship",
+   "name": "Phoenician trireme of the Persian fleet (curved stern, sun emblem sail)",
+   "source": "Sidonian coins, 5th c. BC (British Museum)",
+   "notes": ""
+  },
+  {
+   "id": "throne",
+   "kind": "furniture",
+   "name": "Achaemenid royal throne on a dais with lion feet",
+   "source": "Persepolis Treasury audience relief",
+   "notes": "golden per Plutarch Them. 13"
+  },
+  {
+   "id": "parasol",
+   "kind": "object",
+   "name": "royal parasol held by an attendant",
+   "source": "Persepolis reliefs (king under a parasol)",
+   "notes": ""
+  },
+  {
+   "id": "scribe_tablet",
+   "kind": "tool",
+   "name": "scribes with writing boards",
+   "source": "Herodotus 8.90; Achaemenid wax/wood writing boards",
+   "notes": ""
+  },
+  {
+   "id": "aspis",
+   "kind": "armour",
+   "name": "hoplite shield",
+   "source": "British Museum bronze aspis facings",
+   "notes": ""
+  },
+  {
+   "id": "chiton_himation",
+   "kind": "clothing",
+   "name": "Athenian chiton + himation",
+   "source": "Attic red-figure vases c. 480 BC",
+   "notes": ""
+  },
+  {
+   "id": "persian_robe",
+   "kind": "clothing",
+   "name": "Persian court robe",
+   "source": "Persepolis reliefs",
+   "notes": ""
+  },
+  {
+   "id": "rowboat",
+   "kind": "ship",
+   "name": "small rowing boat",
+   "source": "Attic black-figure ship scenes",
+   "notes": "Sicinnus' crossing"
+  },
+  {
+   "id": "oil_lamp",
+   "kind": "object",
+   "name": "clay oil lamp",
+   "source": "Athenian Agora excavations, 5th c. BC lamps",
+   "notes": ""
+  },
+  {
+   "id": "aigaleos",
+   "kind": "landscape",
+   "name": "rocky slopes of Mount Aigaleos above the strait",
+   "source": "topography of Attica; Herodotus 8.90",
+   "notes": ""
+  },
+  {
+   "id": "strait",
+   "kind": "landscape",
+   "name": "narrow strait between Salamis and the mainland",
+   "source": "Strauss 2004 maps",
+   "notes": ""
+  },
+  {
+   "id": "pine",
+   "kind": "plant",
+   "name": "Aleppo pines and scrub",
+   "source": "Attic flora",
+   "notes": ""
+  }
+ ],
+ "dont": [
+  "no stirrups or saddles",
+  "no Roman armour or helmets",
+  "no lateen sails",
+  "no medieval castles",
+  "no paper books (use writing boards / papyrus)"
+ ]
+}

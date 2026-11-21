@@ -1,0 +1,123 @@
+{
+ "f-aeschylus-message": {
+  "claim": "Aeschylus, eight years later, also tells of a Greek who came to Xerxes saying the Greeks would slip away under cover of night.",
+  "cites": [
+   "Aeschylus, The Persians 355-363"
+  ],
+  "status": "agreed"
+ },
+ "f-aeschylus-ram": {
+  "claim": "Aeschylus says a Greek ship began the ramming and smashed off the curved stern of a Phoenician ship.",
+  "cites": [
+   "Aeschylus, The Persians 408-411"
+  ],
+  "status": "agreed"
+ },
+ "f-date": {
+  "claim": "The battle of Salamis was fought in 480 BC, traditionally dated to late September.",
+  "cites": [
+   "Barry Strauss, The Battle of Salamis (2004)",
+   "Peter Green, The Greco-Persian Wars (1996)"
+  ],
+  "status": "agreed"
+ },
+ "f-first-ram": {
+  "claim": "Herodotus says the Athenian Ameinias of Pallene was the first to ram an enemy ship; when the ships locked together, others came to help and the battle began.",
+  "cites": [
+   "Herodotus, Histories 8.84"
+  ],
+  "status": "agreed"
+ },
+ "f-fleet-size": {
+  "claim": "Aeschylus puts the Greek fleet at about 310 ships and Xerxes' fleet at 1,207.",
+  "cites": [
+   "Aeschylus, The Persians 338-343",
+   "Barry Strauss, The Battle of Salamis (2004)"
+  ],
+  "status": "disputed"
+ },
+ "f-narrows": {
+  "claim": "In the narrow strait the crowded Persian ships could not use their numbers; they struck each other with their bronze rams and broke their oars.",
+  "cites": [
+   "Aeschylus, The Persians 412-420",
+   "Herodotus, Histories 8.86"
+  ],
+  "status": "agreed"
+ },
+ "f-night-move": {
+  "claim": "The Persians believed it: that night they moved their ships to close the channels around Salamis and landed soldiers on the islet of Psyttaleia.",
+  "cites": [
+   "Herodotus, Histories 8.76",
+   "Aeschylus, The Persians 364-373"
+  ],
+  "status": "agreed"
+ },
+ "f-sicinnus-bait": {
+  "claim": "The message said that if the Persians stopped the Greeks escaping, they would see them fighting among themselves.",
+  "cites": [
+   "Herodotus, Histories 8.75"
+  ],
+  "status": "agreed"
+ },
+ "f-sicinnus-message": {
+  "claim": "Themistocles sent him by boat to the Persian commanders with a message: Themistocles was on the king's side, and the Greeks were terrified and planning to flee.",
+  "cites": [
+   "Herodotus, Histories 8.75",
+   "Plutarch, Life of Themistocles 12"
+  ],
+  "status": "agreed"
+ },
+ "f-sicinnus-who": {
+  "claim": "Sicinnus was a slave of Themistocles' household and the tutor of his children.",
+  "cites": [
+   "Herodotus, Histories 8.75",
+   "Plutarch, Life of Themistocles 12"
+  ],
+  "status": "agreed"
+ },
+ "f-throne-aigaleos": {
+  "claim": "Xerxes watched the battle seated at the foot of Mount Aigaleos, on the mainland opposite Salamis.",
+  "cites": [
+   "Herodotus, Histories 8.90"
+  ],
+  "status": "agreed"
+ },
+ "f-throne-golden": {
+  "claim": "Plutarch says Xerxes sat on a golden throne, with many secretaries beside him to record the battle.",
+  "cites": [
+   "Plutarch, Life of Themistocles 13"
+  ],
+  "status": "agreed"
+ },
+ "f-throne-scribes": {
+  "claim": "Whenever he saw one of his captains do something notable, he asked who it was, and his scribes wrote down the captain's name, his father and his city.",
+  "cites": [
+   "Herodotus, Histories 8.90"
+  ],
+  "status": "agreed"
+ },
+ "f-trap": {
+  "claim": "Modern historians read the message as a deliberate trap to force the battle into the narrow strait.",
+  "cites": [
+   "Barry Strauss, The Battle of Salamis (2004)",
+   "Peter Green, The Greco-Persian Wars (1996)",
+   "Tom Holland, Persian Fire (2005)"
+  ],
+  "status": "agreed"
+ },
+ "f-trap-why": {
+  "claim": "Themistocles sent the message when he was losing the council debate to the Peloponnesian commanders, who wanted to leave Salamis and fight at the Isthmus.",
+  "cites": [
+   "Herodotus, Histories 8.74-75",
+   "Plutarch, Life of Themistocles 12"
+  ],
+  "status": "agreed"
+ },
+ "f-paean": {
+  "claim": "At dawn the Greeks raised a loud battle hymn (paean) that echoed off the rocks, and the Persians were afraid.",
+  "cites": [
+   "Aeschylus, The Persians 386-395"
+  ],
+  "status": "agreed"
+ }
+}
